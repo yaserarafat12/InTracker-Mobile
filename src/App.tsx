@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Home, Trophy, Plus, Clock, BookOpen } from 'lucide-react';
+import { Icon } from '@iconify/react';
 
 // Basic Mock Views (To be replaced with real files)
 const HomeView = () => (
@@ -20,11 +20,11 @@ export default function App() {
   const [activeTab, setActiveTab] = useState('home');
 
   const navItems = [
-    { id: 'home', icon: Home, label: 'Core' },
-    { id: 'battle', icon: Trophy, label: 'Battle' },
-    { id: 'add', icon: Plus, label: 'Add', primary: true },
-    { id: 'focus', icon: Clock, label: 'Focus' },
-    { id: 'journal', icon: BookOpen, label: 'Logs' },
+    { id: 'home', icon: 'solar:home-2-bold', label: 'Core' },
+    { id: 'battle', icon: 'solar:cup-bold', label: 'Battle' },
+    { id: 'add', icon: 'solar:plus-circle-bold', label: 'Add', primary: true },
+    { id: 'focus', icon: 'solar:clock-circle-bold', label: 'Focus' },
+    { id: 'journal', icon: 'solar:notebook-bold', label: 'Logs' },
   ];
 
   return (
@@ -71,7 +71,12 @@ export default function App() {
                 : 'w-12 h-12 rounded-xl'
               }`}
             >
-              <item.icon size={item.primary ? 28 : 20} className={activeTab === item.id && !item.primary ? 'text-os-green' : 'text-white/40'} />
+              <Icon 
+                icon={item.icon} 
+                width={item.primary ? 28 : 20} 
+                height={item.primary ? 28 : 20} 
+                className={activeTab === item.id && !item.primary ? 'text-os-green' : 'text-white/40'} 
+              />
               {!item.primary && activeTab === item.id && (
                 <motion.div layoutId="nav-dot" className="absolute -bottom-1 w-1 h-1 bg-os-green rounded-full" />
               )}
@@ -82,3 +87,4 @@ export default function App() {
     </div>
   );
 }
+

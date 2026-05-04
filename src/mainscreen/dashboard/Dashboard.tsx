@@ -1,0 +1,193 @@
+import { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { supabase } from '../../lib/supabase';
+import { NavigasiBawah } from '../NavigasiBawah';
+import DaftarTugas from '../habits/DaftarTugas';
+import { Icon } from '@iconify/react';
+import { TambahTugasModal } from '../habits/TambahTugasModal';
+import { useHabitStore } from '../../store/useHabitStore';
+
+// --- SUB-VIEWS ---
+const HomeView = () => <div />;
+const TodoList = () => <div />;
+const Global = () => <div />;
+const Journey = () => <div />;
+const AIView = () => <div />;
+const HubView = () => <div />;
+
+export default function Beranda({ activeTab: initialTab = 'home' }: { activeTab?: string }) {
+  const [activeTab, setActiveTab] = useState(initialTab);
+
+  useEffect(() => {
+    setActiveTab(initialTab);
+  }, [initialTab]);
+
+  const [loading, setLoading] = useState(true);
+  const { habits, setHabits } = useHabitStore();
+  const [selectedDate, setSelectedDate] = useState(new Date());
+  const [statsTab, setStatsTab] = useState<'berjalan' | 'selesai'>('berjalan');
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+
+  const [user, setUser] = useState<any>(null);
+  const [profile, setProfile] = useState<any>(null);
+
+  useEffect(() => {
+    async function initDashboard() {
+      const { data: { user: authUser } } = await supabase.auth.getUser();
+      if (authUser) {
+        setUser(authUser);
+        const { data: prof } = await supabase.from('profiles').select('*').eq('id', authUser.id).single();
+        if (prof) setProfile(prof);
+      }
+      setLoading(false);
+    }
+    initDashboard();
+  }, []);
+
+  if (loading) return (
+    <div className="min-h-screen bg-[#1A1A1A] flex items-center justify-center">
+      <div className="w-12 h-12 border-2 border-[#00FF85]/20 border-t-[#00FF85] rounded-full animate-spin" />
+    </div>
+  );
+
+  return (
+    <div className="h-screen bg-[#161616] text-white font-sans relative flex flex-col overflow-hidden selection:bg-[#00FF85] selection:text-black">
+      
+      {/* TOP STATUS BAR */}
+      <div className="fixed top-0 left-0 w-full px-6 pt-12 pb-6 flex justify-between items-center z-50 bg-[#161616]/95 backdrop-blur-xl border-b border-white/[0.03]">
+        <div className="flex items-center gap-2 bg-[#FF4D00] px-4 py-2 rounded-2xl border border-white/20 shadow-[4px_4px_0px_rgba(0,0,0,1)] transition-transform active:scale-95">
+          <Icon icon="solar:fire-bold" width={22} height={22} className="text-white drop-shadow-[0_0_10px_rgba(255,255,255,0.4)]" />
+          <span className="text-[16px] font-black font-['Outfit'] text-white">1</span>
+        </div>
+
+        <button className="w-10 h-10 rounded-xl bg-[#2D2D2D] border border-white/10 flex items-center justify-center shadow-[4px_4px_0px_rgba(0,0,0,1)] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none transition-all">
+          <Icon icon="solar:settings-bold" width={20} height={20} className="text-[#B0B0B0]" />
+        </button>
+      </div>
+
+      {/* BG DECORATION */}
+      <div className="fixed top-0 left-1/2 -translate-x-1/2 w-full h-[70vh] bg-[#00FF85]/2 blur-[150px] rounded-full pointer-events-none z-0" />
+
+      {/* CONTENT AREA */}
+      <main className="relative z-10 flex-1 overflow-y-auto overflow-x-hidden scroll-smooth pt-32">
+        {activeTab === 'habits' && (
+          <div className="px-6 mb-12">
+            <div className="flex items-end justify-between">
+              <div className="flex flex-col">
+                <span className="text-[12px] font-black text-[#00FF85] font-['Outfit'] uppercase tracking-[0.2em] mb-1 opacity-80">
+                  {(selectedDate.toDateString() === new Date().toDateString() ? 'PROTOKOL AKTIF' : 
+                    selectedDate.toLocaleDateString('id-ID', { weekday: 'long' }).toUpperCase())}
+                </span>
+                <h1 className="text-5xl font-black text-white font-['Outfit'] leading-none uppercase tracking-[0.02em]">
+                  {selectedDate.getDate()} {selectedDate.toLocaleDateString('id-ID', { month: 'short' }).toUpperCase()}
+                </h1>
+              </div>
+              
+              <div className="flex gap-3">
+                <button 
+                  onClick={() => {
+                    const d = new Date(selectedDate);
+                    d.setDate(d.getDate() - 1);
+                    setSelectedDate(d);
+                    if (navigator.vibrate) navigator.vibrate(5);
+                  }}
+                  className="w-14 h-14 rounded-2xl bg-[#222] border border-white/10 flex items-center justify-center text-white active:bg-white/10 transition-all shadow-[6px_6px_0px_rgba(0,0,0,1)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none"
+                >
+                  <Icon icon="solar:play-bold" width={24} height={24} className="text-white rotate-180" />
+                </button>
+                <button 
+                  onClick={() => {
+                    const d = new Date(selectedDate);
+                    d.setDate(d.getDate() + 1);
+                    setSelectedDate(d);
+                    if (navigator.vibrate) navigator.vibrate(5);
+                  }}
+                  className="w-14 h-14 rounded-2xl bg-[#222] border border-white/10 flex items-center justify-center text-white active:bg-white/10 transition-all shadow-[6px_6px_0px_rgba(0,0,0,1)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none"
+                >
+                  <Icon icon="solar:play-bold" width={24} height={24} className="text-white" />
+                </button>
+              </div>
+            </div>
+
+            <div className="flex justify-between items-center mt-12">
+              <div className="flex gap-2">
+                {[
+                  { id: 'berjalan', label: 'BERJALAN', count: habits.filter((h: any) => !h.completed).length },
+                  { id: 'selesai', label: 'SELESAI', count: habits.filter((h: any) => h.completed).length }
+                ].map((item) => (
+                  <button 
+                    key={item.id}
+                    onClick={() => {
+                      setStatsTab(item.id as 'berjalan' | 'selesai');
+                      if (navigator.vibrate) navigator.vibrate(5);
+                    }}
+                    className={`relative h-12 px-6 rounded-2xl border-[1.5px] transition-all active:translate-x-[2px] active:translate-y-[2px] active:shadow-none flex items-center ${
+                      statsTab === item.id 
+                      ? 'bg-white border-black text-black shadow-[4px_4px_0px_rgba(0,0,0,1)]' 
+                      : 'bg-[#1A1A1A] border-white/5 text-white/40 shadow-[4px_4px_0px_rgba(0,0,0,1)]'
+                    }`}
+                  >
+                    <div className="flex items-start">
+                      <span className="text-[17px] font-bold font-['Outfit']">{item.label}</span>
+                      <span className="text-[11px] ml-1 -mt-1 font-black opacity-60 font-['Outfit']">{item.count}</span>
+                    </div>
+                  </button>
+                ))}
+              </div>
+
+              <button 
+                onClick={() => {
+                  setIsAddModalOpen(true);
+                  if (navigator.vibrate) navigator.vibrate(10);
+                }}
+                className="h-12 w-12 rounded-2xl bg-white text-black flex items-center justify-center shadow-[4px_4px_0px_rgba(0,0,0,1)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all border-[1.5px] border-black group"
+              >
+                <Icon icon="ph:plus-bold" width={24} height={24} color="black" className="group-hover:scale-110 transition-transform" />
+              </button>
+            </div>
+          </div>
+        )}
+
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={activeTab}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.25, ease: "easeOut" }}
+          >
+            {activeTab === 'habits' && (
+              <DaftarTugas 
+                activeFilter={statsTab} 
+                selectedDate={selectedDate} 
+                habits={habits}
+                setHabits={setHabits}
+              />
+            )}
+            {activeTab === 'home' && <HomeView />}
+            {activeTab === 'todo' && <TodoList />}
+            {activeTab === 'journey' && <Journey />}
+            {activeTab === 'global' && <Global />}
+            {activeTab === 'ai' && <AIView />}
+            {activeTab === 'hub' && <HubView />}
+          </motion.div>
+        </AnimatePresence>
+      </main>
+
+      {/* BOTTOM NAVIGATION */}
+      <NavigasiBawah activeTab={activeTab} setActiveTab={setActiveTab} />
+
+      {/* ADD HABIT MODAL */}
+      <AnimatePresence>
+        {isAddModalOpen && (
+          <TambahTugasModal 
+            isOpen={isAddModalOpen} 
+            onClose={() => setIsAddModalOpen(false)} 
+            onAddHabit={(newHabit) => setHabits(prev => [...prev, newHabit])}
+          />
+        )}
+      </AnimatePresence>
+
+    </div>
+  );
+}

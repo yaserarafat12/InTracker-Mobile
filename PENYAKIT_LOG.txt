@@ -1,0 +1,33 @@
+==================================================
+LOG PENYAKIT & SOLUSI - INTRACKER MOBILE
+==================================================
+Terakhir Update: 4 Mei 2026
+Status: Dashboard Berhasil Render (Fixed White Screen)
+
+1. PENYAKIT: WHITE SCREEN (MODULE NOT FOUND)
+   - Penyebab: File di 'src/mainscreen/habits/' di-rename tapi import di file lain tidak di-update.
+   - Daftar Rename:
+     * DaftarHabit.tsx -> habitlist.tsx
+     * TambahHabitModal.tsx -> addhabitscreen.tsx
+     * KartuTugas.tsx -> displaycardhabit.tsx
+   - Solusi: Selalu cek log terminal Vite. Jika ada error "Failed to resolve import", langsung cek path-nya.
+
+2. PENYAKIT: SYNTAX ERROR / TYPE STRIPPING (VITE/ESBUILD)
+   - Penyebab: Meng-import TypeScript 'type' (seperti TargetMode) tanpa kata kunci 'type'. Esbuild sering nge-strip ini dan bikin module error di browser.
+   - Solusi: Gunakan 'import type { ... }' untuk semua interface/type yang di-import dari file store.
+
+3. PENYAKIT: LOADING STUCK / HANG PAS STARTUP
+   - Penyebab: Inisialisasi Supabase (AuthGuard) nunggu respon selamanya kalau koneksi buruk atau session bermasalah.
+   - Solusi: Tambahkan Safety Timeout (Promise.race) minimal 5 detik di logic initialization. Jika timeout, paksa ganti status loading jadi false agar UI tetap muncul.
+
+4. PENYAKIT: STALE CODE (CACHE VITE)
+   - Penyebab: Kadang kode sudah benar tapi browser masih nampilin yang lama karena cache Vite di node_modules belum update.
+   - Solusi: Hapus folder 'node_modules/.vite' dan restart server 'npm run dev'.
+
+5. CATATAN GIT (RELIABILITY):
+   - Selalu cek jumlah "Changes" di VS Code. 
+   - Pastikan commit & push berkala biar repo GitHub matching sama lokal.
+   - Hati-hati dengan nested .git folder (seperti di folder 'yaser').
+==================================================
+Ditulis oleh: Rin (AI Assistant)
+==================================================
