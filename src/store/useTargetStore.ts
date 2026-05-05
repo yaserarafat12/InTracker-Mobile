@@ -3,7 +3,7 @@ import { persist } from 'zustand/middleware';
 import { supabase } from '../lib/supabase';
 
 export type TargetMode = 'checklist' | 'number';
-export type TargetWindow = 'today' | 'upcoming' | 'someday' | 'pending';
+export type TargetWindow = 'today' | 'upcoming' | 'someday';
 export type TargetPriority = 'tinggi' | 'sedang' | 'rendah';
 
 export interface TargetStep {
@@ -42,6 +42,8 @@ interface TargetStore {
   completeTarget: (targetId: string) => Promise<void>;
   toggleStar: (targetId: string) => Promise<void>;
   updateTargetWindow: (targetId: string, window: TargetWindow) => Promise<void>;
+  toggleComplete: (targetId: string) => Promise<void>;
+  updateTarget: (id: string, updates: Partial<TargetItem>) => Promise<void>;
 }
 
 const createId = () => `${Date.now()}-${Math.random().toString(16).slice(2)}`;
@@ -116,7 +118,7 @@ export const useTargetStore = create<TargetStore>()(
           target_value: target.targetValue,
           unit: target.unit,
           completed: false,
-          starred: false,
+          starred: target.starred ?? false,
         };
 
         const { data, error } = await supabase
@@ -245,6 +247,59 @@ export const useTargetStore = create<TargetStore>()(
           .from('targets')
           .update({ window })
           .eq('id', targetId);
+      },
+
+      toggleComplete: async (targetId: string) => {
+        const target = get().targets.find((t) => t.id === targetId);
+        if (!target) return;
+
+        const nextCompleted = !target.completed;
+        const nextSteps = target.steps.map((s) => ({ ...s, completed: nextCompleted }));
+        const nextValue = target.mode === 'number' 
+          ? (nextCompleted ? target.targetValue : 0) 
+          : target.currentValue;
+
+        // Optimistic update
+        set((state) => ({
+          targets: state.targets.map((t) =>
+            t.id === targetId 
+            ? { ...t, completed: nextCompleted, steps: nextSteps, currentValue: nextValue } 
+            : t
+          ),
+        }));
+
+        await supabase
+          .from('targets')
+          .update({
+            completed: nextCompleted,
+            steps: nextSteps,
+            current_value: nextValue,
+          })
+          .eq('id', targetId);
+      },
+
+      updateTarget: async (id, updates) => {
+        // Prepare DB fields
+        const dbUpdates: any = { ...updates };
+        if (updates.targetValue !== undefined) dbUpdates.target_value = updates.targetValue;
+        if (updates.currentValue !== undefined) dbUpdates.current_value = updates.currentValue;
+
+        // Clean up JS-only fields
+        delete dbUpdates.id;
+        delete dbUpdates.createdAt;
+        delete dbUpdates.targetValue;
+        delete dbUpdates.currentValue;
+
+        // Optimistic update
+        set((state) => ({
+          targets: state.targets.map((t) => (t.id === id ? { ...t, ...updates } : t)),
+        }));
+
+        const { error } = await supabase.from('targets').update(dbUpdates).eq('id', id);
+        if (error) {
+          console.error('Error updating target:', error);
+          // Rollback could be implemented here if needed
+        }
       },
     }),
     {

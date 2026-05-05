@@ -18,6 +18,7 @@ export interface HabitItem {
   specialLabel?: string;
   imageUrl: string;
   imagePosition?: string;
+  streak: number; // Added streak property
 }
 
 export const INITIAL_HABITS_DATA: HabitItem[] = [];
@@ -30,7 +31,7 @@ interface HabitStore {
   totalStreak: number;
   setHabits: (habits: HabitItem[] | ((prev: HabitItem[]) => HabitItem[])) => void;
   fetchHabits: () => Promise<void>;
-  addHabit: (habit: Omit<HabitItem, 'id' | 'user_id'>) => Promise<void>;
+  addHabit: (habit: Omit<HabitItem, 'id' | 'user_id' | 'streak'>) => Promise<void>;
   toggleHabit: (id: string, field: 'completed' | 'skipped') => Promise<void>;
   deleteHabit: (id: string) => Promise<void>;
 }
@@ -76,51 +77,76 @@ export const useHabitStore = create<HabitStore>()(
           set({ lastSyncDate: today });
         }
 
-        const { data, error } = await supabase
+        // Fetch all habits
+        const { data: habitsData, error: habitsError } = await supabase
           .from('habits')
           .select('*')
           .eq('user_id', user.id)
           .order('created_at', { ascending: true });
 
-        if (!error && data) {
-          const mappedData = data.map(h => ({
-            ...h,
-            iconName: h.icon_name,
-            isSpecial: h.is_special,
-            specialLabel: h.special_label,
-            imageUrl: h.image_url,
-            imagePosition: h.image_position
-          }));
-          set({ habits: mappedData as HabitItem[] });
-        }
-
-        // --- STREAK CALCULATION ---
-        const { data: logData } = await supabase
+        // Fetch all logs for streak calculation
+        const { data: logsData } = await supabase
           .from('habit_logs')
-          .select('date')
+          .select('habit_id, date, status')
           .eq('user_id', user.id)
-          .eq('status', 'completed');
+          .eq('status', 'completed')
+          .order('date', { ascending: false });
 
-        if (logData) {
-          const uniqueDates = Array.from(new Set(logData.map(l => l.date))).sort().reverse();
-          let streak = 0;
-          let checkDate = new Date();
+        if (!habitsError && habitsData) {
+          // Calculate streaks for each habit
+          const habitsWithStreaks = habitsData.map(h => {
+            const habitLogs = logsData?.filter(l => l.habit_id === h.id) || [];
+            const uniqueDates = Array.from(new Set(habitLogs.map(l => l.date)));
+            
+            let streak = 0;
+            let checkDate = new Date();
+            checkDate.setHours(0,0,0,0);
+            
+            for (const dateStr of uniqueDates) {
+              const logDate = new Date(dateStr);
+              logDate.setHours(0,0,0,0);
+              
+              const diff = Math.floor((checkDate.getTime() - logDate.getTime()) / (1000 * 60 * 60 * 24));
+              
+              if (diff <= 1) {
+                streak++;
+                checkDate = logDate;
+              } else {
+                break;
+              }
+            }
+
+            return {
+              ...h,
+              iconName: h.icon_name,
+              isSpecial: h.is_special,
+              specialLabel: h.special_label,
+              imageUrl: h.image_url,
+              imagePosition: h.image_position,
+              streak: streak || 0
+            };
+          });
+
+          set({ habits: habitsWithStreaks as HabitItem[] });
           
-          // Check if today or yesterday has a log to start/continue streak
-          for (const dateStr of uniqueDates) {
+          // Total streak logic (max streak from any habit or unique days active)
+          const allUniqueDates = Array.from(new Set(logsData?.map(l => l.date) || [])).sort().reverse();
+          let totalStreakCount = 0;
+          let totalCheckDate = new Date();
+          totalCheckDate.setHours(0,0,0,0);
+
+          for (const dateStr of allUniqueDates) {
             const logDate = new Date(dateStr);
             logDate.setHours(0,0,0,0);
-            
-            const diff = Math.floor((checkDate.getTime() - logDate.getTime()) / (1000 * 60 * 60 * 24));
-            
+            const diff = Math.floor((totalCheckDate.getTime() - logDate.getTime()) / (1000 * 60 * 60 * 24));
             if (diff <= 1) {
-              streak++;
-              checkDate = logDate;
+              totalStreakCount++;
+              totalCheckDate = logDate;
             } else {
               break;
             }
           }
-          set({ totalStreak: streak });
+          set({ totalStreak: totalStreakCount });
         }
 
         set({ loading: false });
@@ -208,8 +234,8 @@ export const useHabitStore = create<HabitStore>()(
           await supabase.from('habit_logs').delete().eq('habit_id', id).eq('date', today).eq('status', field === 'completed' ? 'completed' : 'skipped');
         }
 
-        // Recalculate streak after toggle
-        get().fetchHabits();
+        // Refresh data to update streaks in real-time
+        await get().fetchHabits();
       },
 
       deleteHabit: async (id: string) => {

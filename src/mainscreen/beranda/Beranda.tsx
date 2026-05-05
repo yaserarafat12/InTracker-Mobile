@@ -165,7 +165,7 @@ export default function Dashboard({ activeTab: initialTab = 'home' }: { activeTa
               </div>
             </div>
 
-            <div className="flex items-center gap-2 mt-12">
+            <div className="flex items-center justify-between mt-12">
               {/* PREMIUM STATS BADGES */}
               <div className="flex gap-2">
                 {[
@@ -183,10 +183,10 @@ export default function Dashboard({ activeTab: initialTab = 'home' }: { activeTa
                       px-4 py-2.5 rounded-xl transition-all duration-300 flex items-start
                       border-[1.5px] ${statsTab === item.id 
                         ? 'bg-[#F5F2E8] border-black shadow-[3px_3px_0px_rgba(0,0,0,1)]' 
-                        : 'bg-black/40 border-white/5 opacity-40'}
+                        : 'bg-[#1A1A1A] border-white/10 shadow-[3px_3px_0px_rgba(0,0,0,1)]'}
                     `}
                   >
-                    <span className={`text-[13px] font-bold font-['Outfit'] tracking-tight ${statsTab === item.id ? 'text-black' : 'text-white/60'}`}>
+                    <span className={`text-[13px] font-bold font-['Outfit'] tracking-tight ${statsTab === item.id ? 'text-black' : 'text-white/40'}`}>
                       {item.label}
                     </span>
                     <span className={`text-[9px] font-black ml-0.5 mt-[-2px] ${statsTab === item.id ? 'text-black/40' : 'text-white/20'}`}>
@@ -196,16 +196,13 @@ export default function Dashboard({ activeTab: initialTab = 'home' }: { activeTa
                 ))}
               </div>
 
-              {/* BONE WHITE ADD BUTTON */}
+              {/* BONE WHITE ADD BUTTON - MENTOK KANAN */}
               <button 
                 onClick={() => {
                   setIsAddModalOpen(true);
                   if (navigator.vibrate) navigator.vibrate(10);
                 }}
                 className="h-12 w-12 rounded-2xl bg-[#1A1A1A] flex items-center justify-center shadow-[4px_4px_0px_rgba(0,0,0,1)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all border-[1.5px] border-[#E3DAC9]/30 hover:border-[#E3DAC9] group relative z-50"
-                style={{
-                  boxShadow: '0 0 15px rgba(227, 218, 201, 0.1)',
-                }}
               >
                 <svg 
                   width="20" 

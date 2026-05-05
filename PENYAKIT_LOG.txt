@@ -28,6 +28,10 @@ Status: Dashboard Berhasil Render (Fixed White Screen)
    - Selalu cek jumlah "Changes" di VS Code. 
    - Pastikan commit & push berkala biar repo GitHub matching sama lokal.
    - Hati-hati dengan nested .git folder (seperti di folder 'yaser').
+6. PENYAKIT: IMPORT ERROR DI DASHBOARD (BUILD FAILED)
+   - Penyebab: Setelah rename file di 'src/mainscreen/habits/', file 'Dashboard.tsx' masih pakai nama import lama (DaftarTugas & TambahTugasModal).
+   - Solusi: Update import ke 'habitlist' dan 'addhabitscreen'. Pastikan prop 'onAddHabit' punya tipe eksplisit biar TS nggak komplain.
+
 ==================================================
 Ditulis oleh: Rin (AI Assistant)
 ==================================================

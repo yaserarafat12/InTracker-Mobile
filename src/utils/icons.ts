@@ -28,7 +28,6 @@ export const ICON_MAP: Record<string, string> = {
   BelajarRefleksi: 'solar:library-bold',
   KerjaPertumbuhan: 'solar:rocket-2-bold',
   KetenanganDiri: 'mdi:meditation',
-  Beribadah: 'solar:heart-bold',
   KontrolDiri: 'solar:shield-star-bold',
 
   // Habits

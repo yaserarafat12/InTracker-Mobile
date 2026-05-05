@@ -44,6 +44,7 @@ export const TambahHabitModal = ({
   const [selectedCategory, setSelectedCategory] = useState('Semua');
   const [activeSubCategory, setActiveSubCategory] = useState<string | null>('Rutinitas');
   const scrollRef = useRef<HTMLDivElement>(null);
+  const catBarRef = useRef<HTMLDivElement>(null);
   
   const categories = [
     'Semua',
@@ -97,6 +98,20 @@ export const TambahHabitModal = ({
     }
     return () => scrollContainer?.removeEventListener('scroll', handleScroll);
   }, [selectedCategory, handleScroll]);
+
+  // Auto-scroll category bar to active sub-category
+  useEffect(() => {
+    if (selectedCategory === 'Semua' && activeSubCategory && catBarRef.current) {
+      const activeBtn = catBarRef.current.querySelector(`[data-cat="${activeSubCategory}"]`) as HTMLElement;
+      if (activeBtn) {
+        const container = catBarRef.current;
+        // Adjust scroll to keep it next to the sticky "Semua" button (approx 160px from left)
+        const stickyWidth = 150; 
+        const targetScroll = activeBtn.offsetLeft - stickyWidth - 24; 
+        container.scrollTo({ left: Math.max(0, targetScroll), behavior: 'smooth' });
+      }
+    }
+  }, [activeSubCategory, selectedCategory]);
 
   // Group habits by category for "Semua" view
   const groupedHabits = useMemo(() => {
@@ -209,11 +224,11 @@ export const TambahHabitModal = ({
             setIntensityValue(null);
           }
         }}
-        className="relative aspect-[16/7.2] rounded-[24px] overflow-hidden border-[1px] border-white/10 shadow-[5px_5px_0px_rgba(0,0,0,1)] active:scale-[0.98] transition-all group cursor-pointer"
+        className="relative aspect-[16/7.2] rounded-[24px] overflow-hidden border-[1px] border-white/10 shadow-[5px_5px_0px_rgba(0,0,0,1)] active:scale-[0.98] group cursor-pointer bg-[#1A1A1A]"
       >
         <img 
           src={habit.imageUrl} 
-          className={`absolute inset-0 w-full h-full object-cover ${habit.imagePosition || 'object-center'} opacity-65 group-hover:opacity-85 transition-opacity duration-500`} 
+          className={`absolute inset-0 w-full h-full object-cover ${habit.imagePosition || 'object-center'} opacity-65 group-hover:opacity-85 transition-opacity duration-300`} 
           alt={habit.name} 
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent" />
@@ -247,175 +262,119 @@ export const TambahHabitModal = ({
 
   return (
     <>
-    <motion.div 
-      initial={{ y: '100%' }}
-      animate={{ y: 0 }}
-      exit={{ y: '100%' }}
-      transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-      className="fixed inset-0 bg-[#1A1A1A] z-50 flex flex-col"
-    >
-      {/* Header */}
-      <div className="pt-14 pb-6 px-6 flex justify-between items-center bg-[#1A1A1A]/90 backdrop-blur-xl border-b border-white/5 sticky top-0 z-20">
-        <div>
-          <h2 className="text-2xl font-extrabold font-['Outfit'] text-[#E3DAC9] tracking-tight">Tambah Tugas</h2>
-        </div>
-        <button 
-          onClick={onClose}
-          className="w-10 h-10 rounded-2xl bg-[#222] border border-white/10 flex items-center justify-center text-[#E3DAC9]/60 active:scale-90 active:bg-[#2a2a2a] transition-all shadow-[4px_4px_0px_rgba(0,0,0,1)]"
+    <AnimatePresence>
+      {isOpen && (
+        <motion.div 
+          initial={{ y: '100%' }}
+          animate={{ y: 0 }}
+          exit={{ y: '100%' }}
+          transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+          className="fixed inset-0 bg-[#1A1A1A] z-50 flex flex-col"
         >
-          <Icon icon="ph:x-bold" width={18} height={18} />
-        </button>
-      </div>
+          {/* Header */}
+          <div className="pt-14 pb-6 px-6 flex justify-between items-center bg-[#1A1A1A]/90 backdrop-blur-xl border-b border-white/5 sticky top-0 z-20">
+            <div>
+              <h2 className="text-2xl font-extrabold font-['Outfit'] text-[#E3DAC9] tracking-tight">Tambah Tugas</h2>
+            </div>
+            <button 
+              onClick={onClose}
+              className="w-10 h-10 rounded-2xl bg-[#222] border border-white/10 flex items-center justify-center text-[#E3DAC9]/60 active:scale-90 active:bg-[#2a2a2a] transition-all shadow-[4px_4px_0px_rgba(0,0,0,1)]"
+            >
+              <Icon icon="ph:x-bold" width={18} height={18} />
+            </button>
+          </div>
 
-      {/* Categories Bar */}
-      <div className="px-6 py-6 bg-[#1A1A1A] sticky top-[108px] z-10 border-b border-white/5 h-[100px] flex items-center">
-        {selectedCategory === 'Semua' ? (
-          <>
+          {/* Categories Bar - Unified & Consistent */}
+          <div className="px-6 py-6 bg-[#1A1A1A] sticky top-[108px] z-30 border-b border-white/5 h-[100px] flex items-center">
             <div 
-              className="flex items-center gap-3 w-full overflow-x-auto py-2 no-scrollbar"
+              ref={catBarRef}
+              className="flex items-center gap-3 w-full overflow-x-auto py-2 no-scrollbar relative"
               style={{ msOverflowStyle: 'none', scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch' }}
             >
               <style dangerouslySetInnerHTML={{__html: `
                 .no-scrollbar::-webkit-scrollbar { display: none; }
               `}} />
-              <LayoutGroup id="semua-group">
-                {/* Landasan Utama: SEMUA (Solid Bone Accent) */}
-                <motion.div
-                  layout
-                  className="relative flex-shrink-0 flex items-center justify-center gap-3 px-4 py-3 rounded-2xl border-[1px] shadow-[4px_4px_0_rgba(0,0,0,1)] bg-[#1A1A1A] h-[48px] w-[140px] cursor-default z-20"
-                  style={{ borderColor: '#E3DAC9', color: '#E3DAC9' }}
-                >
-                  <Icon icon={CATEGORY_ICONS['Semua']} width={18} height={18} style={{ color: '#E3DAC9' }} />
-                  <span className="text-[13px] font-bold font-['Inter'] tracking-tight">Semua</span>
-                </motion.div>
-
-                {/* Liquid Carousel: Sub-Categories */}
-                {[
-                  activeSubCategory,
-                  ...categories.filter(c => c !== 'Semua' && c !== activeSubCategory)
-                ].map((cat) => {
-                  if (!cat) return null;
-                  const isActive = cat === activeSubCategory;
-                  const accentColor = CATEGORY_COLORS[cat];
-                  
-                  return (
-                    <motion.div
-                      key={cat}
-                      layout
-                      transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-                      className="flex-shrink-0 flex items-center justify-center gap-3 px-4 py-3 rounded-2xl border-[1px] whitespace-nowrap bg-[#1A1A1A] shadow-[4px_4px_0_rgba(0,0,0,1)] h-[48px] w-[140px] transition-all duration-500"
-                      style={{ 
-                        borderColor: isActive ? '#FFFFFF' : 'rgba(255,255,255,0.05)',
-                        color: isActive ? '#FFFFFF' : 'rgba(227, 218, 201, 0.2)',
-                        boxShadow: isActive ? '0 0 20px rgba(255, 255, 255, 0.1), 4px_4px_0_rgba(0,0,0,1)' : '4px_4px_0_rgba(0,0,0,1)'
-                      }}
-                    >
-                      <Icon 
-                        icon={CATEGORY_ICONS[cat]} 
-                        width={18} 
-                        height={18} 
-                        style={{ color: isActive ? '#FFFFFF' : 'rgba(227, 218, 201, 0.2)' }} 
-                      />
-                      <span className="text-[12px] font-bold font-['Inter'] tracking-tight truncate">
-                        {cat}
-                      </span>
-                    </motion.div>
-                  );
-                })}
-              </LayoutGroup>
-            </div>
-          </>
-        ) : (
-          <div 
-            className="flex gap-3 overflow-x-auto w-full no-scrollbar pb-2"
-            style={{ msOverflowStyle: 'none', scrollbarWidth: 'none' }}
-          >
-            <LayoutGroup id="categoryTabs">
-              {categories.map((cat) => {
-                const isActive = selectedCategory === cat;
-                const accentColor = CATEGORY_COLORS[cat] || '#FFFFFF';
+              {categories.map((cat, idx) => {
+                const isSelected = selectedCategory === cat;
+                const isSubActive = selectedCategory === 'Semua' && activeSubCategory === cat;
+                const accentColor = cat === 'Semua' ? '#E3DAC9' : (CATEGORY_COLORS[cat] || '#FFFFFF');
+                const isSemua = cat === 'Semua';
                 
                 return (
-                  <button
+                  <motion.button
                     key={cat}
+                    data-cat={cat}
+                    whileTap={{ scale: 0.95 }}
                     onClick={() => {
                       if (navigator.vibrate) navigator.vibrate(5);
                       setSelectedCategory(cat);
                     }}
-                    className={`relative flex items-center justify-center gap-3 px-5 py-3 rounded-2xl border-[1.5px] whitespace-nowrap transition-all active:scale-95 h-[52px] min-w-[140px] ${
-                      isActive 
-                      ? 'bg-[#1A1A1A] text-white' 
-                      : 'bg-[#1A1A1A] border-white/5 text-white/20'
+                    className={`flex-shrink-0 flex items-center justify-center gap-3 px-4 rounded-2xl border-[1.5px] shadow-[4px_4px_0_rgba(0,0,0,1)] h-[48px] w-[140px] transition-all duration-300 ${
+                      isSemua ? 'sticky left-0 z-20 bg-[#1A1A1A] mr-4' : 'bg-[#1A1A1A]'
                     }`}
                     style={{
-                      borderColor: isActive ? accentColor : 'rgba(255,255,255,0.05)',
-                      boxShadow: isActive ? `0 0 20px ${accentColor}33, 4px 4px 0px rgba(0,0,0,1)` : '4px 4px 0px rgba(0,0,0,1)'
+                      borderColor: isSelected ? accentColor : isSubActive ? `${accentColor}60` : `${accentColor}15`,
+                      color: isSelected ? accentColor : isSubActive ? `${accentColor}80` : `${accentColor}30`,
+                      boxShadow: isSelected 
+                        ? `4px 4px 0 rgba(0,0,0,1), 0 0 20px ${accentColor}40` 
+                        : isSubActive
+                        ? `4px 4px 0 rgba(0,0,0,1), 0 0 10px ${accentColor}20`
+                        : `4px 4px 0 rgba(0,0,0,1)`
                     }}
                   >
                     <Icon 
                       icon={CATEGORY_ICONS[cat]} 
-                      width={20} 
-                      height={20} 
-                      style={{ color: isActive ? accentColor : 'inherit' }}
+                      width={18} 
+                      height={18} 
+                      style={{ 
+                        color: (isSelected || isSubActive) ? accentColor : 'inherit',
+                        opacity: isSelected ? 1 : isSubActive ? 0.7 : 0.2
+                      }}
                     />
-                    <span 
-                      className={`text-[13px] font-black font-['Inter'] tracking-tight truncate`}
-                      style={{ color: isActive ? '#FFFFFF' : 'inherit' }}
-                    >
+                    <span className="text-[13px] font-bold font-['Inter'] tracking-tight truncate">
                       {cat}
                     </span>
-                    {isActive && (
-                      <motion.div 
-                        layoutId="categoryBar"
-                        className="absolute -bottom-1 left-3 right-3 h-[2.5px] rounded-full z-20"
-                        style={{ 
-                          backgroundColor: accentColor,
-                          boxShadow: `0 0 10px ${accentColor}CC`
-                        }}
-                      />
-                    )}
-                  </button>
+                  </motion.button>
                 );
               })}
-            </LayoutGroup>
-          </div>
-        )}
-      </div>
-
-      {/* Habits List */}
-      <div 
-        ref={scrollRef}
-        className="flex-1 overflow-y-auto px-5 pt-10 pb-32 space-y-[48px] no-scrollbar scroll-smooth"
-      >
-        {selectedCategory === 'Semua' ? (
-          groupedHabits.map((group) => (
-            <div key={group.category} className="space-y-[30px] relative">
-              {/* Invisible Marker for Scrollspy - Positioned exactly at the start of the group content */}
-              <div 
-                className="category-marker absolute top-[0px] left-0 w-full h-[1px] pointer-events-none" 
-                data-category={group.category} 
-              />
-              
-              {group.habits.map((habit, i) => (
-                <HabitCard key={habit.name} habit={habit} index={i} />
-              ))}
             </div>
-          ))
-        ) : availableHabits.length > 0 ? (
-          <div className="space-y-[30px]">
-            {availableHabits.map((habit, i) => (
-              <HabitCard key={habit.name} habit={habit} index={i} />
-            ))}
           </div>
-        ) : (
-          <div className="flex flex-col items-center justify-center py-20 px-10 text-center opacity-30">
-            <Icon icon="solar:box-minimalistic-bold" width={64} height={64} className="mb-4" />
-            <p className="text-lg font-black font-['Outfit']">Semua protokol aktif</p>
-            <p className="text-xs font-bold mt-1 uppercase tracking-widest">Kategori ini sudah lengkap</p>
+
+          {/* Habits List */}
+          <div 
+            ref={scrollRef}
+            className="flex-1 overflow-y-auto px-5 pt-10 pb-32 space-y-[48px] no-scrollbar scroll-smooth"
+          >
+            {selectedCategory === 'Semua' ? (
+              groupedHabits.map((group) => (
+                <div key={group.category} className="space-y-[30px] relative">
+                  {/* Invisible Marker for Scrollspy - Positioned exactly at the start of the group content */}
+                  <div 
+                    className="category-marker absolute top-[0px] left-0 w-full h-[1px] pointer-events-none" 
+                    data-category={group.category} 
+                  />
+                  
+                  {group.habits.map((habit, i) => (
+                    <HabitCard key={habit.name} habit={habit} index={i} />
+                  ))}
+                </div>
+              ))
+            ) : availableHabits.length > 0 ? (
+              <div className="space-y-[30px]">
+                {availableHabits.map((habit, i) => (
+                  <HabitCard key={habit.name} habit={habit} index={i} />
+                ))}
+              </div>
+            ) : (
+              <div className="flex items-center justify-center gap-3 py-20 px-10 text-center opacity-20">
+                <Icon icon="solar:box-minimalistic-bold" width={24} height={24} />
+                <p className="text-[11px] font-black font-['Outfit'] uppercase tracking-[0.2em] whitespace-nowrap">Semua protokol kategori ini aktif</p>
+              </div>
+            )}
           </div>
-        )}
-      </div>
-    </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
 
     {/* Intensity/Config Bottom Sheet */}
     {/* Layer 1: Config Bottom Sheet */}

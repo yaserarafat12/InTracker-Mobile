@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { AnimatePresence, motion } from 'framer-motion';
+import { motion, AnimatePresence, useMotionValue, useTransform, animate } from 'framer-motion';
 import { Icon } from '@iconify/react';
 import {
   createTargetStep,
@@ -95,7 +95,7 @@ const StarSystemStyles = () => (
   `}</style>
 );
 
-type TargetFilter = 'today' | 'upcoming' | 'someday' | 'pending' | 'done';
+type TargetFilter = 'today' | 'upcoming' | 'overdue' | 'someday' | 'done';
 
 const ACCENT_OPTIONS = ['#00FF85', '#E3DAC9', '#60A5FA', '#FACC15', '#EF4444'];
 
@@ -103,7 +103,7 @@ const FILTERS: Array<{ id: TargetFilter; label: string }> = [
   { id: 'today', label: 'Hari Ini' },
   { id: 'upcoming', label: 'Mendatang' },
   { id: 'someday', label: 'Someday' },
-  { id: 'pending', label: 'Tertunda' },
+  { id: 'overdue', label: 'Tertunda' },
   { id: 'done', label: 'Selesai' },
 ];
 
@@ -111,7 +111,6 @@ const WINDOW_LABELS: Record<TargetWindow, string> = {
   today: 'Hari Ini',
   upcoming: 'Mendatang',
   someday: 'Someday',
-  pending: 'Tertunda',
 };
 
 const PRIORITY_LABELS: Record<TargetPriority, string> = {
@@ -149,99 +148,201 @@ const TargetProgressBar = ({ target }: { target: TargetItem }) => {
 };
 
 const TargetCard = ({ target, index, onOpen }: { target: TargetItem; index: number; onOpen: (target: TargetItem) => void }) => {
-  const progress = getTargetProgress(target);
-  const { toggleStar } = useTargetStore();
+  const { toggleStar, toggleComplete, deleteTarget } = useTargetStore();
+  const x = useMotionValue(0);
+
+  // Swipe transformations
+  const editOpacity = useTransform(x, [20, 80], [0, 1]);
+  const deleteOpacity = useTransform(x, [-20, -80], [0, 1]);
+  const scaleAction = useTransform(x, [-100, 0, 100], [1, 0.95, 1]);
+
+  const handleDragEnd = (_: any, info: any) => {
+    const currentX = x.get();
+    const threshold = 60;
+    if (currentX > threshold) {
+      animate(x, 80, { type: 'spring', stiffness: 500, damping: 30 });
+    } else if (currentX < -threshold) {
+      animate(x, -80, { type: 'spring', stiffness: 500, damping: 30 });
+    } else {
+      animate(x, 0, { type: 'spring', stiffness: 500, damping: 30 });
+    }
+  };
+
+  const handleAction = (type: 'edit' | 'delete') => {
+    if (navigator.vibrate) navigator.vibrate(10);
+    if (type === 'delete') {
+      if (confirm(`Hapus target "${target.title}"?`)) {
+        deleteTarget(target.id);
+      }
+    } else {
+      onOpen(target); // Open detail/edit sheet
+    }
+    animate(x, 0, { type: 'spring', stiffness: 500, damping: 30 });
+  };
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 18 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: index * 0.04 }}
-      className={`w-full rounded-[28px] bg-[#1A1A1A] border border-white/10 p-5 overflow-hidden relative ${
-        target.starred ? 'starred-card' : 'shadow-[7px_7px_0px_rgba(0,0,0,1)]'
-      }`}
-    >
-      {/* Golden particles for starred cards */}
-      {target.starred && (
-        <>
-          <span className="star-particle" />
-          <span className="star-particle" />
-          <span className="star-particle" />
-          <span className="star-particle" />
-          <span className="star-particle" />
-        </>
-      )}
+    <div className="relative w-full">
+      {/* Background Actions */}
+      <div className="absolute inset-0 flex items-center justify-between px-2">
+        {/* Edit Action (Left) */}
+        <motion.button
+          style={{ opacity: editOpacity, scale: scaleAction }}
+          onClick={() => handleAction('edit')}
+          className="w-16 h-[80%] rounded-2xl bg-[#E3DAC9] border-[1.5px] border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] flex flex-col items-center justify-center gap-1 text-black active:scale-90 transition-all"
+        >
+          <Icon icon="ph:pencil-simple-bold" width={20} height={20} />
+          <span className="text-[8px] font-black uppercase">Edit</span>
+        </motion.button>
 
-      <motion.button
-        whileTap={{ scale: 0.97 }}
-        onClick={() => {
-          if (navigator.vibrate) navigator.vibrate(6);
-          onOpen(target);
-        }}
-        className="w-full text-left relative z-[3]"
+        {/* Delete Action (Right) */}
+        <motion.button
+          style={{ opacity: deleteOpacity, scale: scaleAction }}
+          onClick={() => handleAction('delete')}
+          className="w-16 h-[80%] rounded-2xl bg-[#EF4444] border-[1.5px] border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] flex flex-col items-center justify-center gap-1 text-white active:scale-90 transition-all"
+        >
+          <Icon icon="ph:trash-bold" width={20} height={20} />
+          <span className="text-[8px] font-black uppercase">Hapus</span>
+        </motion.button>
+      </div>
+
+      {/* Main Card Content */}
+      <motion.div
+        style={{ x }}
+        drag="x"
+        dragConstraints={{ left: -100, right: 100 }}
+        dragElastic={0.1}
+        onDragEnd={handleDragEnd}
+        className={`w-full rounded-[32px] bg-[#1A1A1A] border-[1.5px] border-white/10 p-6 relative z-10 ${
+          target.starred ? 'starred-card' : 'shadow-[8px_8px_0px_rgba(0,0,0,1)] overflow-hidden'
+        }`}
       >
-        <div className="flex items-start gap-4">
-          <div
-            className="w-14 h-14 rounded-2xl border border-white/10 flex items-center justify-center shrink-0 shadow-[4px_4px_0px_rgba(0,0,0,1)]"
-            style={{ backgroundColor: `${target.accent}18` }}
-          >
-            <Icon icon={target.icon} width={27} height={27} style={{ color: target.accent }} />
-          </div>
+        {/* Golden particles for starred cards */}
+        {target.starred && (
+          <>
+            <span className="star-particle" />
+            <span className="star-particle" />
+            <span className="star-particle" />
+            <span className="star-particle" />
+            <span className="star-particle" />
+          </>
+        )}
 
-          <div className="min-w-0 flex-1">
-            <div className="flex items-start justify-between gap-3">
-              <div className="min-w-0">
-                <p className="text-[10px] font-black uppercase text-white/25">
-                  {WINDOW_LABELS[target.window]} / {target.priority}
-                </p>
-                <h3 className="mt-1 text-[20px] font-black font-['Outfit'] uppercase leading-[1.05] text-white">
-                  {target.title}
-                </h3>
-              </div>
-              <div className="text-right shrink-0">
-                <p className="text-[24px] font-black font-['Outfit'] leading-none" style={{ color: target.accent }}>
-                  {progress}%
-                </p>
-              </div>
-            </div>
-
-            <p className="mt-3 text-[11px] font-bold uppercase text-[#E3DAC9]/45">
-              {getTargetMeta(target)}
-            </p>
-            <div className="mt-4">
-              <TargetProgressBar target={target} />
-            </div>
-          </div>
-        </div>
-      </motion.button>
-
-      {/* Star/Important Toggle Button */}
-      <motion.button
-        whileTap={{ scale: 0.75 }}
-        onClick={(e) => {
-          e.stopPropagation();
-          toggleStar(target.id);
-          if (navigator.vibrate) navigator.vibrate(target.starred ? 4 : [6, 20, 6]);
-        }}
-        className="absolute top-4 right-4 z-[5] w-10 h-10 flex items-center justify-center rounded-xl transition-all"
-      >
-        {target.starred ? (
+        <div className="flex items-center gap-4 py-1 relative z-[3]">
+          {/* Square Checklist */}
           <motion.div
-            initial={{ scale: 0.5, rotate: -30 }}
-            animate={{ scale: 1, rotate: 0 }}
-            transition={{ type: 'spring', stiffness: 400, damping: 15 }}
+            whileTap={{ scale: 0.8 }}
+            onClick={(e) => {
+              e.stopPropagation();
+              toggleComplete(target.id);
+              if (navigator.vibrate) navigator.vibrate(8);
+            }}
+            className={`w-7 h-7 rounded-lg border-2 flex items-center justify-center transition-all shrink-0 ${
+              target.completed ? 'bg-[#00FF85] border-black' : 'border-white/10 bg-white/5'
+            }`}
           >
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="#FFB800">
+            {target.completed && <Icon icon="ph:check-bold" width={16} height={16} className="text-black" />}
+          </motion.div>
+
+          <motion.button
+            whileTap={{ scale: 0.97 }}
+            onClick={() => {
+              if (navigator.vibrate) navigator.vibrate(6);
+              onOpen(target);
+            }}
+            className="flex-1 text-left min-w-0"
+          >
+            <h3
+              className={`text-[20px] font-black font-['Outfit'] uppercase leading-tight transition-all ${
+                target.completed ? 'text-white/20 line-through' : 'text-[#E3DAC9]'
+              }`}
+            >
+              {target.title}
+            </h3>
+          </motion.button>
+        </div>
+
+        {/* Magical Star Cluster Toggle */}
+        <motion.button
+          whileTap={{ scale: 0.75 }}
+          onClick={(e) => {
+            e.stopPropagation();
+            toggleStar(target.id);
+            if (navigator.vibrate) navigator.vibrate(target.starred ? 4 : [6, 20, 6]);
+          }}
+          className={`absolute z-[20] flex items-center justify-center transition-all ${
+            target.starred ? 'top-[-22px] right-[-18px] w-14 h-14' : 'top-4 right-4 w-12 h-12'
+          }`}
+        >
+          {target.starred ? (
+            <div className="relative w-full h-full flex items-center justify-center">
+              {/* Main Big Star */}
+              <motion.div
+                initial={{ scale: 0.5, rotate: -30 }}
+                animate={{ scale: 1.1, rotate: 0 }}
+                transition={{ type: 'spring', stiffness: 400, damping: 15 }}
+                className="z-[2]"
+              >
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="#FFB800" className="drop-shadow-[0_0_12px_rgba(255,184,0,0.8)]">
+                  <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                </svg>
+              </motion.div>
+
+              {/* Smaller Support Star 1 (Top Left) */}
+              <motion.div
+                initial={{ scale: 0, x: 0, y: 0 }}
+                animate={{ scale: 1, x: -16, y: 10, rotate: -20 }}
+                transition={{ type: 'spring', stiffness: 300, damping: 20, delay: 0.05 }}
+                className="absolute z-[1]"
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="#FFD700">
+                  <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                </svg>
+              </motion.div>
+
+              {/* Smaller Support Star 2 (Bottom Left) */}
+              <motion.div
+                initial={{ scale: 0, x: 0, y: 0 }}
+                animate={{ scale: 1, x: -8, y: 24, rotate: 15 }}
+                transition={{ type: 'spring', stiffness: 350, damping: 22, delay: 0.1 }}
+                className="absolute z-[1]"
+              >
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="#FFAA00">
+                  <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                </svg>
+              </motion.div>
+
+              {/* NEW: Star 3 (Far Left) */}
+              <motion.div
+                initial={{ scale: 0, x: 0, y: 0 }}
+                animate={{ scale: 0.8, x: -22, y: 2, rotate: -40 }}
+                transition={{ type: 'spring', stiffness: 250, damping: 18, delay: 0.15 }}
+                className="absolute z-[1]"
+              >
+                <svg width="8" height="8" viewBox="0 0 24 24" fill="#FFB800">
+                  <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                </svg>
+              </motion.div>
+
+              {/* NEW: Star 4 (Bottom Right-ish) */}
+              <motion.div
+                initial={{ scale: 0, x: 0, y: 0 }}
+                animate={{ scale: 0.7, x: 2, y: 28, rotate: 30 }}
+                transition={{ type: 'spring', stiffness: 200, damping: 25, delay: 0.2 }}
+                className="absolute z-[1]"
+              >
+                <svg width="6" height="6" viewBox="0 0 24 24" fill="#FFEAA7">
+                  <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                </svg>
+              </motion.div>
+            </div>
+          ) : (
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.15)" strokeWidth="2">
               <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
             </svg>
-          </motion.div>
-        ) : (
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.15)" strokeWidth="2">
-            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-          </svg>
-        )}
-      </motion.button>
-    </motion.div>
+          )}
+        </motion.button>
+      </motion.div>
+    </div>
   );
 };
 
@@ -251,13 +352,13 @@ const EmptyTargetState = ({ onAdd }: { onAdd: () => void }) => (
     animate={{ opacity: 1, scale: 1 }}
     whileTap={{ scale: 0.98 }}
     onClick={onAdd}
-    className="w-full min-h-[230px] rounded-[32px] border-[1.5px] border-dashed border-[#00FF85]/35 bg-[#00FF85]/[0.03] flex flex-col items-center justify-center px-8 text-center shadow-[7px_7px_0px_rgba(0,0,0,1)]"
+    className="w-full min-h-[160px] rounded-[28px] border-[1.5px] border-dashed border-[#00FF85]/35 bg-[#00FF85]/[0.03] flex flex-col items-center justify-center px-8 text-center shadow-[7px_7px_0px_rgba(0,0,0,1)]"
   >
-    <div className="w-16 h-16 rounded-[24px] bg-[#00FF85] border-[1.5px] border-black flex items-center justify-center shadow-[5px_5px_0px_rgba(0,0,0,1)]">
-      <Icon icon="solar:add-circle-bold" width={32} height={32} className="text-black" />
+    <div className="w-12 h-12 rounded-[20px] bg-[#00FF85] border-[1.5px] border-black flex items-center justify-center shadow-[4px_4px_0px_rgba(0,0,0,1)]">
+      <Icon icon="solar:add-circle-bold" width={24} height={24} className="text-black" />
     </div>
-    <h3 className="mt-6 text-[23px] font-black uppercase text-white">Tambah Target Baru</h3>
-    <p className="mt-2 text-[12px] font-bold uppercase text-[#E3DAC9]/40 leading-relaxed">
+    <h3 className="mt-4 text-[20px] font-black uppercase text-white">Tambah Target Baru</h3>
+    <p className="mt-1 text-[11px] font-bold uppercase text-[#E3DAC9]/40 leading-relaxed">
       Pecah objektif besar jadi langkah kecil yang bisa dieksekusi.
     </p>
   </motion.button>
@@ -301,16 +402,9 @@ const TargetDetailSheet = ({ target, onClose }: { target: TargetItem; onClose: (
         <div className="px-6 pt-5 pb-5 border-b border-white/5">
           <div className="w-10 h-1 rounded-full bg-white/10 mx-auto mb-6" />
           <div className="flex items-start gap-4">
-            <div
-              className="w-16 h-16 rounded-[24px] border border-white/10 flex items-center justify-center shadow-[5px_5px_0px_rgba(0,0,0,1)]"
-              style={{ backgroundColor: `${target.accent}18` }}
-            >
-              <Icon icon={target.icon} width={31} height={31} style={{ color: target.accent }} />
-            </div>
+            {/* Icon Container Removed */}
             <div className="min-w-0 flex-1">
-              <p className="text-[10px] font-black uppercase text-[#E3DAC9]/35">
-                {PRIORITY_LABELS[target.priority]}
-              </p>
+              {/* Priority Labels Removed */}
               <h2 className="mt-1 text-[27px] font-black uppercase leading-[1.02] text-white">{target.title}</h2>
             </div>
             <button
@@ -321,18 +415,7 @@ const TargetDetailSheet = ({ target, onClose }: { target: TargetItem; onClose: (
             </button>
           </div>
 
-          <div className="mt-6 rounded-[24px] bg-black/35 border border-white/5 p-4">
-            <div className="flex items-end justify-between">
-              <div>
-                <p className="text-[10px] font-black uppercase text-white/25">Progress</p>
-                <p className="text-[13px] font-bold uppercase text-[#E3DAC9]/60">{getTargetMeta(target)}</p>
-              </div>
-              <p className="text-[34px] font-black leading-none" style={{ color: target.accent }}>{progress}%</p>
-            </div>
-            <div className="mt-4">
-              <TargetProgressBar target={target} />
-            </div>
-          </div>
+          {/* Progress Section Removed as per request */}
         </div>
 
         <div className="px-6 py-6 overflow-y-auto max-h-[calc(88vh-235px)] pb-10">
@@ -415,19 +498,7 @@ const TargetDetailSheet = ({ target, onClose }: { target: TargetItem; onClose: (
                   <span>Hari Ini</span>
                 </button>
               )}
-              {target.window !== 'pending' && (
-                <button
-                  onClick={() => {
-                    updateTargetWindow(target.id, 'pending');
-                    if (navigator.vibrate) navigator.vibrate(8);
-                    onClose();
-                  }}
-                  className="h-14 rounded-2xl bg-[#1A1A1A] border border-white/10 text-white/60 font-black text-[11px] uppercase active:scale-95 transition-all flex flex-col items-center justify-center"
-                >
-                  <Icon icon="solar:history-bold" width={18} height={18} />
-                  <span>Tunda</span>
-                </button>
-              )}
+
               {target.window !== 'someday' && (
                 <button
                   onClick={() => {
@@ -467,20 +538,30 @@ export default function TodoTargetView() {
 
   const activeTargets = targets.filter((target) => !target.completed);
   const completedTargets = targets.filter((target) => target.completed);
+  
+  const todayStr = new Date().toISOString().split('T')[0];
+
   const visibleTargets = targets.filter((target) => {
     if (activeFilter === 'done') return target.completed;
-    return !target.completed && target.window === activeFilter;
+    if (target.completed) return false;
+
+    const targetDateStr = target.createdAt ? target.createdAt.split('T')[0] : todayStr;
+    const isOverdue = target.window === 'today' && targetDateStr < todayStr;
+
+    if (activeFilter === 'overdue') return isOverdue;
+    if (activeFilter === 'today') return target.window === 'today' && !isOverdue;
+    
+    return target.window === activeFilter;
   });
-  const focusTarget = activeTargets.find((target) => target.window === 'today') ?? activeTargets[0];
   const historyTotal = targets.length;
   const historyCompleted = completedTargets.length;
 
   return (
     <div className="px-5 pt-8 pb-36 min-h-screen">
       <StarSystemStyles />
-      <div className="flex items-end justify-between gap-4">
+      <div className="flex items-center justify-between gap-4">
         <div className="min-w-0">
-          <h1 className="text-[48px] font-black uppercase leading-none text-white tracking-[0.02em] drop-shadow-[0_0_15px_rgba(255,255,255,0.3)]">
+          <h1 className="text-[45px] font-black uppercase leading-none text-white tracking-[0.02em] drop-shadow-[0_0_15px_rgba(255,255,255,0.3)]">
             TO-DO
           </h1>
         </div>
@@ -509,68 +590,39 @@ export default function TodoTargetView() {
         </button>
       </div>
 
-      <div className="mt-6 grid grid-cols-2 gap-2">
-        <div className="rounded-[18px] bg-[#1A1A1A] border border-white/10 px-4 py-3 shadow-[3px_3px_0px_rgba(0,0,0,1)]">
-          <p className="text-[9px] font-black uppercase text-white/25">Tersedia</p>
-          <p className="mt-0.5 text-[21px] font-black text-white leading-none">{activeTargets.length}</p>
-        </div>
-        <div className="rounded-[18px] bg-[#1A1A1A] border border-white/10 px-4 py-3 shadow-[3px_3px_0px_rgba(0,0,0,1)]">
-          <p className="text-[9px] font-black uppercase text-white/25">Selesai</p>
-          <p className="mt-0.5 text-[21px] font-black text-[#E3DAC9] leading-none">{historyCompleted}/{historyTotal}</p>
-        </div>
+      {/* Filter Tabs - Premium Habit Style */}
+      <div className="mt-12 flex gap-2 overflow-x-auto pb-4 scrollbar-hide">
+        {[
+          { id: 'today', label: 'Hari Ini', count: targets.filter(t => !t.completed && t.window === 'today' && (t.createdAt?.split('T')[0] || todayStr) >= todayStr).length },
+          { id: 'upcoming', label: 'Mendatang', count: targets.filter(t => !t.completed && t.window === 'upcoming').length },
+          { id: 'someday', label: 'Someday', count: targets.filter(t => !t.completed && t.window === 'someday').length },
+          { id: 'overdue', label: 'Ditunda', count: targets.filter(t => !t.completed && t.window === 'today' && (t.createdAt?.split('T')[0] || todayStr) < todayStr).length },
+          { id: 'done', label: 'Selesai', count: targets.filter(t => t.completed).length }
+        ].map((item) => (
+          <button 
+            key={item.id}
+            onClick={() => {
+              setActiveFilter(item.id as TargetFilter);
+              if (navigator.vibrate) navigator.vibrate(8);
+            }}
+            className={`
+              px-5 py-2.5 rounded-xl transition-all duration-300 flex items-start whitespace-nowrap
+              border-[1.5px] ${activeFilter === item.id 
+                ? 'bg-[#F5F2E8] border-black shadow-[3px_3px_0px_rgba(0,0,0,1)]' 
+                : 'bg-[#1A1A1A] border-white/10 shadow-[3px_3px_0px_rgba(0,0,0,1)]'}
+            `}
+          >
+            <span className={`text-[13px] font-bold font-['Outfit'] tracking-tight ${activeFilter === item.id ? 'text-black' : 'text-white/40'}`}>
+              {item.label}
+            </span>
+            <span className={`text-[9px] font-black ml-0.5 mt-[-2px] ${activeFilter === item.id ? 'text-black/40' : 'text-white/20'}`}>
+              {item.count}
+            </span>
+          </button>
+        ))}
       </div>
 
-      {focusTarget && activeFilter !== 'done' && (
-        <motion.button
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          whileTap={{ scale: 0.98 }}
-          onClick={() => setSelectedTarget(focusTarget)}
-          className="mt-8 w-full rounded-[34px] bg-[#E3DAC9] text-black border-[1.5px] border-black p-6 text-left shadow-[8px_8px_0px_rgba(0,0,0,1)] overflow-hidden relative"
-        >
-          <div className="absolute inset-0 opacity-25 pointer-events-none">
-            <div className="absolute -right-16 -top-16 w-44 h-44 rounded-full blur-3xl" style={{ backgroundColor: focusTarget.accent }} />
-          </div>
-          <div className="relative">
-            <div className="flex items-center justify-between">
-              <p className="text-[10px] font-black uppercase text-black/45">Focus Target</p>
-              <div className="w-11 h-11 rounded-2xl bg-black text-[#E3DAC9] flex items-center justify-center">
-                <Icon icon={focusTarget.icon} width={23} height={23} />
-              </div>
-            </div>
-            <h2 className="mt-7 text-[30px] font-black uppercase leading-[1.02]">{focusTarget.title}</h2>
-            <p className="mt-3 text-[12px] font-black uppercase text-black/45">{getTargetMeta(focusTarget)}</p>
-            <div className="mt-5 h-3 rounded-full bg-black/15 overflow-hidden border border-black/10">
-              <motion.div
-                initial={{ width: 0 }}
-                animate={{ width: `${getTargetProgress(focusTarget)}%` }}
-                className="h-full bg-black rounded-full"
-              />
-            </div>
-          </div>
-        </motion.button>
-      )}
-
-      <div className="mt-8">
-        <div className="grid grid-cols-5 gap-1 rounded-2xl bg-black/40 border border-white/5 p-1">
-          {FILTERS.map((filter) => (
-            <button
-              key={filter.id}
-              onClick={() => {
-                setActiveFilter(filter.id);
-                if (navigator.vibrate) navigator.vibrate(4);
-              }}
-              className={`h-10 rounded-xl text-[10px] font-black transition-all ${
-                activeFilter === filter.id ? 'bg-[#F5F2E8] text-black' : 'text-white/30'
-              }`}
-            >
-              {filter.label}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      <div className="mt-6 space-y-5">
+      <div className="mt-10 space-y-5">
         {visibleTargets.length > 0 ? (
           visibleTargets.map((target, index) => (
             <TargetCard key={target.id} target={target} index={index} onOpen={setSelectedTarget} />
@@ -582,17 +634,14 @@ export default function TodoTargetView() {
         )}
       </div>
 
-      <AddTodoSheet isOpen={isAddOpen} onClose={() => setIsAddOpen(false)} />
-
-      <AnimatePresence>
-        {selectedTarget && (
-          <TargetDetailSheet
-            key={selectedTarget.id}
-            target={targets.find((target) => target.id === selectedTarget.id) ?? selectedTarget}
-            onClose={() => setSelectedTarget(null)}
-          />
-        )}
-      </AnimatePresence>
+      <AddTodoSheet 
+        isOpen={isAddOpen || !!selectedTarget} 
+        targetToEdit={selectedTarget}
+        onClose={() => {
+          setIsAddOpen(false);
+          setSelectedTarget(null);
+        }} 
+      />
     </div>
   );
 }

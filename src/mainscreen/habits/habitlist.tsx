@@ -46,10 +46,10 @@ const DaftarHabit = ({ activeFilter = 'berjalan', habits }: { activeFilter?: str
         animate={{ x: 0, opacity: 1 }}
         exit={{ x: -20, opacity: 0 }}
         transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-        className="w-full space-y-[30px]"
+        className="w-full space-y-6"
       >
         {type === 'berjalan' && items.length > 0 && (
-          <div className="mt-2 mb-8 flex items-center justify-center gap-3 px-6 h-[48px] rounded-[18px] bg-[#00FF85] border-[1.5px] border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] w-full">
+          <div className="mt-0 mb-10 flex items-center justify-center gap-3 px-6 h-[48px] rounded-[18px] bg-[#00FF85] border-[1.5px] border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] w-full">
             <div className="relative flex items-center justify-center shrink-0">
               <span className="text-lg inline-block" style={{ filter: 'brightness(0)' }}>👆🏻</span>
               <svg className="absolute -top-1.5 -left-1 w-6 h-6" viewBox="0 0 24 24" fill="none">
@@ -63,9 +63,13 @@ const DaftarHabit = ({ activeFilter = 'berjalan', habits }: { activeFilter?: str
         {items.length > 0 ? items.map((habit, i) => (
           <KartuTugas key={habit.id} habit={habit} index={i} activeFilter={type} onDoubleTap={handleDoubleTap} />
         )) : (
-          <div className="flex flex-col items-center justify-center py-20 opacity-20">
+          <div className="flex flex-col items-center justify-center py-12 opacity-20">
              <Icon icon="solar:box-minimalistic-bold" width={48} height={48} />
-             <p className="mt-4 font-black text-sm uppercase tracking-widest">Belum Ada Tugas</p>
+             <p className="mt-4 font-black text-[11px] uppercase tracking-[0.2em] whitespace-nowrap">
+               {type === 'selesai' ? 'Belum ada tugas yang tuntas' : 
+                type === 'dilewati' ? 'Belum ada tugas yang dilewati' : 
+                'Belum ada tugas hari ini'}
+             </p>
           </div>
         )}
       </motion.div>
@@ -73,7 +77,7 @@ const DaftarHabit = ({ activeFilter = 'berjalan', habits }: { activeFilter?: str
   };
 
   return (
-    <div className="pt-2 px-5 pb-36 min-h-screen overflow-x-hidden relative">
+    <div className="pt-0 px-5 pb-36 min-h-screen overflow-x-hidden relative">
       <AnimatePresence mode="wait">
         {activeFilter === 'berjalan' ? renderDisplay(todoHabits, 'berjalan') : 
          activeFilter === 'selesai' ? renderDisplay(completedHabits, 'selesai') :

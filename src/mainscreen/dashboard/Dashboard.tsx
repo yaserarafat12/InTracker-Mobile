@@ -2,9 +2,9 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { supabase } from '../../lib/supabase';
 import { NavigasiBawah } from '../NavigasiBawah';
-import DaftarTugas from '../habits/DaftarTugas';
+import DaftarHabit from '../habits/habitlist';
 import { Icon } from '@iconify/react';
-import { TambahTugasModal } from '../habits/TambahTugasModal';
+import { TambahHabitModal } from '../habits/addhabitscreen';
 import { useHabitStore } from '../../store/useHabitStore';
 
 // --- SUB-VIEWS ---
@@ -15,6 +15,91 @@ const Journey = () => <div />;
 const AIView = () => <div />;
 const HubView = () => <div />;
 
+// --- PREMIUM COMPONENTS ---
+const AIAuditSection = ({ completed, total }: { completed: number, total: number }) => {
+  const percentage = total > 0 ? Math.round((completed / total) * 100) : 0;
+  
+  return (
+    <motion.div 
+      initial={{ opacity: 0, y: -10 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="mx-6 mb-8 p-4 rounded-[24px] bg-[#00FF85]/5 border-[1.5px] border-[#00FF85]/20 flex items-center gap-4 group hover:bg-[#00FF85]/10 transition-all duration-300"
+    >
+      <div className="w-10 h-10 rounded-full bg-[#00FF85] flex items-center justify-center shadow-[0_0_15px_rgba(0,255,133,0.3)] shrink-0">
+        <Icon icon="solar:magic-stick-3-bold" width={20} height={20} className="text-black" />
+      </div>
+      <div className="flex flex-col">
+        <span className="text-[10px] font-black text-[#00FF85] font-['Outfit'] uppercase tracking-widest opacity-60">Bisikan Rin (AI Audit)</span>
+        <p className="text-[13px] font-medium text-white/90 font-['Outfit'] leading-tight">
+          {percentage === 100 
+            ? "GILA! Boss bener-bener on fire hari ini. Protokol tuntas 100%! 🔥" 
+            : percentage > 50 
+              ? `Sedikit lagi Boss! ${percentage}% kelar. Hajar sisa ${total - completed} habit lagi!`
+              : completed > 0 
+                ? "Awal yang bagus, Boss. Gas terus jangan kasih kendor!"
+                : "Boss, protokol hari ini belum disentuh nih. Yuk mulai satu!"}
+        </p>
+      </div>
+    </motion.div>
+  );
+};
+
+const FloatingProgressRing = ({ completed, total, onDismiss }: { completed: number, total: number, onDismiss: () => void }) => {
+  const size = 48;
+  const strokeWidth = 5;
+  const radius = (size - strokeWidth) / 2;
+  const circumference = radius * 2 * Math.PI;
+  const percentage = total > 0 ? (completed / total) * 100 : 0;
+  const offset = circumference - (percentage / 100) * circumference;
+
+  return (
+    <motion.div 
+      initial={{ scale: 0, rotate: -90 }}
+      animate={{ scale: 1, rotate: 0 }}
+      className="fixed top-28 right-6 z-[60] group"
+    >
+      <div className="relative w-[48px] h-[48px] bg-[#161616] rounded-full border-[1.5px] border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] flex items-center justify-center">
+        <svg width={size} height={size} className="rotate-[-90deg]">
+          <circle
+            cx={size / 2}
+            cy={size / 2}
+            r={radius}
+            fill="transparent"
+            stroke="rgba(255,255,255,0.05)"
+            strokeWidth={strokeWidth}
+          />
+          <motion.circle
+            cx={size / 2}
+            cy={size / 2}
+            r={radius}
+            fill="transparent"
+            stroke="#00FF85"
+            strokeWidth={strokeWidth}
+            strokeDasharray={circumference}
+            animate={{ strokeDashoffset: offset }}
+            strokeLinecap="round"
+            className="drop-shadow-[0_0_8px_rgba(0,255,133,0.4)]"
+          />
+        </svg>
+        <span className="absolute text-[10px] font-black font-['Outfit'] text-white">
+          {completed}/{total}
+        </span>
+
+        {percentage === 100 && (
+          <motion.button 
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            onClick={onDismiss}
+            className="absolute -top-1 -right-1 w-5 h-5 bg-[#FF3B30] rounded-full border border-black flex items-center justify-center text-white"
+          >
+            <Icon icon="ph:x-bold" width={10} height={10} />
+          </motion.button>
+        )}
+      </div>
+    </motion.div>
+  );
+};
+
 export default function Beranda({ activeTab: initialTab = 'home' }: { activeTab?: string }) {
   const [activeTab, setActiveTab] = useState(initialTab);
 
@@ -23,10 +108,14 @@ export default function Beranda({ activeTab: initialTab = 'home' }: { activeTab?
   }, [initialTab]);
 
   const [loading, setLoading] = useState(true);
-  const { habits, setHabits } = useHabitStore();
+  const { habits, setHabits, fetchHabits, totalStreak } = useHabitStore();
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [statsTab, setStatsTab] = useState<'berjalan' | 'selesai'>('berjalan');
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [showProgressRing, setShowProgressRing] = useState(true);
+
+  const completedCount = habits.filter(h => h.completed).length;
+  const totalCount = habits.length;
 
   const [user, setUser] = useState<any>(null);
   const [profile, setProfile] = useState<any>(null);
@@ -38,11 +127,14 @@ export default function Beranda({ activeTab: initialTab = 'home' }: { activeTab?
         setUser(authUser);
         const { data: prof } = await supabase.from('profiles').select('*').eq('id', authUser.id).single();
         if (prof) setProfile(prof);
+        
+        // FETCH HABITS HERE!
+        await fetchHabits();
       }
       setLoading(false);
     }
     initDashboard();
-  }, []);
+  }, [fetchHabits]);
 
   if (loading) return (
     <div className="min-h-screen bg-[#1A1A1A] flex items-center justify-center">
@@ -57,7 +149,7 @@ export default function Beranda({ activeTab: initialTab = 'home' }: { activeTab?
       <div className="fixed top-0 left-0 w-full px-6 pt-12 pb-6 flex justify-between items-center z-50 bg-[#161616]/95 backdrop-blur-xl border-b border-white/[0.03]">
         <div className="flex items-center gap-2 bg-[#FF4D00] px-4 py-2 rounded-2xl border border-white/20 shadow-[4px_4px_0px_rgba(0,0,0,1)] transition-transform active:scale-95">
           <Icon icon="solar:fire-bold" width={22} height={22} className="text-white drop-shadow-[0_0_10px_rgba(255,255,255,0.4)]" />
-          <span className="text-[16px] font-black font-['Outfit'] text-white">1</span>
+          <span className="text-[16px] font-black font-['Outfit'] text-white">{totalStreak}</span>
         </div>
 
         <button className="w-10 h-10 rounded-xl bg-[#2D2D2D] border border-white/10 flex items-center justify-center shadow-[4px_4px_0px_rgba(0,0,0,1)] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none transition-all">
@@ -74,8 +166,8 @@ export default function Beranda({ activeTab: initialTab = 'home' }: { activeTab?
           <div className="px-6 mb-12">
             <div className="flex items-end justify-between">
               <div className="flex flex-col">
-                <span className="text-[12px] font-black text-[#00FF85] font-['Outfit'] uppercase tracking-[0.2em] mb-1 opacity-80">
-                  {(selectedDate.toDateString() === new Date().toDateString() ? 'PROTOKOL AKTIF' : 
+                <span className="text-[12px] font-black text-[#00FF85] font-['Outfit'] uppercase tracking-[0.2em] mb-1 opacity-80 ml-[12px]">
+                  {(selectedDate.toDateString() === new Date().toDateString() ? 'HARI INI' : 
                     selectedDate.toLocaleDateString('id-ID', { weekday: 'long' }).toUpperCase())}
                 </span>
                 <h1 className="text-5xl font-black text-white font-['Outfit'] leading-none uppercase tracking-[0.02em]">
@@ -148,6 +240,10 @@ export default function Beranda({ activeTab: initialTab = 'home' }: { activeTab?
           </div>
         )}
 
+        {activeTab === 'habits' && (
+          <AIAuditSection completed={completedCount} total={totalCount} />
+        )}
+
         <AnimatePresence mode="wait">
           <motion.div
             key={activeTab}
@@ -157,11 +253,10 @@ export default function Beranda({ activeTab: initialTab = 'home' }: { activeTab?
             transition={{ duration: 0.25, ease: "easeOut" }}
           >
             {activeTab === 'habits' && (
-              <DaftarTugas 
+              <DaftarHabit 
                 activeFilter={statsTab} 
                 selectedDate={selectedDate} 
                 habits={habits}
-                setHabits={setHabits}
               />
             )}
             {activeTab === 'home' && <HomeView />}
@@ -180,10 +275,21 @@ export default function Beranda({ activeTab: initialTab = 'home' }: { activeTab?
       {/* ADD HABIT MODAL */}
       <AnimatePresence>
         {isAddModalOpen && (
-          <TambahTugasModal 
+          <TambahHabitModal 
             isOpen={isAddModalOpen} 
             onClose={() => setIsAddModalOpen(false)} 
-            onAddHabit={(newHabit) => setHabits(prev => [...prev, newHabit])}
+            onAddHabit={(newHabit: any) => setHabits(prev => [...prev, newHabit])}
+          />
+        )}
+      </AnimatePresence>
+
+      {/* FLOATING PROGRESS RING */}
+      <AnimatePresence>
+        {activeTab === 'habits' && showProgressRing && totalCount > 0 && (
+          <FloatingProgressRing 
+            completed={completedCount} 
+            total={totalCount} 
+            onDismiss={() => setShowProgressRing(false)} 
           />
         )}
       </AnimatePresence>

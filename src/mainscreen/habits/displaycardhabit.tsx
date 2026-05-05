@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { motion, useMotionValue, useTransform, AnimatePresence, animate } from 'framer-motion';
 import { Icon } from '@iconify/react';
+import confetti from 'canvas-confetti';
 import { HABIT_ICONS, HABIT_COLORS, CATEGORY_COLORS, isCustomIcon, getCustomIconKey } from './icons';
 import { CUSTOM_SVGS } from '../../utils/icons';
 import { useHabitStore } from '../../store/useHabitStore';
@@ -13,11 +14,11 @@ export const DifficultyDots = ({ level }: { level: number }) => {
         return (
           <div 
             key={i} 
-            className={`w-[5px] h-[5px] rounded-full transition-all duration-500 ease-out`}
+            className={`w-[5px] h-[5px] rounded-full transition-all duration-200 ease-out`}
             style={{ 
-              backgroundColor: isActive ? '#00FF85' : 'rgba(255,255,255,0.1)',
-              boxShadow: isActive ? `0 0 10px rgba(0,255,133,0.4)` : 'none',
-              border: isActive ? 'none' : '1px solid rgba(255,255,255,0.1)'
+              backgroundColor: isActive ? '#00FF85' : 'rgba(255,255,255,0.05)',
+              boxShadow: isActive ? `0 0 10px rgba(0,255,133,0.3)` : 'none',
+              border: isActive ? 'none' : '1px solid rgba(255,255,255,0.05)'
             }}
           />
         );
@@ -53,8 +54,30 @@ export const CustomIcon = ({ icon, width = 24, height = 24, color, className = "
   );
 };
 
+const StreakBadge = ({ streak = 0 }: { streak?: number }) => {
+  const displayStreak = streak > 0 ? streak : 1; 
+  
+  // Design matching the header fire badge but more compact
+  const badgeColor = '#FF4D00'; 
+  const icon = 'solar:fire-bold';
+
+  return (
+    <motion.div 
+      initial={{ scale: 0, rotate: 15 }}
+      animate={{ scale: 1, rotate: 0 }}
+      className="absolute -top-3 -right-3 z-30 flex items-center gap-1.5 px-3 py-1.5 rounded-[12px] bg-[#FF4D00] border-[1.5px] border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] active:scale-95 transition-transform"
+    >
+      <Icon icon={icon} width={14} height={14} className="text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.4)]" />
+      <span className="text-[12px] font-black font-['Outfit'] text-white leading-none">
+        {displayStreak}
+      </span>
+    </motion.div>
+  );
+};
+
 const KartuTugas = ({ habit, index, activeFilter, onDoubleTap }: { habit: any, index: number, activeFilter: string, onDoubleTap: (id: string) => void }) => {
   const { deleteHabit, toggleHabit } = useHabitStore();
+  const [lastTap, setLastTap] = useState(0);
   const x = useMotionValue(0);
   
   // Transform values for background actions
@@ -62,27 +85,48 @@ const KartuTugas = ({ habit, index, activeFilter, onDoubleTap }: { habit: any, i
   const rightActionOpacity = useTransform(x, [-20, -80], [0, 1]);
   const scaleAction = useTransform(x, [-100, 0, 100], [1, 0.95, 1]);
 
-  // Floating logic: buttons move with x but with offsets to create gaps
-  // When x > 0 (Revealing Left actions: LOG & EDIT)
-  const leftActionX = useTransform(x, [0, 150], [-100, 20]);
-  // When x < 0 (Revealing Right actions: LEWATI & HAPUS)
-  const rightActionX = useTransform(x, [0, -150], [100, -20]);
+  const leftActionX = useTransform(x, [0, 130], [-100, 0]);
+  const rightActionX = useTransform(x, [0, -130], [100, 0]);
 
   const handleDragEnd = (_: any, info: any) => {
     const currentX = x.get();
     const threshold = 60;
     const velocity = info.velocity.x;
 
-    // Logic for 1-by-1 snapping (Right -> Default -> Left)
     if (currentX > threshold || velocity > 400) {
-      // Snap to Left Actions
-      animate(x, 150, { type: "spring", stiffness: 600, damping: 35 });
+      animate(x, 130, { type: "spring", stiffness: 600, damping: 35 });
     } else if (currentX < -threshold || velocity < -400) {
-      // Snap to Right Actions
-      animate(x, -150, { type: "spring", stiffness: 600, damping: 35 });
+      animate(x, -130, { type: "spring", stiffness: 600, damping: 35 });
     } else {
-      // Snap back to Default
       animate(x, 0, { type: "spring", stiffness: 800, damping: 45 });
+    }
+  };
+
+  const handleDoubleTapClick = () => {
+    if (activeFilter !== 'berjalan' || habit.completed || habit.skipped) return;
+    
+    const now = Date.now();
+    const DOUBLE_TAP_DELAY = 300;
+    
+    if (now - lastTap < DOUBLE_TAP_DELAY) {
+      if (navigator.vibrate) navigator.vibrate([15, 30, 15]); // More premium haptic pattern
+      
+      // TRIGGER CONFETTI!
+      confetti({
+        particleCount: 80,
+        spread: 70,
+        origin: { y: 0.6 },
+        colors: ['#00FF85', '#FF4D00', '#FFFFFF'],
+        ticks: 200,
+        gravity: 1.2,
+        decay: 0.94,
+        startVelocity: 30,
+      });
+
+      onDoubleTap(habit.id);
+      setLastTap(0);
+    } else {
+      setLastTap(now);
     }
   };
 
@@ -105,20 +149,15 @@ const KartuTugas = ({ habit, index, activeFilter, onDoubleTap }: { habit: any, i
         alert('Edit functionality coming soon!');
         break;
     }
-    animate(x, 0, { type: "spring", stiffness: 800, damping: 45 }); // Snap back fast after action
+    animate(x, 0, { type: "spring", stiffness: 800, damping: 45 });
   };
 
   return (
     <div className="relative w-full">
       {/* BACKGROUND ACTIONS */}
-      <div className="absolute inset-0 px-4 overflow-hidden">
-        {/* Left Side Actions (Revealed on Swipe Right) - LOG & EDIT */}
+      <div className="absolute inset-0 overflow-hidden">
         <motion.div 
-          style={{ 
-            opacity: leftActionOpacity, 
-            scale: scaleAction,
-            x: leftActionX
-          }}
+          style={{ opacity: leftActionOpacity, scale: scaleAction, x: leftActionX }}
           className="absolute left-0 top-[5%] bottom-[5%] w-[115px] flex flex-col gap-2 justify-center"
         >
           <button 
@@ -137,13 +176,8 @@ const KartuTugas = ({ habit, index, activeFilter, onDoubleTap }: { habit: any, i
           </button>
         </motion.div>
 
-        {/* Right Side Actions (Revealed on Swipe Left) - LEWATI & HAPUS */}
         <motion.div 
-          style={{ 
-            opacity: rightActionOpacity, 
-            scale: scaleAction,
-            x: rightActionX
-          }}
+          style={{ opacity: rightActionOpacity, scale: scaleAction, x: rightActionX }}
           className="absolute right-0 top-[5%] bottom-[5%] w-[115px] flex flex-col gap-2 justify-center"
         >
           <button 
@@ -167,92 +201,100 @@ const KartuTugas = ({ habit, index, activeFilter, onDoubleTap }: { habit: any, i
       <motion.div
         style={{ x }}
         drag="x"
-        dragConstraints={{ left: -170, right: 170 }}
+        dragConstraints={{ left: -140, right: 140 }}
         dragElastic={0.1}
         onDragEnd={handleDragEnd}
-        whileTap={{ cursor: "grabbing" }}
+        whileTap={{ cursor: "grabbing", scale: 0.98 }}
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ 
-          type: "spring",
-          stiffness: 400,
-          damping: 30,
-          delay: index * 0.05 
-        }}
-        onClick={() => activeFilter === 'berjalan' && onDoubleTap(habit.id)}
-        className="relative aspect-[16/7.2] rounded-[24px] overflow-hidden border-[1px] border-white/10 shadow-[5px_5px_0px_rgba(0,0,0,1)] active:scale-[0.98] transition-all group cursor-pointer bg-[#1A1A1A] z-10"
+        transition={{ type: "spring", stiffness: 400, damping: 30, delay: index * 0.05 }}
+        onClick={handleDoubleTapClick}
+        className="relative aspect-[16/7.2] z-10"
       >
-        {/* Background Image */}
-        <img 
-          src={habit.imageUrl} 
-          className={`absolute inset-0 w-full h-full object-cover ${habit.imagePosition || 'object-center'} opacity-65 group-hover:opacity-85 transition-opacity duration-500`} 
-          alt={habit.name} 
-        />
-        
-        <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent" />
-        
-        <div className="absolute inset-0 p-5 flex flex-col justify-end">
-          <div>
-            <h3 className="text-[22px] font-black font-['Outfit'] text-white mb-1.5 leading-tight tracking-[0.5px]">
-              {habit.name}
-            </h3>
-            
-            <div className="flex items-center gap-4 text-white/60 h-5">
-              {/* Left Info Group: Icon + Frequency */}
-              <div className="flex items-center gap-1.5 h-full">
-                <div className="w-[16px] h-[16px] flex items-center justify-center">
+        {/* NEW: StreakBadge positioned absolutely to the swipable container */}
+        <StreakBadge streak={habit.streak} />
+
+        {/* INNER CONTAINER with Overflow Hidden */}
+        <div className="absolute inset-0 rounded-[24px] overflow-hidden border-[1px] border-white/10 shadow-[5px_5px_0px_rgba(0,0,0,1)] bg-[#1A1A1A] group cursor-pointer transition-all">
+          {/* Background Image */}
+          <img 
+            src={habit.imageUrl} 
+            className={`absolute inset-0 w-full h-full object-cover ${habit.imagePosition || 'object-center'} opacity-65 group-hover:opacity-85 transition-opacity duration-500`} 
+            alt={habit.name} 
+          />
+          
+          <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent" />
+          
+          <div className="absolute inset-0 p-5 flex flex-col justify-end">
+            <div>
+              <h3 className="text-[22px] font-black font-['Outfit'] text-white mb-1.5 leading-tight tracking-[0.5px]">
+                {habit.name}
+              </h3>
+              
+              <div className="flex items-center gap-4 text-white/60 h-5">
+                {/* Frequency */}
+                <div className="flex items-center gap-1.5 h-full">
                   <CustomIcon 
                     icon={HABIT_ICONS[habit.iconName] || habit.iconName || 'solar:bolt-bold'} 
                     width={14} 
                     height={14}
                     color={HABIT_COLORS[habit.iconName] || CATEGORY_COLORS[habit.category] || '#00FF85'}
                   />
+                  <span className="text-[9px] font-black tracking-[0.05em] uppercase text-white/40 leading-none mt-[2px]">
+                    {habit.frequency}
+                  </span>
                 </div>
-                <span className="text-[9px] font-black tracking-[0.05em] uppercase text-white/40 leading-none mt-[2px]">
-                  {habit.frequency}
-                </span>
-              </div>
-              
-              <div className="w-[1.5px] h-[12px] bg-white/20 mx-1" />
-              
-              {/* Right Info Group: Difficulty */}
-              <div className="flex items-center gap-1.5 h-full translate-x-[-2px]">
-                <div className="flex items-center justify-center">
+                
+                <div className="w-[1.5px] h-[12px] bg-white/20 mx-1" />
+                
+                {/* Difficulty */}
+                <div className="flex items-center gap-1.5 h-full translate-x-[-2px]">
                   <DifficultyDots level={habit.difficulty} />
+                  <span className="text-[9px] font-black tracking-[0.05em] uppercase text-white/40 leading-none mt-[2px]">
+                    Level
+                  </span>
                 </div>
-                <span className="text-[9px] font-black tracking-[0.05em] uppercase text-white/40 leading-none mt-[2px]">
-                  Level
-                </span>
               </div>
             </div>
           </div>
+
+          {/* Completion Overlay */}
+          <AnimatePresence>
+            {habit.completed && (
+              <motion.div 
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.8 }}
+                className="absolute inset-0 bg-black/60 backdrop-blur-[4px] flex items-center justify-center z-20"
+              >
+                <motion.div 
+                  initial={{ scale: 0.5 }}
+                  animate={{ scale: [0.5, 1.2, 1] }}
+                  transition={{ duration: 0.4, ease: "backOut" }}
+                  className="bg-[#00FF85] p-4 rounded-[24px] shadow-[0_0_40px_rgba(0,255,133,0.5)] border-4 border-black"
+                >
+                  <Icon icon="solar:check-circle-bold" width={44} height={44} className="text-black" />
+                </motion.div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* Skipped Overlay */}
+          <AnimatePresence>
+            {habit.skipped && (
+              <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="absolute inset-0 bg-black/60 backdrop-blur-[4px] flex items-center justify-center z-20"
+              >
+                <div className="bg-[#FFB800] p-4 rounded-[24px] shadow-[0_0_30px_rgba(255,184,0,0.3)] border-4 border-black">
+                  <Icon icon="solar:skip-next-bold" width={40} height={40} className="text-black" />
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
-
-        {/* Completion Overlay */}
-        {habit.completed && (
-          <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="absolute inset-0 bg-black/60 backdrop-blur-[4px] flex items-center justify-center z-20"
-          >
-            <div className="bg-[#00FF85] p-4 rounded-[24px] shadow-[0_0_30px_rgba(0,255,133,0.3)] border-4 border-black">
-              <Icon icon="solar:check-circle-bold" width={40} height={40} className="text-black" />
-            </div>
-          </motion.div>
-        )}
-
-        {/* Skipped Overlay */}
-        {habit.skipped && (
-          <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="absolute inset-0 bg-black/60 backdrop-blur-[4px] flex items-center justify-center z-20"
-          >
-            <div className="bg-[#FFB800] p-4 rounded-[24px] shadow-[0_0_30px_rgba(255,184,0,0.3)] border-4 border-black">
-              <Icon icon="solar:skip-next-bold" width={40} height={40} className="text-black" />
-            </div>
-          </motion.div>
-        )}
       </motion.div>
     </div>
   );
