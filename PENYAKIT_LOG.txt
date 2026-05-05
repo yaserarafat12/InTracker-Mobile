@@ -32,6 +32,10 @@ Status: Dashboard Berhasil Render (Fixed White Screen)
    - Penyebab: Setelah rename file di 'src/mainscreen/habits/', file 'Dashboard.tsx' masih pakai nama import lama (DaftarTugas & TambahTugasModal).
    - Solusi: Update import ke 'habitlist' dan 'addhabitscreen'. Pastikan prop 'onAddHabit' punya tipe eksplisit biar TS nggak komplain.
 
+7. PENYAKIT: LAG / INPUT DELAY DI MOBILE (PERFORMANCE)
+   - Penyebab: Penggunaan 'backdrop-blur-xl' yang berlebihan dan animasi partikel DOM yang banyak. Browser mobile kesulitan merender blur transparan di atas animasi Framer Motion.
+   - Solusi: Hapus efek blur, ganti dengan background solid transparan (bg-black/90). Batasi jumlah partikel dan gunakan 'will-change: transform' untuk akselerasi GPU.
+
 ==================================================
 Ditulis oleh: Rin (AI Assistant)
 ==================================================

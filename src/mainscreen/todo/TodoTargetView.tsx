@@ -86,12 +86,11 @@ const StarSystemStyles = () => (
       background: #FFD700;
       pointer-events: none;
       z-index: 2;
+      will-change: transform, opacity;
     }
     .star-particle:nth-child(1) { top: 15%; right: 8%; animation: starParticleFloat1 2.8s ease-in-out infinite; }
     .star-particle:nth-child(2) { top: 40%; right: 3%; animation: starParticleFloat2 3.4s ease-in-out infinite 0.5s; }
     .star-particle:nth-child(3) { bottom: 20%; right: 12%; animation: starParticleFloat3 3s ease-in-out infinite 1s; }
-    .star-particle:nth-child(4) { top: 10%; left: 5%; animation: starParticleFloat2 3.2s ease-in-out infinite 0.8s; width: 3px; height: 3px; }
-    .star-particle:nth-child(5) { bottom: 10%; left: 8%; animation: starParticleFloat1 2.6s ease-in-out infinite 1.3s; width: 3px; height: 3px; background: #FFAA00; }
   `}</style>
 );
 
@@ -219,8 +218,6 @@ const TargetCard = ({ target, index, onOpen }: { target: TargetItem; index: numb
         {/* Golden particles for starred cards */}
         {target.starred && (
           <>
-            <span className="star-particle" />
-            <span className="star-particle" />
             <span className="star-particle" />
             <span className="star-particle" />
             <span className="star-particle" />
@@ -390,7 +387,7 @@ const TargetDetailSheet = ({ target, onClose }: { target: TargetItem; onClose: (
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         onClick={onClose}
-        className="fixed inset-0 z-[60] bg-black/85 backdrop-blur-md"
+        className="fixed inset-0 z-[60] bg-black/90"
       />
       <motion.div
         initial={{ y: '100%' }}
