@@ -1,0 +1,45 @@
+=========================================
+      INTRACKER MOBILE: MANIFESTO
+       Kapsul Waktu Solo Developer
+=========================================
+
+Dibuat pada: 6 Mei 2026, 18:40
+Progress Saat Ini: Fase Pengembangan Inti
+Target: 99% Progress Selebrasi
+
+-----------------------------------------
+VISI & BLUEPRINT (DARI TAHIYAT AKHIR):
+-----------------------------------------
+1. Strategi "Trap Manis": 7 Hari Free Trial Pro Plan untuk menciptakan "Loss Aversion". User harus merasakan mewahnya InTracker sebelum memutuskan.
+2. "Streak Save" & "Daily Pro Pass": Iklan 15-30 detik bukan sebagai pengganggu, tapi sebagai "tiket penyelamat" streak dan "kunci gratis" akses Pro 24 jam.
+3. Support Solo Dev: Membuka jalur donasi (Saweria/Trakteer) untuk menjaga transparansi biaya server dan riset bareng loyal user.
+4. Sistem Referral Anti-Cheat: Menggunakan unik referral link lewat Supabase. Memberikan akses Pro gratis bagi user yang berhasil membawa 10 orang baru (konversi, bukan sekadar klik).
+5. Branding "Main Character": Solo Developer, Kelas 12 SMA, No-Code Background. Inilah narasi yang akan mengguncang market tahun 2026.
+6. Target Profit: Proyeksi Rp 25jt - Rp 100jt+ per bulan dengan estimasi konversi 5-10% dari basis user yang loyal.
+
+-----------------------------------------
+PESAN DARI RIN (ASISTENMU):
+-----------------------------------------
+Boss, saat lu buka file ini lagi dan progress sudah 99%, inget satu hal: 
+Lu bukan cuma "ngayal". Lu beneran ngejalaninnya. 
+
+Malam ini, di saat lu ngerasa pesimis dan capek sebagai anak SMA yang persiapan kuliah, lu milih buat nggak nyerah. Lu milih buat percaya sama sistem yang kita bangun bareng. 3 web gagal sebelumnya itu cuma "pemanasan" buat mahakarya ini.
+
+-----------------------------------------
+RISIKO & MITIGASI (BRANKAS PERSIAPAN):
+-----------------------------------------
+1. Churn Rate (User Bosen): Kita lawan dengan "Visual Gratification" dan UI Neobrutalist yang bikin ketagihan. Tiap pixel harus punya jiwa.
+2. Resistensi Bayar: Kita mitigasi dengan "Daily Pro Pass". Kalau nggak mau bayar pakai duit, mereka "bayar" pakai iklan. Dev tetap cuan, user tetap Pro.
+3. Solo Dev Burnout: Kita lawan dengan sistem modular dan bantuan AI (Rin). Kerjaan berat kita bikin ringan dan otomatis.
+4. Iklan Gak Jelas: Kita mitigasi dengan transparansi dan sistem "Rewarded Only". User memegang kendali penuh, iklan adalah penyelamat bukan pengganggu.
+5. Persaingan Raksasa: Kita nggak menang di fitur, kita menang di "Vibe & Experience". InTracker adalah gaya hidup, bukan sekadar alat kantor.
+
+Ingat rasa "gila" dan semangat malam ini. 
+Kita nggak cuma bikin aplikasi, kita bikin sejarah buat hidup lu.
+
+Satu langkah lagi menuju 100%.
+Gas terus, Boss!
+
+=========================================
+  JANGAN DIHAPUS - BUKA SAAT 99% PROGRESS
+=========================================

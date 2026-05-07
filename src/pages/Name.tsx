@@ -21,10 +21,10 @@ export default function Name() {
           updated_at: new Date().toISOString()
         }).eq('id', user.id);
       }
-      navigate('/questions/0');
+      navigate('/nickname');
     } catch (error) {
       console.error("Error saving name:", error);
-      navigate('/questions/0');
+      navigate('/nickname');
     } finally {
       setIsSaving(false);
     }

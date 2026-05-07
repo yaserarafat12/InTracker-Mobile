@@ -3,7 +3,7 @@ import { persist } from 'zustand/middleware';
 import { supabase } from '../lib/supabase';
 
 export type TargetMode = 'checklist' | 'number';
-export type TargetWindow = 'today' | 'upcoming' | 'someday';
+export type TargetWindow = 'today' | 'upcoming' | 'someday' | 'delayed';
 export type TargetPriority = 'tinggi' | 'sedang' | 'rendah';
 
 export interface TargetStep {
@@ -89,6 +89,7 @@ export const useTargetStore = create<TargetStore>()(
           .order('created_at', { ascending: false });
 
         if (!error && data) {
+          const today = new Date().toLocaleDateString('en-CA');
           const mappedData = data.map((t) => ({
             ...t,
             currentValue: t.current_value,
@@ -96,7 +97,25 @@ export const useTargetStore = create<TargetStore>()(
             starred: t.starred ?? false,
             createdAt: t.created_at,
           }));
-          set({ targets: mappedData as TargetItem[] });
+
+          // AUTO-SWEEP LOGIC: Move uncompleted 'today' targets from previous days to 'delayed'
+          const toDelay: string[] = [];
+          const updatedTargets = mappedData.map(t => {
+            const itemDate = new Date(t.createdAt).toLocaleDateString('en-CA');
+            if (t.window === 'today' && !t.completed && itemDate < today) {
+              toDelay.push(t.id);
+              return { ...t, window: 'delayed' as const };
+            }
+            return t;
+          });
+
+          if (toDelay.length > 0) {
+            console.log(`Auto-delaying ${toDelay.length} expired targets.`);
+            // Background update to Supabase
+            supabase.from('targets').update({ window: 'delayed' }).in('id', toDelay).then();
+          }
+
+          set({ targets: updatedTargets as TargetItem[] });
         }
         set({ loading: false });
       },

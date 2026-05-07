@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Icon } from '@iconify/react';
@@ -17,7 +17,7 @@ interface AddTodoSheetProps {
 const CATEGORIES: { id: TargetWindow; label: string }[] = [
   { id: 'today', label: 'Hari Ini' },
   { id: 'upcoming', label: 'Mendatang' },
-  { id: 'someday', label: 'Someday' },
+  { id: 'someday', label: 'Suatu Hari' },
 ];
 
 export const AddTodoSheet = ({ isOpen, onClose, targetToEdit }: AddTodoSheetProps) => {
@@ -26,15 +26,8 @@ export const AddTodoSheet = ({ isOpen, onClose, targetToEdit }: AddTodoSheetProp
   const [window, setWindow] = useState<TargetWindow>('today');
   const [isPenting, setIsPenting] = useState(false);
 
-  // Sync state during render to avoid cascading renders warning (React 18 recommendation)
-  const [derivedState, setDerivedState] = useState({ 
-    targetId: targetToEdit?.id || null, 
-    isOpen: false 
-  });
-
-  if (isOpen !== derivedState.isOpen || targetToEdit?.id !== derivedState.targetId) {
-    setDerivedState({ targetId: targetToEdit?.id || null, isOpen });
-    
+  // Sync state when isOpen or targetToEdit changes
+  useEffect(() => {
     if (isOpen) {
       if (targetToEdit) {
         setTitle(targetToEdit.title);
@@ -46,7 +39,7 @@ export const AddTodoSheet = ({ isOpen, onClose, targetToEdit }: AddTodoSheetProp
         setIsPenting(false);
       }
     }
-  }
+  }, [isOpen, targetToEdit]);
 
   const handleSubmit = async () => {
     const cleanTitle = title.trim();

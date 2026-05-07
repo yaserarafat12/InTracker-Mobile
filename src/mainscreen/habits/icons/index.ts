@@ -25,6 +25,11 @@ export const HABIT_ICONS: Record<string, string> = {
   'Skipping': 'custom:Skipping',
   'Bike': 'custom:Cycling',
   'Monitor': 'solar:monitor-bold',
+  'WalletMoney': 'solar:wallet-money-bold',
+  'Agenda': 'solar:notes-bold',
+  'MoonSleep': 'solar:moon-sleep-bold',
+  'Users': 'solar:users-group-rounded-bold',
+  'Leaf': 'solar:leaf-bold',
   'solar:book-2-bold': 'solar:book-2-bold',
   'solar:tv-bold': 'solar:tv-bold',
   'solar:lightbulb-bold': 'solar:lightbulb-bold',
@@ -74,6 +79,11 @@ export const HABIT_COLORS: Record<string, string> = {
   'Basketball': '#F97316',
   'Skipping': '#EF4444',
   'Praying': '#FCD34D',
+  'WalletMoney': '#FACC15',
+  'Agenda': '#A78BFA',
+  'MoonSleep': '#60A5FA',
+  'Users': '#FB7185',
+  'Leaf': '#4ADE80',
 };
 
 export const isCustomIcon = (iconStr: string) => iconStr?.startsWith('custom:');
@@ -156,4 +166,51 @@ export const HABIT_OPTIONS: HabitOption[] = [
   { name: 'Basket', iconName: 'Basketball', category: 'Latihan Fisik', imageUrl: '/all_images/display_images/basket.png', frequency: 'Mingguan', difficulty: 2, intensity: { type: 'numeric', unit: 'Menit', options: [30, 60, 90, 120], defaultValue: 60 } },
   { name: 'Lompat Tali', iconName: 'Skipping', category: 'Latihan Fisik', imageUrl: '/all_images/display_images/skipping.png', imagePosition: 'object-top', frequency: 'harian', difficulty: 2, intensity: { type: 'numeric', unit: 'Sesi', options: [1, 2, 3, 4, 5], defaultValue: 1 } },
   { name: 'Bersepeda', iconName: 'Bike', category: 'Latihan Fisik', imageUrl: '/all_images/display_images/sepeda.png', imagePosition: 'object-right', frequency: 'harian', difficulty: 2, intensity: { type: 'numeric', unit: 'Km', options: [1, 2, 5, 10, 20], defaultValue: 5 } },
+  
+  // New Protocols
+  { 
+    name: 'Mencatat Keuangan', 
+    iconName: 'WalletMoney', 
+    category: 'Rutinitas', 
+    imageUrl: '/all_images/display_images/mencatat_keuangan.png', 
+    frequency: 'harian', 
+    difficulty: 1, 
+    intensity: { type: 'none' } 
+  },
+  { 
+    name: 'Perencanaan besok', 
+    iconName: 'Agenda', 
+    category: 'Evolusi Diri', 
+    imageUrl: '/all_images/display_images/perencaanbesok.png', 
+    frequency: 'harian', 
+    difficulty: 1, 
+    intensity: { type: 'none' } 
+  },
+  { 
+    name: 'Digital Detox', 
+    iconName: 'MoonSleep', 
+    category: 'Ketenangan Diri', 
+    imageUrl: '/all_images/display_images/digitaldetox.png', 
+    frequency: 'harian', 
+    difficulty: 2, 
+    intensity: { type: 'none' } 
+  },
+  { 
+    name: 'Koneksi Sosial', 
+    iconName: 'Users', 
+    category: 'Evolusi Diri', 
+    imageUrl: '/all_images/display_images/koneksisosial.png', 
+    frequency: 'harian', 
+    difficulty: 1, 
+    intensity: { type: 'none' } 
+  },
+  { 
+    name: 'Nutrisi Harian', 
+    iconName: 'Leaf', 
+    category: 'Rutinitas', 
+    imageUrl: '/all_images/display_images/nutrisiharian.png', 
+    frequency: 'harian', 
+    difficulty: 1, 
+    intensity: { type: 'none' } 
+  },
 ];

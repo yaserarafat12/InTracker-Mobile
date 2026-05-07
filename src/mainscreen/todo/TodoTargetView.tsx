@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { motion, AnimatePresence, useMotionValue, useTransform, animate } from 'framer-motion';
 import { Icon } from '@iconify/react';
 import {
@@ -94,60 +94,33 @@ const StarSystemStyles = () => (
   `}</style>
 );
 
-type TargetFilter = 'today' | 'upcoming' | 'overdue' | 'someday' | 'done';
+type TargetFilter = 'today' | 'upcoming' | 'someday' | 'delayed' | 'done';
 
-const ACCENT_OPTIONS = ['#00FF85', '#E3DAC9', '#60A5FA', '#FACC15', '#EF4444'];
+// Labels and Options moved to store or removed if unused
 
-const FILTERS: Array<{ id: TargetFilter; label: string }> = [
-  { id: 'today', label: 'Hari Ini' },
-  { id: 'upcoming', label: 'Mendatang' },
-  { id: 'someday', label: 'Someday' },
-  { id: 'overdue', label: 'Tertunda' },
-  { id: 'done', label: 'Selesai' },
-];
-
-const WINDOW_LABELS: Record<TargetWindow, string> = {
-  today: 'Hari Ini',
-  upcoming: 'Mendatang',
-  someday: 'Someday',
-};
-
-const PRIORITY_LABELS: Record<TargetPriority, string> = {
-  tinggi: 'Prioritas Tinggi',
-  sedang: 'Prioritas Sedang',
-  rendah: 'Prioritas Rendah',
-};
-
-const getTargetMeta = (target: TargetItem) => {
-  if (target.mode === 'number') {
-    return `${target.currentValue}/${target.targetValue} ${target.unit}`;
+const getPrismStyle = (id: string) => {
+  let hash = 0;
+  for (let i = 0; i < id.length; i++) {
+    hash = id.charCodeAt(i) + ((hash << 5) - hash);
   }
-
-  const done = target.steps.filter((step) => step.completed).length;
-  return `${done}/${target.steps.length} langkah selesai`;
+  
+  const imgIndex = (Math.abs(hash) % 5) + 1;
+  // Kita sebar koordinatnya biar dapet potongan yang unik banget (Crop Area)
+  const posX = Math.abs((hash * 13) % 80); 
+  const posY = Math.abs((hash * 23) % 80);
+  
+  return {
+    backgroundImage: `url('/all_images/bg_for_todo_display_testing_only/${imgIndex}.png')`,
+    backgroundPosition: `${posX}% ${posY}%`,
+    backgroundSize: '1672px 941px', // Fixed size untuk efek CROP asli
+    backgroundRepeat: 'no-repeat'
+  };
 };
 
-const TargetProgressBar = ({ target }: { target: TargetItem }) => {
-  const progress = getTargetProgress(target);
-
-  return (
-    <div className="h-3 rounded-full bg-black/50 border border-white/5 overflow-hidden">
-      <motion.div
-        initial={{ width: 0 }}
-        animate={{ width: `${progress}%` }}
-        transition={{ type: 'spring', stiffness: 180, damping: 24 }}
-        className="h-full rounded-full"
-        style={{
-          backgroundColor: target.completed ? '#E3DAC9' : target.accent,
-          boxShadow: `0 0 18px ${target.accent}55`,
-        }}
-      />
-    </div>
-  );
-};
+// getTargetMeta and TargetProgressBar removed as they are unused in current UI
 
 const TargetCard = ({ target, index, onOpen }: { target: TargetItem; index: number; onOpen: (target: TargetItem) => void }) => {
-  const { toggleStar, toggleComplete, deleteTarget } = useTargetStore();
+  const { toggleStar, toggleComplete, deleteTarget, updateTargetWindow } = useTargetStore();
   const x = useMotionValue(0);
 
   // Swipe transformations
@@ -155,7 +128,7 @@ const TargetCard = ({ target, index, onOpen }: { target: TargetItem; index: numb
   const deleteOpacity = useTransform(x, [-20, -80], [0, 1]);
   const scaleAction = useTransform(x, [-100, 0, 100], [1, 0.95, 1]);
 
-  const handleDragEnd = (_: any, info: any) => {
+  const handleDragEnd = (_: any, info: { velocity: { x: number } }) => {
     const currentX = x.get();
     const threshold = 60;
     if (currentX > threshold) {
@@ -183,14 +156,16 @@ const TargetCard = ({ target, index, onOpen }: { target: TargetItem; index: numb
     <div className="relative w-full">
       {/* Background Actions */}
       <div className="absolute inset-0 flex items-center justify-between px-2">
-        {/* Edit Action (Left) */}
+        {/* Edit Action (Left) - Dynamic for Delayed */}
         <motion.button
           style={{ opacity: editOpacity, scale: scaleAction }}
-          onClick={() => handleAction('edit')}
-          className="w-16 h-[80%] rounded-2xl bg-[#E3DAC9] border-[1.5px] border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] flex flex-col items-center justify-center gap-1 text-black active:scale-90 transition-all"
+          onClick={() => target.window === 'delayed' ? updateTargetWindow(target.id, 'today') : handleAction('edit')}
+          className={`w-16 h-[80%] rounded-2xl border-[1.5px] border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] flex flex-col items-center justify-center gap-1 text-black active:scale-90 transition-all ${
+            target.window === 'delayed' ? 'bg-[#00FF85]' : 'bg-[#E3DAC9]'
+          }`}
         >
-          <Icon icon="ph:pencil-simple-bold" width={20} height={20} />
-          <span className="text-[8px] font-black uppercase">Edit</span>
+          <Icon icon={target.window === 'delayed' ? "ph:arrows-counter-clockwise-bold" : "ph:pencil-simple-bold"} width={20} height={20} />
+          <span className="text-[8px] font-black uppercase">{target.window === 'delayed' ? 'Pulihkan' : 'Edit'}</span>
         </motion.button>
 
         {/* Delete Action (Right) */}
@@ -211,10 +186,29 @@ const TargetCard = ({ target, index, onOpen }: { target: TargetItem; index: numb
         dragConstraints={{ left: -100, right: 100 }}
         dragElastic={0.1}
         onDragEnd={handleDragEnd}
-        className={`w-full rounded-[32px] bg-[#1A1A1A] border-[1.5px] border-white/10 p-6 relative z-10 ${
-          target.starred ? 'starred-card' : 'shadow-[8px_8px_0px_rgba(0,0,0,1)] overflow-hidden'
+        className={`w-full rounded-[28px] border-[1.5px] border-white/10 relative ${
+          target.starred ? 'starred-card z-30' : 'shadow-[8px_8px_0px_rgba(0,0,0,1)] z-10'
         }`}
       >
+        {/* VIRTUAL PRISM BACKGROUND (THE CROP) - Managed overflow here instead */}
+        {!target.completed && (
+          <div 
+            className="absolute inset-0 z-[-2] rounded-[28px] overflow-hidden"
+            style={getPrismStyle(target.id)}
+          />
+        )}
+
+        {/* TEMPERED GLASS LAYER (BLUR & TINT) */}
+        <div className={`absolute inset-0 z-[-1] rounded-[28px] backdrop-blur-[25px] ${target.completed ? 'bg-black/60' : 'bg-black/45'}`} />
+
+        {/* GLASS REFLECTION SHINE */}
+        {!target.completed && (
+          <div className="absolute inset-0 z-[-1] rounded-[28px] bg-gradient-to-br from-white/10 via-transparent to-transparent pointer-events-none" />
+        )}
+
+        <div className="p-4 relative">
+
+
         {/* Golden particles for starred cards */}
         {target.starred && (
           <>
@@ -233,11 +227,12 @@ const TargetCard = ({ target, index, onOpen }: { target: TargetItem; index: numb
               toggleComplete(target.id);
               if (navigator.vibrate) navigator.vibrate(8);
             }}
-            className={`w-7 h-7 rounded-lg border-2 flex items-center justify-center transition-all shrink-0 ${
+            className={`w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all shrink-0 ${
               target.completed ? 'bg-[#00FF85] border-black' : 'border-white/10 bg-white/5'
             }`}
+
           >
-            {target.completed && <Icon icon="ph:check-bold" width={16} height={16} className="text-black" />}
+            {target.completed && <Icon icon="ph:check-bold" width={14} height={14} className="text-black" />}
           </motion.div>
 
           <motion.button
@@ -249,16 +244,19 @@ const TargetCard = ({ target, index, onOpen }: { target: TargetItem; index: numb
             className="flex-1 text-left min-w-0"
           >
             <h3
-              className={`text-[20px] font-black font-['Outfit'] uppercase leading-tight transition-all ${
+              className={`text-[17px] font-black font-['Outfit'] leading-tight tracking-tight transition-all drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)] ${
                 target.completed ? 'text-white/20 line-through' : 'text-[#E3DAC9]'
               }`}
             >
+
               {target.title}
             </h3>
           </motion.button>
         </div>
 
-        {/* Magical Star Cluster Toggle */}
+        </div>
+
+        {/* Magical Star Cluster Toggle - MOVED OUTSIDE PADDING FOR PRECISION */}
         <motion.button
           whileTap={{ scale: 0.75 }}
           onClick={(e) => {
@@ -266,15 +264,17 @@ const TargetCard = ({ target, index, onOpen }: { target: TargetItem; index: numb
             toggleStar(target.id);
             if (navigator.vibrate) navigator.vibrate(target.starred ? 4 : [6, 20, 6]);
           }}
-          className={`absolute z-[20] flex items-center justify-center transition-all ${
-            target.starred ? 'top-[-22px] right-[-18px] w-14 h-14' : 'top-4 right-4 w-12 h-12'
+          className={`absolute z-[40] flex items-center justify-center transition-all ${
+            target.starred 
+              ? 'top-[-20px] right-[-20px] w-14 h-14 translate-y-0' 
+              : 'top-1/2 right-2 w-10 h-10 -translate-y-1/2'
           }`}
         >
           {target.starred ? (
             <div className="relative w-full h-full flex items-center justify-center">
               {/* Main Big Star */}
               <motion.div
-                initial={{ scale: 0.5, rotate: -30 }}
+                initial={{ scale: 0.5, rotate: 0 }}
                 animate={{ scale: 1.1, rotate: 0 }}
                 transition={{ type: 'spring', stiffness: 400, damping: 15 }}
                 className="z-[2]"
@@ -287,7 +287,7 @@ const TargetCard = ({ target, index, onOpen }: { target: TargetItem; index: numb
               {/* Smaller Support Star 1 (Top Left) */}
               <motion.div
                 initial={{ scale: 0, x: 0, y: 0 }}
-                animate={{ scale: 1, x: -16, y: 10, rotate: -20 }}
+                animate={{ scale: 1, x: -16, y: 10, rotate: 0 }}
                 transition={{ type: 'spring', stiffness: 300, damping: 20, delay: 0.05 }}
                 className="absolute z-[1]"
               >
@@ -299,7 +299,7 @@ const TargetCard = ({ target, index, onOpen }: { target: TargetItem; index: numb
               {/* Smaller Support Star 2 (Bottom Left) */}
               <motion.div
                 initial={{ scale: 0, x: 0, y: 0 }}
-                animate={{ scale: 1, x: -8, y: 24, rotate: 15 }}
+                animate={{ scale: 1, x: -8, y: 24, rotate: 0 }}
                 transition={{ type: 'spring', stiffness: 350, damping: 22, delay: 0.1 }}
                 className="absolute z-[1]"
               >
@@ -311,7 +311,7 @@ const TargetCard = ({ target, index, onOpen }: { target: TargetItem; index: numb
               {/* NEW: Star 3 (Far Left) */}
               <motion.div
                 initial={{ scale: 0, x: 0, y: 0 }}
-                animate={{ scale: 0.8, x: -22, y: 2, rotate: -40 }}
+                animate={{ scale: 0.8, x: -22, y: 2, rotate: 0 }}
                 transition={{ type: 'spring', stiffness: 250, damping: 18, delay: 0.15 }}
                 className="absolute z-[1]"
               >
@@ -323,7 +323,7 @@ const TargetCard = ({ target, index, onOpen }: { target: TargetItem; index: numb
               {/* NEW: Star 4 (Bottom Right-ish) */}
               <motion.div
                 initial={{ scale: 0, x: 0, y: 0 }}
-                animate={{ scale: 0.7, x: 2, y: 28, rotate: 30 }}
+                animate={{ scale: 0.7, x: 2, y: 28, rotate: 0 }}
                 transition={{ type: 'spring', stiffness: 200, damping: 25, delay: 0.2 }}
                 className="absolute z-[1]"
               >
@@ -333,7 +333,7 @@ const TargetCard = ({ target, index, onOpen }: { target: TargetItem; index: numb
               </motion.div>
             </div>
           ) : (
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.15)" strokeWidth="2">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.3)" strokeWidth="2.5">
               <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
             </svg>
           )}
@@ -354,7 +354,7 @@ const EmptyTargetState = ({ onAdd }: { onAdd: () => void }) => (
     <div className="w-12 h-12 rounded-[20px] bg-[#00FF85] border-[1.5px] border-black flex items-center justify-center shadow-[4px_4px_0px_rgba(0,0,0,1)]">
       <Icon icon="solar:add-circle-bold" width={24} height={24} className="text-black" />
     </div>
-    <h3 className="mt-4 text-[20px] font-black uppercase text-white">Tambah Target Baru</h3>
+    <h3 className="mt-4 text-[20px] font-black text-white">Tambah Target Baru</h3>
     <p className="mt-1 text-[11px] font-bold uppercase text-[#E3DAC9]/40 leading-relaxed">
       Pecah objektif besar jadi langkah kecil yang bisa dieksekusi.
     </p>
@@ -367,7 +367,7 @@ const EmptyHistoryState = () => (
     animate={{ opacity: 1, scale: 1 }}
     className="w-full min-h-[190px] rounded-[30px] border border-white/10 bg-[#1A1A1A] flex flex-col items-center justify-center px-8 text-center shadow-[7px_7px_0px_rgba(0,0,0,1)]"
   >
-    <h3 className="text-[23px] font-black uppercase text-white">Belum Ada Riwayat</h3>
+    <h3 className="text-[23px] font-black text-white">Belum Ada Riwayat</h3>
     <p className="mt-2 text-[12px] font-bold uppercase text-[#E3DAC9]/35 leading-relaxed">
       Target selesai akan jadi arsip progres di sini.
     </p>
@@ -402,7 +402,7 @@ const TargetDetailSheet = ({ target, onClose }: { target: TargetItem; onClose: (
             {/* Icon Container Removed */}
             <div className="min-w-0 flex-1">
               {/* Priority Labels Removed */}
-              <h2 className="mt-1 text-[27px] font-black uppercase leading-[1.02] text-white">{target.title}</h2>
+              <h2 className="mt-1 text-[24px] font-bold leading-[1.1] text-white">{target.title}</h2>
             </div>
             <button
               onClick={onClose}
@@ -506,7 +506,7 @@ const TargetDetailSheet = ({ target, onClose }: { target: TargetItem; onClose: (
                   className="h-14 rounded-2xl bg-[#1A1A1A] border border-white/10 text-white/60 font-black text-[11px] uppercase active:scale-95 transition-all flex flex-col items-center justify-center"
                 >
                   <Icon icon="solar:star-fall-bold" width={18} height={18} />
-                  <span>Someday</span>
+                  <span>Suatu Hari</span>
                 </button>
               )}
               <button
@@ -527,41 +527,135 @@ const TargetDetailSheet = ({ target, onClose }: { target: TargetItem; onClose: (
   );
 };
 
+const DelayedClarificationSheet = ({ target, onClose }: { target: TargetItem; onClose: () => void }) => {
+  const { updateTargetWindow, deleteTarget } = useTargetStore();
+
+  return (
+    <>
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        onClick={onClose}
+        className="fixed inset-0 z-[80] bg-black/90 backdrop-blur-sm"
+      />
+      <motion.div
+        initial={{ y: '100%' }}
+        animate={{ y: 0 }}
+        exit={{ y: '100%' }}
+        transition={{ type: 'spring', damping: 27, stiffness: 210 }}
+        className="fixed inset-x-0 bottom-0 z-[90] rounded-t-[34px] bg-[#1A1A1A] border-t border-[#EF4444]/20 shadow-[0_-25px_60px_rgba(239,68,68,0.15)] overflow-hidden"
+      >
+        <div className="px-8 pt-8 pb-12">
+          <div className="flex flex-col items-center text-center">
+            <div className="w-16 h-16 rounded-[24px] bg-[#EF4444]/10 border-[1.5px] border-[#EF4444]/30 flex items-center justify-center mb-6 shadow-[0_0_20px_rgba(239,68,68,0.2)]">
+              <Icon icon="solar:danger-bold" width={32} height={32} className="text-[#EF4444]" />
+            </div>
+            
+            <h2 className="text-[24px] font-black text-white leading-tight">Tugas Belum Tuntas!</h2>
+            <p className="mt-3 text-[14px] font-medium text-[#E3DAC9]/40 max-w-[260px]">
+              Tugas "<span className="text-[#E3DAC9]">{target.title}</span>" kemarin gak kelar, Boss. Mau diapain?
+            </p>
+          </div>
+
+          <div className="mt-10 space-y-4">
+            <button
+              onClick={() => {
+                updateTargetWindow(target.id, 'today');
+                if (navigator.vibrate) navigator.vibrate([10, 30, 10]);
+                onClose();
+              }}
+              className="w-full h-16 rounded-[22px] bg-[#00FF85] border-[1.5px] border-black text-black font-black uppercase shadow-[6px_6px_0px_rgba(0,0,0,1)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all flex items-center justify-center gap-3"
+            >
+              <Icon icon="ph:arrows-counter-clockwise-bold" width={24} height={24} />
+              <span>Pulihkan ke Hari Ini</span>
+            </button>
+
+            <button
+              onClick={() => {
+                if (confirm('Yakin hapus tugas ini?')) {
+                  deleteTarget(target.id);
+                  if (navigator.vibrate) navigator.vibrate(10);
+                  onClose();
+                }
+              }}
+              className="w-full h-16 rounded-[22px] bg-[#1A1A1A] border-[1.5px] border-white/10 text-[#EF4444] font-black uppercase active:scale-[0.98] transition-all flex items-center justify-center gap-3"
+            >
+              <Icon icon="ph:trash-bold" width={22} height={22} />
+              <span>Hapus Permanen</span>
+            </button>
+
+            <button
+              onClick={onClose}
+              className="w-full h-14 text-[13px] font-black uppercase text-white/20 tracking-widest mt-2"
+            >
+              Nanti Saja
+            </button>
+          </div>
+        </div>
+      </motion.div>
+    </>
+  );
+};
+
 export default function TodoTargetView() {
   const { targets } = useTargetStore();
   const [activeFilter, setActiveFilter] = useState<TargetFilter>('today');
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [selectedTarget, setSelectedTarget] = useState<TargetItem | null>(null);
+  const [clarifyTarget, setClarifyTarget] = useState<TargetItem | null>(null);
+  const [isAdding, setIsAdding] = useState(false);
+  const [inputValue, setInputValue] = useState('');
+  const quickAddRef = useRef<HTMLInputElement>(null);
 
-  const activeTargets = targets.filter((target) => !target.completed);
-  const completedTargets = targets.filter((target) => target.completed);
-  
-  const todayStr = new Date().toISOString().split('T')[0];
+  const handleOpenTarget = (target: TargetItem) => {
+    if (target.window === 'delayed' && !target.completed) {
+      setClarifyTarget(target);
+    } else {
+      setSelectedTarget(target);
+    }
+  };
 
-  const visibleTargets = targets.filter((target) => {
+  const handleQuickAdd = () => {
+    const title = inputValue.trim();
+    if (title) {
+      let window: TargetWindow = 'today';
+      if (activeFilter === 'upcoming') window = 'upcoming';
+      if (activeFilter === 'someday') window = 'someday';
+      
+      useTargetStore.getState().addTarget({
+        title,
+        icon: 'ph:target-bold',
+        accent: '#00FF85',
+        window,
+        priority: 'sedang',
+        mode: 'checklist',
+        steps: [],
+        targetValue: 0,
+        unit: '',
+        currentValue: 0,
+        starred: false,
+      });
+      setInputValue('');
+      setIsAdding(false);
+      if (navigator.vibrate) navigator.vibrate(10);
+    }
+  };
+
+  const visibleTargets = (targets || []).filter((target) => {
     if (activeFilter === 'done') return target.completed;
     if (target.completed) return false;
 
-    const targetDateStr = target.createdAt ? target.createdAt.split('T')[0] : todayStr;
-    const isOverdue = target.window === 'today' && targetDateStr < todayStr;
-
-    if (activeFilter === 'overdue') return isOverdue;
-    if (activeFilter === 'today') return target.window === 'today' && !isOverdue;
+    if (activeFilter === 'today') return target.window === 'today';
     
     return target.window === activeFilter;
   });
-  const historyTotal = targets.length;
-  const historyCompleted = completedTargets.length;
 
   return (
     <div className="px-5 pt-8 pb-36 min-h-screen">
       <StarSystemStyles />
       <div className="flex items-center justify-between gap-4">
-        <div className="min-w-0">
-          <h1 className="text-[45px] font-black uppercase leading-none text-white tracking-[0.02em] drop-shadow-[0_0_15px_rgba(255,255,255,0.3)]">
-            TO-DO
-          </h1>
-        </div>
+        <div className="min-w-0" />
         <button
           onClick={() => {
             setIsAddOpen(true);
@@ -587,58 +681,177 @@ export default function TodoTargetView() {
         </button>
       </div>
 
-      {/* Filter Tabs - Premium Habit Style */}
-      <div className="mt-12 flex gap-2 overflow-x-auto pb-4 scrollbar-hide">
-        {[
-          { id: 'today', label: 'Hari Ini', count: targets.filter(t => !t.completed && t.window === 'today' && (t.createdAt?.split('T')[0] || todayStr) >= todayStr).length },
-          { id: 'upcoming', label: 'Mendatang', count: targets.filter(t => !t.completed && t.window === 'upcoming').length },
-          { id: 'someday', label: 'Someday', count: targets.filter(t => !t.completed && t.window === 'someday').length },
-          { id: 'overdue', label: 'Ditunda', count: targets.filter(t => !t.completed && t.window === 'today' && (t.createdAt?.split('T')[0] || todayStr) < todayStr).length },
-          { id: 'done', label: 'Selesai', count: targets.filter(t => t.completed).length }
-        ].map((item) => (
-          <button 
-            key={item.id}
-            onClick={() => {
-              setActiveFilter(item.id as TargetFilter);
-              if (navigator.vibrate) navigator.vibrate(8);
-            }}
-            className={`
-              px-5 py-2.5 rounded-xl transition-all duration-300 flex items-start whitespace-nowrap
-              border-[1.5px] ${activeFilter === item.id 
-                ? 'bg-[#F5F2E8] border-black shadow-[3px_3px_0px_rgba(0,0,0,1)]' 
-                : 'bg-[#1A1A1A] border-white/10 shadow-[3px_3px_0px_rgba(0,0,0,1)]'}
-            `}
-          >
-            <span className={`text-[13px] font-bold font-['Outfit'] tracking-tight ${activeFilter === item.id ? 'text-black' : 'text-white/40'}`}>
-              {item.label}
-            </span>
-            <span className={`text-[9px] font-black ml-0.5 mt-[-2px] ${activeFilter === item.id ? 'text-black/40' : 'text-white/20'}`}>
-              {item.count}
-            </span>
-          </button>
-        ))}
+
+
+      {/* Filter Tabs - Premium Habit Style (Matched with Habit Tabs) */}
+      <div className="mt-10 overflow-x-auto no-scrollbar -mx-5 px-5">
+        <div className="flex gap-2 min-w-max pb-4">
+          {[
+            { id: 'today', label: 'Hari Ini', count: (targets || []).filter(t => !t.completed && t.window === 'today').length },
+            { id: 'upcoming', label: 'Mendatang', count: (targets || []).filter(t => !t.completed && t.window === 'upcoming').length },
+            { id: 'someday', label: 'Suatu Hari', count: (targets || []).filter(t => !t.completed && t.window === 'someday').length },
+            { id: 'delayed', label: 'Ditunda', count: (targets || []).filter(t => !t.completed && t.window === 'delayed').length },
+            { id: 'done', label: 'Selesai', count: (targets || []).filter(t => t.completed).length }
+          ].map((item) => (
+            <button
+              key={item.id}
+              onClick={() => {
+                setActiveFilter(item.id as TargetFilter);
+                if (navigator.vibrate) navigator.vibrate(8);
+              }}
+              className={`
+                px-4 py-2.5 rounded-xl transition-all duration-300 flex items-start
+                border-[1.5px] ${activeFilter === item.id 
+                  ? 'bg-[#F5F2E8] border-black shadow-[3px_3px_0px_rgba(0,0,0,1)]' 
+                  : 'bg-[#1A1A1A] border-white/10 shadow-[3px_3px_0px_rgba(0,0,0,1)]'}
+              `}
+            >
+              <span className={`text-[13px] font-bold font-['Outfit'] tracking-tight ${activeFilter === item.id ? 'text-black' : 'text-white/40'}`}>
+                {item.label}
+              </span>
+              <span className={`text-[9px] font-black ml-0.5 mt-[-2px] ${activeFilter === item.id ? 'text-black/40' : 'text-white/20'}`}>
+                {item.count}
+              </span>
+            </button>
+          ))}
+        </div>
       </div>
 
       <div className="mt-10 space-y-5">
-        {visibleTargets.length > 0 ? (
-          visibleTargets.map((target, index) => (
-            <TargetCard key={target.id} target={target} index={index} onOpen={setSelectedTarget} />
-          ))
-        ) : activeFilter === 'done' ? (
-          <EmptyHistoryState />
+        {activeFilter === 'done' ? (
+          targets.filter(t => t.completed).length > 0 ? (
+            (['today', 'upcoming', 'someday', 'delayed'] as const).map((windowId) => {
+              const windowTargets = targets.filter(t => t.completed && t.window === windowId);
+              if (windowTargets.length === 0) return null;
+              
+              const label = windowId === 'today' ? 'Hari Ini' : windowId === 'upcoming' ? 'Mendatang' : windowId === 'delayed' ? 'Ditunda' : 'Suatu Hari';
+              
+              return (
+                <div key={windowId} className="space-y-4 pt-2 first:pt-0">
+                  <div className="flex items-center gap-3 px-1">
+                    <div className="h-[1.5px] flex-1 bg-[#00FF85]/10" />
+                    <span className="text-[10px] font-black text-[#00FF85] tracking-[0.2em]">{label}</span>
+                    <div className="h-[1.5px] w-4 bg-[#00FF85]/10" />
+                  </div>
+                  <div className="space-y-4">
+                    {windowTargets.map((target, index) => (
+                      <TargetCard key={target.id} target={target} index={index} onOpen={handleOpenTarget} />
+                    ))}
+                  </div>
+                </div>
+              );
+            })
+          ) : (
+            <EmptyHistoryState />
+          )
         ) : (
-          <EmptyTargetState onAdd={() => setIsAddOpen(true)} />
+          visibleTargets.length > 0 ? (
+              <div className="space-y-5">
+                {visibleTargets.map((target, index) => (
+                  <TargetCard key={target.id} target={target} index={index} onOpen={handleOpenTarget} />
+                ))}
+              </div>
+          ) : null
+        )}
+
+        {/* QUICK ADD BAR - PREMIUM & CONSISTENT */}
+        {activeFilter !== 'done' && (
+          <div className="pt-4">
+            <motion.div
+              animate={{
+                borderColor: isAdding || inputValue ? '#00FF85' : 'rgba(255, 255, 255, 0.1)',
+                backgroundColor: isAdding || inputValue ? 'rgba(0, 255, 133, 0.05)' : 'rgba(34, 34, 34, 0.4)',
+              }}
+              className={`
+                w-full h-16 rounded-[24px] flex items-center gap-4 px-6 transition-all
+                border-[2px] shadow-[4px_4px_0px_rgba(0,0,0,1)]
+              `}
+              onClick={() => {
+                if (!isAdding) {
+                  setIsAdding(true);
+                  quickAddRef.current?.focus();
+                }
+              }}
+            >
+              {/* PLUS ICON WITH GLOW */}
+              <div className="relative flex items-center justify-center shrink-0">
+                {(isAdding || inputValue) && (
+                  <motion.div
+                    layoutId="plus-glow"
+                    className="absolute inset-0 bg-[#00FF85] blur-md opacity-40 rounded-full"
+                    animate={{ scale: [1, 1.3, 1] }}
+                    transition={{ repeat: Infinity, duration: 2 }}
+                  />
+                )}
+                <Icon 
+                  icon="ph:plus-bold" 
+                  width={22} 
+                  height={22} 
+                  className={`relative z-10 transition-colors ${isAdding || inputValue ? 'text-[#00FF85]' : 'text-[#E3DAC9]/30'}`} 
+                />
+              </div>
+              
+              <input
+                ref={quickAddRef}
+                type="text"
+                value={inputValue}
+                onChange={(e) => setInputValue(e.target.value)}
+                placeholder="Tulis tugas anda..."
+                onFocus={() => setIsAdding(true)}
+                onBlur={() => {
+                  if (!inputValue) setIsAdding(false);
+                }}
+                className={`
+                  flex-1 bg-transparent border-none outline-none text-[16px] font-bold font-['Outfit'] 
+                  text-[#E3DAC9] placeholder:text-[#E3DAC9]/20
+                `}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') handleQuickAdd();
+                  if (e.key === 'Escape') {
+                    setIsAdding(false);
+                    quickAddRef.current?.blur();
+                  }
+                }}
+              />
+
+              {/* DYNAMIC CHECKMARK SUBMIT */}
+              <AnimatePresence>
+                {inputValue.trim().length > 0 && (
+                  <motion.button
+                    initial={{ opacity: 0, scale: 0.5, x: 20 }}
+                    animate={{ opacity: 1, scale: 1, x: 0 }}
+                    exit={{ opacity: 0, scale: 0.5, x: 20 }}
+                    whileTap={{ scale: 0.85 }}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleQuickAdd();
+                    }}
+                    className="w-10 h-10 rounded-xl bg-[#00FF85] border border-black flex items-center justify-center shadow-[3px_3px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-x-[1px] active:translate-y-[1px]"
+                  >
+                    <Icon icon="ph:check-bold" width={18} height={18} className="text-black" />
+                  </motion.button>
+                )}
+              </AnimatePresence>
+            </motion.div>
+          </div>
         )}
       </div>
 
-      <AddTodoSheet 
-        isOpen={isAddOpen || !!selectedTarget} 
-        targetToEdit={selectedTarget}
-        onClose={() => {
-          setIsAddOpen(false);
-          setSelectedTarget(null);
-        }} 
-      />
+      <AnimatePresence>
+        {isAddOpen && <AddTodoSheet isOpen={true} onClose={() => setIsAddOpen(false)} />}
+        {selectedTarget && (
+          <TargetDetailSheet 
+            target={selectedTarget} 
+            onClose={() => setSelectedTarget(null)} 
+          />
+        )}
+        {clarifyTarget && (
+          <DelayedClarificationSheet 
+            target={clarifyTarget} 
+            onClose={() => setClarifyTarget(null)} 
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 }

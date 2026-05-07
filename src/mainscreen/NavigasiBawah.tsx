@@ -14,7 +14,7 @@ export const NavigasiBawah: React.FC<NavigasiBawahProps> = ({ activeTab, setActi
     { id: 'home', icon: 'solar:home-2-bold', label: 'Sistem', path: '/dashboard' },
     { id: 'habits', icon: 'solar:checklist-minimalistic-bold', label: 'Kebiasaan', path: '/habit' },
     { id: 'todo', icon: 'solar:target-bold', label: 'Target', path: '/todo' },
-    { id: 'journey', icon: 'solar:compass-bold', label: 'Jalur', path: '/journey' },
+    { id: 'journey', icon: 'solar:compass-bold', label: 'Journey', path: '/journey' },
     { id: 'global', icon: 'solar:globus-bold', label: 'Global', path: '/global' },
     { id: 'ai', icon: 'solar:chat-round-dots-bold', label: 'AI', path: '/ai' },
     { id: 'hub', icon: 'solar:menu-dots-bold', label: 'Hub', isMenu: true, path: '/hub' },

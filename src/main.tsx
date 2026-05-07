@@ -8,6 +8,7 @@ import Name from './pages/Name.tsx';
 import Questions from './pages/Questions.tsx';
 import Notif from './pages/Notif.tsx';
 import Location from './pages/Location.tsx';
+import Nickname from './pages/Nickname.tsx';
 import Beranda from './mainscreen/beranda/Beranda';
 import './index.css';
 
@@ -129,6 +130,10 @@ const router = createBrowserRouter([
   {
     path: '/name',
     element: <AuthGuard><OnboardingGuard><Name /></OnboardingGuard></AuthGuard>,
+  },
+  {
+    path: '/nickname',
+    element: <AuthGuard><OnboardingGuard><Nickname /></OnboardingGuard></AuthGuard>,
   },
   {
     path: '/questions',

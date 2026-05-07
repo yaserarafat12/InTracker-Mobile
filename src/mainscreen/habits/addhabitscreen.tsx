@@ -34,11 +34,15 @@ export const TambahHabitModal = ({
   isOpen, 
   onClose, 
   onAddHabit,
+  onUpdateHabit,
+  habitToEdit = null,
   currentHabits = [] 
 }: { 
   isOpen: boolean, 
   onClose: () => void, 
-  onAddHabit: (habit: any) => void,
+  onAddHabit?: (habit: any) => void,
+  onUpdateHabit?: (id: string, updates: any) => void,
+  habitToEdit?: any | null,
   currentHabits?: any[]
 }) => {
   const [selectedCategory, setSelectedCategory] = useState('Semua');
@@ -132,7 +136,10 @@ export const TambahHabitModal = ({
 
   // Set default intensity when habit is selected
   useEffect(() => {
-    if (selectedHabitForConfig) {
+    if (habitToEdit) {
+      setSelectedHabitForConfig(habitToEdit);
+      setIntensityValue(habitToEdit.target_intensity || null);
+    } else if (selectedHabitForConfig) {
       if (selectedHabitForConfig.name.includes('Hidrasi')) {
         setIntensityValue(8);
       } else if (selectedHabitForConfig.intensity?.options) {
@@ -141,18 +148,36 @@ export const TambahHabitModal = ({
         setIntensityValue(opts[Math.floor(opts.length / 2)]);
       }
     }
-  }, [selectedHabitForConfig]);
+  }, [selectedHabitForConfig, habitToEdit]);
 
-  const handleAdd = (habitBase: any, intensity: number | null) => {
-    const newHabit = {
-      ...habitBase,
-      completed: false,
-      skipped: false,
-      targetIntensity: intensity,
-      currentIntensity: 0
-    };
-    onAddHabit(newHabit);
+  const handleActionClick = (habitBase: any, intensity: number | null) => {
+    // PROTEKSI DUPLICATE HABIT
+    const isDuplicate = currentHabits.some(h => h.name.toLowerCase() === habitBase.name.toLowerCase());
+    
+    if (isDuplicate && !habitToEdit) {
+      if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
+      // Simple custom feedback instead of standard alert for premium feel if possible,
+      // but for logic safety we block it here.
+      alert(`Protokol "${habitBase.name}" sudah aktif dalam sistem, Boss!`);
+      return;
+    }
+
+    if (habitToEdit) {
+      onUpdateHabit?.(habitToEdit.id, {
+        target_intensity: intensity
+      });
+    } else {
+      const newHabit = {
+        ...habitBase,
+        completed: false,
+        skipped: false,
+        target_intensity: intensity,
+        current_intensity: 0
+      };
+      onAddHabit?.(newHabit);
+    }
     onClose();
+    setSelectedHabitForConfig(null);
   };
 
   // Intensity Picker Scroll Detection
@@ -212,18 +237,35 @@ export const TambahHabitModal = ({
 
   // Internal component for Habit Card
   const HabitCard = ({ habit, index }: { habit: any, index: number }) => {
+    const isDuplicate = currentHabits.some(h => h.name.toLowerCase() === habit.name.toLowerCase());
+    const [isShaking, setIsShaking] = useState(false);
+    
     const iconStr = HABIT_ICONS[habit.iconName] || 'solar:bolt-bold';
+
+    const handleCardClick = () => {
+      if (isDuplicate) {
+        setIsShaking(true);
+        if (navigator.vibrate) navigator.vibrate([40, 30, 40]);
+        setTimeout(() => setIsShaking(false), 500);
+        return;
+      }
+
+      if (navigator.vibrate) navigator.vibrate(5);
+      setSelectedHabitForConfig(habit);
+      if (habit.intensity?.type === 'numeric') {
+        setIntensityValue(habit.intensity.defaultValue || habit.intensity.options?.[0] || 1);
+      } else {
+        setIntensityValue(null);
+      }
+    };
+
     return (
       <motion.div
-        onClick={() => {
-          if (navigator.vibrate) navigator.vibrate(5);
-          setSelectedHabitForConfig(habit);
-          if (habit.intensity?.type === 'numeric') {
-            setIntensityValue(habit.intensity.defaultValue || habit.intensity.options?.[0] || 1);
-          } else {
-            setIntensityValue(null);
-          }
-        }}
+        animate={isShaking ? { 
+          x: [0, -8, 8, -8, 8, 0],
+          transition: { duration: 0.4, ease: "easeInOut" }
+        } : {}}
+        onClick={handleCardClick}
         className="relative aspect-[16/7.2] rounded-[24px] overflow-hidden border-[1px] border-white/10 shadow-[5px_5px_0px_rgba(0,0,0,1)] active:scale-[0.98] group cursor-pointer bg-[#1A1A1A]"
       >
         <img 
@@ -256,6 +298,24 @@ export const TambahHabitModal = ({
             </div>
           </div>
         </div>
+
+        {/* SUDAH TERSEDIA OVERLAY */}
+        <AnimatePresence>
+          {isDuplicate && (
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="absolute inset-0 bg-black/60 backdrop-blur-[2px] flex items-center justify-center z-10"
+            >
+              <div className="flex flex-col items-center gap-2">
+                <div className="bg-[#EF4444]/20 p-2 rounded-full border border-[#EF4444]/30 backdrop-blur-md">
+                  <Icon icon="solar:shield-warning-bold" width={24} height={24} className="text-[#EF4444]" />
+                </div>
+                <span className="text-[10px] font-black font-['Outfit'] text-[#EF4444] uppercase tracking-[0.2em] drop-shadow-lg">Sudah Tersedia</span>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </motion.div>
     );
   };
@@ -402,7 +462,7 @@ export const TambahHabitModal = ({
               >
                 <Icon icon="solar:alt-arrow-left-bold" width={24} height={24} />
               </button>
-              <h3 className="text-[17px] font-bold font-['Outfit'] text-[#E3DAC9]">Tambah Tugas Baru</h3>
+              <h3 className="text-[17px] font-bold font-['Outfit'] text-[#E3DAC9]">{habitToEdit ? 'Edit Tugas' : 'Tambah Tugas Baru'}</h3>
             </div>
 
             {/* Task Icon & Name */}
@@ -456,10 +516,10 @@ export const TambahHabitModal = ({
                 Batal
               </button>
               <button 
-                onClick={() => handleAdd(selectedHabitForConfig, intensityValue)}
+                onClick={() => handleActionClick(selectedHabitForConfig, intensityValue)}
                 className="flex-[1.5] h-[56px] rounded-2xl bg-[#00FF85] border-[1.5px] border-black text-black font-bold font-['Outfit'] uppercase tracking-[0.15em] text-[13px] shadow-[4px_4px_0px_rgba(0,0,0,1),0_0_20px_rgba(0,255,133,0.2)] active:scale-95 active:shadow-none transition-all flex items-center justify-center gap-2"
               >
-                Tambah Tugas
+                {habitToEdit ? 'Simpan Perubahan' : 'Tambah Tugas'}
               </button>
             </div>
           </motion.div>

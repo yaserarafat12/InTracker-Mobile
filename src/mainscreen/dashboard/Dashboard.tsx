@@ -6,10 +6,10 @@ import DaftarHabit from '../habits/habitlist';
 import { Icon } from '@iconify/react';
 import { TambahHabitModal } from '../habits/addhabitscreen';
 import { useHabitStore } from '../../store/useHabitStore';
+import TodoTargetView from '../todo/TodoTargetView';
 
 // --- SUB-VIEWS ---
 const HomeView = () => <div />;
-const TodoList = () => <div />;
 const Global = () => <div />;
 const Journey = () => <div />;
 const AIView = () => <div />;
@@ -45,8 +45,8 @@ const AIAuditSection = ({ completed, total }: { completed: number, total: number
 };
 
 const FloatingProgressRing = ({ completed, total, onDismiss }: { completed: number, total: number, onDismiss: () => void }) => {
-  const size = 48;
-  const strokeWidth = 5;
+  const size = 40; // Smaller size as requested
+  const strokeWidth = 4;
   const radius = (size - strokeWidth) / 2;
   const circumference = radius * 2 * Math.PI;
   const percentage = total > 0 ? (completed / total) * 100 : 0;
@@ -54,11 +54,11 @@ const FloatingProgressRing = ({ completed, total, onDismiss }: { completed: numb
 
   return (
     <motion.div 
-      initial={{ scale: 0, rotate: -90 }}
-      animate={{ scale: 1, rotate: 0 }}
-      className="fixed top-28 right-6 z-[60] group"
+      initial={{ scale: 0, x: 20 }}
+      animate={{ scale: 1, x: 0 }}
+      className="fixed top-[100px] right-4 z-[60] group"
     >
-      <div className="relative w-[48px] h-[48px] bg-[#161616] rounded-full border-[1.5px] border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] flex items-center justify-center">
+      <div className="relative w-[40px] h-[40px] bg-[#161616] rounded-full border-[1.5px] border-black shadow-[3px_3px_0px_rgba(0,0,0,1)] flex items-center justify-center">
         <svg width={size} height={size} className="rotate-[-90deg]">
           <circle
             cx={size / 2}
@@ -78,23 +78,22 @@ const FloatingProgressRing = ({ completed, total, onDismiss }: { completed: numb
             strokeDasharray={circumference}
             animate={{ strokeDashoffset: offset }}
             strokeLinecap="round"
-            className="drop-shadow-[0_0_8px_rgba(0,255,133,0.4)]"
           />
         </svg>
-        <span className="absolute text-[10px] font-black font-['Outfit'] text-white">
+        <span className="absolute text-[8px] font-black font-['Outfit'] text-white">
           {completed}/{total}
         </span>
 
-        {percentage === 100 && (
-          <motion.button 
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            onClick={onDismiss}
-            className="absolute -top-1 -right-1 w-5 h-5 bg-[#FF3B30] rounded-full border border-black flex items-center justify-center text-white"
-          >
-            <Icon icon="ph:x-bold" width={10} height={10} />
-          </motion.button>
-        )}
+        {/* X button shows when hovered or when 100% */}
+        <motion.button 
+          initial={{ opacity: 0 }}
+          whileHover={{ opacity: 1 }}
+          animate={{ opacity: percentage === 100 ? 1 : 0 }}
+          onClick={onDismiss}
+          className="absolute -top-1 -right-1 w-4 h-4 bg-[#FF3B30] rounded-full border border-black flex items-center justify-center text-white"
+        >
+          <Icon icon="ph:x-bold" width={8} height={8} />
+        </motion.button>
       </div>
     </motion.div>
   );
@@ -112,6 +111,7 @@ export default function Beranda({ activeTab: initialTab = 'home' }: { activeTab?
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [statsTab, setStatsTab] = useState<'berjalan' | 'selesai'>('berjalan');
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [habitToEdit, setHabitToEdit] = useState<any>(null);
   const [showProgressRing, setShowProgressRing] = useState(true);
 
   const completedCount = habits.filter(h => h.completed).length;
@@ -135,6 +135,12 @@ export default function Beranda({ activeTab: initialTab = 'home' }: { activeTab?
     }
     initDashboard();
   }, [fetchHabits]);
+
+  const handleEdit = (habit: any) => {
+    setHabitToEdit(habit);
+    setIsAddModalOpen(true);
+    if (navigator.vibrate) navigator.vibrate(10);
+  };
 
   if (loading) return (
     <div className="min-h-screen bg-[#1A1A1A] flex items-center justify-center">
@@ -166,7 +172,7 @@ export default function Beranda({ activeTab: initialTab = 'home' }: { activeTab?
           <div className="px-6 mb-12">
             <div className="flex items-end justify-between">
               <div className="flex flex-col">
-                <span className="text-[12px] font-black text-[#00FF85] font-['Outfit'] uppercase tracking-[0.2em] mb-1 opacity-80 ml-[12px]">
+                <span className="text-[12px] font-black text-[#00FF85] font-['Outfit'] uppercase tracking-[0.2em] mb-1 opacity-80 ml-[22px]">
                   {(selectedDate.toDateString() === new Date().toDateString() ? 'HARI INI' : 
                     selectedDate.toLocaleDateString('id-ID', { weekday: 'long' }).toUpperCase())}
                 </span>
@@ -229,6 +235,7 @@ export default function Beranda({ activeTab: initialTab = 'home' }: { activeTab?
 
               <button 
                 onClick={() => {
+                  setHabitToEdit(null);
                   setIsAddModalOpen(true);
                   if (navigator.vibrate) navigator.vibrate(10);
                 }}
@@ -257,10 +264,11 @@ export default function Beranda({ activeTab: initialTab = 'home' }: { activeTab?
                 activeFilter={statsTab} 
                 selectedDate={selectedDate} 
                 habits={habits}
+                onEdit={handleEdit}
               />
             )}
             {activeTab === 'home' && <HomeView />}
-            {activeTab === 'todo' && <TodoList />}
+            {activeTab === 'todo' && <TodoTargetView />}
             {activeTab === 'journey' && <Journey />}
             {activeTab === 'global' && <Global />}
             {activeTab === 'ai' && <AIView />}
@@ -277,8 +285,13 @@ export default function Beranda({ activeTab: initialTab = 'home' }: { activeTab?
         {isAddModalOpen && (
           <TambahHabitModal 
             isOpen={isAddModalOpen} 
-            onClose={() => setIsAddModalOpen(false)} 
-            onAddHabit={(newHabit: any) => setHabits(prev => [...prev, newHabit])}
+            onClose={() => {
+              setIsAddModalOpen(false);
+              setHabitToEdit(null);
+            }} 
+            onAddHabit={useHabitStore.getState().addHabit}
+            onUpdateHabit={useHabitStore.getState().updateHabit}
+            habitToEdit={habitToEdit}
           />
         )}
       </AnimatePresence>
