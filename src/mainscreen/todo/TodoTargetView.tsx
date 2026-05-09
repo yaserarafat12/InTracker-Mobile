@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import React from 'react';
 import { motion, AnimatePresence, useMotionValue, useTransform, animate } from 'framer-motion';
 import { Icon } from '@iconify/react';
 import {
@@ -165,7 +166,7 @@ const TargetCard = ({ target, index, onOpen }: { target: TargetItem; index: numb
           }`}
         >
           <Icon icon={target.window === 'delayed' ? "ph:arrows-counter-clockwise-bold" : "ph:pencil-simple-bold"} width={20} height={20} />
-          <span className="text-[8px] font-black uppercase">{target.window === 'delayed' ? 'Pulihkan' : 'Edit'}</span>
+          <span className="text-[8px] font-black font-['Outfit'] uppercase tracking-wider">{target.window === 'delayed' ? 'Pulihkan' : 'Edit'}</span>
         </motion.button>
 
         {/* Delete Action (Right) */}
@@ -175,7 +176,7 @@ const TargetCard = ({ target, index, onOpen }: { target: TargetItem; index: numb
           className="w-16 h-[80%] rounded-2xl bg-[#EF4444] border-[1.5px] border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] flex flex-col items-center justify-center gap-1 text-white active:scale-90 transition-all"
         >
           <Icon icon="ph:trash-bold" width={20} height={20} />
-          <span className="text-[8px] font-black uppercase">Hapus</span>
+          <span className="text-[8px] font-black font-['Outfit'] uppercase tracking-wider">Hapus</span>
         </motion.button>
       </div>
 
@@ -412,7 +413,7 @@ const TargetDetailSheet = ({ target, onClose }: { target: TargetItem; onClose: (
             {/* Icon Container Removed */}
             <div className="min-w-0 flex-1">
               {/* Priority Labels Removed */}
-              <h2 className="mt-1 text-[24px] font-bold leading-[1.1] text-white">{target.title}</h2>
+              <h2 className="mt-1 text-[24px] font-black font-['Outfit'] leading-[1.1] tracking-tight text-white">{target.title}</h2>
             </div>
             <motion.button
               whileTap={{ x: 2, y: 2, boxShadow: "0px 0px 0px black" }}
@@ -447,7 +448,7 @@ const TargetDetailSheet = ({ target, onClose }: { target: TargetItem; onClose: (
                   >
                     {step.completed && <Icon icon="solar:check-bold" width={18} height={18} className="text-black" />}
                   </div>
-                  <span className={`text-[14px] font-bold ${step.completed ? 'text-[#E3DAC9]/40 line-through' : 'text-[#E3DAC9]'}`}>
+                  <span className={`text-[14px] font-semibold font-['Outfit'] tracking-tight ${step.completed ? 'text-[#E3DAC9]/40 line-through' : 'text-[#E3DAC9]'}`}>
                     {step.title}
                   </span>
                 </button>
@@ -455,7 +456,7 @@ const TargetDetailSheet = ({ target, onClose }: { target: TargetItem; onClose: (
             </div>
           ) : (
             <div className="rounded-[28px] bg-[#222] border border-white/10 p-5">
-              <p className="text-[10px] font-black uppercase text-[#00FF85]">Update Angka</p>
+              <p className="text-[10px] font-black font-['Outfit'] uppercase tracking-widest text-[#00FF85]">Update Angka</p>
               <div className="mt-4 flex items-center gap-3">
                 <button
                   onClick={() => updateNumberProgress(target.id, target.currentValue - 1)}
@@ -564,9 +565,9 @@ const DelayedClarificationSheet = ({ target, onClose }: { target: TargetItem; on
               <Icon icon="solar:danger-bold" width={32} height={32} className="text-[#EF4444]" />
             </div>
             
-            <h2 className="text-[24px] font-black text-white leading-tight">Tugas Belum Tuntas!</h2>
-            <p className="mt-3 text-[14px] font-medium text-[#E3DAC9]/40 max-w-[260px]">
-              Tugas "<span className="text-[#E3DAC9]">{target.title}</span>" kemarin gak kelar, Bos. Mau diapain?
+            <h2 className="text-[24px] font-black font-['Outfit'] text-white leading-tight tracking-tight">Tugas Belum Tuntas!</h2>
+            <p className="mt-3 text-[14px] font-medium font-['Outfit'] text-[#E3DAC9]/40 max-w-[260px] leading-relaxed">
+              Tugas "<span className="text-[#E3DAC9] font-semibold">{target.title}</span>" kemarin gak kelar, Bos. Mau diapain?
             </p>
           </div>
 
@@ -726,10 +727,10 @@ export default function TodoTargetView() {
                   : 'bg-[#212121] border-black shadow-[4px_4px_0px_rgba(0,0,0,1)]'}
               `}
             >
-              <span className={`text-[13px] font-bold font-['Outfit'] tracking-tight ${activeFilter === item.id ? 'text-black' : 'text-white/40'}`}>
+              <span className={`text-[13px] font-black font-['Outfit'] tracking-tight ${activeFilter === item.id ? 'text-black' : 'text-white/40'}`}>
                 {item.label}
               </span>
-              <span className={`text-[9px] font-black ml-0.5 mt-[-2px] ${activeFilter === item.id ? 'text-black/40' : 'text-white/20'}`}>
+              <span className={`text-[9px] font-black font-['Outfit'] ml-0.5 mt-[-2px] ${activeFilter === item.id ? 'text-black/40' : 'text-white/20'}`}>
                 {item.count}
               </span>
             </motion.button>
@@ -822,8 +823,8 @@ export default function TodoTargetView() {
                   if (!inputValue) setIsAdding(false);
                 }}
                 className={`
-                  flex-1 bg-transparent border-none outline-none text-[16px] font-bold font-['Outfit'] 
-                  text-[#E3DAC9] placeholder:text-[#E3DAC9]/20
+                  flex-1 bg-transparent border-none outline-none text-[16px] font-semibold font-['Outfit'] 
+                  text-[#E3DAC9] placeholder:text-[#E3DAC9]/20 tracking-tight
                 `}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter') handleQuickAdd();

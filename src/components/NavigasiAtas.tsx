@@ -11,7 +11,7 @@ export const NavigasiAtas = ({ activeTab }: NavigasiAtasProps) => {
   const { profile } = useUserStore();
 
   return (
-    <div className="fixed top-0 left-0 right-0 z-40 bg-[#1A1A1A]/90 backdrop-blur-2xl border-b-[2px] border-black px-6 pt-4 pb-4 flex justify-between items-end h-[85px] shadow-[0_5px_0px_rgba(0,0,0,1)]">
+    <div className="fixed top-0 left-0 right-0 z-40 bg-[#1A1A1A]/90 backdrop-blur-2xl border-b-[2px] border-black px-6 pt-5 pb-3 flex justify-between items-center h-[85px] shadow-[0_5px_0px_rgba(0,0,0,1)]">
       {activeTab === 'home' ? (
         <>
           <motion.div 
@@ -19,17 +19,17 @@ export const NavigasiAtas = ({ activeTab }: NavigasiAtasProps) => {
             className="flex items-center justify-center gap-[6px] bg-[#FF4D00] w-[85px] h-9 rounded-xl border-[2px] border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] transition-all"
           >
             <Icon icon="solar:fire-bold" width={22} height={22} className="text-white" />
-            <span className="text-[20px] font-normal font-['Bebas_Neue'] text-white tracking-wider mt-[2px]">{profile?.streak_count || 0}</span>
+            <span className="text-[20px] font-normal font-['Bebas_Neue'] text-white tracking-wider leading-none">{profile?.streak_count || 0}</span>
           </motion.div>
 
           <AmbientPlayer />
         </>
       ) : (
-        <div className="flex justify-between items-end w-full h-full pb-0">
+        <div className="flex justify-between items-center w-full h-full">
           {/* KIRI: Judul + Superscript Icon */}
-          <div className="flex items-center">
-            <div className="relative inline-flex flex-col items-start">
-              <h2 className="text-[24px] font-black font-['Outfit'] text-white tracking-tighter leading-none mt-1">
+          <div className="flex items-center h-full">
+            <div className="relative inline-flex flex-col items-start justify-center">
+              <h2 className="text-[24px] font-black font-['Outfit'] text-white tracking-tighter leading-none">
                 {(activeTab === 'beranda' || activeTab === 'habits') && 'Habit Tracker'}
                 {activeTab === 'todo' && 'To-Do List'}
                 {activeTab === 'journey' && 'Journey'}

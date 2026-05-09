@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { supabase } from '../../lib/supabase';
 import { NavigasiBawah } from '../NavigasiBawah';
@@ -184,7 +184,7 @@ const RingProgressCard = ({
   );
 };
 
-const HomeView = ({ setActiveTab }: { setActiveTab: (tab: string) => void }) => {
+const HomeView = ({ onTabChange }: { onTabChange: (tab: string) => void }) => {
   const [quote, setQuote] = useState<Quote | null>(null);
   const [showInsight, setShowInsight] = useState(false);
   
@@ -361,7 +361,7 @@ const HomeView = ({ setActiveTab }: { setActiveTab: (tab: string) => void }) => 
 
             <motion.button
               whileTap={{ scale: 0.9 }}
-              onClick={() => setActiveTab('todo')}
+              onClick={() => onTabChange('todo')}
               className="px-4 py-2 bg-white text-black text-[10px] font-black rounded-xl border-[1.5px] border-black shadow-[3px_3px_0px_rgba(0,0,0,1)] uppercase tracking-tighter shrink-0"
             >
               CEK
@@ -582,6 +582,14 @@ function Beranda({ activeTab: initialTab = 'home' }: { activeTab?: string }) {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [statsTab, setStatsTab] = useState<'berjalan' | 'selesai' | 'dilewati'>('berjalan');
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const mainContentRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (mainContentRef.current) {
+      mainContentRef.current.scrollTo(0, 0);
+    }
+  }, [activeTab]);
+
   const triggerCompletionAnimation = () => {
     if (navigator.vibrate) navigator.vibrate([30, 100, 30]);
   };
@@ -687,7 +695,10 @@ function Beranda({ activeTab: initialTab = 'home' }: { activeTab?: string }) {
 
       <div className="fixed top-0 left-1/2 -translate-x-1/2 w-full h-[70vh] bg-[#00FF85]/2 blur-[150px] rounded-full pointer-events-none z-0" />
 
-      <main className="relative flex-1 overflow-y-auto overflow-x-hidden scroll-smooth pt-[90px]">
+      <main 
+        ref={mainContentRef}
+        className="relative flex-1 overflow-y-auto overflow-x-hidden scroll-smooth pt-[90px]"
+      >
         {activeTab === 'habits' && (
           <div className="px-6 mb-8 mt-6">
             <div className="flex items-end justify-between">
@@ -779,7 +790,7 @@ function Beranda({ activeTab: initialTab = 'home' }: { activeTab?: string }) {
                 onComplete={triggerCompletionAnimation}
               />
             )}
-            {activeTab === 'home' && <HomeView setActiveTab={setActiveTab} />}
+            {activeTab === 'home' && <HomeView onTabChange={setActiveTab} />}
             {activeTab === 'todo' && <TodoList />}
             {activeTab === 'journey' && <Journey />}
             {activeTab === 'global' && <Global />}
