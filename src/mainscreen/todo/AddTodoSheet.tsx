@@ -91,7 +91,7 @@ export const AddTodoSheet = ({ isOpen, onClose, targetToEdit }: AddTodoSheetProp
             animate={{ y: 0 }}
             exit={{ y: '100%' }}
             transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-            className="absolute bottom-0 left-0 right-0 bg-[#1A1A1A] rounded-t-[40px] border-t-[1.5px] border-white/10 p-6 pb-12 flex flex-col max-h-[90vh] overflow-y-auto no-scrollbar"
+            className="absolute bottom-0 left-0 right-0 bg-[#212121] rounded-t-[40px] border-t-[1.5px] border-white/10 p-6 pb-12 flex flex-col max-h-[90vh] overflow-y-auto no-scrollbar"
           >
             <div className="w-12 h-1.5 bg-white/10 rounded-full mx-auto mb-8 shrink-0" />
 
@@ -99,18 +99,19 @@ export const AddTodoSheet = ({ isOpen, onClose, targetToEdit }: AddTodoSheetProp
               <h3 className="text-[20px] font-black font-['Outfit'] text-[#E3DAC9] uppercase tracking-[0.1em]">
                 {targetToEdit ? 'Edit Rencana' : 'Tambah Rencana Baru'}
               </h3>
-              <button 
+              <motion.button 
+                whileTap={{ x: 2, y: 2, boxShadow: "0px 0px 0px rgba(0,0,0,1)" }}
                 onClick={onClose}
-                className="w-10 h-10 rounded-xl bg-[#222] border-[1.5px] border-white/5 flex items-center justify-center text-white/20 active:scale-90 transition-all"
+                className="w-10 h-10 rounded-xl bg-[#222] border-[2px] border-black flex items-center justify-center text-[#E3DAC9] shadow-[4px_4px_0px_rgba(0,0,0,1)]"
               >
                 <Icon icon="ph:x-bold" width={20} height={20} />
-              </button>
+              </motion.button>
             </div>
 
             <div className="space-y-8">
               <div className="space-y-3">
                 <div className="flex gap-4 h-[72px]">
-                  <div className="flex-1 h-full bg-[#222] rounded-2xl border-[1.5px] border-white/10 flex items-center px-6 shadow-[4px_4px_0px_rgba(0,0,0,1)] focus-within:border-[#00FF85]/50 transition-all">
+                  <div className="flex-1 h-full bg-[#212121] rounded-2xl border-[2.5px] border-black flex items-center px-6 shadow-[4px_4px_0px_rgba(0,0,0,1)] focus-within:border-[#00FF85] focus-within:shadow-[6px_6px_0px_rgba(0,0,0,1)] transition-all">
                     <input 
                       autoFocus
                       value={title}
@@ -127,22 +128,23 @@ export const AddTodoSheet = ({ isOpen, onClose, targetToEdit }: AddTodoSheetProp
                 <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.2em] ml-1">Pilih Kategori</p>
                 <div className="grid grid-cols-2 gap-4">
                   {CATEGORIES.map((cat, idx) => (
-                    <button
+                    <motion.button
                       key={cat.id}
+                      whileTap={{ x: 4, y: 4, boxShadow: "0px 0px 0px rgba(0,0,0,1)" }}
                       onClick={() => {
                         setWindow(cat.id);
                         if (navigator.vibrate) navigator.vibrate(5);
                       }}
-                      className={`flex items-center justify-center p-4 rounded-2xl border-[1.5px] transition-all active:scale-[0.96] shadow-[4px_4px_0px_rgba(0,0,0,1)] ${
+                      className={`flex items-center justify-center p-4 rounded-2xl border-[2px] border-black transition-all shadow-[4px_4px_0px_rgba(0,0,0,1)] ${
                         idx === 0 ? 'col-span-2' : 'col-span-1'
                       } ${
                         window === cat.id 
-                        ? 'bg-[#1A1A1A] border-white text-white' 
-                        : 'bg-[#222] border-white/5 text-white/20'
+                        ? 'bg-[#00FF85] text-black' 
+                        : 'bg-[#222] text-[#E3DAC9]/40'
                       }`}
                     >
                       <span className="text-[12px] font-black font-['Outfit'] uppercase tracking-wider">{cat.label}</span>
-                    </button>
+                    </motion.button>
                   ))}
                 </div>
               </div>
@@ -150,61 +152,65 @@ export const AddTodoSheet = ({ isOpen, onClose, targetToEdit }: AddTodoSheetProp
               {/* Prioritas Row */}
               <div className="space-y-4">
                 <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.2em] ml-1">Status Rencana</p>
-                <div className="flex bg-[#222] p-1.5 rounded-2xl border-[1.5px] border-white/5 shadow-[4px_4px_0px_rgba(0,0,0,1)]">
-                  <button
+                <div className="flex bg-black p-1.5 rounded-2xl border-[2px] border-black shadow-[4px_4px_0px_rgba(0,0,0,1)]">
+                  <motion.button
+                    whileTap={{ x: 2, y: 2, boxShadow: "0px 0px 0px rgba(0,0,0,1)" }}
                     onClick={() => {
                       setIsPenting(false);
                       if (navigator.vibrate) navigator.vibrate(5);
                     }}
-                    className={`flex-1 py-3 rounded-xl text-[11px] font-black uppercase tracking-wider transition-all flex items-center justify-center gap-2 border-[1.5px] ${
+                    className={`flex-1 py-3 rounded-xl text-[11px] font-black uppercase tracking-wider transition-all flex items-center justify-center gap-2 border-[2px] ${
                       !isPenting 
-                      ? 'bg-[#1A1A1A] border-white text-white shadow-md' 
-                      : 'bg-transparent border-transparent text-white/20 hover:text-white/40'
+                      ? 'bg-[#E3DAC9] border-black text-black' 
+                      : 'bg-transparent border-transparent text-[#E3DAC9]/20'
                     }`}
                   >
                     <div 
-                      className={`w-1.5 h-1.5 rounded-full ${!isPenting ? 'bg-[#00FF85]' : 'bg-[#00FF85]/20'}`}
+                      className={`w-1.5 h-1.5 rounded-full ${!isPenting ? 'bg-black' : 'bg-[#00FF85]/20'}`}
                     />
                     Biasa
-                  </button>
-                  <button
+                  </motion.button>
+                  <motion.button
+                    whileTap={{ x: 2, y: 2, boxShadow: "0px 0px 0px rgba(0,0,0,1)" }}
                     onClick={() => {
                       setIsPenting(true);
                       if (navigator.vibrate) navigator.vibrate(5);
                     }}
-                    className={`flex-1 py-3 rounded-xl text-[11px] font-black uppercase tracking-wider transition-all flex items-center justify-center gap-2 border-[1.5px] ${
+                    className={`flex-1 py-3 rounded-xl text-[11px] font-black uppercase tracking-wider transition-all flex items-center justify-center gap-2 border-[2px] ${
                       isPenting 
-                      ? 'bg-[#1A1A1A] border-white text-white shadow-md' 
-                      : 'bg-transparent border-transparent text-white/20 hover:text-white/40'
+                      ? 'bg-[#EF4444] border-black text-white' 
+                      : 'bg-transparent border-transparent text-[#E3DAC9]/20'
                     }`}
                   >
                     <div 
-                      className={`w-1.5 h-1.5 rounded-full ${isPenting ? 'bg-[#EF4444]' : 'bg-[#EF4444]/20'}`}
+                      className={`w-1.5 h-1.5 rounded-full ${isPenting ? 'bg-white' : 'bg-[#EF4444]/20'}`}
                     />
                     Penting
-                  </button>
+                  </motion.button>
                 </div>
               </div>
 
               {/* Action Buttons */}
               <div className="flex gap-4 pt-4">
-                <button 
+                <motion.button 
+                  whileTap={{ x: 4, y: 4, boxShadow: "0px 0px 0px rgba(0,0,0,1)" }}
                   onClick={onClose}
-                  className="flex-1 h-16 rounded-2xl bg-[#222] border-[1.5px] border-white/5 text-[#E3DAC9]/30 font-black font-['Outfit'] uppercase tracking-[0.15em] text-[13px] active:scale-95 transition-all shadow-[4px_4px_0px_rgba(0,0,0,1)]"
+                  className="flex-1 h-16 rounded-2xl bg-[#222] border-[2px] border-black text-[#E3DAC9] font-black font-['Outfit'] uppercase tracking-[0.15em] text-[13px] shadow-[4px_4px_0px_rgba(0,0,0,1)]"
                 >
                   Batal
-                </button>
-                <button 
+                </motion.button>
+                <motion.button 
+                  whileTap={title.trim() ? { x: 4, y: 4, boxShadow: "0px 0px 0px rgba(0,0,0,1)" } : {}}
                   onClick={handleSubmit}
                   disabled={!title.trim()}
                   className={`flex-[2] h-16 rounded-2xl font-black font-['Outfit'] uppercase tracking-[0.15em] text-[13px] shadow-[4px_4px_0px_rgba(0,0,0,1)] transition-all flex items-center justify-center gap-2 ${
                     title.trim() 
-                    ? 'bg-[#00FF85] text-black border-[1.5px] border-black active:scale-95 active:shadow-none' 
-                    : 'bg-white/5 text-white/5 border-[1.5px] border-white/5 cursor-not-allowed'
+                    ? 'bg-[#00FF85] text-black border-[2px] border-black' 
+                    : 'bg-[#222] text-[#E3DAC9]/10 border-[2px] border-black/20 shadow-none'
                   }`}
                 >
                   {targetToEdit ? 'Simpan Perubahan' : 'Buat Rencana'}
-                </button>
+                </motion.button>
               </div>
             </div>
           </motion.div>

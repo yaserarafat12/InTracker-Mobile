@@ -53,7 +53,7 @@ const DaftarHabit = ({ activeFilter = 'berjalan', habits, onEdit, onComplete }: 
                 <path d="M12 6V9M8 8L10 10M16 8L14 10" stroke="black" strokeWidth="2.5" strokeLinecap="round" />
               </svg>
             </div>
-            <p className="text-black text-[12px] font-['Outfit'] font-black tracking-wide uppercase whitespace-nowrap">Ketuk 2x untuk menyelesaikan tugas</p>
+            <p className="text-black text-[12px] font-['Outfit'] font-black tracking-tight whitespace-nowrap">Ketuk 2x untuk menyelesaikan tugas</p>
           </div>
         )}
 
@@ -67,7 +67,7 @@ const DaftarHabit = ({ activeFilter = 'berjalan', habits, onEdit, onComplete }: 
                 {/* Minimalist Subheader */}
                 <div className="flex items-center gap-2 px-1 opacity-40 mb-2">
                   <Icon icon={CATEGORY_ICONS[cat as string] || 'solar:tag-bold'} width={14} height={14} className="text-[#E3DAC9]" />
-                  <span className="text-[10px] font-black uppercase tracking-[0.2em] font-['Outfit'] text-[#E3DAC9]">{cat as string}</span>
+                  <span className="text-[10px] font-black tracking-tight font-['Outfit'] text-[#E3DAC9]">{cat as string}</span>
                   <div className="flex-1 h-[1px] bg-white/5 ml-2" />
                 </div>
                 
@@ -82,7 +82,7 @@ const DaftarHabit = ({ activeFilter = 'berjalan', habits, onEdit, onComplete }: 
         ) : (
           <div className="flex flex-col items-center justify-center py-24 opacity-20">
              <Icon icon="solar:box-minimalistic-bold" width={48} height={48} />
-             <p className="mt-4 font-black text-[11px] uppercase tracking-[0.2em] whitespace-nowrap">
+             <p className="mt-4 font-black text-[11px] tracking-tight whitespace-nowrap">
                {type === 'selesai' ? 'Belum ada tugas yang tuntas' : 
                 type === 'dilewati' ? 'Belum ada tugas yang dilewati' : 
                 'Belum ada tugas hari ini'}

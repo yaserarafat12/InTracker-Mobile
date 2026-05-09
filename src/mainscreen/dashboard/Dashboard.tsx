@@ -143,7 +143,7 @@ export default function Beranda({ activeTab: initialTab = 'home' }: { activeTab?
   };
 
   if (loading) return (
-    <div className="min-h-screen bg-[#1A1A1A] flex items-center justify-center">
+    <div className="min-h-screen bg-[#212121] flex items-center justify-center">
       <div className="w-12 h-12 border-2 border-[#00FF85]/20 border-t-[#00FF85] rounded-full animate-spin" />
     </div>
   );
@@ -222,7 +222,7 @@ export default function Beranda({ activeTab: initialTab = 'home' }: { activeTab?
                     className={`relative h-12 px-6 rounded-2xl border-[1.5px] transition-all active:translate-x-[2px] active:translate-y-[2px] active:shadow-none flex items-center ${
                       statsTab === item.id 
                       ? 'bg-white border-black text-black shadow-[4px_4px_0px_rgba(0,0,0,1)]' 
-                      : 'bg-[#1A1A1A] border-white/5 text-white/40 shadow-[4px_4px_0px_rgba(0,0,0,1)]'
+                      : 'bg-[#212121] border-white/5 text-white/40 shadow-[4px_4px_0px_rgba(0,0,0,1)]'
                     }`}
                   >
                     <div className="flex items-start">

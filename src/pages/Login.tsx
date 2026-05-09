@@ -122,7 +122,7 @@ export default function Login() {
                 {/* GOOGLE LOGIN */}
                 <button
                   onClick={handleGoogle}
-                  className="w-full flex items-center justify-center gap-3 py-[14px] rounded-xl bg-[#1a1a1a] border border-white/10 active:scale-[0.97] transition-all"
+                  className="w-full flex items-center justify-center gap-3 py-[14px] rounded-xl bg-[#212121] border border-white/10 active:scale-[0.97] transition-all"
                 >
                   <svg width="18" height="18" viewBox="0 0 24 24">
                     <path fill="#EA4335" d="M12 5.04c1.64 0 3.12.56 4.28 1.67l3.21-3.21C17.39 1.54 14.92 1 12 1 7.31 1 3.28 3.69 1.42 7.61l3.77 2.92C6.09 7.42 8.81 5.04 12 5.04z" />
@@ -136,7 +136,7 @@ export default function Login() {
                 {/* EMAIL LOGIN */}
                 <button
                   onClick={() => setView('email')}
-                  className="w-full flex items-center justify-center gap-3 py-[14px] rounded-xl bg-[#1a1a1a] border border-white/10 active:scale-[0.97] transition-all"
+                  className="w-full flex items-center justify-center gap-3 py-[14px] rounded-xl bg-[#212121] border border-white/10 active:scale-[0.97] transition-all"
                 >
                   <Icon icon="solar:letter-bold" width={18} height={18} className="text-[#00FF85]" />
                   <span className="text-[14px] font-bold text-white tracking-tight">Lanjutkan dengan Email</span>
@@ -199,7 +199,7 @@ export default function Login() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed bottom-[10vh] left-1/2 -translate-x-1/2 bg-[#1a1a1a]/90 border border-white/10 px-8 py-3 rounded-2xl backdrop-blur-xl z-[60] shadow-2xl flex items-center gap-3"
+            className="fixed bottom-[10vh] left-1/2 -translate-x-1/2 bg-[#212121]/90 border border-white/10 px-8 py-3 rounded-2xl backdrop-blur-xl z-[60] shadow-2xl flex items-center gap-3"
           >
             <div className={`w-2 h-2 rounded-full animate-pulse ${error ? 'bg-red-500' : 'bg-[#00FF85]'}`} />
             <p className="text-[12px] text-white/90 font-medium tracking-tight">{error || message}</p>

@@ -71,7 +71,7 @@ const JourneyItem: React.FC<JourneyItemProps> = ({ date, isCurrent, isLast, isCo
       <div className="relative flex gap-4 pb-8">
         {/* Compact Timeline Column - FIXED WIDTH W-12 */}
         <div className="w-12 flex flex-col items-center flex-shrink-0">
-          <div className="w-7 h-7 rounded-lg bg-[#1A1A1A] border border-[#00FF85]/30 flex items-center justify-center z-10 mt-[10px] shadow-[2px_2px_0px_rgba(0,0,0,1)]">
+          <div className="w-7 h-7 rounded-lg bg-[#212121] border border-[#00FF85]/30 flex items-center justify-center z-10 mt-[10px] shadow-[2px_2px_0px_rgba(0,0,0,1)]">
             <Icon icon="solar:check-circle-bold" className="text-[#00FF85]/60" width={16} />
           </div>
           {!isLast && <div className="w-[2px] flex-1 bg-white/10 mb-[-8px]" />}
@@ -145,7 +145,7 @@ const JourneyItem: React.FC<JourneyItemProps> = ({ date, isCurrent, isLast, isCo
             w-14 h-14 rounded-[20px] flex items-center justify-center z-10 border-[2px] transition-all mt-0.5
             ${isCurrent 
               ? 'bg-[#00FF85] border-black shadow-[4px_4px_0px_rgba(0,0,0,1)]' 
-              : 'bg-[#1A1A1A] border-white/20 shadow-none'}
+              : 'bg-[#212121] border-white/20 shadow-none'}
           `}
         >
           <Icon 
@@ -186,7 +186,7 @@ const JourneyItem: React.FC<JourneyItemProps> = ({ date, isCurrent, isLast, isCo
                    {dateLabel}
                 </p>
                 <div className="flex items-center gap-3">
-                  <h2 className="text-[32px] font-black text-[#E3DAC9] tracking-tighter leading-none opacity-90">
+                  <h2 className="text-[42px] font-black text-[#E3DAC9] tracking-tighter leading-none opacity-90">
                     {dayOfMonth} {monthName}
                   </h2>
                 </div>
@@ -194,63 +194,62 @@ const JourneyItem: React.FC<JourneyItemProps> = ({ date, isCurrent, isLast, isCo
             </div>
 
             {/* THE 3-GRID SYSTEM */}
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 gap-4">
               
               {/* BOX 1: MOOD SYNC (DIRECT SELECTION) */}
-              <div className="aspect-square bg-white/[0.03] border-[1px] border-white/5 rounded-[28px] flex flex-col p-3.5 items-center justify-between group/mood">
-                <span className="text-[10px] font-black text-[#E3DAC9]/40 tracking-tight text-center leading-tight">Gimana perasaanmu?</span>
+              <div className="aspect-square bg-[#222] border-[2px] border-black rounded-[28px] flex flex-col p-3.5 items-center justify-between shadow-[4px_4px_0px_rgba(0,0,0,1)] group/mood">
+                <span className="text-[10px] font-black text-[#E3DAC9]/40 tracking-tight text-center leading-tight uppercase">Mood</span>
                 <div className="grid grid-cols-3 gap-2 py-1">
                   {moods.slice(0, 6).map((m, idx) => (
                     <motion.button
                       key={idx}
-                      whileTap={{ scale: 0.85 }}
+                      whileTap={{ x: 2, y: 2, boxShadow: "0px 0px 0px rgba(0,0,0,1)" }}
                       onClick={() => { setSelectedMood(idx); handleVibrate(); }}
                       className={`
-                        w-8 h-8 rounded-xl flex items-center justify-center text-lg transition-all
-                        ${selectedMood === idx ? 'bg-[#00FF85] scale-110 shadow-[0_0_15px_rgba(0,255,133,0.4)]' : 'bg-white/5'}
+                        w-8 h-8 rounded-xl flex items-center justify-center text-lg transition-all border-[1.5px] border-black
+                        ${selectedMood === idx ? 'bg-[#00FF85] scale-110 shadow-[2px_2px_0px_rgba(0,0,0,1)]' : 'bg-black/20'}
                       `}
                     >
                       {m.emoji}
                     </motion.button>
                   ))}
                 </div>
-                <p className="text-[8px] font-bold text-[#E3DAC9]/20 uppercase tracking-widest">
+                <p className="text-[8px] font-bold text-[#00FF85] uppercase tracking-widest">
                   {selectedMood !== null ? moods[selectedMood].label : 'Pilih satu'}
                 </p>
               </div>
 
               {/* BOX 2: MEDIA (VISUAL JOURNEY) */}
               <motion.button 
-                whileTap={{ scale: 0.95 }}
+                whileTap={{ x: 4, y: 4, boxShadow: "0px 0px 0px rgba(0,0,0,1)" }}
                 onClick={() => { setIsMediaOpen(true); handleVibrate(); }}
-                className="aspect-square bg-white/[0.03] border-[1px] border-white/5 rounded-[28px] flex flex-col items-center justify-center gap-2 hover:bg-white/5 transition-all group/media"
+                className="aspect-square bg-[#222] border-[2px] border-black rounded-[28px] flex flex-col items-center justify-center gap-2 shadow-[4px_4px_0px_rgba(0,0,0,1)] group/media"
               >
-                <span className="text-[10px] font-black text-[#E3DAC9]/40 tracking-tight mb-1 text-center">Tunjukkan foto terbaikmu</span>
+                <span className="text-[10px] font-black text-[#E3DAC9]/40 tracking-tight mb-1 text-center uppercase">Media</span>
                 <div className="w-full px-3">
-                   <div className="w-full py-4 bg-black/40 border border-white/5 rounded-[22px] flex flex-col items-center justify-center gap-2 group-hover/media:bg-black/60 group-hover/media:border-[#00FF85]/30 transition-all shadow-inner">
+                   <div className="w-full py-4 bg-black/40 border-[1.5px] border-black rounded-[22px] flex flex-col items-center justify-center gap-2 group-hover/media:bg-black/60 transition-all shadow-inner">
                       <div className="relative">
-                        <Icon icon="solar:camera-bold" className="text-[#E3DAC9]/20 group-hover/media:text-[#00FF85] transition-colors" width={24} />
-                        <Icon icon="solar:videocamera-add-bold" className="absolute -top-1 -right-1 text-white/40 group-hover/media:text-white" width={12} />
+                        <Icon icon="solar:camera-bold" className="text-[#00FF85]" width={24} />
                       </div>
-                      <span className="text-[9px] font-bold text-[#E3DAC9]/30 uppercase tracking-widest group-hover/media:text-[#E3DAC9]">Tambah Media</span>
+                      <span className="text-[8px] font-black text-[#E3DAC9]/60 uppercase tracking-[0.2em]">Tambah</span>
                    </div>
                 </div>
               </motion.button>
 
               {/* BOX 3: JOURNAL (FULL WIDTH) */}
               <motion.button 
-                whileTap={{ scale: 0.98 }}
+                whileTap={{ x: 4, y: 4, boxShadow: "0px 0px 0px rgba(0,0,0,1)" }}
                 onClick={() => { setIsJournalOpen(true); handleVibrate(); }}
-                className="col-span-2 bg-white/[0.03] border-[1px] border-white/5 rounded-[28px] p-4 flex items-center gap-4 hover:bg-white/5 transition-all group/journal"
+                className="col-span-2 bg-[#222] border-[2px] border-black rounded-[28px] p-5 flex items-center gap-4 shadow-[4px_4px_0px_rgba(0,0,0,1)] group/journal"
               >
-                <div className="h-12 w-12 bg-black/40 border border-white/5 rounded-2xl flex items-center justify-center group-hover/journal:border-[#00FF85]/30 transition-all">
-                  <Icon icon="solar:pen-new-square-bold" className="text-[#E3DAC9]/40 group-hover/journal:text-[#00FF85]" width={24} />
+                <div className="h-12 w-12 bg-[#00FF85] border-[2px] border-black rounded-2xl flex items-center justify-center shadow-[2px_2px_0px_rgba(0,0,0,1)] group-hover/journal:translate-x-0.5 group-hover/journal:translate-y-0.5 group-hover/journal:shadow-none transition-all">
+                  <Icon icon="solar:pen-new-square-bold" className="text-black" width={24} />
                 </div>
                 <div className="flex flex-col items-start text-left">
-                  <span className="text-[10px] font-black text-[#E3DAC9]/40 tracking-tight">Tulis jurnal harianmu</span>
-                  <span className="text-[9px] font-bold text-[#E3DAC9]/20 uppercase tracking-widest mt-0.5">Tambah Teks & Refleksi</span>
+                  <span className="text-[12px] font-black text-[#E3DAC9] uppercase tracking-wider">Journaling</span>
+                  <span className="text-[9px] font-bold text-[#E3DAC9]/30 uppercase tracking-widest mt-0.5">Tulis Pikiran & Refleksi</span>
                 </div>
-                <Icon icon="solar:alt-arrow-right-bold" className="ml-auto text-white/10" width={16} />
+                <Icon icon="solar:alt-arrow-right-bold" className="ml-auto text-[#00FF85]" width={20} />
               </motion.button>
 
             </div>
@@ -277,7 +276,7 @@ const JourneyItem: React.FC<JourneyItemProps> = ({ date, isCurrent, isLast, isCo
               animate={{ y: 0 }}
               exit={{ y: "100%" }}
               transition={{ type: "spring", damping: 25, stiffness: 200 }}
-              className="relative w-full max-w-md bg-[#1A1A1A] border-[1.5px] border-[#E3DAC9]/20 rounded-[40px] p-8 pb-12 shadow-[0_-20px_50px_rgba(0,0,0,0.5)]"
+              className="relative w-full max-w-md bg-[#212121] border-[1.5px] border-[#E3DAC9]/20 rounded-[40px] p-8 pb-12 shadow-[0_-20px_50px_rgba(0,0,0,0.5)]"
             >
               <div className="w-12 h-1.5 bg-white/20 rounded-full mx-auto mb-10" />
               <h4 className="text-xl font-black text-[#E3DAC9] uppercase tracking-tighter italic mb-8 text-center">Abadikan Momen</h4>
@@ -307,7 +306,7 @@ const JourneyItem: React.FC<JourneyItemProps> = ({ date, isCurrent, isLast, isCo
 
         {/* JOURNAL MODAL (FULL SCREEN IMMERSIVE) */}
         {isJournalOpen && (
-          <div className="fixed inset-0 z-[100] bg-[#1A1A1A] flex flex-col">
+          <div className="fixed inset-0 z-[100] bg-[#212121] flex flex-col">
             <motion.div 
               initial={{ y: 50, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
@@ -324,9 +323,9 @@ const JourneyItem: React.FC<JourneyItemProps> = ({ date, isCurrent, isLast, isCo
                    <p className="text-[#00FF85] font-black tracking-widest text-[10px] mt-1">{dateLabel}</p>
                 </div>
                 <motion.button 
-                  whileTap={{ scale: 0.9 }}
+                  whileTap={{ x: 2, y: 2, boxShadow: "0px 0px 0px rgba(0,0,0,1)" }}
                   onClick={() => setIsJournalOpen(false)}
-                  className="w-14 h-14 bg-white/5 border-[1.5px] border-white/10 rounded-2xl flex items-center justify-center hover:bg-white/10 transition-colors"
+                  className="w-14 h-14 bg-[#222] border-[2px] border-black rounded-2xl flex items-center justify-center text-[#E3DAC9] shadow-[4px_4px_0px_rgba(0,0,0,1)]"
                 >
                   <Icon icon="solar:close-circle-bold" width={28} />
                 </motion.button>
@@ -346,9 +345,9 @@ const JourneyItem: React.FC<JourneyItemProps> = ({ date, isCurrent, isLast, isCo
                    <span className="text-xl font-black text-[#E3DAC9]/60 uppercase tracking-tighter">{journal.length} Karakter</span>
                  </div>
                  <motion.button 
-                   whileTap={{ scale: 0.95 }}
+                   whileTap={{ x: 4, y: 4, boxShadow: "0px 0px 0px rgba(0,0,0,1)" }}
                    onClick={() => { setIsJournalOpen(false); handleVibrate(); }}
-                   className="bg-[#00FF85] text-black px-12 py-5 rounded-[24px] font-black uppercase tracking-widest shadow-[0_10px_30px_rgba(0,255,133,0.2)] hover:shadow-[0_15px_40px_rgba(0,255,133,0.3)] transition-all"
+                   className="bg-[#00FF85] text-black px-12 py-5 rounded-[24px] font-black uppercase tracking-widest border-[2px] border-black shadow-[6px_6px_0px_rgba(0,0,0,1)] transition-all"
                  >
                    Simpan Jurnal
                  </motion.button>

@@ -31,7 +31,7 @@ export default function Nickname() {
   };
 
   return (
-    <div className="h-[100dvh] bg-[#1A1A1A] text-white font-['Inter'] relative flex flex-col items-center overflow-hidden select-none">
+    <div className="h-[100dvh] bg-[#212121] text-white font-['Inter'] relative flex flex-col items-center overflow-hidden select-none">
       
       {/* BACKGROUND */}
       <div className="absolute inset-0 z-0">
@@ -42,7 +42,7 @@ export default function Nickname() {
           src="/antigravitybg/3.jpg" 
           className="w-full h-full object-cover object-top -translate-y-[5vh]" 
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#1A1A1A]/20 to-[#1A1A1A] to-80%" />
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#212121]/20 to-[#212121] to-80%" />
       </div>
 
       {/* CONTENT SECTION (PUSHED DOWN) */}
@@ -85,7 +85,7 @@ export default function Nickname() {
       </div>
 
       {/* BOTTOM ACTION SECTION (MENTOK) */}
-      <div className="absolute bottom-0 left-0 w-full px-6 pb-8 bg-gradient-to-t from-[#1A1A1A] via-[#1A1A1A]/95 to-transparent pt-16 z-20 flex justify-center">
+      <div className="absolute bottom-0 left-0 w-full px-6 pb-8 bg-gradient-to-t from-[#212121] via-[#212121]/95 to-transparent pt-16 z-20 flex justify-center">
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}

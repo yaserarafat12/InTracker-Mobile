@@ -265,8 +265,9 @@ export const TambahHabitModal = ({
           x: [0, -8, 8, -8, 8, 0],
           transition: { duration: 0.4, ease: "easeInOut" }
         } : {}}
+        whileTap={{ x: 4, y: 4, boxShadow: "0px 0px 0px black" }}
         onClick={handleCardClick}
-        className="relative aspect-[16/7.2] rounded-[24px] overflow-hidden border-[1px] border-white/10 shadow-[5px_5px_0px_rgba(0,0,0,1)] active:scale-[0.98] group cursor-pointer bg-[#1A1A1A]"
+        className="relative aspect-[16/7.2] rounded-[24px] overflow-hidden border-[2px] border-black shadow-[5px_5px_0px_rgba(0,0,0,1)] group cursor-pointer bg-[#212121]"
       >
         <img 
           src={habit.imageUrl} 
@@ -329,23 +330,24 @@ export const TambahHabitModal = ({
           animate={{ y: 0 }}
           exit={{ y: '100%' }}
           transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-          className="fixed inset-0 bg-[#1A1A1A] z-50 flex flex-col"
+          className="fixed inset-0 bg-[#212121] z-50 flex flex-col"
         >
           {/* Header */}
-          <div className="pt-14 pb-6 px-6 flex justify-between items-center bg-[#1A1A1A]/90 backdrop-blur-xl border-b border-white/5 sticky top-0 z-20">
+          <div className="pt-14 pb-6 px-6 flex justify-between items-center bg-[#212121]/90 backdrop-blur-xl border-b border-white/5 sticky top-0 z-20">
             <div>
               <h2 className="text-2xl font-extrabold font-['Outfit'] text-[#E3DAC9] tracking-tight">Tambah Tugas</h2>
             </div>
-            <button 
+            <motion.button 
+              whileTap={{ x: 2, y: 2, boxShadow: "0px 0px 0px black" }}
               onClick={onClose}
-              className="w-10 h-10 rounded-2xl bg-[#222] border border-white/10 flex items-center justify-center text-[#E3DAC9]/60 active:scale-90 active:bg-[#2a2a2a] transition-all shadow-[4px_4px_0px_rgba(0,0,0,1)]"
+              className="w-10 h-10 rounded-2xl bg-[#222] border-[1.5px] border-black flex items-center justify-center text-[#E3DAC9] transition-all shadow-[4px_4px_0px_rgba(0,0,0,1)]"
             >
               <Icon icon="ph:x-bold" width={18} height={18} />
-            </button>
+            </motion.button>
           </div>
 
           {/* Categories Bar - Unified & Consistent */}
-          <div className="px-6 py-6 bg-[#1A1A1A] sticky top-[108px] z-30 border-b border-white/5 h-[100px] flex items-center">
+          <div className="px-6 py-6 bg-[#212121] sticky top-[108px] z-30 border-b border-white/5 h-[100px] flex items-center">
             <div 
               ref={catBarRef}
               className="flex items-center gap-3 w-full overflow-x-auto py-2 no-scrollbar relative"
@@ -364,13 +366,13 @@ export const TambahHabitModal = ({
                   <motion.button
                     key={cat}
                     data-cat={cat}
-                    whileTap={{ scale: 0.95 }}
+                    whileTap={{ x: 3, y: 3, boxShadow: "0px 0px 0px rgba(0,0,0,1)" }}
                     onClick={() => {
                       if (navigator.vibrate) navigator.vibrate(5);
                       setSelectedCategory(cat);
                     }}
-                    className={`flex-shrink-0 flex items-center justify-center gap-3 px-4 rounded-2xl border-[1.5px] shadow-[4px_4px_0_rgba(0,0,0,1)] h-[48px] w-[140px] transition-all duration-300 ${
-                      isSemua ? 'sticky left-0 z-20 bg-[#1A1A1A] mr-4' : 'bg-[#1A1A1A]'
+                    className={`flex-shrink-0 flex items-center justify-center gap-3 px-4 rounded-2xl border-[2px] shadow-[4px_4px_0_rgba(0,0,0,1)] h-[48px] w-[140px] transition-all duration-200 ${
+                      isSemua ? 'sticky left-0 z-20 bg-[#212121] mr-4' : 'bg-[#212121]'
                     }`}
                     style={{
                       borderColor: isSelected ? accentColor : isSubActive ? `${accentColor}60` : `${accentColor}15`,
@@ -449,7 +451,7 @@ export const TambahHabitModal = ({
           <motion.div 
             initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }}
             transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-            className="fixed bottom-0 left-0 right-0 bg-[#1A1A1A] z-[70] rounded-t-[32px] border-t border-white/5 p-6 pb-10 shadow-[0_-20px_50px_rgba(0,0,0,0.8)] flex flex-col h-[55vh]"
+            className="fixed bottom-0 left-0 right-0 bg-[#212121] z-[70] rounded-t-[32px] border-t border-white/5 p-6 pb-10 shadow-[0_-20px_50px_rgba(0,0,0,0.8)] flex flex-col h-[55vh]"
           >
             {/* Grab Handle */}
             <div className="w-10 h-1 bg-white/10 rounded-full mx-auto mb-6" />
@@ -509,18 +511,20 @@ export const TambahHabitModal = ({
 
             {/* Action Buttons */}
             <div className="flex gap-4">
-              <button 
+              <motion.button 
+                whileTap={{ x: 2, y: 2, boxShadow: "0px 0px 0px black" }}
                 onClick={() => { setSelectedHabitForConfig(null); setShowIntensityPicker(false); }}
-                className="flex-1 h-[56px] rounded-2xl bg-[#222] border border-white/10 text-[#E3DAC9]/60 font-bold font-['Outfit'] uppercase tracking-[0.15em] text-[13px] active:scale-95 transition-all"
+                className="flex-1 h-[56px] rounded-2xl bg-[#222] border-[1.5px] border-black text-[#E3DAC9]/80 font-black font-['Outfit'] uppercase tracking-[0.15em] text-[13px] shadow-[4px_4px_0px_rgba(0,0,0,1)] transition-all"
               >
                 Batal
-              </button>
-              <button 
+              </motion.button>
+              <motion.button 
+                whileTap={{ x: 3, y: 3, boxShadow: "0px 0px 0px rgba(0,0,0,1)" }}
                 onClick={() => handleActionClick(selectedHabitForConfig, intensityValue)}
-                className="flex-[1.5] h-[56px] rounded-2xl bg-[#00FF85] border-[1.5px] border-black text-black font-bold font-['Outfit'] uppercase tracking-[0.15em] text-[13px] shadow-[4px_4px_0px_rgba(0,0,0,1),0_0_20px_rgba(0,255,133,0.2)] active:scale-95 active:shadow-none transition-all flex items-center justify-center gap-2"
+                className="flex-[1.5] h-[56px] rounded-2xl bg-[#00FF85] border-[2px] border-black text-black font-black font-['Outfit'] uppercase tracking-[0.15em] text-[13px] shadow-[6px_6px_0px_rgba(0,0,0,1)] transition-all flex items-center justify-center gap-2"
               >
-                {habitToEdit ? 'Simpan Perubahan' : 'Tambah Tugas'}
-              </button>
+                {habitToEdit ? 'Simpan' : 'Tambah'}
+              </motion.button>
             </div>
           </motion.div>
         </>
@@ -539,7 +543,7 @@ export const TambahHabitModal = ({
           <motion.div 
             initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }}
             transition={{ type: 'spring', damping: 28, stiffness: 220 }}
-            className="fixed bottom-0 left-0 right-0 bg-[#1A1A1A] z-[90] rounded-t-[32px] border-t border-white/5 p-6 pb-10 shadow-[0_-20px_50px_rgba(0,0,0,0.8)] flex flex-col h-[55vh]"
+            className="fixed bottom-0 left-0 right-0 bg-[#212121] z-[90] rounded-t-[32px] border-t border-white/5 p-6 pb-10 shadow-[0_-20px_50px_rgba(0,0,0,0.8)] flex flex-col h-[55vh]"
           >
             {/* Grab Handle */}
             <div className="w-10 h-1 bg-white/10 rounded-full mx-auto mb-5" />
@@ -576,24 +580,26 @@ export const TambahHabitModal = ({
               </div>
               
               {/* Fade Overlays */}
-              <div className="absolute top-0 inset-x-0 h-16 bg-gradient-to-b from-[#1A1A1A] to-transparent pointer-events-none z-20" />
-              <div className="absolute bottom-0 inset-x-0 h-16 bg-gradient-to-t from-[#1A1A1A] to-transparent pointer-events-none z-20" />
+              <div className="absolute top-0 inset-x-0 h-16 bg-gradient-to-b from-[#212121] to-transparent pointer-events-none z-20" />
+              <div className="absolute bottom-0 inset-x-0 h-16 bg-gradient-to-t from-[#212121] to-transparent pointer-events-none z-20" />
             </div>
 
             {/* Action Buttons */}
             <div className="flex gap-4 mt-6">
-              <button 
+              <motion.button 
+                whileTap={{ x: 2, y: 2, boxShadow: "0px 0px 0px black" }}
                 onClick={() => setShowIntensityPicker(false)}
-                className="flex-1 h-[56px] rounded-2xl bg-[#222] border border-white/10 text-[#E3DAC9]/60 font-black font-['Outfit'] uppercase tracking-[0.15em] text-[13px] active:scale-95 transition-all"
+                className="flex-1 h-[56px] rounded-2xl bg-[#222] border-[1.5px] border-black text-[#E3DAC9]/80 font-black font-['Outfit'] uppercase tracking-[0.15em] text-[13px] shadow-[4px_4px_0px_rgba(0,0,0,1)] transition-all"
               >
                 Batal
-              </button>
-              <button 
+              </motion.button>
+              <motion.button 
+                whileTap={{ x: 3, y: 3, boxShadow: "0px 0px 0px rgba(0,0,0,1)" }}
                 onClick={() => { if (navigator.vibrate) navigator.vibrate(5); setShowIntensityPicker(false); }}
-                className="flex-[1.5] h-[56px] rounded-2xl bg-[#00FF85] border-[1.5px] border-black text-black font-black font-['Outfit'] uppercase tracking-[0.15em] text-[13px] shadow-[4px_4px_0px_rgba(0,0,0,1),0_0_20px_rgba(0,255,133,0.2)] active:scale-95 active:shadow-none transition-all"
+                className="flex-[1.5] h-[56px] rounded-2xl bg-[#00FF85] border-[2px] border-black text-black font-black font-['Outfit'] uppercase tracking-[0.15em] text-[13px] shadow-[6px_6px_0px_rgba(0,0,0,1)] transition-all"
               >
                 Selesai
-              </button>
+              </motion.button>
             </div>
           </motion.div>
         </>

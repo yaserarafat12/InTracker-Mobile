@@ -28,6 +28,7 @@ export interface TargetItem {
   completed: boolean;
   starred: boolean;
   createdAt: string;
+  completedAt?: string | null;
 }
 
 interface TargetStore {
@@ -96,23 +97,27 @@ export const useTargetStore = create<TargetStore>()(
             targetValue: t.target_value,
             starred: t.starred ?? false,
             createdAt: t.created_at,
+            completedAt: t.completed_at,
           }));
 
           // AUTO-SWEEP LOGIC: Move uncompleted 'today' targets from previous days to 'delayed'
-          const toDelay: string[] = [];
           const updatedTargets = mappedData.map(t => {
             const itemDate = new Date(t.createdAt).toLocaleDateString('en-CA');
+            // If it was meant for 'today' but created before today and not completed, move to 'delayed'
             if (t.window === 'today' && !t.completed && itemDate < today) {
-              toDelay.push(t.id);
               return { ...t, window: 'delayed' as const };
             }
             return t;
           });
 
-          if (toDelay.length > 0) {
-            console.log(`Auto-delaying ${toDelay.length} expired targets.`);
-            // Background update to Supabase
-            supabase.from('targets').update({ window: 'delayed' }).in('id', toDelay).then();
+          // Sync 'delayed' status back to DB if changed
+          const toDelayIds = updatedTargets
+            .filter((t, i) => t.window === 'delayed' && mappedData[i].window === 'today')
+            .map(t => t.id);
+
+          if (toDelayIds.length > 0) {
+            console.log(`[InTracker] Auto-delaying ${toDelayIds.length} expired targets.`);
+            supabase.from('targets').update({ window: 'delayed' }).in('id', toDelayIds).then();
           }
 
           set({ targets: updatedTargets as TargetItem[] });
@@ -216,10 +221,14 @@ export const useTargetStore = create<TargetStore>()(
         const nextSteps = target.steps.map((s) => ({ ...s, completed: true }));
         const nextValue = target.mode === 'number' ? target.targetValue : target.currentValue;
 
+        const nextCompletedAt = new Date().toISOString();
+
         // Optimistic update
         set((state) => ({
           targets: state.targets.map((t) =>
-            t.id === targetId ? { ...t, completed: true, steps: nextSteps, currentValue: nextValue } : t
+            t.id === targetId 
+              ? { ...t, completed: true, steps: nextSteps, currentValue: nextValue, completedAt: nextCompletedAt } 
+              : t
           ),
         }));
 
@@ -229,6 +238,7 @@ export const useTargetStore = create<TargetStore>()(
             completed: true,
             steps: nextSteps,
             current_value: nextValue,
+            completed_at: nextCompletedAt
           })
           .eq('id', targetId);
       },
@@ -278,11 +288,13 @@ export const useTargetStore = create<TargetStore>()(
           ? (nextCompleted ? target.targetValue : 0) 
           : target.currentValue;
 
+        const nextCompletedAt = nextCompleted ? new Date().toISOString() : null;
+
         // Optimistic update
         set((state) => ({
           targets: state.targets.map((t) =>
             t.id === targetId 
-            ? { ...t, completed: nextCompleted, steps: nextSteps, currentValue: nextValue } 
+            ? { ...t, completed: nextCompleted, steps: nextSteps, currentValue: nextValue, completedAt: nextCompletedAt } 
             : t
           ),
         }));
@@ -293,6 +305,7 @@ export const useTargetStore = create<TargetStore>()(
             completed: nextCompleted,
             steps: nextSteps,
             current_value: nextValue,
+            completed_at: nextCompletedAt
           })
           .eq('id', targetId);
       },

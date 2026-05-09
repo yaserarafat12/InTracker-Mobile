@@ -181,13 +181,15 @@ const TargetCard = ({ target, index, onOpen }: { target: TargetItem; index: numb
 
       {/* Main Card Content */}
       <motion.div
+        whileTap={{ x: 3, y: 3, boxShadow: "0px 0px 0px black" }}
+        onClick={() => onOpen(target)}
         style={{ x }}
         drag="x"
         dragConstraints={{ left: -100, right: 100 }}
         dragElastic={0.1}
         onDragEnd={handleDragEnd}
-        className={`w-full rounded-[28px] border-[1.5px] border-white/10 relative ${
-          target.starred ? 'starred-card z-30' : 'shadow-[8px_8px_0px_rgba(0,0,0,1)] z-10'
+        className={`w-full rounded-[28px] border-[2px] border-black relative cursor-pointer ${
+          target.starred ? 'starred-card z-30' : 'shadow-[6px_6px_0px_rgba(0,0,0,1)] z-10'
         }`}
       >
         {/* VIRTUAL PRISM BACKGROUND (THE CROP) - Managed overflow here instead */}
@@ -207,53 +209,61 @@ const TargetCard = ({ target, index, onOpen }: { target: TargetItem; index: numb
         )}
 
         <div className="p-4 relative">
+          {/* Delayed Overlay Visuals */}
+          {target.window === 'delayed' && !target.completed && (
+            <div className="absolute inset-0 z-[10] flex items-center justify-center rounded-[28px] overflow-hidden">
+              <div className="absolute inset-0 bg-black/60 backdrop-blur-[2px]" />
+              <div className="relative z-20 flex flex-col items-center">
+                <div className="w-8 h-8 rounded-full bg-[#EF4444] border border-black shadow-[0_0_15px_rgba(239,68,68,0.4)] flex items-center justify-center mb-1">
+                  <Icon icon="solar:danger-bold" className="text-white" width={16} />
+                </div>
+                <span className="text-[10px] font-black text-[#EF4444] uppercase tracking-widest bg-black/40 px-2 py-0.5 rounded-full border border-[#EF4444]/30">Tertunda!</span>
+              </div>
+            </div>
+          )}
 
+          {/* Golden particles for starred cards */}
+          {target.starred && (
+            <>
+              <span className="star-particle" />
+              <span className="star-particle" />
+              <span className="star-particle" />
+            </>
+          )}
 
-        {/* Golden particles for starred cards */}
-        {target.starred && (
-          <>
-            <span className="star-particle" />
-            <span className="star-particle" />
-            <span className="star-particle" />
-          </>
-        )}
-
-        <div className="flex items-center gap-4 py-1 relative z-[3]">
-          {/* Square Checklist */}
-          <motion.div
-            whileTap={{ scale: 0.8 }}
-            onClick={(e) => {
-              e.stopPropagation();
-              toggleComplete(target.id);
-              if (navigator.vibrate) navigator.vibrate(8);
-            }}
-            className={`w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all shrink-0 ${
-              target.completed ? 'bg-[#00FF85] border-black' : 'border-white/10 bg-white/5'
-            }`}
-
-          >
-            {target.completed && <Icon icon="ph:check-bold" width={14} height={14} className="text-black" />}
-          </motion.div>
-
-          <motion.button
-            whileTap={{ scale: 0.97 }}
-            onClick={() => {
-              if (navigator.vibrate) navigator.vibrate(6);
-              onOpen(target);
-            }}
-            className="flex-1 text-left min-w-0"
-          >
-            <h3
-              className={`text-[17px] font-black font-['Outfit'] leading-tight tracking-tight transition-all drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)] ${
-                target.completed ? 'text-white/20 line-through' : 'text-[#E3DAC9]'
+          <div className="flex items-center gap-4 py-1 relative z-[3]">
+            {/* Square Checklist */}
+            <motion.div
+              whileTap={{ scale: 0.8 }}
+              onClick={(e) => {
+                e.stopPropagation();
+                toggleComplete(target.id);
+                if (navigator.vibrate) navigator.vibrate(8);
+              }}
+              className={`w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all shrink-0 ${
+                target.completed ? 'bg-[#00FF85] border-black' : 'border-white/10 bg-white/5'
               }`}
             >
+              {target.completed && <Icon icon="ph:check-bold" width={14} height={14} className="text-black" />}
+            </motion.div>
 
-              {target.title}
-            </h3>
-          </motion.button>
-        </div>
-
+            <motion.button
+              whileTap={{ scale: 0.97 }}
+              onClick={() => {
+                if (navigator.vibrate) navigator.vibrate(6);
+                onOpen(target);
+              }}
+              className="flex-1 text-left min-w-0"
+            >
+              <h3
+                className={`text-[17px] font-black font-['Outfit'] leading-tight tracking-tight transition-all drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)] ${
+                  target.completed ? 'text-white/20 line-through' : 'text-[#E3DAC9]'
+                }`}
+              >
+                {target.title}
+              </h3>
+            </motion.button>
+          </div>
         </div>
 
         {/* Magical Star Cluster Toggle - MOVED OUTSIDE PADDING FOR PRECISION */}
@@ -347,9 +357,9 @@ const EmptyTargetState = ({ onAdd }: { onAdd: () => void }) => (
   <motion.button
     initial={{ opacity: 0, scale: 0.97 }}
     animate={{ opacity: 1, scale: 1 }}
-    whileTap={{ scale: 0.98 }}
+    whileTap={{ x: 3, y: 3, boxShadow: "0px 0px 0px rgba(0,0,0,1)" }}
     onClick={onAdd}
-    className="w-full min-h-[160px] rounded-[28px] border-[1.5px] border-dashed border-[#00FF85]/35 bg-[#00FF85]/[0.03] flex flex-col items-center justify-center px-8 text-center shadow-[7px_7px_0px_rgba(0,0,0,1)]"
+    className="w-full min-h-[160px] rounded-[28px] border-[2px] border-black bg-[#00FF85]/[0.03] flex flex-col items-center justify-center px-8 text-center shadow-[6px_6px_0px_rgba(0,0,0,1)]"
   >
     <div className="w-12 h-12 rounded-[20px] bg-[#00FF85] border-[1.5px] border-black flex items-center justify-center shadow-[4px_4px_0px_rgba(0,0,0,1)]">
       <Icon icon="solar:add-circle-bold" width={24} height={24} className="text-black" />
@@ -365,7 +375,7 @@ const EmptyHistoryState = () => (
   <motion.div
     initial={{ opacity: 0, scale: 0.97 }}
     animate={{ opacity: 1, scale: 1 }}
-    className="w-full min-h-[190px] rounded-[30px] border border-white/10 bg-[#1A1A1A] flex flex-col items-center justify-center px-8 text-center shadow-[7px_7px_0px_rgba(0,0,0,1)]"
+    className="w-full min-h-[190px] rounded-[30px] border border-white/10 bg-[#212121] flex flex-col items-center justify-center px-8 text-center shadow-[7px_7px_0px_rgba(0,0,0,1)]"
   >
     <h3 className="text-[23px] font-black text-white">Belum Ada Riwayat</h3>
     <p className="mt-2 text-[12px] font-bold uppercase text-[#E3DAC9]/35 leading-relaxed">
@@ -394,7 +404,7 @@ const TargetDetailSheet = ({ target, onClose }: { target: TargetItem; onClose: (
         animate={{ y: 0 }}
         exit={{ y: '100%' }}
         transition={{ type: 'spring', damping: 27, stiffness: 210 }}
-        className="fixed inset-x-0 bottom-0 z-[70] max-h-[88vh] rounded-t-[34px] bg-[#1A1A1A] border-t border-white/10 shadow-[0_-25px_60px_rgba(0,0,0,0.8)] overflow-hidden"
+        className="fixed inset-x-0 bottom-0 z-[70] max-h-[88vh] rounded-t-[34px] bg-[#212121] border-t border-white/10 shadow-[0_-25px_60px_rgba(0,0,0,0.8)] overflow-hidden"
       >
         <div className="px-6 pt-5 pb-5 border-b border-white/5">
           <div className="w-10 h-1 rounded-full bg-white/10 mx-auto mb-6" />
@@ -404,12 +414,13 @@ const TargetDetailSheet = ({ target, onClose }: { target: TargetItem; onClose: (
               {/* Priority Labels Removed */}
               <h2 className="mt-1 text-[24px] font-bold leading-[1.1] text-white">{target.title}</h2>
             </div>
-            <button
+            <motion.button
+              whileTap={{ x: 2, y: 2, boxShadow: "0px 0px 0px black" }}
               onClick={onClose}
-              className="w-10 h-10 rounded-2xl bg-[#222] border border-white/10 flex items-center justify-center active:scale-90 transition-all"
+              className="w-10 h-10 rounded-2xl bg-[#222] border-[1.5px] border-black flex items-center justify-center transition-all shadow-[4px_4px_0px_rgba(0,0,0,1)]"
             >
-              <Icon icon="ph:x-bold" width={17} height={17} className="text-[#E3DAC9]/60" />
-            </button>
+              <Icon icon="ph:x-bold" width={17} height={17} className="text-[#E3DAC9]" />
+            </motion.button>
           </div>
 
           {/* Progress Section Removed as per request */}
@@ -469,17 +480,18 @@ const TargetDetailSheet = ({ target, onClose }: { target: TargetItem; onClose: (
           )}
 
           <div className="mt-6 space-y-3">
-            <button
+            <motion.button
+              whileTap={{ x: 3, y: 3, boxShadow: "0px 0px 0px rgba(0,0,0,1)" }}
               onClick={() => {
                 completeTarget(target.id);
                 if (navigator.vibrate) navigator.vibrate([10, 25, 10]);
                 onClose();
               }}
-              className="w-full h-16 rounded-[22px] bg-[#00FF85] border-[1.5px] border-black text-black font-black uppercase shadow-[5px_5px_0px_rgba(0,0,0,1)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all flex items-center justify-center gap-2"
+              className="w-full h-16 rounded-[22px] bg-[#00FF85] border-[2px] border-black text-black font-black uppercase shadow-[6px_6px_0px_rgba(0,0,0,1)] transition-all flex items-center justify-center gap-2"
             >
               <Icon icon="solar:check-circle-bold" width={22} height={22} />
               Selesaikan
-            </button>
+            </motion.button>
 
             <div className="grid grid-cols-[1fr_1fr_72px] gap-3">
               {target.window !== 'today' && (
@@ -503,7 +515,7 @@ const TargetDetailSheet = ({ target, onClose }: { target: TargetItem; onClose: (
                     if (navigator.vibrate) navigator.vibrate(8);
                     onClose();
                   }}
-                  className="h-14 rounded-2xl bg-[#1A1A1A] border border-white/10 text-white/60 font-black text-[11px] uppercase active:scale-95 transition-all flex flex-col items-center justify-center"
+                  className="h-14 rounded-2xl bg-[#212121] border border-white/10 text-white/60 font-black text-[11px] uppercase active:scale-95 transition-all flex flex-col items-center justify-center"
                 >
                   <Icon icon="solar:star-fall-bold" width={18} height={18} />
                   <span>Suatu Hari</span>
@@ -544,7 +556,7 @@ const DelayedClarificationSheet = ({ target, onClose }: { target: TargetItem; on
         animate={{ y: 0 }}
         exit={{ y: '100%' }}
         transition={{ type: 'spring', damping: 27, stiffness: 210 }}
-        className="fixed inset-x-0 bottom-0 z-[90] rounded-t-[34px] bg-[#1A1A1A] border-t border-[#EF4444]/20 shadow-[0_-25px_60px_rgba(239,68,68,0.15)] overflow-hidden"
+        className="fixed inset-x-0 bottom-0 z-[90] rounded-t-[34px] bg-[#212121] border-t border-[#EF4444]/20 shadow-[0_-25px_60px_rgba(239,68,68,0.15)] overflow-hidden"
       >
         <div className="px-8 pt-8 pb-12">
           <div className="flex flex-col items-center text-center">
@@ -579,7 +591,7 @@ const DelayedClarificationSheet = ({ target, onClose }: { target: TargetItem; on
                   onClose();
                 }
               }}
-              className="w-full h-16 rounded-[22px] bg-[#1A1A1A] border-[1.5px] border-white/10 text-[#EF4444] font-black uppercase active:scale-[0.98] transition-all flex items-center justify-center gap-3"
+              className="w-full h-16 rounded-[22px] bg-[#212121] border-[1.5px] border-white/10 text-[#EF4444] font-black uppercase active:scale-[0.98] transition-all flex items-center justify-center gap-3"
             >
               <Icon icon="ph:trash-bold" width={22} height={22} />
               <span>Hapus Permanen</span>
@@ -607,6 +619,22 @@ export default function TodoTargetView() {
   const [isAdding, setIsAdding] = useState(false);
   const [inputValue, setInputValue] = useState('');
   const quickAddRef = useRef<HTMLInputElement>(null);
+
+  // AUTO-CLEANUP: Hapus tugas yang sudah selesai > 24 jam (dan bukan hari ini)
+  useEffect(() => {
+    const now = new Date().getTime();
+    const todayStr = new Date().toLocaleDateString('en-CA');
+    const staleTargets = targets.filter(t => 
+      t.completed && 
+      t.completedAt && 
+      (now - new Date(t.completedAt).getTime() > 24 * 60 * 60 * 1000) &&
+      new Date(t.completedAt).toLocaleDateString('en-CA') !== todayStr
+    );
+
+    if (staleTargets.length > 0) {
+      staleTargets.forEach(t => useTargetStore.getState().deleteTarget(t.id));
+    }
+  }, [targets]);
 
   const handleOpenTarget = (target: TargetItem) => {
     if (target.window === 'delayed' && !target.completed) {
@@ -643,42 +671,30 @@ export default function TodoTargetView() {
   };
 
   const visibleTargets = (targets || []).filter((target) => {
-    if (activeFilter === 'done') return target.completed;
+    const todayStr = new Date().toLocaleDateString('en-CA');
+    
+    if (activeFilter === 'done') {
+      // Hanya tampilkan yang selesai HARI INI
+      if (!target.completed || !target.completedAt) return false;
+      const completedDateStr = new Date(target.completedAt).toLocaleDateString('en-CA');
+      return completedDateStr === todayStr;
+    }
+    
     if (target.completed) return false;
 
-    if (activeFilter === 'today') return target.window === 'today';
+    // Tampilkan Hari Ini + Ditunda
+    if (activeFilter === 'today') {
+      return target.window === 'today' || target.window === 'delayed';
+    }
     
     return target.window === activeFilter;
   });
 
   return (
-    <div className="px-5 pt-8 pb-36 min-h-screen">
+    <div className="px-5 pt-12 pb-36 min-h-screen">
       <StarSystemStyles />
       <div className="flex items-center justify-between gap-4">
         <div className="min-w-0" />
-        <button
-          onClick={() => {
-            setIsAddOpen(true);
-            if (navigator.vibrate) navigator.vibrate(10);
-          }}
-          className="w-[52px] h-[52px] min-w-[52px] rounded-2xl bg-[#1A1A1A] border-[1.5px] border-[#E3DAC9]/20 flex items-center justify-center shadow-[5px_5px_0px_rgba(0,0,0,1)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all group"
-        >
-          <svg 
-            width="24" 
-            height="24" 
-            viewBox="0 0 24 24" 
-            fill="none" 
-            className="group-hover:scale-110 transition-transform"
-          >
-            <path 
-              d="M12 5V19M5 12H19" 
-              stroke="#E3DAC9" 
-              strokeWidth="3.5" 
-              strokeLinecap="round" 
-              strokeLinejoin="round"
-            />
-          </svg>
-        </button>
       </div>
 
 
@@ -687,23 +703,25 @@ export default function TodoTargetView() {
       <div className="mt-10 overflow-x-auto no-scrollbar -mx-5 px-5">
         <div className="flex gap-2 min-w-max pb-4">
           {[
-            { id: 'today', label: 'Hari Ini', count: (targets || []).filter(t => !t.completed && t.window === 'today').length },
-            { id: 'upcoming', label: 'Mendatang', count: (targets || []).filter(t => !t.completed && t.window === 'upcoming').length },
-            { id: 'someday', label: 'Suatu Hari', count: (targets || []).filter(t => !t.completed && t.window === 'someday').length },
-            { id: 'delayed', label: 'Ditunda', count: (targets || []).filter(t => !t.completed && t.window === 'delayed').length },
-            { id: 'done', label: 'Selesai', count: (targets || []).filter(t => t.completed).length }
+            { id: 'today', label: 'Hari Ini', count: (targets || []).filter(t => !t.completed && (t.window === 'today' || t.window === 'delayed')).length },
+            { id: 'done', label: 'Selesai', count: (targets || []).filter(t => {
+              if (!t.completed || !t.completedAt) return false;
+              const todayStr = new Date().toLocaleDateString('en-CA');
+              return new Date(t.completedAt).toLocaleDateString('en-CA') === todayStr;
+            }).length }
           ].map((item) => (
-            <button
+            <motion.button
               key={item.id}
+              whileTap={{ x: 2, y: 2, boxShadow: "0px 0px 0px rgba(0,0,0,1)" }}
               onClick={() => {
                 setActiveFilter(item.id as TargetFilter);
                 if (navigator.vibrate) navigator.vibrate(8);
               }}
               className={`
                 px-4 py-2.5 rounded-xl transition-all duration-300 flex items-start
-                border-[1.5px] ${activeFilter === item.id 
-                  ? 'bg-[#F5F2E8] border-black shadow-[3px_3px_0px_rgba(0,0,0,1)]' 
-                  : 'bg-[#1A1A1A] border-white/10 shadow-[3px_3px_0px_rgba(0,0,0,1)]'}
+                border-[2px] ${activeFilter === item.id 
+                  ? 'bg-[#E3DAC9] border-black shadow-[4px_4px_0px_rgba(0,0,0,1)]' 
+                  : 'bg-[#212121] border-black shadow-[4px_4px_0px_rgba(0,0,0,1)]'}
               `}
             >
               <span className={`text-[13px] font-bold font-['Outfit'] tracking-tight ${activeFilter === item.id ? 'text-black' : 'text-white/40'}`}>
@@ -712,7 +730,7 @@ export default function TodoTargetView() {
               <span className={`text-[9px] font-black ml-0.5 mt-[-2px] ${activeFilter === item.id ? 'text-black/40' : 'text-white/20'}`}>
                 {item.count}
               </span>
-            </button>
+            </motion.button>
           ))}
         </div>
       </div>
@@ -835,6 +853,21 @@ export default function TodoTargetView() {
             </motion.div>
           </div>
         )}
+
+        {/* Floating Add Button - Consistent with GlobalView */}
+        <div className="fixed bottom-[110px] right-6 z-[60]">
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ x: 5, y: 5, boxShadow: "0px 0px 0px rgba(0,0,0,1)" }}
+            onClick={() => {
+              if (navigator.vibrate) navigator.vibrate(20);
+              setIsAddOpen(true);
+            }}
+            className="w-16 h-16 bg-[#00FF85] border-[2.5px] border-black shadow-[8px_8px_0px_rgba(0,0,0,1)] rounded-[22px] flex items-center justify-center text-black"
+          >
+            <Icon icon="ph:plus-bold" width={34} height={34} />
+          </motion.button>
+        </div>
       </div>
 
       <AnimatePresence>

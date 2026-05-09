@@ -125,7 +125,7 @@ export default function Questions() {
   if (showCountryPicker) {
     const filteredCountries = COUNTRIES.filter(c => c.toLowerCase().includes(searchQuery.toLowerCase()));
     return (
-      <div className="min-h-screen bg-[#1A1A1A] text-white font-['Inter'] relative flex flex-col items-center overflow-hidden">
+      <div className="min-h-screen bg-[#212121] text-white font-['Inter'] relative flex flex-col items-center overflow-hidden">
         <div className="relative z-20 w-full px-6 pt-12 flex flex-col gap-6">
           <div className="flex items-center gap-4">
             <button onClick={handleBack} className="w-10 h-10 flex items-center justify-center bg-white/5 rounded-full border border-white/10 active:scale-90 transition-transform"><Icon icon="solar:alt-arrow-left-bold" width={20} height={20} /></button>
@@ -152,10 +152,10 @@ export default function Questions() {
   // --- STEP 0: INTRO ---
   if (currentStep === 0) {
     return (
-      <div className="min-h-screen bg-[#1A1A1A] text-white font-['Inter'] relative flex flex-col items-center overflow-hidden select-none">
+      <div className="min-h-screen bg-[#212121] text-white font-['Inter'] relative flex flex-col items-center overflow-hidden select-none">
         <div className="absolute inset-0 z-0">
           <motion.img initial={{ opacity: 0 }} animate={{ opacity: 1 }} src="/antigravitybg/3.jpg" className="w-full h-full object-cover object-center -translate-y-[3vh]" style={{ filter: 'contrast(1.2) brightness(0.85) saturate(1.1) hue-rotate(15deg)' }} />
-          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[#1A1A1A]/60" />
+          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[#212121]/60" />
         </div>
         <div className="relative z-10 flex-1 w-full max-w-[400px] px-6 flex flex-col items-center justify-end pb-[calc(env(safe-area-inset-bottom,20px)+8vh)]">
           <CinematicButton onClick={() => navigate('/questions/1')} className="w-full">Mulai sekarang</CinematicButton>
@@ -165,7 +165,7 @@ export default function Questions() {
   }
 
   return (
-    <div className="h-[100dvh] bg-[#1A1A1A] text-white font-['Inter'] relative flex flex-col items-center overflow-hidden select-none">
+    <div className="h-[100dvh] bg-[#212121] text-white font-['Inter'] relative flex flex-col items-center overflow-hidden select-none">
       
       <div className="relative z-20 w-full px-6 pt-12 flex flex-col gap-6">
         <div className="flex items-center justify-between">
@@ -261,7 +261,7 @@ export default function Questions() {
         </div>
 
         {/* CONTINUE BUTTON (TRULY MENTOK AT BOTTOM) */}
-        <div className="absolute bottom-0 left-0 w-full px-6 pb-6 bg-gradient-to-t from-[#1A1A1A] via-[#1A1A1A]/90 to-transparent pt-12 pointer-events-none">
+        <div className="absolute bottom-0 left-0 w-full px-6 pb-6 bg-gradient-to-t from-[#212121] via-[#212121]/90 to-transparent pt-12 pointer-events-none">
           <div className="h-14 pointer-events-auto">
             {((currentQuestion?.type === "multi") || (currentQuestion?.type === "single" && selectedOptions.length > 0 && !isTransitioning)) && (
               <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>

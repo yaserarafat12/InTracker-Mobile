@@ -10,6 +10,8 @@ interface UserProfile {
   streak_freeze_count: number;
   nickname: string | null;
   onboarding_completed: boolean;
+  streak_count: number;
+  last_login_date: string | null;
 }
 
 interface UserStore {
@@ -21,6 +23,7 @@ interface UserStore {
   addDailyPass: () => Promise<void>;
   useStreakFreeze: () => Promise<boolean>;
   addStreakFreeze: (count: number) => Promise<void>;
+  updateDailyStreak: () => Promise<void>;
 }
 
 export const useUserStore = create<UserStore>()(
@@ -53,6 +56,9 @@ export const useUserStore = create<UserStore>()(
         if (!error && data) {
           set({ profile: data as UserProfile });
           
+          // Update login streak
+          await get().updateDailyStreak();
+
           // --- AUTO TRIAL LOGIC (The "Trap Manis") ---
           // If never had pro_until and not pro, give 7 days trial
           if (!data.pro_until && !data.is_pro) {
@@ -140,6 +146,53 @@ export const useUserStore = create<UserStore>()(
 
         if (!error && data) {
           set({ profile: data as UserProfile });
+        }
+      },
+
+      updateDailyStreak: async () => {
+        const { profile } = get();
+        if (!profile) return;
+
+        const now = new Date();
+        const todayStr = now.toISOString().split('T')[0];
+        
+        // Jika sudah login hari ini, jangan update apa-apa
+        if (profile.last_login_date === todayStr) return;
+
+        let newStreak = (profile.streak_count || 0);
+        const lastLogin = profile.last_login_date ? new Date(profile.last_login_date) : null;
+        
+        if (!lastLogin) {
+          // Pertama kali login
+          newStreak = 1;
+        } else {
+          // Reset jam ke 0 untuk perbandingan hari
+          const yesterday = new Date(now);
+          yesterday.setDate(yesterday.getDate() - 1);
+          const yesterdayStr = yesterday.toISOString().split('T')[0];
+
+          if (profile.last_login_date === yesterdayStr) {
+            // Login berurutan (kemarin login)
+            newStreak += 1;
+          } else {
+            // Bolos (kemarin nggak login)
+            newStreak = 1;
+          }
+        }
+
+        const { data, error } = await supabase
+          .from('profiles')
+          .update({ 
+            streak_count: newStreak,
+            last_login_date: todayStr
+          })
+          .eq('id', profile.id)
+          .select()
+          .single();
+
+        if (!error && data) {
+          set({ profile: data as UserProfile });
+          console.log(`[InTracker] Daily Login Streak Updated: ${newStreak} days! 🔥`);
         }
       }
     }),

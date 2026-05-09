@@ -98,6 +98,24 @@ const KartuTugas = ({ habit, index, activeFilter, onDoubleTap, onEdit }: KartuTu
     }
   };
 
+  const startCompletionAnimation = () => {
+    if (isCompleting) return;
+    
+    if (navigator.vibrate) navigator.vibrate([20, 50, 20]); 
+    setIsCompleting(true);
+    setCompletingHabitId(habit.id);
+    
+    // Reward moment 1.5s
+    setTimeout(() => {
+      onDoubleTap(habit.id);
+      // We don't setIsCompleting(false) here immediately to let the card exit with the overlay
+      setTimeout(() => {
+        setIsCompleting(false);
+        setCompletingHabitId(null);
+      }, 600); 
+    }, 1500);
+  };
+
   const handleDoubleTapClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (activeFilter !== 'berjalan' || habit.completed || habit.skipped || isCompleting) return;
@@ -106,18 +124,7 @@ const KartuTugas = ({ habit, index, activeFilter, onDoubleTap, onEdit }: KartuTu
     const DOUBLE_TAP_DELAY = 300;
     
     if (now - lastTap < DOUBLE_TAP_DELAY) {
-      if (navigator.vibrate) navigator.vibrate([20, 50, 20]); 
-      setIsCompleting(true);
-      setCompletingHabitId(habit.id);
-      
-      // Reward moment di-tweak jadi 1.5s (Lebih snappy sesuai request Boss)
-      setTimeout(() => {
-        onDoubleTap(habit.id);
-        setTimeout(() => {
-          setIsCompleting(false);
-          setCompletingHabitId(null);
-        }, 500); // Sinkron dengan durasi exit 0.5s
-      }, 1500);
+      startCompletionAnimation();
     } else {
       setLastTap(now);
     }
@@ -146,11 +153,12 @@ const KartuTugas = ({ habit, index, activeFilter, onDoubleTap, onEdit }: KartuTu
           });
 
           if (isDone) {
-             // Handle via local complete state if needed or global
-             onDoubleTap(habit.id);
+            // Gunakan animasi yang sama biar nggak glitch
+            startCompletionAnimation();
           }
         } else {
           toggleHabit(habit.id, 'completed');
+          if (!habit.completed) startCompletionAnimation();
         }
         break;
       case 'edit':
@@ -168,40 +176,44 @@ const KartuTugas = ({ habit, index, activeFilter, onDoubleTap, onEdit }: KartuTu
           style={{ opacity: leftActionOpacity, scale: scaleAction, x: leftActionX }}
           className="absolute left-0 top-[5%] bottom-[5%] w-[115px] flex flex-col gap-2 justify-center"
         >
-          <button 
+          <motion.button 
+            whileTap={{ x: 2, y: 2, boxShadow: "0px 0px 0px black" }}
             onClick={() => handleAction('log')}
-            className="flex flex-col items-center justify-center gap-1 h-full bg-[#00FF85] border-[1.5px] border-black shadow-[3px_3px_0px_rgba(0,0,0,1)] rounded-[24px] text-black active:scale-95 transition-transform w-full py-1"
+            className="flex flex-col items-center justify-center gap-1 h-full bg-[#00FF85] border-[1.5px] border-black shadow-[3px_3px_0px_rgba(0,0,0,1)] rounded-[24px] text-black transition-all w-full py-1"
           >
             <Icon icon="solar:history-bold" width={22} height={22} />
             <span className="text-[10px] font-black font-['Outfit'] uppercase tracking-widest">Log</span>
-          </button>
-          <button 
+          </motion.button>
+          <motion.button 
+            whileTap={{ x: 2, y: 2, boxShadow: "0px 0px 0px black" }}
             onClick={() => handleAction('edit')}
-            className="flex flex-col items-center justify-center gap-1 h-full bg-[#E3DAC9] border-[1.5px] border-black shadow-[3px_3px_0px_rgba(0,0,0,1)] rounded-[24px] text-black active:scale-95 transition-transform w-full py-1"
+            className="flex flex-col items-center justify-center gap-1 h-full bg-[#E3DAC9] border-[1.5px] border-black shadow-[3px_3px_0px_rgba(0,0,0,1)] rounded-[24px] text-black transition-all w-full py-1"
           >
             <Icon icon="solar:pen-new-square-bold" width={22} height={22} />
             <span className="text-[10px] font-black font-['Outfit'] uppercase tracking-widest">Edit</span>
-          </button>
+          </motion.button>
         </motion.div>
 
         <motion.div 
           style={{ opacity: rightActionOpacity, scale: scaleAction, x: rightActionX }}
           className="absolute right-0 top-[5%] bottom-[5%] w-[115px] flex flex-col gap-2 justify-center"
         >
-          <button 
+          <motion.button 
+            whileTap={{ x: 2, y: 2, boxShadow: "0px 0px 0px black" }}
             onClick={() => handleAction('skip')}
-            className="flex flex-col items-center justify-center gap-1 h-full bg-[#FFB800] border-[1.5px] border-black shadow-[3px_3px_0px_rgba(0,0,0,1)] rounded-[24px] text-black active:scale-95 transition-transform w-full py-1"
+            className="flex flex-col items-center justify-center gap-1 h-full bg-[#FFB800] border-[1.5px] border-black shadow-[3px_3px_0px_rgba(0,0,0,1)] rounded-[24px] text-black transition-all w-full py-1"
           >
             <Icon icon="solar:skip-next-bold" width={22} height={22} />
             <span className="text-[10px] font-black font-['Outfit'] uppercase tracking-widest">Skip</span>
-          </button>
-          <button 
+          </motion.button>
+          <motion.button 
+            whileTap={{ x: 2, y: 2, boxShadow: "0px 0px 0px black" }}
             onClick={() => handleAction('delete')}
-            className="flex flex-col items-center justify-center gap-1 h-full bg-[#FF3B30] border-[1.5px] border-black shadow-[3px_3px_0px_rgba(0,0,0,1)] rounded-[24px] text-white active:scale-95 transition-transform w-full py-1"
+            className="flex flex-col items-center justify-center gap-1 h-full bg-[#FF3B30] border-[1.5px] border-black shadow-[3px_3px_0px_rgba(0,0,0,1)] rounded-[24px] text-white transition-all w-full py-1"
           >
             <Icon icon="solar:trash-bin-trash-bold" width={22} height={22} />
             <span className="text-[10px] font-black font-['Outfit'] uppercase tracking-widest">Hapus</span>
-          </button>
+          </motion.button>
         </motion.div>
       </div>
 
@@ -210,7 +222,12 @@ const KartuTugas = ({ habit, index, activeFilter, onDoubleTap, onEdit }: KartuTu
         dragConstraints={{ left: -140, right: 140 }}
         dragElastic={0.05}
         onDragEnd={handleDragEnd}
-        whileTap={{ scale: 0.98 }}
+        whileTap={{ 
+          x: 6, 
+          y: 6, 
+          boxShadow: "0px 0px 0px rgba(0,0,0,1)",
+          transition: { duration: 0.1 }
+        }}
         initial={{ opacity: 0, y: 20, x: 0 }}
         animate={{ opacity: 1, y: 0, x: 0 }}
         exit={{ 
@@ -234,18 +251,23 @@ const KartuTugas = ({ habit, index, activeFilter, onDoubleTap, onEdit }: KartuTu
         className={`relative aspect-[16/7.2] ${isCompleting ? 'z-[2000]' : 'z-10'}`}
       >
         {/* Streak Badge - Positioned even tighter to the corner per Boss request */}
-        {Number(habit.streak) >= 0 && (
-          <motion.div 
-            initial={{ scale: 0, x: 20 }}
-            animate={{ scale: 1, x: 0 }}
-            className="absolute top-[-10px] right-[-5px] z-20 flex items-center gap-1.5 px-[14px] py-[6px] bg-[#FF4D00] border-[1.5px] border-black shadow-[3.5px_3.5px_0px_rgba(0,0,0,1)] rounded-full"
-          >
-            <Icon icon="solar:fire-bold" className="text-white w-4 h-4" />
-            <span className="text-white text-[13px] font-black font-['Outfit'] leading-none mt-[1px]">
-              {habit.streak || 0}
-            </span>
-          </motion.div>
-        )}
+        {/* Streak Badge - Hide instantly when completing to avoid glitch */}
+        <AnimatePresence>
+          {Number(habit.streak) >= 0 && !isCompleting && (
+            <motion.div 
+              key="streak-badge"
+              initial={{ scale: 0, x: 20 }}
+              animate={{ scale: 1, x: 0 }}
+              exit={{ scale: 0, opacity: 0, transition: { duration: 0.1 } }}
+              className="absolute top-[-10px] right-[-5px] z-20 flex items-center gap-1.5 px-[14px] py-[6px] bg-[#FF4D00] border-[1.5px] border-black shadow-[3.5px_3.5px_0px_rgba(0,0,0,1)] rounded-full"
+            >
+              <Icon icon="solar:fire-bold" className="text-white w-4 h-4" />
+              <span className="text-white text-[13px] font-black font-['Outfit'] leading-none mt-[1px]">
+                {habit.streak || 0}
+              </span>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
 
         <AnimatePresence>
@@ -280,14 +302,14 @@ const KartuTugas = ({ habit, index, activeFilter, onDoubleTap, onEdit }: KartuTu
                   exit={{ opacity: 0, scale: 0, transition: { duration: 0.4 } }}
                   transition={{ delay: 0.3, duration: 0.5, type: "spring" }}
                 >
-                  <Icon icon="solar:check-circle-bold" width={54} height={54} className="text-[#1A1A1A]" />
+                  <Icon icon="solar:check-circle-bold" width={54} height={54} className="text-[#212121]" />
                 </motion.div>
                 <motion.span
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, scale: 0, transition: { duration: 0.6 } }}
                   transition={{ delay: 0.4, duration: 0.5 }}
-                  className="text-[#1A1A1A] font-black font-['Outfit'] mt-2 text-[14px] tracking-[0.2em] uppercase"
+                  className="text-[#212121] font-black font-['Outfit'] mt-2 text-[14px] tracking-[0.2em] uppercase"
                 >
                   TUGAS SELESAI !
                 </motion.span>
@@ -296,7 +318,7 @@ const KartuTugas = ({ habit, index, activeFilter, onDoubleTap, onEdit }: KartuTu
           )}
         </AnimatePresence>
 
-        <div className={`absolute inset-0 rounded-[24px] overflow-hidden border-[1px] border-white/10 shadow-[8px_8px_0px_rgba(0,0,0,1)] bg-[#1A1A1A] group cursor-pointer transition-all duration-500 ${isCompleting ? 'blur-[12px] scale-[0.98]' : ''}`}>
+        <div className={`absolute inset-0 rounded-[24px] overflow-hidden border-[2px] border-black shadow-[8px_8px_0px_rgba(0,0,0,1)] bg-[#212121] group cursor-pointer transition-all duration-300 ${isCompleting ? 'opacity-0 scale-[0.95]' : ''}`}>
           <img 
             src={habit.imageUrl} 
             className={`absolute inset-0 w-full h-full object-cover ${habit.imagePosition || 'object-center'} opacity-65`} 

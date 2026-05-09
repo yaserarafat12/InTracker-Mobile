@@ -1,0 +1,12 @@
+Kamus Singkatan InTracker Mobile:
+-------------------------------
+cont = container
+dst  = dan seterusnya
+ref  = reference
+ss   = screenshot
+fix  = diperbaiki/sesuai
+bg   = background
+fg   = foreground
+acc  = accent
+-------------------------------
+Gunakan singkatan ini untuk komunikasi yang lebih cepat, Boss!

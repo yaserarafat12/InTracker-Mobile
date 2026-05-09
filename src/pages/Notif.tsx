@@ -31,14 +31,14 @@ const IndustrialToggle = ({ active, onToggle }: { active: boolean, onToggle: () 
       }} 
       className="relative w-14 h-7 rounded-full transition-colors duration-300 overflow-hidden" 
       style={{ 
-        backgroundColor: active ? 'rgba(0, 255, 133, 0.2)' : 'rgba(255, 255, 255, 0.05)', 
-        border: active ? '1.5px solid rgba(0, 255, 133, 0.4)' : '1.5px solid rgba(255, 255, 255, 0.1)' 
+        backgroundColor: active ? 'rgba(227, 218, 201, 0.2)' : 'rgba(255, 255, 255, 0.05)', 
+        border: active ? '1.5px solid rgba(227, 218, 201, 0.4)' : '1.5px solid rgba(255, 255, 255, 0.1)' 
       }}
     >
       <motion.div
         animate={{ x: active ? 32 : 6 }}
         transition={{ type: "spring", stiffness: 500, damping: 30 }}
-        className={`absolute top-1/2 -translate-y-1/2 w-5 h-5 rounded-full shadow-lg ${active ? 'bg-[#00FF85] shadow-[0_0_15px_#00FF85]' : 'bg-white/40'}`}
+        className={`absolute top-1/2 -translate-y-1/2 w-5 h-5 rounded-full shadow-lg ${active ? 'bg-[#E3DAC9] shadow-[0_0_15px_#E3DAC9]' : 'bg-white/40'}`}
       />
     </button>
   );
@@ -98,7 +98,7 @@ export default function Notif() {
   };
 
   return (
-    <div className="h-[100dvh] bg-[#1A1A1A] text-white font-['Inter'] relative flex flex-col items-center overflow-hidden select-none">
+    <div className="h-[100dvh] bg-[#212121] text-white font-['Inter'] relative flex flex-col items-center overflow-hidden select-none">
       
       <div className="relative z-10 w-full max-w-[420px] px-6 flex flex-col flex-1 pt-24">
         
@@ -150,7 +150,7 @@ export default function Notif() {
       </div>
 
       {/* BOTTOM ACTION SECTION (MENTOK) */}
-      <div className="absolute bottom-0 left-0 w-full px-6 pb-6 bg-gradient-to-t from-[#1A1A1A] via-[#1A1A1A]/95 to-transparent pt-16 z-20 flex justify-center">
+      <div className="absolute bottom-0 left-0 w-full px-6 pb-6 bg-gradient-to-t from-[#212121] via-[#212121]/95 to-transparent pt-16 z-20 flex justify-center">
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}

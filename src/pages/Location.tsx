@@ -61,7 +61,7 @@ export default function Location() {
   };
 
   return (
-    <div className="h-[100dvh] bg-[#1A1A1A] text-white font-['Inter'] relative flex flex-col items-center overflow-hidden select-none">
+    <div className="h-[100dvh] bg-[#212121] text-white font-['Inter'] relative flex flex-col items-center overflow-hidden select-none">
       
       {/* Background Pulse */}
       <div className="absolute inset-0 opacity-10 pointer-events-none">
@@ -109,7 +109,7 @@ export default function Location() {
       </div>
 
       {/* BOTTOM ACTION SECTION (MENTOK) */}
-      <div className="absolute bottom-0 left-0 w-full px-6 pb-6 bg-gradient-to-t from-[#1A1A1A] via-[#1A1A1A]/95 to-transparent pt-16 flex flex-col items-center z-20">
+      <div className="absolute bottom-0 left-0 w-full px-6 pb-6 bg-gradient-to-t from-[#212121] via-[#212121]/95 to-transparent pt-16 flex flex-col items-center z-20">
         <motion.div 
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}

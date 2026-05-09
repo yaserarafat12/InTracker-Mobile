@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { supabase } from '../../lib/supabase';
 import { NavigasiBawah } from '../NavigasiBawah';
+import { NavigasiAtas } from '../../components/NavigasiAtas';
 import DaftarHabit from '../habits/habitlist';
 import { Icon } from '@iconify/react';
 import { TambahHabitModal } from '../habits/addhabitscreen';
@@ -15,15 +16,16 @@ import type { Quote } from '../../data/quotes';
 import { JourneyView } from '../journey/JourneyView';
 import { getPrismStyle } from '../../utils/design';
 import GlobalView from '../GlobalView';
+import { GreetingHeader, dynamicHighlight } from './GreetingHeader';
 
 // --- HELPERS ---
 const getIndonesianDay = (date: Date) => {
-  const days = ['MINGGU', 'SENIN', 'SELASA', 'RABU', 'KAMIS', 'JUMAT', 'SABTU'];
+  const days = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
   return days[date.getDay()];
 };
 
 const getIndonesianMonth = (date: Date) => {
-  const months = ['JAN', 'FEB', 'MAR', 'APR', 'MEI', 'JUN', 'JUL', 'AGU', 'SEP', 'OKT', 'NOV', 'DES'];
+  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
   return months[date.getMonth()];
 };
 
@@ -36,37 +38,13 @@ const getDateLabel = (date: Date) => {
   const diffTime = target.getTime() - today.getTime();
   const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
 
-  if (diffDays === 0) return 'HARI INI';
-  if (diffDays === -1) return 'KEMARIN';
-  if (diffDays === 1) return 'BESOK';
+  if (diffDays === 0) return 'Hari Ini';
+  if (diffDays === -1) return 'Kemarin';
+  if (diffDays === 1) return 'Besok';
   return getIndonesianDay(date);
 };
 
 // --- SUB-VIEWS ---
-// --- HELPERS ---
-const dynamicHighlight = (text: string) => {
-  const words = text.split(' ');
-  if (words.length <= 1) return text;
-  
-  // Logic: Cari kata terpanjang sebagai "key word" untuk di-highlight
-  let longestIndex = 0;
-  for (let i = 1; i < words.length; i++) {
-    const currentLen = words[i].replace(/[.,!]/g, '').length;
-    const longestLen = words[longestIndex].replace(/[.,!]/g, '').length;
-    if (currentLen > longestLen) longestIndex = i;
-  }
-
-  return words.map((word, i) => {
-    if (i === longestIndex) {
-      return (
-        <span key={i} className="text-white font-[900]">
-          {word}{' '}
-        </span>
-      );
-    }
-    return <span key={i} className="text-[#E3DAC9]/70 font-medium">{word} </span>;
-  });
-};
 
 const RingProgressCard = ({ 
   title, 
@@ -101,8 +79,8 @@ const RingProgressCard = ({
 
   return (
     <motion.div 
-      whileTap={{ scale: 0.98 }}
-      className="relative flex-1 min-h-[175px] rounded-[20px] border-[1.2px] border-white/10 bg-black/45 backdrop-blur-[20px] p-4 shadow-[6px_6px_0px_rgba(0,0,0,1)] overflow-hidden group"
+      whileTap={{ x: 4, y: 4, boxShadow: "0px 0px 0px rgba(0,0,0,1)" }}
+      className="relative flex-1 min-h-[175px] rounded-[20px] border-[1.5px] border-black bg-black/45 backdrop-blur-[20px] p-4 shadow-[6px_6px_0px_rgba(0,0,0,1)] overflow-hidden group"
     >
       {/* TECH BACKGROUND LAYERS */}
       {/* 1. Base Gradient Glow */}
@@ -139,7 +117,7 @@ const RingProgressCard = ({
         {/* Header */}
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
-            <span className="text-[10px] font-black font-['Outfit'] text-[#E3DAC9]/40 uppercase tracking-[0.15em]">
+            <span className="text-[11px] font-black font-['Outfit'] text-[#E3DAC9]/40 tracking-tight">
               {title}
             </span>
             {showWarning && (
@@ -189,7 +167,7 @@ const RingProgressCard = ({
             <span className="text-[22px] font-black font-['Outfit'] text-white leading-none">
               {percentage}%
             </span>
-            <span className="text-[9px] font-bold font-['Outfit'] text-[#E3DAC9]/40 uppercase mt-1">
+            <span className="text-[10px] font-black font-['Outfit'] text-[#E3DAC9]/40 mt-1">
               {current}/{total} {label}
             </span>
           </div>
@@ -213,17 +191,33 @@ const HomeView = () => {
   // Data Logic
   const { targets, fetchTargets } = useTargetStore();
   const { habits, fetchHabits } = useHabitStore();
+  const { profile, fetchProfile } = useUserStore(); 
 
   // 1. To-Do Hari Ini Stats
-  const { completedTargets, totalTargets, delayedCount } = useMemo(() => {
+  const { completedTodayCount, todayTotalCount, uncompletedDelayedCount } = useMemo(() => {
     const safeTargets = targets || [];
-    const today = safeTargets.filter(t => t.window === 'today');
-    const delayed = safeTargets.filter(t => t.window === 'delayed').length;
-    const completed = today.filter(t => t.completed).length;
+    const todayStr = new Date().toLocaleDateString('en-CA');
+    
+    // Filter targets for today: window is today
+    // AND it's either not completed yet, OR it was completed today
+    const todayItems = safeTargets.filter(t => {
+      if (t.window !== 'today') return false;
+      if (!t.completed) return true;
+      if (!t.completedAt) return false;
+      const completedDate = new Date(t.completedAt).toLocaleDateString('en-CA');
+      return completedDate === todayStr;
+    });
+    
+    // Count completed today: completed is true AND finished today
+    const completedToday = todayItems.filter(t => t.completed).length;
+
+    // Count uncompleted delayed items
+    const uncompletedDelayed = safeTargets.filter(t => t.window === 'delayed' && !t.completed).length;
+
     return { 
-      completedTargets: completed, 
-      totalTargets: today.length,
-      delayedCount: delayed
+      completedTodayCount: completedToday, 
+      todayTotalCount: todayItems.length,
+      uncompletedDelayedCount: uncompletedDelayed
     };
   }, [targets]);
 
@@ -234,10 +228,28 @@ const HomeView = () => {
     return { completedHabits: completed, totalHabits: safeHabits.length };
   }, [habits]);
 
+
   useEffect(() => {
     // Refresh data when entering dashboard
     fetchTargets();
     fetchHabits();
+
+    // Auto-Update Profile if needed
+    const ensureProfile = async () => {
+      if (profile && (profile.nickname !== 'Ser' || profile.full_name !== 'Yaser Arafat')) {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          await supabase
+            .from('profiles')
+            .update({ 
+              nickname: 'Ser', 
+              full_name: 'Yaser Arafat' 
+            })
+            .eq('id', user.id);
+        }
+      }
+    };
+    ensureProfile();
 
     // Initial quote
     setQuote(getRandomQuote());
@@ -248,30 +260,18 @@ const HomeView = () => {
     }, 60000);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [profile]); // Added profile dependency to trigger update when data loaded
 
   return (
-    <div className="px-6 py-6 pb-24 space-y-6">
+    <div className="px-6 pt-3 pb-24 space-y-10">
       {/* GREETING SECTION */}
-      <div className="flex flex-col gap-1 mb-2">
-        <div className="flex items-center gap-2">
-          <span className="text-[11px] font-black text-[#00FF85] uppercase tracking-[0.2em] bg-black border border-[#00FF85]/30 px-2 py-0.5 rounded">
-            LEVEL 1
-          </span>
-          <span className="text-[11px] font-bold text-gray-500 uppercase tracking-widest">
-            {new Date().toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long' })}
-          </span>
-        </div>
-        <h2 className="text-2xl font-black text-[#E3DAC9] uppercase tracking-tighter">
-          HALO, <span className="text-[#00FF85]">{profile?.nickname || 'BOSS'}</span>!
-        </h2>
-      </div>
+      <GreetingHeader />
 
       <div className="relative w-full group z-10">
         
         {/* PREMIUM EMERALD BADGE */}
         <div className="absolute -top-0 left-0 z-20 flex items-center gap-1.5 px-3 py-1 bg-[#00FF85] border-[1.2px] border-black rounded-full shadow-[3px_3px_0px_rgba(0,0,0,1)] translate-y-[-50%]">
-          <span className="text-[9px] font-black font-['Outfit'] text-black tracking-[0.1em] uppercase leading-none">
+          <span className="text-[10px] font-black font-['Outfit'] text-black tracking-tight leading-none">
             Quotes Harian
           </span>
         </div>
@@ -313,15 +313,15 @@ const HomeView = () => {
         <RingProgressCard 
           title="To-Do Hari Ini"
           icon="solar:checklist-bold"
-          current={completedTargets}
-          total={totalTargets}
+          current={completedTodayCount}
+          total={todayTotalCount}
           label="Tugas"
           description={
-            totalTargets === 0 && delayedCount === 0 ? "Belum ada rencana?" :
-            completedTargets === totalTargets && totalTargets > 0 ? "Sempurna! Boss juara!" :
-            `${completedTargets} Selesai${delayedCount > 0 ? ` • ${delayedCount} Ditunda` : ' • Semangat!'}`
+            todayTotalCount === 0 && uncompletedDelayedCount === 0 ? "Belum ada rencana?" :
+            completedTodayCount === todayTotalCount && todayTotalCount > 0 ? "Sempurna! Boss juara!" :
+            `${completedTodayCount} Selesai${uncompletedDelayedCount > 0 ? ` • ${uncompletedDelayedCount} Ditunda` : ' • Semangat!'}`
           }
-          showWarning={delayedCount > 0}
+          showWarning={uncompletedDelayedCount > 0}
         />
         <RingProgressCard 
           title="Tugas Hari Ini"
@@ -336,6 +336,39 @@ const HomeView = () => {
           }
         />
       </div>
+
+      {/* DELAYED TASKS WARNING POPUP */}
+      <AnimatePresence>
+        {uncompletedDelayedCount > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 20, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 20, scale: 0.95 }}
+            className="bg-[#EF4444]/10 border-[1.5px] border-[#EF4444]/30 rounded-[24px] p-5 flex items-center gap-4 shadow-[0_10px_30px_rgba(239,68,68,0.15)] relative overflow-hidden group"
+          >
+            <div className="absolute top-0 right-0 w-24 h-24 bg-[#EF4444]/5 rounded-full blur-2xl -mr-12 -mt-12" />
+            
+            <div className="w-12 h-12 rounded-2xl bg-[#EF4444] border-[1.5px] border-black flex items-center justify-center shadow-[4px_4px_0px_rgba(0,0,0,1)] shrink-0">
+              <Icon icon="solar:danger-bold" className="text-white" width={24} />
+            </div>
+            
+            <div className="flex-1 min-w-0">
+              <h4 className="text-[14px] font-black text-white leading-none mb-1">Tugas Tertunda!</h4>
+              <p className="text-[11px] font-medium text-[#E3DAC9]/60 leading-tight">
+                Ada <span className="text-[#EF4444] font-black">{uncompletedDelayedCount} tugas</span> kemarin yang belum Boss selesaikan. Mau diberesin?
+              </p>
+            </div>
+
+            <motion.button
+              whileTap={{ scale: 0.9 }}
+              onClick={() => setActiveTab('todo')}
+              className="px-4 py-2 bg-white text-black text-[10px] font-black rounded-xl border-[1.5px] border-black shadow-[3px_3px_0px_rgba(0,0,0,1)] uppercase tracking-tighter shrink-0"
+            >
+              CEK
+            </motion.button>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* QUOTE INSIGHT MODAL */}
       <AnimatePresence>
@@ -353,7 +386,7 @@ const HomeView = () => {
               initial={{ opacity: 0, scale: 0.9, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              className="relative w-full max-w-sm bg-[#1A1A1A] border-[2px] border-black rounded-[32px] p-8 shadow-[12px_12px_0px_rgba(0,0,0,1)] overflow-hidden"
+              className="relative w-full max-w-sm bg-[#212121] border-[2px] border-black rounded-[32px] p-8 shadow-[12px_12px_0px_rgba(0,0,0,1)] overflow-hidden"
             >
               {/* Decorative Accent */}
               <div className="absolute -top-10 -right-10 w-32 h-32 bg-[#00FF85]/10 blur-[50px] rounded-full" />
@@ -379,19 +412,23 @@ const HomeView = () => {
                     <span className="text-[14px] font-medium text-[#00FF85] font-['Outfit'] tracking-wide block">
                       Makna :
                     </span>
-                    <p className="text-[#E3DAC9] font-medium font-['Outfit'] text-[18px] leading-[1.5]">
+                    <p className="text-[#E3DAC9] font-medium font-['Outfit'] text-[20px] leading-relaxed tracking-tight">
                       {quote.explanation}
                     </p>
                   </div>
                 </div>
 
-                <motion.button
-                  whileTap={{ scale: 0.96 }}
-                  onClick={() => setShowInsight(false)}
-                  className="w-full mt-10 py-4 bg-[#00FF85] text-black font-black font-['Outfit'] uppercase tracking-[0.2em] text-[11px] rounded-2xl border-[1.5px] border-black shadow-[5px_5px_0px_rgba(0,0,0,1)] active:shadow-none transition-all"
-                >
-                  TUTUP
-                </motion.button>
+                <motion.button 
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ x: 4, y: 4, boxShadow: "0px 0px 0px rgba(0,0,0,1)" }}
+                onClick={() => {
+                  if (navigator.vibrate) navigator.vibrate(20);
+                  setShowInsight(false);
+                }}
+                className="w-full py-4 bg-[#00FF85] text-black font-black font-['Outfit'] rounded-2xl shadow-[6px_6px_0px_rgba(0,0,0,1)] border-[2.5px] border-black mt-4 uppercase tracking-tighter"
+              >
+                TUTUP
+              </motion.button>
               </div>
             </motion.div>
           </div>
@@ -411,22 +448,23 @@ const HubView = () => {
   return (
     <div className="px-6 py-8 pb-32 space-y-8">
       {/* PROFILE HEADER */}
-      <div className="relative p-6 rounded-[32px] border-[1.5px] border-white/10 bg-black/45 backdrop-blur-xl overflow-hidden shadow-[8px_8px_0px_rgba(0,0,0,1)]">
+      <div className="bg-[#222] rounded-[24px] p-6 border-[2px] border-black shadow-[8px_8px_0px_rgba(0,0,0,1)] relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-32 h-32 bg-[#00FF85]/5 rounded-full blur-3xl -mr-16 -mt-16" />
         <div className="absolute top-0 right-0 p-4 opacity-5">
           <Icon icon="solar:user-bold" width={150} />
         </div>
         
         <div className="flex items-center gap-5 relative z-10">
-          <div className="w-16 h-16 rounded-2xl bg-[#00FF85] border-[2px] border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] flex items-center justify-center rotate-3">
+          <div className="w-16 h-16 rounded-full bg-[#00FF85] border-[2px] border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] flex items-center justify-center rotate-3 overflow-hidden">
             <Icon icon="solar:user-bold" className="text-black" width={32} />
           </div>
           <div>
-            <h3 className="text-[20px] font-black text-white uppercase tracking-tight leading-none mb-1">
+            <h3 className="text-[24px] font-black text-white tracking-tight leading-none mb-2">
               {profile?.nickname || profile?.full_name || 'Boss InTracker'}
             </h3>
-            <div className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-black shadow-[2px_2px_0px_rgba(0,0,0,1)] ${isPro ? 'bg-[#00FF85] text-black' : 'bg-white/10 text-white/40'}`}>
+            <div className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full border-[1.5px] border-black shadow-[2px_2px_0px_rgba(0,0,0,1)] ${isPro ? 'bg-[#00FF85] text-black' : 'bg-white/10 text-white/40'}`}>
               <Icon icon={isPro ? 'solar:crown-bold' : 'solar:medal-star-bold'} width={12} />
-              <span className="text-[10px] font-black uppercase tracking-wider">
+              <span className="text-[10px] font-black tracking-tight">
                 {isPro ? 'Emerald Pro Member' : 'Classic Free Plan'}
               </span>
             </div>
@@ -438,85 +476,88 @@ const HubView = () => {
       <div className="space-y-4">
         <div className="flex items-center gap-2 px-1">
           <Icon icon="solar:shop-bold" className="text-[#00FF85]" width={18} />
-          <h4 className="text-[14px] font-black text-white uppercase tracking-widest">Store & Rewards</h4>
+          <h4 className="text-[14px] font-black text-white tracking-tight">Store & Rewards</h4>
         </div>
 
         <motion.div 
           whileTap={{ scale: 0.98 }}
-          className="relative p-6 rounded-[32px] border-[1.5px] border-[#00FF85] bg-gradient-to-br from-[#00FF85]/10 to-transparent overflow-hidden shadow-[8px_8px_0px_rgba(0,0,0,1)]"
+          className="bg-black border-[2px] border-black rounded-[28px] p-6 shadow-[8px_8px_0px_rgba(0,0,0,1)] relative overflow-hidden"
         >
-          <div className="relative z-10">
-            <div className="flex justify-between items-start mb-4">
-              <div className="space-y-1">
-                <span className="text-[10px] font-black text-[#00FF85] uppercase tracking-[0.2em]">Limited Offer</span>
-                <h3 className="text-[18px] font-black text-white uppercase tracking-tight">Daily Pro Pass</h3>
-              </div>
-              <div className="px-3 py-1.5 bg-black rounded-xl border border-[#00FF85]/30">
-                <span className="text-[11px] font-bold text-[#00FF85]">FREE</span>
-              </div>
+          <div className="flex justify-between items-start mb-4 relative z-10">
+            <div className="space-y-1">
+              <span className="text-[10px] font-black text-[#00FF85] tracking-tight uppercase">Limited Offer</span>
+              <h3 className="text-[18px] font-black text-white tracking-tight">DAILY PRO PASS</h3>
             </div>
-            
-            <p className="text-[13px] text-[#E3DAC9]/60 leading-relaxed mb-6">
-              Buka semua fitur Pro (Custom AI, Journey Maps, Unlimited Habits) selama 24 jam penuh hanya dengan menonton 1 iklan.
-            </p>
-
-            <button 
-              onClick={async () => {
-                if (navigator.vibrate) navigator.vibrate(50);
-                await addDailyPass();
-              }}
-              className="w-full py-4 bg-[#00FF85] text-black font-black uppercase tracking-[0.15em] text-[12px] rounded-2xl border-[1.5px] border-black shadow-[6px_6px_0px_rgba(0,0,0,1)] active:shadow-none transition-all flex items-center justify-center gap-3"
-            >
-              <Icon icon="solar:play-circle-bold" width={20} />
-              AMBIL PRO PASS (ADS)
-            </button>
+            <div className="px-3 py-1.5 bg-[#00FF85] rounded-xl border-[1.5px] border-black shadow-[2px_2px_0px_rgba(0,0,0,1)]">
+              <span className="text-[11px] font-black text-black">FREE</span>
+            </div>
           </div>
+          
+          <p className="text-[13px] text-[#E3DAC9]/60 leading-relaxed mb-6 relative z-10">
+            Buka semua fitur Pro (Custom AI, Journey Maps, Unlimited Habits) selama 24 jam penuh hanya dengan menonton 1 iklan.
+          </p>
+
+          <motion.button 
+            whileTap={{ x: 5, y: 5, boxShadow: "0px 0px 0px black" }}
+            onClick={async () => {
+              if (navigator.vibrate) navigator.vibrate(50);
+              await addDailyPass();
+            }}
+            className="w-full py-4 bg-[#00FF85] text-black font-black tracking-tight text-[13px] rounded-2xl border-[2px] border-black shadow-[6px_6px_0px_rgba(0,0,0,1)] transition-all flex items-center justify-center gap-3 relative z-10"
+          >
+            <Icon icon="solar:play-circle-bold" width={20} />
+            AMBIL PRO PASS (ADS)
+          </motion.button>
         </motion.div>
 
         {/* STREAK FREEZE SHOP */}
         <div className="grid grid-cols-2 gap-4">
           <motion.div 
-            whileTap={{ scale: 0.95 }}
+            whileTap={{ x: 4, y: 4, boxShadow: "0px 0px 0px black" }}
             onClick={async () => {
+              if (navigator.vibrate) navigator.vibrate(20);
               await addStreakFreeze(1);
             }}
-            className="p-5 rounded-[28px] border-[1.5px] border-white/10 bg-black/45 shadow-[6px_6px_0px_rgba(0,0,0,1)] flex flex-col items-center text-center gap-3"
+            className="p-5 rounded-[28px] border-[2px] border-black bg-[#222] shadow-[6px_6px_0px_rgba(0,0,0,1)] flex flex-col items-center text-center gap-3 transition-all cursor-pointer"
           >
-            <div className="w-12 h-12 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center">
-              <Icon icon="solar:snow-bold" className="text-white" width={24} />
+            <div className="w-12 h-12 rounded-xl bg-black border-[1.5px] border-black flex items-center justify-center shadow-[3px_3px_0px_rgba(0,0,0,1)]">
+              <Icon icon="solar:snow-bold" className="text-[#00FF85]" width={24} />
             </div>
             <div>
-              <p className="text-[11px] font-black text-white uppercase mb-1">Streak Freeze</p>
-              <p className="text-[9px] font-medium text-white/40 uppercase">Get 1 Ticket (Ads)</p>
+              <p className="text-[11px] font-black text-white mb-1 uppercase tracking-tighter">Streak Freeze</p>
+              <p className="text-[9px] font-black text-[#00FF85] uppercase tracking-widest">1 TICKET (ADS)</p>
             </div>
           </motion.div>
-
-          <div className="p-5 rounded-[28px] border-[1.5px] border-white/10 bg-black/45 shadow-[6px_6px_0px_rgba(0,0,0,1)] flex flex-col items-center text-center gap-3 opacity-40">
-            <div className="w-12 h-12 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center">
-              <Icon icon="solar:star-bold" className="text-white" width={24} />
+          <motion.div 
+            whileTap={{ scale: 0.95 }}
+            className="p-5 rounded-[28px] border-[2px] border-black bg-black/20 shadow-[6px_6px_0px_rgba(0,0,0,1)] flex flex-col items-center text-center gap-3 opacity-50 cursor-not-allowed"
+          >
+            <div className="w-12 h-12 rounded-xl bg-black/20 border border-white/5 flex items-center justify-center">
+              <Icon icon="solar:box-bold" className="text-white/20" width={24} />
             </div>
             <div>
-              <p className="text-[11px] font-black text-white uppercase mb-1">Referral</p>
-              <p className="text-[9px] font-medium text-white/40 uppercase">Coming Soon</p>
+              <p className="text-[11px] font-black text-white/40 mb-1 uppercase tracking-tighter">Coming Soon</p>
+              <p className="text-[9px] font-black text-white/20 uppercase tracking-widest">LOCKED</p>
             </div>
-          </div>
+          </motion.div>
         </div>
       </div>
 
-      {/* PRO FEATURES PREVIEW */}
       <div className="space-y-4">
-        <h4 className="text-[14px] font-black text-white/40 uppercase tracking-widest px-1">Pro Benefits</h4>
+        <h4 className="text-[14px] font-black text-white/40 tracking-tight px-1">Pro Benefits</h4>
         <div className="space-y-3">
           {[
             { icon: 'solar:magic-stick-bold', title: 'AI Personalized Advice', desc: 'Saran habit dari Rin berdasarkan performamu.' },
             { icon: 'solar:map-bold', title: 'Journey Maps', desc: 'Visualisasi perjalanan hidupmu yang lebih detail.' },
             { icon: 'solar:shield-check-bold', title: 'Unlimited Streak Save', desc: 'Jangan pernah takut kehilangan progress lagi.' }
           ].map((item, i) => (
-            <div key={i} className="flex gap-4 p-4 rounded-2xl bg-white/5 border border-white/10">
-              <Icon icon={item.icon} className="text-[#00FF85]/60" width={20} />
+            <div key={i} className="flex gap-4 p-4 rounded-2xl bg-black border-[2px] border-black shadow-[4px_4px_0px_rgba(0,0,0,1)]">
+              <div className="w-10 h-10 rounded-xl bg-[#00FF85]/10 border-[1.5px] border-black flex items-center justify-center shrink-0">
+                <Icon icon={item.icon} className="text-[#00FF85]" width={20} />
+              </div>
               <div>
-                <p className="text-[12px] font-bold text-white leading-none mb-1">{item.title}</p>
-                <p className="text-[10px] text-white/40 leading-tight">{item.desc}</p>
+                <p className="text-[12px] font-black text-white leading-none mb-1 uppercase tracking-tight">{item.title}</p>
+                <p className="text-[10px] text-white/50 leading-tight font-medium">{item.desc}</p>
               </div>
             </div>
           ))}
@@ -583,28 +624,31 @@ function Beranda({ activeTab: initialTab = 'home' }: { activeTab?: string }) {
   }, []);
 
   if (loading) return (
-    <div className="min-h-screen bg-[#1A1A1A] flex flex-col items-center justify-center p-6">
+    <div className="min-h-screen bg-[#212121] flex flex-col items-center justify-center p-6">
       <div className="relative">
         {/* Outer Pulsing Ring */}
         <motion.div 
-          animate={{ scale: [1, 1.2, 1], opacity: [0.1, 0.3, 0.1] }}
+          animate={{ scale: [1, 1.2, 1], opacity: [0.2, 0.5, 0.2] }}
           transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute -inset-8 border-[1.5px] border-[#00FF85] rounded-full blur-sm"
+          className="absolute -inset-8 border-[3px] border-[#00FF85] rounded-full"
         />
         {/* Inner Spinning Ring */}
         <motion.div 
           animate={{ rotate: 360 }}
           transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
-          className="w-16 h-16 border-[3px] border-[#00FF85]/10 border-t-[#00FF85] rounded-full shadow-[0_0_15px_rgba(0,255,133,0.3)]"
+          className="w-16 h-16 border-[4px] border-black border-t-[#00FF85] rounded-full shadow-[0_0_20px_rgba(0,255,133,0.2)]"
         />
+        <div className="absolute inset-0 flex items-center justify-center">
+          <Icon icon="solar:fire-bold" className="text-[#00FF85]" width={24} />
+        </div>
       </div>
       <motion.div 
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
         transition={{ delay: 0.5 }}
-        className="mt-10 text-center"
+        className="mt-12 text-center"
       >
-        <h2 className="text-[14px] font-black text-[#00FF85] tracking-[0.3em] uppercase">InTracker OS</h2>
+        <h2 className="text-[14px] font-black text-[#00FF85] tracking-tight uppercase tracking-widest">InTracker OS</h2>
         <div className="flex gap-1 mt-2 justify-center">
           {[0, 1, 2].map((i) => (
             <motion.div
@@ -615,21 +659,21 @@ function Beranda({ activeTab: initialTab = 'home' }: { activeTab?: string }) {
             />
           ))}
         </div>
-        <p className="mt-4 text-[10px] font-bold text-[#E3DAC9]/30 tracking-widest uppercase">Initializing...</p>
+        <p className="mt-4 text-[10px] font-black text-[#E3DAC9]/30 tracking-tight">Initializing...</p>
       </motion.div>
     </div>
   );
 
   if (error) return (
-    <div className="min-h-screen bg-[#1A1A1A] flex flex-col items-center justify-center p-6 text-center">
+    <div className="min-h-screen bg-[#212121] flex flex-col items-center justify-center p-6 text-center">
       <div className="w-20 h-20 bg-[#FF4B4B] rounded-2xl border-[1.5px] border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] flex items-center justify-center mb-6">
         <span className="text-4xl">⚠️</span>
       </div>
-      <h2 className="text-2xl font-black text-[#E3DAC9] mb-2 uppercase tracking-tighter">Waduh, Error Boss!</h2>
+      <h2 className="text-2xl font-black text-[#E3DAC9] mb-2 tracking-tighter">Waduh, Error Bos!</h2>
       <p className="text-[#E3DAC9]/60 font-medium mb-8 max-w-[250px]">{error}</p>
       <button 
         onClick={() => { setLoading(true); initDashboard(); }}
-        className="px-8 py-3 bg-[#00FF85] text-black font-black rounded-xl border-[1.5px] border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all uppercase tracking-tighter"
+        className="px-8 py-3 bg-[#00FF85] text-black font-black rounded-xl border-[1.5px] border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all tracking-tight"
       >
         Coba Lagi
       </button>
@@ -637,95 +681,50 @@ function Beranda({ activeTab: initialTab = 'home' }: { activeTab?: string }) {
   );
 
   return (
-    <div className="min-h-screen bg-[#1A1A1A] text-white font-['Outfit'] flex flex-col overflow-hidden selection:bg-[#00FF85] selection:text-black">
+    <div className="min-h-screen bg-[#212121] text-white font-['Outfit'] flex flex-col overflow-hidden selection:bg-[#00FF85] selection:text-black">
       
-      {/* TOP STATUS BAR (DYNAMIC HEADER) */}
-      <div className="fixed top-0 left-0 right-0 z-30 bg-[#121212]/90 backdrop-blur-xl border-b-[1.5px] border-[#E3DAC9]/20 px-6 pt-6 pb-4 flex justify-between items-end h-[100px] shadow-lg shadow-black/40">
-        {activeTab === 'home' ? (
-          <>
-            <div className="flex items-center gap-2 bg-gradient-to-br from-[#FF4D00] to-[#E63900] pl-4 pr-8 py-2.5 rounded-xl border border-white/10 shadow-lg shadow-[#FF4D00]/20 transition-transform active:scale-95">
-              <Icon icon="solar:fire-bold" width={24} height={24} className="text-white" />
-              <span className="text-[15px] font-bold font-['Outfit'] text-white">{totalStreak}</span>
-            </div>
-
-            <AmbientPlayer />
-          </>
-        ) : (
-          <div className="flex justify-between items-center w-full h-full pt-4">
-            {/* KIRI: Judul + Superscript Icon */}
-            <div className="flex items-center">
-              <div className="relative inline-flex flex-col items-start">
-                <h2 className="text-[32px] font-black font-['Outfit'] text-white tracking-tighter leading-none mt-1">
-                  {(activeTab === 'beranda' || activeTab === 'habits') && 'Habit Tracker'}
-                  {activeTab === 'todo' && 'To-Do List'}
-                  {activeTab === 'journey' && 'Journey'}
-                  {activeTab === 'analytics' && 'Analytics'}
-                  {activeTab === 'hub' && 'The Hub'}
-                  {activeTab === 'global' && 'Global'}
-                  {activeTab === 'ai' && 'AI Assistant'}
-                </h2>
-                <div className="h-[2.5px] w-full bg-[#00FF85] mt-1.5 rounded-full shadow-[0_0_8px_rgba(0,255,133,0.5)]" />
-                
-                {/* INTEGRATED SUPERSCRIPT ICON - IMAGE 2 STYLE */}
-                <div className="absolute -right-[18px] top-[-8px] w-6 h-6 rounded-[5px] bg-[#1A1A1A] border border-white/20 flex items-center justify-center shadow-[2px_2px_0px_rgba(0,0,0,1)] rotate-[12deg] z-10">
-                  <Icon 
-                    icon={
-                      (activeTab === 'beranda' || activeTab === 'habits') ? 'solar:checklist-minimalistic-bold' :
-                      activeTab === 'todo' ? 'solar:target-bold' :
-                      activeTab === 'journey' ? 'solar:compass-bold' :
-                      activeTab === 'global' ? 'solar:globus-bold' :
-                      activeTab === 'ai' ? 'solar:chat-round-dots-bold' :
-                      activeTab === 'hub' ? 'solar:menu-dots-bold' : 'solar:box-bold'
-                    } 
-                    width={14} height={14} className="text-white" 
-                  />
-                </div>
-              </div>
-            </div>
-
-            <div className="flex items-center">
-              <AmbientPlayer />
-            </div>
-          </div>
-        )}
-      </div>
+      <NavigasiAtas activeTab={activeTab} />
 
       <div className="fixed top-0 left-1/2 -translate-x-1/2 w-full h-[70vh] bg-[#00FF85]/2 blur-[150px] rounded-full pointer-events-none z-0" />
 
-      <main className="relative flex-1 overflow-y-auto overflow-x-hidden scroll-smooth pt-[130px]">
+      <main className="relative flex-1 overflow-y-auto overflow-x-hidden scroll-smooth pt-[90px]">
         {activeTab === 'habits' && (
-          <div className="px-6 mb-8">
+          <div className="px-6 mb-8 mt-6">
             <div className="flex items-end justify-between">
               <div className="flex flex-col mt-2">
-                <span className="text-[13px] font-black text-[#E3DAC9]/80 font-['Outfit'] uppercase tracking-[0.2em] mb-1.5 pl-1">
+                <span className="text-[15px] font-black text-[#E3DAC9]/80 font-['Outfit'] tracking-tight mb-2 pl-1">
                   {getDateLabel(selectedDate)}
                 </span>
-                <h1 className="text-[40px] font-black text-white font-['Outfit'] leading-none uppercase tracking-tighter">
+                <h1 className="text-[48px] font-black text-white font-['Outfit'] leading-none tracking-tighter">
                   {selectedDate.getDate()} {getIndonesianMonth(selectedDate)}
                 </h1>
               </div>
               
-              <div className="flex items-center gap-2">
-                <button 
+              <div className="flex items-center gap-3">
+                <motion.button 
+                  whileTap={{ x: 2, y: 2, boxShadow: "0px 0px 0px black" }}
                   onClick={() => {
                     const d = new Date(selectedDate);
                     d.setDate(d.getDate() - 1);
                     setSelectedDate(d);
+                    if (navigator.vibrate) navigator.vibrate(10);
                   }}
-                  className="w-12 h-10 rounded-xl flex items-center justify-center text-white bg-[#121212]/80 backdrop-blur-md border border-[#E3DAC9]/20 shadow-lg shadow-black/20 active:scale-95 transition-all hover:bg-white/5"
+                  className="w-12 h-11 rounded-xl flex items-center justify-center text-white bg-[#222] border-[2px] border-black shadow-[3px_3px_0px_rgba(0,0,0,1)] transition-all"
                 >
-                  <Icon icon="solar:play-bold" width={14} height={14} className="text-white/80 rotate-180" />
-                </button>
-                <button 
+                  <Icon icon="solar:play-bold" width={14} height={14} className="text-[#00FF85] rotate-180" />
+                </motion.button>
+                <motion.button 
+                  whileTap={{ x: 2, y: 2, boxShadow: "0px 0px 0px black" }}
                   onClick={() => {
                     const d = new Date(selectedDate);
                     d.setDate(d.getDate() + 1);
                     setSelectedDate(d);
+                    if (navigator.vibrate) navigator.vibrate(10);
                   }}
-                  className="w-12 h-10 rounded-xl flex items-center justify-center text-white bg-[#121212]/80 backdrop-blur-md border border-[#E3DAC9]/20 shadow-lg shadow-black/20 active:scale-95 transition-all hover:bg-white/5"
+                  className="w-12 h-11 rounded-xl flex items-center justify-center text-white bg-[#222] border-[2px] border-black shadow-[3px_3px_0px_rgba(0,0,0,1)] transition-all"
                 >
-                  <Icon icon="solar:play-bold" width={14} height={14} className="text-white/80" />
-                </button>
+                  <Icon icon="solar:play-bold" width={14} height={14} className="text-[#00FF85]" />
+                </motion.button>
               </div>
             </div>
 
@@ -736,14 +735,19 @@ function Beranda({ activeTab: initialTab = 'home' }: { activeTab?: string }) {
                   { id: 'dilewati', label: 'Dilewati', count: habits.filter((h: any) => h.skipped).length },
                   { id: 'selesai', label: 'Selesai', count: habits.filter((h: any) => h.completed).length }
                 ].map((item) => (
-                  <button 
+                  <motion.button 
                     key={item.id}
-                    onClick={() => setStatsTab(item.id as any)}
+                    whileTap={{ x: 2, y: 2, boxShadow: "0px 0px 0px black" }}
+                    onClick={() => {
+                      if (navigator.vibrate) navigator.vibrate(10);
+                      setStatsTab(item.id as any);
+                    }}
                     className={`
-                      px-4 py-2.5 rounded-xl transition-all duration-300 flex items-start
-                      border-[1.5px] ${statsTab === item.id 
-                        ? 'bg-[#F5F2E8] border-black shadow-[3px_3px_0px_rgba(0,0,0,1)]' 
-                        : 'bg-[#1A1A1A] border-white/10 shadow-[3px_3px_0px_rgba(0,0,0,1)]'}
+                      px-4 py-2.5 rounded-xl transition-all flex items-start
+                      border-[1.5px] border-black shadow-[3px_3px_0px_rgba(0,0,0,1)]
+                      ${statsTab === item.id 
+                        ? 'bg-[#E3DAC9]' 
+                        : 'bg-[#212121]'}
                     `}
                   >
                     <span className={`text-[13px] font-bold font-['Outfit'] tracking-tight ${statsTab === item.id ? 'text-black' : 'text-white/40'}`}>
@@ -752,30 +756,9 @@ function Beranda({ activeTab: initialTab = 'home' }: { activeTab?: string }) {
                     <span className={`text-[9px] font-black ml-0.5 mt-[-2px] ${statsTab === item.id ? 'text-black/40' : 'text-white/20'}`}>
                       {item.count}
                     </span>
-                  </button>
+                  </motion.button>
                 ))}
               </div>
-
-              <button 
-                onClick={() => setIsAddModalOpen(true)}
-                className="h-10 w-10 rounded-xl bg-[#1A1A1A] flex items-center justify-center shadow-[3px_3px_0px_rgba(0,0,0,1)] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none transition-all border-[1.5px] border-white/10 hover:border-white/40 group relative z-50"
-              >
-                <svg 
-                  width="20" 
-                  height="20" 
-                  viewBox="0 0 24 24" 
-                  fill="none" 
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path 
-                    d="M12 4V20M4 12H20" 
-                    stroke="white" 
-                    strokeWidth="4" 
-                    strokeLinecap="round" 
-                    strokeLinejoin="round"
-                  />
-                </svg>
-              </button>
             </div>
           </div>
         )}
@@ -808,6 +791,33 @@ function Beranda({ activeTab: initialTab = 'home' }: { activeTab?: string }) {
 
       <NavigasiBawah activeTab={activeTab} setActiveTab={setActiveTab} />
 
+      {/* FLOATING ACTION BUTTON (FAB) */}
+      <AnimatePresence>
+        {(activeTab === 'home' || activeTab === 'habits' || activeTab === 'todo' || activeTab === 'global') && (
+          <motion.button
+            initial={{ scale: 0, opacity: 0, y: 20 }}
+            animate={{ scale: 1, opacity: 1, y: 0 }}
+            exit={{ scale: 0, opacity: 0, y: 20 }}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.9, x: 4, y: 4, boxShadow: "0px 0px 0px black" }}
+            onClick={() => {
+              if (navigator.vibrate) navigator.vibrate(20);
+              // Langsung buka modal tambah habit jika di home/habits
+              if (activeTab === 'home' || activeTab === 'habits') {
+                setIsAddModalOpen(true);
+              }
+              // Tambahkan logika lain jika perlu (misal: modal Todo di tab Todo)
+              if (activeTab === 'todo') {
+                // Di sini bisa ditambahkan trigger modal todo jika ada
+              }
+            }}
+            className="fixed bottom-28 right-6 w-16 h-16 bg-[#00FF85] border-[2.5px] border-black rounded-2xl shadow-[6px_6px_0px_rgba(0,0,0,1)] flex items-center justify-center z-[60]"
+          >
+            <Icon icon="solar:plus-bold" className="text-black" width={32} />
+          </motion.button>
+        )}
+      </AnimatePresence>
+
       <AnimatePresence>
         {isAddModalOpen && (
           <TambahHabitModal 
@@ -823,7 +833,7 @@ function Beranda({ activeTab: initialTab = 'home' }: { activeTab?: string }) {
       </AnimatePresence>
 
       <AnimatePresence>
-        {brokenStreaks.length > 0 && (
+        {/* {brokenStreaks.length > 0 && (
           <div className="fixed inset-0 z-[2000] flex items-center justify-center px-6">
             <motion.div
               initial={{ opacity: 0 }}
@@ -836,7 +846,7 @@ function Beranda({ activeTab: initialTab = 'home' }: { activeTab?: string }) {
               initial={{ scale: 0.9, opacity: 0, y: 20 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.9, opacity: 0, y: 20 }}
-              className="relative w-full max-w-sm bg-[#1A1A1A] border-[3px] border-[#00FF85] rounded-[32px] p-8 shadow-[12px_12px_0px_rgba(0,0,0,1)] overflow-hidden"
+              className="relative w-full max-w-sm bg-[#212121] border-[3px] border-[#00FF85] rounded-[32px] p-8 shadow-[12px_12px_0px_rgba(0,0,0,1)] overflow-hidden"
             >
               <div className="absolute top-0 right-0 p-4 opacity-10">
                 <Icon icon="solar:danger-bold" width={120} className="text-[#00FF85]" />
@@ -855,11 +865,9 @@ function Beranda({ activeTab: initialTab = 'home' }: { activeTab?: string }) {
                 </p>
 
                 <div className="space-y-4">
-                  {/* OPTION 1: ADS (FREE) */}
                   <motion.button
                     whileTap={{ scale: 0.96 }}
                     onClick={async () => {
-                      // Logic Nonton Iklan (Simulasi)
                       if (navigator.vibrate) navigator.vibrate(50);
                       await rescueStreak(brokenStreaks[0].habitId);
                     }}
@@ -869,7 +877,6 @@ function Beranda({ activeTab: initialTab = 'home' }: { activeTab?: string }) {
                     Nonton Iklan (15s)
                   </motion.button>
 
-                  {/* OPTION 2: FREEZE TICKET */}
                   <motion.button
                     whileTap={{ scale: 0.96 }}
                     disabled={!profile || profile.streak_freeze_count <= 0}
@@ -895,7 +902,7 @@ function Beranda({ activeTab: initialTab = 'home' }: { activeTab?: string }) {
               </div>
             </motion.div>
           </div>
-        )}
+        )} */}
       </AnimatePresence>
     </div>
   );

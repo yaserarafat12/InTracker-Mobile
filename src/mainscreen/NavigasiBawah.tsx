@@ -22,10 +22,11 @@ export const NavigasiBawah: React.FC<NavigasiBawahProps> = ({ activeTab, setActi
 
   return (
     <nav className="fixed bottom-0 left-0 w-full z-50 px-4 pb-[calc(env(safe-area-inset-bottom,20px)+15px)]">
-      <div className="max-w-[500px] mx-auto bg-black/90 backdrop-blur-3xl border border-white/40 rounded-[35px] h-20 flex items-center justify-around px-2 shadow-[0_0_50px_rgba(255,255,255,0.05)]">
+      <div className="max-w-[500px] mx-auto bg-[#212121] border-[2.5px] border-black rounded-[30px] h-20 flex items-center justify-around px-2 shadow-[0px_6px_0px_rgba(0,0,0,1)]">
         {navItems.map((item) => (
-          <button
+          <motion.button
             key={item.id}
+            whileTap={{ y: 4, transition: { duration: 0.1 } }}
             onClick={() => {
               if (navigator.vibrate) navigator.vibrate(8);
               navigate(item.path || '/dashboard');
@@ -34,8 +35,8 @@ export const NavigasiBawah: React.FC<NavigasiBawahProps> = ({ activeTab, setActi
           >
             <div className={`relative z-10 transition-all duration-500 ${
               activeTab === item.id 
-              ? 'text-white scale-125 drop-shadow-[0_0_15px_rgba(255,255,255,0.5)]' 
-              : 'text-white/40 hover:text-white/70'
+              ? 'text-[#00FF85] scale-125 drop-shadow-[0_0_10px_rgba(0,255,133,0.3)]' 
+              : 'text-[#E3DAC9]/40 hover:text-[#E3DAC9]/70'
             }`}>
               <Icon 
                 icon={item.icon}
@@ -47,7 +48,7 @@ export const NavigasiBawah: React.FC<NavigasiBawahProps> = ({ activeTab, setActi
             {activeTab === item.id && (
               <motion.div 
                 layoutId="nav-indicator"
-                className="absolute -bottom-3 w-6 h-1 bg-white rounded-full shadow-[0_0_20px_rgba(255,255,255,0.4)]"
+                className="absolute -bottom-3 w-6 h-1 bg-[#00FF85] rounded-full shadow-[0_0_15px_rgba(0,255,133,0.4)]"
                 transition={{ type: "spring", stiffness: 300, damping: 30 }}
               />
             )}
@@ -58,7 +59,7 @@ export const NavigasiBawah: React.FC<NavigasiBawahProps> = ({ activeTab, setActi
                 className="absolute inset-0 bg-white/10 blur-2xl rounded-full"
               />
             )}
-          </button>
+          </motion.button>
         ))}
       </div>
     </nav>
