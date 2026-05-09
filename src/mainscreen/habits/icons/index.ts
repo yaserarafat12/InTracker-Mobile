@@ -140,7 +140,7 @@ export const HABIT_OPTIONS: HabitOption[] = [
     name: 'Membaca Berita', 
     iconName: 'solar:tv-bold', 
     category: 'Evolusi Diri', 
-    imageUrl: '/all_images/display_images/baca berita.png',
+    imageUrl: '/all_images/display_images/baca_berita.png',
     frequency: 'harian',
     difficulty: 1,
     intensity: { type: 'none' }
@@ -161,7 +161,7 @@ export const HABIT_OPTIONS: HabitOption[] = [
   // Latihan Fisik
   { name: 'Latihan Beban', iconName: 'Weight', category: 'Latihan Fisik', imageUrl: '/all_images/display_images/workout.png', imagePosition: 'object-right', frequency: 'harian', difficulty: 3, intensity: { type: 'numeric', unit: 'Menit', options: [15, 30, 45, 60, 90, 120], defaultValue: 30 } },
   { name: 'Push-Up', iconName: 'PushUp', category: 'Latihan Fisik', imageUrl: '/all_images/display_images/pushup.png', frequency: 'harian', difficulty: 2, intensity: { type: 'numeric', unit: 'Rep', options: [10, 20, 30, 50, 100], defaultValue: 20 } },
-  { name: 'Sit-Up', iconName: 'SitUp', category: 'Latihan Fisik', imageUrl: '/all_images/display_images/sit up.png', imagePosition: 'object-left', frequency: 'harian', difficulty: 2, intensity: { type: 'numeric', unit: 'Rep', options: [10, 20, 30, 50, 100], defaultValue: 20 } },
+  { name: 'Sit-Up', iconName: 'SitUp', category: 'Latihan Fisik', imageUrl: '/all_images/display_images/sit_up.png', imagePosition: 'object-left', frequency: 'harian', difficulty: 2, intensity: { type: 'numeric', unit: 'Rep', options: [10, 20, 30, 50, 100], defaultValue: 20 } },
   { name: 'Sesi Kardio', iconName: 'Treadmill', category: 'Latihan Fisik', imageUrl: '/all_images/display_images/cardio.png', imagePosition: 'object-right', frequency: 'harian', difficulty: 2, intensity: { type: 'numeric', unit: 'Menit', options: [15, 30, 45, 60], defaultValue: 30 } },
   { name: 'Basket', iconName: 'Basketball', category: 'Latihan Fisik', imageUrl: '/all_images/display_images/basket.png', frequency: 'Mingguan', difficulty: 2, intensity: { type: 'numeric', unit: 'Menit', options: [30, 60, 90, 120], defaultValue: 60 } },
   { name: 'Lompat Tali', iconName: 'Skipping', category: 'Latihan Fisik', imageUrl: '/all_images/display_images/skipping.png', imagePosition: 'object-top', frequency: 'harian', difficulty: 2, intensity: { type: 'numeric', unit: 'Sesi', options: [1, 2, 3, 4, 5], defaultValue: 1 } },
@@ -181,7 +181,7 @@ export const HABIT_OPTIONS: HabitOption[] = [
     name: 'Perencanaan besok', 
     iconName: 'Agenda', 
     category: 'Evolusi Diri', 
-    imageUrl: '/all_images/display_images/perencaanbesok.png', 
+    imageUrl: '/all_images/display_images/perencanaanbesok.png', 
     frequency: 'harian', 
     difficulty: 1, 
     intensity: { type: 'none' } 

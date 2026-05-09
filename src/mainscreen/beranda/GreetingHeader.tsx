@@ -68,7 +68,7 @@ export const GreetingHeader = () => {
 
   return (
     <div className="flex flex-col mb-10 pl-1">
-      <span className="text-[34px] font-normal font-['Bebas_Neue'] text-[#E3DAC9] tracking-widest mb-1.5 leading-none">
+      <span className="text-[34px] font-normal font-['Bebas_Neue'] text-[#E3DAC9] tracking-widest mb-0.5 leading-none">
         {dateStr}
       </span>
       {renderGreeting()}

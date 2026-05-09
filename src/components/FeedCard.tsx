@@ -36,7 +36,7 @@ const FeedCard: React.FC<FeedCardProps> = ({ id, user, type, content, metadata, 
   
   // Memoize rin comment to prevent change on every re-render unless nickname changes
   const [rinComment] = useState(() => !isOwnPost 
-    ? getRinComment(profile?.nickname || 'Boss', user.nickname, type, metadata?.habit_name || metadata?.milestone_name || content, metadata?.count || metadata?.day)
+    ? getRinComment(profile?.nickname || 'Bos', user.nickname, type, metadata?.habit_name || metadata?.milestone_name || content, metadata?.count || metadata?.day)
     : null);
 
   const handleReact = async (emoji: string) => {

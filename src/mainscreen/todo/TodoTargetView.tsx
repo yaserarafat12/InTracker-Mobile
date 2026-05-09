@@ -566,7 +566,7 @@ const DelayedClarificationSheet = ({ target, onClose }: { target: TargetItem; on
             
             <h2 className="text-[24px] font-black text-white leading-tight">Tugas Belum Tuntas!</h2>
             <p className="mt-3 text-[14px] font-medium text-[#E3DAC9]/40 max-w-[260px]">
-              Tugas "<span className="text-[#E3DAC9]">{target.title}</span>" kemarin gak kelar, Boss. Mau diapain?
+              Tugas "<span className="text-[#E3DAC9]">{target.title}</span>" kemarin gak kelar, Bos. Mau diapain?
             </p>
           </div>
 
@@ -682,9 +682,8 @@ export default function TodoTargetView() {
     
     if (target.completed) return false;
 
-    // Tampilkan Hari Ini + Ditunda
     if (activeFilter === 'today') {
-      return target.window === 'today' || target.window === 'delayed';
+      return target.window === 'today';
     }
     
     return target.window === activeFilter;
@@ -703,7 +702,10 @@ export default function TodoTargetView() {
       <div className="mt-10 overflow-x-auto no-scrollbar -mx-5 px-5">
         <div className="flex gap-2 min-w-max pb-4">
           {[
-            { id: 'today', label: 'Hari Ini', count: (targets || []).filter(t => !t.completed && (t.window === 'today' || t.window === 'delayed')).length },
+            { id: 'today', label: 'Hari Ini', count: (targets || []).filter(t => !t.completed && t.window === 'today').length },
+            { id: 'upcoming', label: 'Mendatang', count: (targets || []).filter(t => !t.completed && t.window === 'upcoming').length },
+            { id: 'someday', label: 'Suatu Hari', count: (targets || []).filter(t => !t.completed && t.window === 'someday').length },
+            { id: 'delayed', label: 'Tertunda', count: (targets || []).filter(t => !t.completed && t.window === 'delayed').length },
             { id: 'done', label: 'Selesai', count: (targets || []).filter(t => {
               if (!t.completed || !t.completedAt) return false;
               const todayStr = new Date().toLocaleDateString('en-CA');

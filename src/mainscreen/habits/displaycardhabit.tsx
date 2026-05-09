@@ -250,7 +250,7 @@ const KartuTugas = ({ habit, index, activeFilter, onDoubleTap, onEdit }: KartuTu
         onClick={handleDoubleTapClick}
         className={`relative aspect-[16/7.2] ${isCompleting ? 'z-[2000]' : 'z-10'}`}
       >
-        {/* Streak Badge - Positioned even tighter to the corner per Boss request */}
+        {/* Streak Badge - Positioned even tighter to the corner per Bos request */}
         {/* Streak Badge - Hide instantly when completing to avoid glitch */}
         <AnimatePresence>
           {Number(habit.streak) >= 0 && !isCompleting && (

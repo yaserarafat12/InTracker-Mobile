@@ -168,7 +168,7 @@ const GlobalView: React.FC = () => {
                   <div className="w-20 h-20 border-[2px] border-black bg-black rounded-2xl mb-6 flex items-center justify-center rotate-6 shadow-[8px_8px_0px_rgba(0,0,0,1)]">
                     <span className="text-3xl italic font-black">?</span>
                   </div>
-                  <h3 className="font-black text-[18px] italic tracking-tight uppercase">Masih Kosong, Boss.</h3>
+                  <h3 className="font-black text-[18px] italic tracking-tight uppercase">Masih Kosong, Bos.</h3>
                   <p className="text-[11px] mt-2 tracking-tight max-w-[220px] font-medium leading-relaxed">Belum ada data di bagian {activeTab}.{activeTab === 'Teman' ? ' Fitur teman lagi digodok!' : ' Yuk, post sesuatu!'}</p>
                 </div>
               )}
@@ -210,7 +210,7 @@ const GlobalView: React.FC = () => {
               className="fixed bottom-0 left-0 right-0 bg-[#222] border-t-[3px] border-black rounded-t-[40px] p-8 z-[101] shadow-[0_-20px_40px_rgba(0,0,0,0.5)]"
             >
               <div className="flex items-center justify-between mb-6">
-                <h3 className="text-xl font-black italic uppercase tracking-tighter">Sebarkan Vibes, Boss!</h3>
+                <h3 className="text-xl font-black italic uppercase tracking-tighter">Sebarkan Vibes, Bos!</h3>
                 <button onClick={() => setShowAddModal(false)} className="text-[#E3DAC9]/40 hover:text-white transition-colors">
                   <Plus className="rotate-45" size={24} />
                 </button>

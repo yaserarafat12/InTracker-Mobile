@@ -32,12 +32,12 @@ const AIAuditSection = ({ completed, total }: { completed: number, total: number
         <span className="text-[10px] font-black text-[#00FF85] font-['Outfit'] uppercase tracking-widest opacity-60">Bisikan Rin (AI Audit)</span>
         <p className="text-[13px] font-medium text-white/90 font-['Outfit'] leading-tight">
           {percentage === 100 
-            ? "GILA! Boss bener-bener on fire hari ini. Protokol tuntas 100%! 🔥" 
+            ? "GILA! Bos bener-bener on fire hari ini. Protokol tuntas 100%! 🔥" 
             : percentage > 50 
-              ? `Sedikit lagi Boss! ${percentage}% kelar. Hajar sisa ${total - completed} habit lagi!`
+              ? `Sedikit lagi Bos! ${percentage}% kelar. Hajar sisa ${total - completed} habit lagi!`
               : completed > 0 
-                ? "Awal yang bagus, Boss. Gas terus jangan kasih kendor!"
-                : "Boss, protokol hari ini belum disentuh nih. Yuk mulai satu!"}
+                ? "Awal yang bagus, Bos. Gas terus jangan kasih kendor!"
+                : "Bos, protokol hari ini belum disentuh nih. Yuk mulai satu!"}
         </p>
       </div>
     </motion.div>

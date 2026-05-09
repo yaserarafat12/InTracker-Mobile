@@ -39,7 +39,7 @@ export default function Nickname() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 1 }}
-          src="/antigravitybg/3.jpg" 
+          src="/all_images/antigravitybg/3.jpg" 
           className="w-full h-full object-cover object-top -translate-y-[5vh]" 
         />
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#212121]/20 to-[#212121] to-80%" />

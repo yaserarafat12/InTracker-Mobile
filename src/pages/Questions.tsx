@@ -154,7 +154,7 @@ export default function Questions() {
     return (
       <div className="min-h-screen bg-[#212121] text-white font-['Inter'] relative flex flex-col items-center overflow-hidden select-none">
         <div className="absolute inset-0 z-0">
-          <motion.img initial={{ opacity: 0 }} animate={{ opacity: 1 }} src="/antigravitybg/3.jpg" className="w-full h-full object-cover object-center -translate-y-[3vh]" style={{ filter: 'contrast(1.2) brightness(0.85) saturate(1.1) hue-rotate(15deg)' }} />
+          <motion.img initial={{ opacity: 0 }} animate={{ opacity: 1 }} src="/all_images/antigravitybg/3.jpg" className="w-full h-full object-cover object-center -translate-y-[3vh]" style={{ filter: 'contrast(1.2) brightness(0.85) saturate(1.1) hue-rotate(15deg)' }} />
           <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[#212121]/60" />
         </div>
         <div className="relative z-10 flex-1 w-full max-w-[400px] px-6 flex flex-col items-center justify-end pb-[calc(env(safe-area-inset-bottom,20px)+8vh)]">

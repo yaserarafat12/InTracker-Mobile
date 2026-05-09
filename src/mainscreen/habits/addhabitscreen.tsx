@@ -158,7 +158,7 @@ export const TambahHabitModal = ({
       if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
       // Simple custom feedback instead of standard alert for premium feel if possible,
       // but for logic safety we block it here.
-      alert(`Protokol "${habitBase.name}" sudah aktif dalam sistem, Boss!`);
+      alert(`Protokol "${habitBase.name}" sudah aktif dalam sistem, Bos!`);
       return;
     }
 

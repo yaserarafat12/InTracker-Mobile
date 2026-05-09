@@ -72,7 +72,7 @@ export default function Login() {
           initial={{ opacity: 0, scale: 1.1 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 1.5, ease: "easeOut" as const }}
-          src="/antigravitybg/1.png" 
+          src="/all_images/antigravitybg/1.png" 
           className="w-full h-full object-cover object-[center_12vh]" 
         />
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black" />

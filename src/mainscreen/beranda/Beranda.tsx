@@ -263,7 +263,7 @@ const HomeView = ({ setActiveTab }: { setActiveTab: (tab: string) => void }) => 
   }, [profile]); // Added profile dependency to trigger update when data loaded
 
   return (
-    <div className="px-6 pt-3 pb-24 space-y-10">
+    <div className="px-6 pt-3 pb-24 space-y-12">
       {/* GREETING SECTION */}
       <GreetingHeader />
 
@@ -318,7 +318,7 @@ const HomeView = ({ setActiveTab }: { setActiveTab: (tab: string) => void }) => 
           label="Tugas"
           description={
             todayTotalCount === 0 && uncompletedDelayedCount === 0 ? "Belum ada rencana?" :
-            completedTodayCount === todayTotalCount && todayTotalCount > 0 ? "Sempurna! Boss juara!" :
+            completedTodayCount === todayTotalCount && todayTotalCount > 0 ? "Sempurna! Bos juara!" :
             `${completedTodayCount} Selesai${uncompletedDelayedCount > 0 ? ` • ${uncompletedDelayedCount} Ditunda` : ' • Semangat!'}`
           }
           showWarning={uncompletedDelayedCount > 0}
@@ -355,7 +355,7 @@ const HomeView = ({ setActiveTab }: { setActiveTab: (tab: string) => void }) => 
             <div className="flex-1 min-w-0">
               <h4 className="text-[14px] font-black text-white leading-none mb-1">Tugas Tertunda!</h4>
               <p className="text-[11px] font-medium text-[#E3DAC9]/60 leading-tight">
-                Ada <span className="text-[#EF4444] font-black">{uncompletedDelayedCount} tugas</span> kemarin yang belum Boss selesaikan. Mau diberesin?
+                Ada <span className="text-[#EF4444] font-black">{uncompletedDelayedCount} tugas</span> kemarin yang belum Bos selesaikan. Mau diberesin?
               </p>
             </div>
 
@@ -460,7 +460,7 @@ const HubView = () => {
           </div>
           <div>
             <h3 className="text-[24px] font-black text-white tracking-tight leading-none mb-2">
-              {profile?.nickname || profile?.full_name || 'Boss InTracker'}
+              {profile?.nickname || profile?.full_name || 'Bos InTracker'}
             </h3>
             <div className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full border-[1.5px] border-black shadow-[2px_2px_0px_rgba(0,0,0,1)] ${isPro ? 'bg-[#00FF85] text-black' : 'bg-white/10 text-white/40'}`}>
               <Icon icon={isPro ? 'solar:crown-bold' : 'solar:medal-star-bold'} width={12} />
@@ -593,7 +593,7 @@ function Beranda({ activeTab: initialTab = 'home' }: { activeTab?: string }) {
       
       if (authError) {
         console.error('[InTracker] Auth error:', authError.message);
-        setError("Sesi Boss berakhir. Silakan login ulang.");
+        setError("Sesi Bos berakhir. Silakan login ulang.");
         return;
       }
 
@@ -606,14 +606,14 @@ function Beranda({ activeTab: initialTab = 'home' }: { activeTab?: string }) {
         
         const failed = results.filter(r => r.status === 'rejected');
         if (failed.length === results.length && results.length > 0) {
-          setError("Gagal ngambil data dari markas, Boss. Coba cek internet.");
+          setError("Gagal ngambil data dari markas, Bos. Coba cek internet.");
         }
       } else {
-        setError("Boss belum login nih.");
+        setError("Bos belum login nih.");
       }
     } catch (err) {
       console.error('[InTracker] Dashboard init crash:', err);
-      setError("Aplikasi agak error dikit, Boss. Rin coba benerin.");
+      setError("Aplikasi agak error dikit, Bos. Rin coba benerin.");
     } finally {
       setLoading(false);
     }
@@ -861,7 +861,7 @@ function Beranda({ activeTab: initialTab = 'home' }: { activeTab?: string }) {
                   STREAK DALAM BAHAYA!
                 </h2>
                 <p className="text-[#E3DAC9]/60 font-medium text-[14px] mb-8">
-                  Boss bolong satu hari kemarin. Jangan biarkan kerja kerasmu reset ke nol!
+                  Bos bolong satu hari kemarin. Jangan biarkan kerja kerasmu reset ke nol!
                 </p>
 
                 <div className="space-y-4">
