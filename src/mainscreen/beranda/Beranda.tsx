@@ -184,7 +184,7 @@ const RingProgressCard = ({
   );
 };
 
-const HomeView = () => {
+const HomeView = ({ setActiveTab }: { setActiveTab: (tab: string) => void }) => {
   const [quote, setQuote] = useState<Quote | null>(null);
   const [showInsight, setShowInsight] = useState(false);
   
@@ -779,7 +779,7 @@ function Beranda({ activeTab: initialTab = 'home' }: { activeTab?: string }) {
                 onComplete={triggerCompletionAnimation}
               />
             )}
-            {activeTab === 'home' && <HomeView />}
+            {activeTab === 'home' && <HomeView setActiveTab={setActiveTab} />}
             {activeTab === 'todo' && <TodoList />}
             {activeTab === 'journey' && <Journey />}
             {activeTab === 'global' && <Global />}
