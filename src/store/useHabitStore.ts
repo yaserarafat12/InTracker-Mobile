@@ -1,6 +1,8 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { supabase } from '../lib/supabase';
+import { getDefaultSchedule, calculateScheduleAwareStreak, filterHabitsByDay } from '../utils/scheduleHelpers';
+import { useProgressionStore } from './useProgressionStore';
 
 export interface HabitItem {
   id: string; // Changed to string for UUID
@@ -21,6 +23,10 @@ export interface HabitItem {
   streak: number; 
   target_intensity?: number | null;
   current_intensity?: number;
+  position: number;
+  // Schedule fields
+  schedule_type: 'daily' | 'weekly' | 'custom';
+  schedule_days: number[]; // 0=Sun, 1=Mon, ..., 6=Sat
 }
 
 export const INITIAL_HABITS_DATA: HabitItem[] = [];
@@ -35,13 +41,16 @@ interface HabitStore {
   fetchHabits: () => Promise<void>;
   addHabit: (habit: Omit<HabitItem, 'id' | 'user_id' | 'streak'>) => Promise<void>;
   toggleHabit: (id: string, field: 'completed' | 'skipped') => Promise<void>;
+  completeWithIntensity: (habitId: string, intensityValue: number) => Promise<void>;
   deleteHabit: (id: string) => Promise<void>;
   updateHabit: (id: string, updates: Partial<HabitItem>) => Promise<void>;
   calculateStreak: (habitId: string, logs: any[]) => number;
+  getScheduledHabitsForToday: () => HabitItem[];
   completingHabitId: string | null;
   setCompletingHabitId: (id: string | null) => void;
   brokenStreaks: Array<{ habitId: string; lastDate: string; daysMissing: number }>;
   rescueStreak: (habitId: string) => Promise<void>;
+  reorderHabits: (newOrder: HabitItem[]) => Promise<void>;
 }
 
 export const useHabitStore = create<HabitStore>()(
@@ -91,7 +100,7 @@ export const useHabitStore = create<HabitStore>()(
           .from('habits')
           .select('*')
           .eq('user_id', user.id)
-          .order('created_at', { ascending: true });
+          .order('position', { ascending: true });
 
         // Fetch all logs for streak calculation
         const { data: logsData } = await supabase
@@ -106,24 +115,14 @@ export const useHabitStore = create<HabitStore>()(
           const habitsWithStreaks = habitsData.map(h => {
             const habitLogs = logsData?.filter(l => l.habit_id === h.id) || [];
             const uniqueDates = Array.from(new Set(habitLogs.map(l => l.date)));
+
+            // Apply schedule defaults for null values
+            const defaults = getDefaultSchedule();
+            const schedule_type = h.schedule_type || defaults.schedule_type;
+            const schedule_days = h.schedule_days || defaults.schedule_days;
             
-            let streak = 0;
-            let checkDate = new Date();
-            checkDate.setHours(0,0,0,0);
-            
-            for (const dateStr of uniqueDates) {
-              const logDate = new Date(dateStr);
-              logDate.setHours(0,0,0,0);
-              
-              const diff = Math.floor((checkDate.getTime() - logDate.getTime()) / (1000 * 60 * 60 * 24));
-              
-              if (diff <= 1) {
-                streak++;
-                checkDate = logDate;
-              } else {
-                break;
-              }
-            }
+            // Use schedule-aware streak calculation
+            const streak = calculateScheduleAwareStreak(schedule_days, uniqueDates);
 
             return {
               ...h,
@@ -134,7 +133,10 @@ export const useHabitStore = create<HabitStore>()(
               imagePosition: h.image_position,
               streak: streak || 0,
               target_intensity: h.target_intensity,
-              current_intensity: h.current_intensity || 0
+              current_intensity: h.current_intensity || 0,
+              position: h.position || 0,
+              schedule_type,
+              schedule_days,
             };
           });
 
@@ -158,6 +160,14 @@ export const useHabitStore = create<HabitStore>()(
             }
           }
           set({ totalStreak: totalStreakCount });
+
+          // Sync streak_count to profile in Supabase
+          if (user) {
+            await supabase
+              .from('profiles')
+              .update({ streak_count: totalStreakCount })
+              .eq('id', user.id);
+          }
 
           // --- DETECT BROKEN STREAKS ---
           const broken: Array<{ habitId: string; lastDate: string; daysMissing: number }> = [];
@@ -192,31 +202,30 @@ export const useHabitStore = create<HabitStore>()(
 
       calculateStreak: (habitId: string, logs: any[]) => {
         const habitLogs = logs.filter(l => l.habit_id === habitId && l.status === 'completed') || [];
-        const uniqueDates = Array.from(new Set(habitLogs.map(l => l.date))).sort().reverse();
+        const uniqueDates = Array.from(new Set(habitLogs.map(l => l.date)));
         
-        let streak = 0;
-        let checkDate = new Date();
-        checkDate.setHours(0,0,0,0);
+        // Find the habit to get its schedule_days
+        const habit = get().habits.find(h => h.id === habitId);
+        const defaults = getDefaultSchedule();
+        const scheduleDays = habit?.schedule_days || defaults.schedule_days;
         
-        for (const dateStr of uniqueDates) {
-          const logDate = new Date(dateStr);
-          logDate.setHours(0,0,0,0);
-          
-          const diff = Math.floor((checkDate.getTime() - logDate.getTime()) / (1000 * 60 * 60 * 24));
-          
-          if (diff <= 1) {
-            streak++;
-            checkDate = logDate;
-          } else {
-            break;
-          }
-        }
-        return streak;
+        // Use schedule-aware streak calculation
+        return calculateScheduleAwareStreak(scheduleDays, uniqueDates);
+      },
+
+      getScheduledHabitsForToday: () => {
+        const { habits } = get();
+        return filterHabitsByDay(habits, new Date().getDay());
       },
 
       addHabit: async (habit) => {
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) return;
+
+        // Apply schedule defaults if not provided
+        const defaults = getDefaultSchedule();
+        const schedule_type = habit.schedule_type || defaults.schedule_type;
+        const schedule_days = habit.schedule_days || defaults.schedule_days;
 
         const dbHabit = {
           user_id: user.id,
@@ -234,7 +243,12 @@ export const useHabitStore = create<HabitStore>()(
           image_url: habit.imageUrl,
           image_position: habit.imagePosition,
           target_intensity: habit.target_intensity,
-          current_intensity: habit.current_intensity || 0
+          current_intensity: habit.current_intensity || 0,
+          schedule_type,
+          schedule_days,
+          position: get().habits.length > 0 
+            ? Math.max(...get().habits.map(h => h.position)) + 1 
+            : 1
         };
 
         const { data, error } = await supabase
@@ -244,6 +258,7 @@ export const useHabitStore = create<HabitStore>()(
           .single();
 
         if (!error && data) {
+          const mappedDefaults = getDefaultSchedule();
           const mapped = {
             ...data,
             iconName: data.icon_name,
@@ -252,9 +267,12 @@ export const useHabitStore = create<HabitStore>()(
             imageUrl: data.image_url,
             imagePosition: data.image_position,
             target_intensity: data.target_intensity,
-            current_intensity: data.current_intensity
+            current_intensity: data.current_intensity,
+            position: data.position,
+            schedule_type: data.schedule_type || mappedDefaults.schedule_type,
+            schedule_days: data.schedule_days || mappedDefaults.schedule_days,
           };
-          set((state) => ({ habits: [...state.habits, mapped as HabitItem] }));
+          set((state) => ({ habits: [...state.habits, mapped as HabitItem].sort((a, b) => a.position - b.position) }));
         }
       },
 
@@ -291,10 +309,20 @@ export const useHabitStore = create<HabitStore>()(
             user_id: user.id,
             habit_id: id,
             date: today,
-            status: field === 'completed' ? 'completed' : 'skipped'
+            status: field === 'completed' ? 'completed' : 'skipped',
+            intensity_value: null
           }, { onConflict: 'user_id, habit_id, date' });
         } else {
           await supabase.from('habit_logs').delete().eq('habit_id', id).eq('date', today).eq('status', field === 'completed' ? 'completed' : 'skipped');
+        }
+
+        // Award XP and stats via progression store when habit is completed
+        if (field === 'completed' && newValue) {
+          useProgressionStore.getState().awardHabitCompletion({
+            id: habit.id,
+            category: habit.category,
+            difficulty: habit.difficulty,
+          });
         }
 
         // Instead of a full refetch which can cause race conditions and flickering,
@@ -309,6 +337,75 @@ export const useHabitStore = create<HabitStore>()(
           const newStreak = get().calculateStreak(id, updatedLogs.map(l => ({ ...l, habit_id: id })));
           set((state) => ({
             habits: state.habits.map(h => h.id === id ? { ...h, streak: newStreak } : h)
+          }));
+        }
+      },
+
+      completeWithIntensity: async (habitId: string, intensityValue: number) => {
+        const habit = get().habits.find(h => h.id === habitId);
+        if (!habit) return;
+
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
+
+        const today = new Date().toLocaleDateString('en-CA');
+
+        // Update habit as completed in Supabase
+        const { error: habitError } = await supabase
+          .from('habits')
+          .update({ completed: true })
+          .eq('id', habitId);
+
+        if (habitError) {
+          // Don't change local state on failure
+          return;
+        }
+
+        // Insert habit_log with intensity_value
+        const { error: logError } = await supabase.from('habit_logs').upsert({
+          user_id: user.id,
+          habit_id: habitId,
+          date: today,
+          status: 'completed',
+          intensity_value: intensityValue
+        }, { onConflict: 'user_id, habit_id, date' });
+
+        if (logError) {
+          // Rollback the habit completion in DB
+          await supabase
+            .from('habits')
+            .update({ completed: false })
+            .eq('id', habitId);
+          return;
+        }
+
+        // Success: update local state
+        set((state) => ({
+          habits: state.habits.map(h =>
+            h.id === habitId
+              ? { ...h, completed: true, current_intensity: intensityValue }
+              : h
+          )
+        }));
+
+        // Award XP and stats via progression store
+        useProgressionStore.getState().awardHabitCompletion({
+          id: habit.id,
+          category: habit.category,
+          difficulty: habit.difficulty,
+        });
+
+        // Recalculate streak
+        const { data: updatedLogs } = await supabase
+          .from('habit_logs')
+          .select('date, status')
+          .eq('habit_id', habitId)
+          .eq('status', 'completed');
+
+        if (updatedLogs) {
+          const newStreak = get().calculateStreak(habitId, updatedLogs.map(l => ({ ...l, habit_id: habitId })));
+          set((state) => ({
+            habits: state.habits.map(h => h.id === habitId ? { ...h, streak: newStreak } : h)
           }));
         }
       },
@@ -337,6 +434,7 @@ export const useHabitStore = create<HabitStore>()(
         if (updates.specialLabel !== undefined) { dbUpdates.special_label = updates.specialLabel; delete dbUpdates.specialLabel; }
         if (updates.imageUrl) { dbUpdates.image_url = updates.imageUrl; delete dbUpdates.imageUrl; }
         if (updates.imagePosition) { dbUpdates.image_position = updates.imagePosition; delete dbUpdates.imagePosition; }
+        // schedule_type and schedule_days use the same column names in DB — no mapping needed
 
         // Optimistic update
         set((state) => ({
@@ -382,6 +480,60 @@ export const useHabitStore = create<HabitStore>()(
           brokenStreaks: state.brokenStreaks.filter(b => b.habitId !== habitId)
         }));
         await get().fetchHabits();
+      },
+
+      reorderHabits: async (newOrder: HabitItem[]) => {
+        const state = get();
+        
+        // Get IDs of habits being reordered
+        const reorderedIds = new Set(newOrder.map(h => h.id));
+        
+        // Keep habits that are NOT in the newOrder
+        const otherHabits = state.habits.filter(h => !reorderedIds.has(h.id));
+        
+        // Combine them: newOrder items get positions 1...N, others get N+1...M
+        const allHabits = [
+          ...newOrder.map((h, i) => ({ ...h, position: i + 1 })),
+          ...otherHabits.map((h, i) => ({ ...h, position: newOrder.length + i + 1 }))
+        ].sort((a, b) => a.position - b.position);
+
+        set({ habits: allHabits });
+
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
+
+        const { error } = await supabase
+          .from('habits')
+          .upsert(
+            allHabits.map(h => ({
+              id: h.id,
+              user_id: user.id,
+              position: h.position,
+              name: h.name,
+              subtitle: h.subtitle,
+              frequency: h.frequency,
+              difficulty: h.difficulty,
+              icon_name: h.iconName,
+              category: h.category,
+              color: h.color,
+              completed: h.completed,
+              skipped: h.skipped,
+              is_special: h.isSpecial,
+              special_label: h.specialLabel,
+              image_url: h.imageUrl,
+              image_position: h.imagePosition,
+              target_intensity: h.target_intensity,
+              current_intensity: h.current_intensity,
+              schedule_type: h.schedule_type,
+              schedule_days: h.schedule_days
+            })),
+            { onConflict: 'id' }
+          );
+
+        if (error) {
+          console.error("Error reordering habits:", error);
+          await get().fetchHabits(); // Rollback
+        }
       },
     }),
     {

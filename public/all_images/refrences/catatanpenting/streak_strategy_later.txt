@@ -1,0 +1,90 @@
+============================================
+STREAK STRATEGY - INTRACKER
+Disimpan: 12 Mei 2026
+============================================
+
+## MODEL STREAK YANG DIPILIH (PROFESIONAL)
+
+1. Streak Freeze = PREVENTIF (harus punya sebelum miss)
+2. Kalau miss tanpa freeze → muncul modal warning:
+   - Opsi 1: Main quiz (effort = harga rescue)
+   - Opsi 2: Pakai freeze (kalau punya)
+   - Opsi 3: Ga mau dua-duanya → streak pecah
+3. LIMIT: Cuma bisa rescue 1x PER STREAK
+   - Contoh: streak 50 hari, udah rescue di hari ke-20 → next miss = langsung pecah
+   - Bikin streak tetap bermakna dan ga bisa di-abuse
+
+============================================
+
+## CARA DAPETIN STREAK FREEZE
+
+### Opsi 1: Milestone Reward (RECOMMENDED)
+- Setiap 7 hari streak berturut-turut → otomatis dapet 1 freeze
+- Max stock: 3 freeze
+- Pro: Motivasi jaga streak, natural reward loop
+- Con: User baru belum punya freeze
+
+### Opsi 2: Weekly Completion Reward
+- Selesaikan semua habit 5 dari 7 hari dalam seminggu → 1 freeze
+- Pro: Fair, ga perlu perfect streak
+- Con: Perlu tracking mingguan
+
+### Opsi 3: Nonton Ads (Monetisasi)
+- Tonton rewarded ad → 1 freeze
+- Max: 1 per hari
+- Pro: Revenue stream
+- Con: Annoying, perlu ad SDK
+
+### Opsi 4: Shop/Coins System
+- Kumpulin XP/coins dari complete habit → beli freeze di shop
+- Pro: Deep gamification
+- Con: Complex, perlu bikin economy system
+
+### Opsi 5: Free Monthly
+- Setiap awal bulan dapet 1 freeze gratis
+- Pro: Simple, generous, user-friendly
+- Con: Kurang motivasi effort
+
+============================================
+
+## REKOMENDASI FINAL
+
+Kombinasi yang paling balanced untuk InTracker:
+1. Setiap 7 hari streak → auto-reward 1 freeze (max stock 3)
+2. Nonton ads sebagai backup (1/hari) — untuk monetisasi nanti
+3. Awal bulan dapet 1 freeze gratis (onboarding mercy)
+
+Simple, ga perlu bikin economy system ribet.
+User rajin = dapet freeze. User males = ga punya safety net.
+
+============================================
+
+## REFERENSI KOMPETITOR
+
+### Duolingo:
+- Freeze harus dibeli SEBELUM miss (preventif)
+- Kalau miss tanpa freeze → streak langsung reset ke 0
+- "Streak Repair" cuma ada buat Super Duolingo (paid)
+- Bisa repair dalam 24 jam setelah miss
+- Kunci: Loss aversion — takut kehilangan > senang dapet
+
+### Life Reset App (app sebelah):
+- Mirip Duolingo — freeze harus dipasang sebelumnya
+- Ga ada mini-game rescue
+- Streak = day counter dari awal join
+
+============================================
+
+## STATUS IMPLEMENTASI
+
+[x] Modal warning streak terancam (StreakRecoveryModal.tsx)
+[x] Mini-game Math Match
+[x] Mini-game Type Race
+[x] Celebration screen setelah rescue
+[x] Freeze option di modal
+[ ] Limit 1x rescue per streak (BELUM)
+[ ] Auto-reward freeze setiap 7 hari (BELUM)
+[ ] Ads rewarded untuk freeze (BELUM)
+[ ] Free monthly freeze (BELUM)
+
+============================================

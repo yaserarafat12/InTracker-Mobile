@@ -1,32 +1,19 @@
 import { useState } from 'react';
 import { motion, useMotionValue, useTransform, animate, AnimatePresence } from 'framer-motion';
 import { Icon } from '@iconify/react';
-import { HABIT_ICONS, HABIT_COLORS, CATEGORY_COLORS, isCustomIcon, getCustomIconKey } from './icons';
+import { HABIT_ICONS, HABIT_COLORS, CATEGORY_COLORS, isCustomIcon, getCustomIconKey, HABIT_OPTIONS } from './icons';
 import { CUSTOM_SVGS } from '../../utils/icons';
 import { useHabitStore } from '../../store/useHabitStore';
+import { getPrismStyle } from '../../utils/design';
+import { formatIntensityLabel, shouldShowIntensityPicker, getIntensityConfig } from '../../utils/intensityHelpers';
+import { getScheduleLabel } from '../../utils/scheduleHelpers';
+import IntensityPicker from './IntensityPicker';
+import ScheduleEditor from './ScheduleEditor';
+import HabitInfoModal from './HabitInfoModal';
 
-export const DifficultyDots = ({ level }: { level: number }) => {
-  return (
-    <div className="flex items-center gap-[4px] h-full">
-      {[1, 2, 3].map((i) => {
-        const isActive = i <= level;
-        return (
-          <div 
-            key={i} 
-            className={`w-[5px] h-[5px] rounded-full transition-all duration-200 ease-out`}
-            style={{ 
-              backgroundColor: isActive ? '#00FF85' : 'rgba(255,255,255,0.05)',
-              boxShadow: isActive ? `0 0 10px rgba(0,255,133,0.3)` : 'none',
-              border: isActive ? 'none' : '1px solid rgba(255,255,255,0.05)'
-            }}
-          />
-        );
-      })}
-    </div>
-  );
-};
+// DifficultyDots removed as per user request
 
-export const DifficultyBars = DifficultyDots;
+export const DifficultyBars = ({ level }: { level?: any }) => null;
 
 interface CustomIconProps {
   icon: string;
@@ -70,12 +57,17 @@ interface KartuTugasProps {
   activeFilter: string;
   onDoubleTap: (id: string) => void;
   onEdit?: (habit: any) => void;
+  isDraggable?: boolean;
+  dragControls?: any;
 }
 
-const KartuTugas = ({ habit, index, activeFilter, onDoubleTap, onEdit }: KartuTugasProps) => {
-  const { deleteHabit, toggleHabit, updateHabit, setCompletingHabitId } = useHabitStore();
+const KartuTugas = ({ habit, index, activeFilter, onDoubleTap, onEdit, isDraggable, dragControls }: KartuTugasProps) => {
+  const { deleteHabit, toggleHabit, updateHabit, setCompletingHabitId, completeWithIntensity } = useHabitStore();
   const [lastTap, setLastTap] = useState(0);
   const [isCompleting, setIsCompleting] = useState(false);
+  const [showPicker, setShowPicker] = useState(false);
+  const [showScheduleEditor, setShowScheduleEditor] = useState(false);
+  const [showInfoModal, setShowInfoModal] = useState(false);
   const x = useMotionValue(0);
   
   const leftActionOpacity = useTransform(x, [20, 80], [0, 1]);
@@ -124,10 +116,27 @@ const KartuTugas = ({ habit, index, activeFilter, onDoubleTap, onEdit }: KartuTu
     const DOUBLE_TAP_DELAY = 300;
     
     if (now - lastTap < DOUBLE_TAP_DELAY) {
+      // All habits complete immediately on double-tap (intensity picker only via LOG button)
       startCompletionAnimation();
     } else {
       setLastTap(now);
     }
+  };
+
+  const handlePickerConfirm = (value: number) => {
+    setShowPicker(false);
+    // Just update the target intensity, don't complete the habit
+    updateHabit(habit.id, { target_intensity: value });
+    if (navigator.vibrate) navigator.vibrate(10);
+  };
+
+  const handlePickerCancel = () => {
+    setShowPicker(false);
+  };
+
+  const handleScheduleSave = (scheduleType: 'daily' | 'weekly' | 'custom', scheduleDays: number[]) => {
+    updateHabit(habit.id, { schedule_type: scheduleType, schedule_days: scheduleDays });
+    setShowScheduleEditor(false);
   };
 
   const handleAction = (type: 'skip' | 'delete' | 'log' | 'edit') => {
@@ -143,26 +152,17 @@ const KartuTugas = ({ habit, index, activeFilter, onDoubleTap, onEdit }: KartuTu
         }
         break;
       case 'log':
-        if (habit.target_intensity) {
-          const newIntensity = (habit.current_intensity || 0) + 1;
-          const isDone = newIntensity >= habit.target_intensity;
-          
-          updateHabit(habit.id, { 
-            current_intensity: newIntensity,
-            completed: isDone 
-          });
-
-          if (isDone) {
-            // Gunakan animasi yang sama biar nggak glitch
-            startCompletionAnimation();
-          }
+        if (shouldShowIntensityPicker(habit.name)) {
+          // Numeric habit: show intensity picker via LOG button
+          setShowPicker(true);
         } else {
-          toggleHabit(habit.id, 'completed');
-          if (!habit.completed) startCompletionAnimation();
+          // Single-action habit: LOG not applicable, give feedback
+          if (navigator.vibrate) navigator.vibrate([10, 30, 10]);
+          // Do nothing — LOG is only for intensity habits
         }
         break;
       case 'edit':
-        onEdit?.(habit);
+        setShowScheduleEditor(true);
         break;
     }
     animate(x, 0, { type: "spring", stiffness: 800, damping: 45 });
@@ -223,8 +223,7 @@ const KartuTugas = ({ habit, index, activeFilter, onDoubleTap, onEdit }: KartuTu
         dragElastic={0.05}
         onDragEnd={handleDragEnd}
         whileTap={{ 
-          x: 6, 
-          y: 6, 
+          scale: 0.98,
           boxShadow: "0px 0px 0px rgba(0,0,0,1)",
           transition: { duration: 0.1 }
         }}
@@ -253,13 +252,13 @@ const KartuTugas = ({ habit, index, activeFilter, onDoubleTap, onEdit }: KartuTu
         {/* Streak Badge - Positioned even tighter to the corner per Bos request */}
         {/* Streak Badge - Hide instantly when completing to avoid glitch */}
         <AnimatePresence>
-          {Number(habit.streak) >= 0 && !isCompleting && (
+          {Number(habit.streak) > 0 && !isCompleting && (
             <motion.div 
               key="streak-badge"
               initial={{ scale: 0, x: 20 }}
               animate={{ scale: 1, x: 0 }}
               exit={{ scale: 0, opacity: 0, transition: { duration: 0.1 } }}
-              className="absolute top-[-10px] right-[-5px] z-20 flex items-center gap-1.5 px-[14px] py-[6px] bg-[#FF4D00] border-[1.5px] border-black shadow-[3.5px_3.5px_0px_rgba(0,0,0,1)] rounded-full"
+              className="absolute top-[-6px] right-[-5px] z-20 flex items-center gap-1.5 px-[14px] py-[6px] bg-[#FF4D00] border-[1.5px] border-black shadow-[3.5px_3.5px_0px_rgba(0,0,0,1)] rounded-full"
             >
               <Icon icon="solar:fire-bold" className="text-white w-4 h-4" />
               <span className="text-white text-[13px] font-black font-['Outfit'] leading-none mt-[1px]">
@@ -281,7 +280,7 @@ const KartuTugas = ({ habit, index, activeFilter, onDoubleTap, onEdit }: KartuTu
                 filter: "blur(15px)",
                 transition: { duration: 0.4, ease: "easeInOut" } 
               }}
-              className="absolute inset-0 z-[100] rounded-[24px] overflow-hidden pointer-events-none"
+              className="absolute inset-0 z-[100] rounded-[10px] overflow-hidden pointer-events-none"
               style={{ willChange: "opacity, transform", transform: "translateZ(0)" }}
             >
               {/* Background Expand Animation */}
@@ -318,16 +317,47 @@ const KartuTugas = ({ habit, index, activeFilter, onDoubleTap, onEdit }: KartuTu
           )}
         </AnimatePresence>
 
-        <div className={`absolute inset-0 rounded-[24px] overflow-hidden border-[2px] border-black shadow-[8px_8px_0px_rgba(0,0,0,1)] bg-[#212121] group cursor-pointer transition-all duration-300 ${isCompleting ? 'opacity-0 scale-[0.95]' : ''}`}>
-          <img 
-            src={habit.imageUrl} 
-            className={`absolute inset-0 w-full h-full object-cover ${habit.imagePosition || 'object-center'} opacity-65`} 
-            alt={habit.name} 
-          />
+        <div className={`absolute inset-0 rounded-[10px] overflow-hidden border-[2px] border-white/15 shadow-[8px_8px_0px_rgba(0,0,0,1)] bg-[#1c1e22] group cursor-pointer transition-all duration-300 ${isCompleting ? 'opacity-0 scale-[0.95]' : ''}`}>
+          {/* Background Image from HABIT_OPTIONS */}
+          {(() => {
+            // Prioritize name match over iconName match to avoid collisions
+            const option = HABIT_OPTIONS.find(o => o.name.toLowerCase() === habit.name?.toLowerCase()) 
+              || HABIT_OPTIONS.find(o => o.iconName === habit.iconName);
+            if (option && option.imageUrl) {
+              return (
+                <img 
+                  src={option.imageUrl} 
+                  alt=""
+                  className={`absolute inset-0 w-full h-full object-cover ${option.imagePosition || 'object-center'} opacity-[0.85] z-0 transition-transform duration-500 group-hover:scale-110`}
+                />
+              );
+            }
+            // Gradient fallback for custom habits
+            const catColor = habit.color || '#00FF85';
+            return (
+              <img 
+                src="/all_images/custom_habit_bg.png" 
+                alt=""
+                className="absolute inset-0 w-full h-full object-cover opacity-[0.7] z-0"
+              />
+            );
+          })()}
           
-          <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent" />
+          <div className="absolute inset-0 bg-black/40 z-[1]" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/20 to-transparent z-[2]" />
           
-          <div className="absolute inset-0 p-5 flex flex-col justify-end">
+          {/* Info Button */}
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              setShowInfoModal(true);
+            }}
+            className="absolute top-3 left-3 z-20 w-7 h-7 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center"
+          >
+            <Icon icon="ph:info-bold" width={14} height={14} className="text-white" />
+          </button>
+          
+          <div className="absolute inset-0 p-5 flex flex-col justify-end z-10">
             <div>
               <h3 className="text-[22px] font-black font-['Outfit'] text-white mb-1.5 leading-tight tracking-[0.5px]">
                 {habit.name}
@@ -342,35 +372,96 @@ const KartuTugas = ({ habit, index, activeFilter, onDoubleTap, onEdit }: KartuTu
                     color={HABIT_COLORS[habit.iconName] || CATEGORY_COLORS[habit.category] || '#00FF85'}
                   />
                   <span className="text-[9px] font-black tracking-[0.05em] uppercase text-white/40 leading-none mt-[2px]">
-                    {habit.frequency}
+                    {getScheduleLabel({ schedule_type: habit.schedule_type || 'daily', schedule_days: habit.schedule_days || [0,1,2,3,4,5,6] })}
                   </span>
                 </div>
                 
-                <div className="w-[1.5px] h-[12px] bg-white/20 mx-1" />
-                
-                <div className="flex items-center gap-1.5 h-full translate-x-[-2px]">
-                  <DifficultyDots level={habit.difficulty} />
-                  <span className="text-[9px] font-black tracking-[0.05em] uppercase text-white/40 leading-none mt-[2px]">
-                    Level
-                  </span>
-                </div>
-
-                {habit.target_intensity && (
-                  <>
-                    <div className="w-[1.5px] h-[12px] bg-white/20 mx-1" />
-                    <div className="flex items-center gap-1.5 h-full">
-                      <Icon icon="solar:chart-square-bold" width={14} height={14} className="text-[#00FF85]/60" />
-                      <span className="text-[9px] font-black tracking-[0.05em] uppercase text-white/40 leading-none mt-[2px]">
-                        {habit.current_intensity || 0}/{habit.target_intensity}
-                      </span>
-                    </div>
-                  </>
-                )}
+                {(() => {
+                  const intensityLabel = formatIntensityLabel(habit.name, habit.target_intensity);
+                  if (!intensityLabel) return null;
+                  return (
+                    <>
+                      <div className="w-[1.5px] h-[12px] bg-white/20 mx-1" />
+                      <div className="flex items-center gap-1.5 h-full">
+                        <Icon icon="solar:chart-square-bold" width={14} height={14} className="text-[#00FF85]/60" />
+                        <span className="text-[10px] font-bold tracking-[0.03em] text-white/50 leading-none mt-[1px] font-['Outfit']">
+                          {intensityLabel}
+                        </span>
+                      </div>
+                    </>
+                  );
+                })()}
               </div>
             </div>
           </div>
         </div>
+
+        {/* Long Press to Drag Trigger - Top Layer */}
+        <div 
+          onPointerDown={(e) => {
+            if (!isDraggable || isCompleting) return;
+            
+            const startX = e.clientX;
+            const startY = e.clientY;
+            
+            const timer = setTimeout(() => {
+              if (navigator.vibrate) navigator.vibrate(30);
+              dragControls?.start(e);
+            }, 250); // Reduced to 250ms for better responsiveness
+
+            const handleMove = (moveEvent: PointerEvent) => {
+              const dist = Math.sqrt(
+                Math.pow(moveEvent.clientX - startX, 2) + 
+                Math.pow(moveEvent.clientY - startY, 2)
+              );
+              if (dist > 10) clearTimeout(timer);
+            };
+
+            const handleUp = () => {
+              clearTimeout(timer);
+              window.removeEventListener('pointermove', handleMove);
+              window.removeEventListener('pointerup', handleUp);
+            };
+
+            window.addEventListener('pointermove', handleMove);
+            window.addEventListener('pointerup', handleUp);
+          }}
+          onContextMenu={(e) => e.preventDefault()}
+          style={{ touchAction: 'none' }}
+          className="absolute inset-0 z-[10] cursor-grab active:cursor-grabbing"
+        />
       </motion.div>
+
+      {/* Intensity Picker for numeric habits */}
+      {showPicker && (() => {
+        const config = getIntensityConfig(habit.name);
+        if (!config) return null;
+        return (
+          <IntensityPicker
+            options={config.options}
+            unit={config.unit}
+            defaultValue={config.defaultValue}
+            onConfirm={handlePickerConfirm}
+            onCancel={handlePickerCancel}
+          />
+        );
+      })()}
+
+      {/* Schedule Editor bottom sheet */}
+      <ScheduleEditor
+        isOpen={showScheduleEditor}
+        onClose={() => setShowScheduleEditor(false)}
+        currentScheduleType={habit.schedule_type || 'daily'}
+        currentScheduleDays={habit.schedule_days || [0,1,2,3,4,5,6]}
+        onSave={handleScheduleSave}
+      />
+
+      {/* Habit Info Modal */}
+      <HabitInfoModal
+        isOpen={showInfoModal}
+        onClose={() => setShowInfoModal(false)}
+        habit={habit}
+      />
     </div>
   );
 };

@@ -10,11 +10,11 @@ const CinematicButton = ({ onClick, children, className = "" }: { onClick: () =>
   return (
     <motion.button
       onClick={onClick}
-      whileTap={{ scale: 0.98 }}
-      className={`group relative overflow-hidden rounded-lg bg-[#00FF85] py-2.5 px-8 shadow-[0_0_20px_rgba(0,255,133,0.2)] ${className}`}
+      whileTap={{ scale: 0.98, x: 2, y: 2, boxShadow: "0px 0px 0px rgba(0,0,0,1)" }}
+      className={`group relative overflow-hidden rounded-xl bg-[#00FF85] py-3 px-8 border-[2px] border-black shadow-[5px_5px_0px_rgba(0,0,0,1)] transition-all ${className}`}
     >
       <div className="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors" />
-      <span className="relative z-10 font-['Outfit'] text-[14px] font-extrabold tracking-[0.2em] uppercase text-[#050A07]">
+      <span className="relative z-10 font-['Outfit'] text-[15px] font-black tracking-[0.15em] uppercase text-[#050A07]">
         {children}
       </span>
     </motion.button>
@@ -31,14 +31,14 @@ const IndustrialToggle = ({ active, onToggle }: { active: boolean, onToggle: () 
       }} 
       className="relative w-14 h-7 rounded-full transition-colors duration-300 overflow-hidden" 
       style={{ 
-        backgroundColor: active ? 'rgba(227, 218, 201, 0.2)' : 'rgba(255, 255, 255, 0.05)', 
-        border: active ? '1.5px solid rgba(227, 218, 201, 0.4)' : '1.5px solid rgba(255, 255, 255, 0.1)' 
+        backgroundColor: active ? 'rgba(0, 255, 133, 0.1)' : 'rgba(255, 255, 255, 0.05)', 
+        border: active ? '1.5px solid #00FF85' : '1.5px solid rgba(255, 255, 255, 0.1)' 
       }}
     >
       <motion.div
         animate={{ x: active ? 32 : 6 }}
         transition={{ type: "spring", stiffness: 500, damping: 30 }}
-        className={`absolute top-1/2 -translate-y-1/2 w-5 h-5 rounded-full shadow-lg ${active ? 'bg-[#E3DAC9] shadow-[0_0_15px_#E3DAC9]' : 'bg-white/40'}`}
+        className={`absolute top-1/2 -translate-y-1/2 w-5 h-5 rounded-full ${active ? 'bg-[#00FF85]' : 'bg-white/40'}`}
       />
     </button>
   );
@@ -57,12 +57,12 @@ const NotificationCard = ({ item, active, onToggle, variants }: any) => {
       <div 
         className={`
           relative flex items-center justify-between gap-4 py-5 px-6 rounded-xl 
-          bg-[#080E0A] border transition-all duration-300 ease-out
+          bg-[#1A1A1A] border transition-all duration-300 ease-out shadow-[5px_5px_0px_rgba(0,0,0,1)]
           ${active 
-            ? 'border-[#00FF85]/30 shadow-[0_0_15px_rgba(0,255,133,0.05)]' 
-            : 'border-white/5 shadow-none'
+            ? 'border-[#00FF85]/60' 
+            : 'border-[#E3DAC9]/20 shadow-[5px_5px_0px_rgba(0,0,0,1)]'
           }
-          group-hover:border-[#00FF85]/60 group-hover:shadow-[0_0_20px_rgba(0,255,133,0.2)]
+          group-hover:border-[#00FF85]/40
           cursor-pointer
         `}
       >
@@ -112,13 +112,8 @@ export default function Notif() {
           >
             <div className="w-14 h-14 bg-[#00FF85]/10 rounded-full flex items-center justify-center border border-[#00FF85]/20 relative">
               <Icon icon="solar:bell-bing-bold" className="text-[#00FF85]" width={24} height={24} />
-              <motion.div 
-                animate={{ scale: [1, 1.3, 1], opacity: [0.1, 0.3, 0.1] }} 
-                transition={{ duration: 3, repeat: Infinity }} 
-                className="absolute inset-0 bg-[#00FF85]/20 rounded-full blur-xl" 
-              />
             </div>
-            <h1 className="font-['Outfit'] text-[20px] font-bold leading-tight tracking-tight px-4 text-center">
+            <h1 className="font-['Outfit'] text-[20px] font-bold leading-tight tracking-normal px-4 text-center">
               Nyalakan pengingat untuk tetap konsisten
             </h1>
           </motion.div>

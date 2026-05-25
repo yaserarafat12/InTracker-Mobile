@@ -11,11 +11,11 @@ const CinematicButton = ({ onClick, children, className = "" }: { onClick: () =>
   return (
     <motion.button
       onClick={onClick}
-      whileTap={{ scale: 0.98 }}
-      className={`group relative overflow-hidden rounded-lg bg-[#00FF85] py-2.5 px-8 shadow-[0_0_20px_rgba(0,255,133,0.2)] ${className}`}
+      whileTap={{ scale: 0.98, x: 2, y: 2, boxShadow: "0px 0px 0px rgba(0,0,0,1)" }}
+      className={`group relative overflow-hidden rounded-xl bg-[#00FF85] py-3 px-8 border-[2px] border-black shadow-[5px_5px_0px_rgba(0,0,0,1)] transition-all ${className}`}
     >
       <div className="absolute inset-0 bg-[#0F1110]/10 group-hover:bg-transparent transition-colors" />
-      <span className="relative z-10 font-['Outfit'] text-[14px] font-extrabold tracking-[0.2em] uppercase text-[#050A07]">
+      <span className="relative z-10 font-['Outfit'] text-[15px] font-black tracking-[0.15em] uppercase text-[#050A07]">
         {children}
       </span>
     </motion.button>
@@ -139,8 +139,12 @@ export default function Questions() {
         <div className="relative z-10 flex-1 w-full overflow-y-auto px-6 py-4 mt-2 custom-scrollbar">
           <div className="flex flex-col gap-2 pb-10">
             {filteredCountries.map((country, idx) => (
-              <button key={idx} onClick={() => { setSelectedOptions([country]); setIsTransitioning(true); setTimeout(() => handleNext(), 450); }} className="w-full py-4 px-4 bg-white/[0.02] border border-white/5 rounded-xl text-left hover:bg-white/5 hover:border-white/10 active:bg-[#00FF85]/10 transition-all">
-                <span className="text-white/80">{country}</span>
+              <button 
+                key={idx} 
+                onClick={() => { setSelectedOptions([country]); setIsTransitioning(true); setTimeout(() => handleNext(), 450); }} 
+                className="w-full py-4 px-4 bg-[#1A1A1A] border border-[#E3DAC9]/20 rounded-xl text-left hover:border-[#00FF85]/40 active:bg-[#00FF85]/10 transition-all shadow-[4px_4px_0px_rgba(0,0,0,1)]"
+              >
+                <span className="text-white/80 font-bold font-['Outfit'] tracking-wide">{country}</span>
               </button>
             ))}
           </div>
@@ -181,9 +185,9 @@ export default function Questions() {
             initial={{ width: 0 }} 
             animate={{ width: `${(currentStep / STEPS.length) * 100}%` }} 
             transition={{ duration: 0.8, ease: CUBIC_BEZIER }} 
-            className="relative h-full bg-[#00FF85] shadow-[0_0_15px_#00FF85]"
+            className="relative h-full bg-[#00FF85]"
           >
-            <div className="absolute right-0 top-0 h-full w-4 bg-white/40 blur-[2px] rounded-full opacity-50" />
+            <div className="absolute right-0 top-0 h-full w-2 bg-white/30 rounded-full" />
           </motion.div>
         </div>
       </div>
@@ -201,7 +205,7 @@ export default function Questions() {
               transition={{ duration: 0.3 }}
               className="flex flex-col gap-2 text-center"
             >
-              <h2 className="text-[19px] font-bold font-['Outfit'] leading-tight tracking-tight px-4">
+              <h2 className="text-[19px] font-bold font-['Outfit'] leading-tight tracking-normal px-4">
                 {currentQuestion?.question}
               </h2>
               {currentQuestion?.instruction && (
@@ -226,12 +230,12 @@ export default function Questions() {
                 <motion.button 
                   key={idx} 
                   variants={itemVariants} 
-                  whileTap={{ scale: 0.98 }} 
+                  whileTap={{ scale: 0.98, x: 2, y: 2, boxShadow: "0px 0px 0px rgba(0,0,0,1)" }} 
                   onClick={() => toggleOption(option)} 
-                  className={`relative py-4 px-6 rounded-xl text-left transition-all duration-300 border backdrop-blur-md ${
+                  className={`relative py-4 px-6 rounded-xl text-left transition-all duration-300 border backdrop-blur-md shadow-[5px_5px_0px_rgba(0,0,0,1)] ${
                     isSelected 
-                    ? 'bg-[#00FF85]/20 border-[#00FF85] shadow-[0_0_20px_rgba(0,255,133,0.1)]' 
-                    : 'bg-white/5 border-white/10 hover:border-white/20'
+                    ? 'bg-[#00FF85]/10 border-[#00FF85]' 
+                    : 'bg-[#1A1A1A] border-[#E3DAC9]/20 hover:border-[#E3DAC9]/40'
                   }`}
                 >
                   <div className="flex items-center justify-between gap-2">

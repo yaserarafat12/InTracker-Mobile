@@ -53,10 +53,10 @@ export default function Location() {
           updated_at: new Date().toISOString()
         }).eq('id', user.id);
       }
-      navigate('/dashboard');
+      navigate('/beranda');
     } catch (err) {
       console.error(err);
-      navigate('/dashboard');
+      navigate('/beranda');
     }
   };
 
@@ -87,7 +87,7 @@ export default function Location() {
                 className="absolute inset-0 bg-[#10B981]/20 rounded-full blur-xl" 
               />
             </div>
-            <h1 className="font-['Outfit'] text-[20px] font-bold leading-tight tracking-tight px-4 text-center">
+            <h1 className="font-['Outfit'] text-[20px] font-bold leading-tight tracking-normal px-4 text-center">
               Aktifkan Akses Lokasi untuk Verifikasi
             </h1>
           </motion.div>

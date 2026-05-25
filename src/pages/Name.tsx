@@ -55,7 +55,7 @@ export default function Name() {
             animate={{ opacity: 1 }}
             transition={{ duration: 0.5, ease: CUBIC_BEZIER }}
           >
-            <h1 className="text-[24px] font-bold font-['Outfit'] text-center tracking-tight leading-tight">
+            <h1 className="text-[24px] font-bold font-['Outfit'] text-center tracking-normal leading-tight">
               Siapa namamu?
             </h1>
           </motion.div>

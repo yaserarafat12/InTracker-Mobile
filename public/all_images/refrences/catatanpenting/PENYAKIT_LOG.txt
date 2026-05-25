@@ -1,8 +1,8 @@
 ==================================================
 LOG PENYAKIT & SOLUSI - INTRACKER MOBILE
 ==================================================
-Terakhir Update: 4 Mei 2026
-Status: Dashboard Berhasil Render (Fixed White Screen)
+Terakhir Update: 16 Mei 2026
+Status: 90-Day Program View Fixed
 
 1. PENYAKIT: WHITE SCREEN (MODULE NOT FOUND)
    - Penyebab: File di 'src/mainscreen/habits/' di-rename tapi import di file lain tidak di-update.
@@ -28,6 +28,7 @@ Status: Dashboard Berhasil Render (Fixed White Screen)
    - Selalu cek jumlah "Changes" di VS Code. 
    - Pastikan commit & push berkala biar repo GitHub matching sama lokal.
    - Hati-hati dengan nested .git folder (seperti di folder 'yaser').
+
 6. PENYAKIT: IMPORT ERROR DI DASHBOARD (BUILD FAILED)
    - Penyebab: Setelah rename file di 'src/mainscreen/habits/', file 'Dashboard.tsx' masih pakai nama import lama (DaftarTugas & TambahTugasModal).
    - Solusi: Update import ke 'habitlist' dan 'addhabitscreen'. Pastikan prop 'onAddHabit' punya tipe eksplisit biar TS nggak komplain.
@@ -36,6 +37,24 @@ Status: Dashboard Berhasil Render (Fixed White Screen)
    - Penyebab: Penggunaan 'backdrop-blur-xl' yang berlebihan dan animasi partikel DOM yang banyak. Browser mobile kesulitan merender blur transparan di atas animasi Framer Motion.
    - Solusi: Hapus efek blur, ganti dengan background solid transparan (bg-black/90). Batasi jumlah partikel dan gunakan 'will-change: transform' untuk akselerasi GPU.
 
+8. PENYAKIT: WHITE SCREEN (NULL POINTER DI STREAK RECOVERY)
+   - Penyebab: Variabel 'habit' di StreakRecoveryModal diakses tanpa null-check saat screen === 'main', padahal ada kondisi di mana habit bisa null (saat screen celebration).
+   - Solusi: Tambahkan check 'habit &&' sebelum merender komponen UI yang bergantung pada data habit.
+
+9. PENYAKIT: BUILD FAILED (TYPE MISMATCH & MISSING PROPS)
+   - Penyebab: Komponen 'DifficultyBars' tidak menerima props tapi dipanggil dengan prop 'level'. Array 'brokenStreaks' di LoseStreak.tsx kurang properti 'daysMissing'.
+   - Solusi: Update signature komponen agar menerima props yang diperlukan, dan pastikan object literal saat setState sesuai dengan interface HabitStore.
+
+10. PENYAKIT: 90-DAY VIEW KOSONG / HIJAU CUMA DI HARI TERAKHIR
+   - Penyebab: 
+     1) Field 'created_at' tidak ada di TypeScript interface 'UserProfile' (useUserStore.ts), jadi profile.created_at selalu undefined walaupun Supabase ngirim datanya.
+     2) Fetch habit_logs pakai date filter '.gte(date, 90 hari lalu)' — jadi data dari Day 1-30 (yang lebih dari 90 hari lalu) tidak pernah ke-fetch.
+   - Akibat: Condition 'if (timeRange === "90days" && profile?.created_at)' selalu false, code fallback ke logic lama yang ngitung 90 hari mundur dari hari ini. Page 1 (Day 1-30) selalu kosong.
+   - Solusi: 
+     1) Tambahkan 'created_at: string' ke interface UserProfile.
+     2) Hapus date filter di fetch, ambil semua habit_logs tanpa .gte/.lte.
+     3) Tambahkan fallback: kalau created_at undefined, pakai tanggal habit log paling awal sebagai Day 1.
+
 ==================================================
-Ditulis oleh: Rin (AI Assistant)
+Ditulis oleh: Antigravity (AI Assistant)
 ==================================================

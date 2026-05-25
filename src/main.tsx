@@ -9,6 +9,7 @@ import Questions from './pages/Questions.tsx';
 import Notif from './pages/Notif.tsx';
 import Location from './pages/Location.tsx';
 import Nickname from './pages/Nickname.tsx';
+import LoseStreak from './pages/LoseStreak.tsx';
 import Beranda from './mainscreen/beranda/Beranda';
 import './index.css';
 
@@ -60,28 +61,41 @@ const OnboardingGuard = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     const checkStatus = async () => {
-      // GUEST MODE - Never consider onboarding "completed" for guests so they can test flow
-      if (localStorage.getItem('guest_mode') === 'true') {
-        setIsCompleted(false);
-        setLoading(false);
-        return;
-      }
+      try {
+        // GUEST MODE - Never consider onboarding "completed" for guests so they can test flow
+        if (localStorage.getItem('guest_mode') === 'true') {
+          setIsCompleted(false);
+          setLoading(false);
+          return;
+        }
 
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        const { data } = await supabase.from('profiles').select('onboarding_completed').eq('id', user.id).single();
-        setIsCompleted(data?.onboarding_completed || false);
+        const timeout = new Promise((_, reject) => setTimeout(() => reject(new Error('Onboarding timeout')), 5000));
+        const authCall = supabase.auth.getUser();
+        const { data: { user } } = await Promise.race([authCall, timeout]) as any;
+
+        if (user) {
+          const profileCall = supabase.from('profiles').select('onboarding_completed').eq('id', user.id).single();
+          const { data } = await Promise.race([profileCall, timeout]) as any;
+          setIsCompleted(data?.onboarding_completed || false);
+        }
+      } catch (err) {
+        console.error('[InTracker] OnboardingGuard error:', err);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     };
     checkStatus();
   }, []);
 
-  if (loading) return null;
+  if (loading) return (
+    <div className="min-h-screen bg-black flex items-center justify-center">
+      <div className="w-8 h-8 border-2 border-[#00FF85]/20 border-t-[#00FF85] rounded-full animate-spin" />
+    </div>
+  );
 
   // If already completed, redirect to dashboard
   if (isCompleted) {
-    return <Navigate to="/dashboard" replace />;
+    return <Navigate to="/habits" replace />;
   }
 
   return <>{children}</>;
@@ -94,17 +108,30 @@ const RootRedirect = () => {
 
   useEffect(() => {
     const checkStatus = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        const { data } = await supabase.from('profiles').select('onboarding_completed').eq('id', user.id).single();
-        setIsCompleted(data?.onboarding_completed || false);
+      try {
+        const timeout = new Promise((_, reject) => setTimeout(() => reject(new Error('Root redirect timeout')), 5000));
+        const authCall = supabase.auth.getUser();
+        const { data: { user } } = await Promise.race([authCall, timeout]) as any;
+
+        if (user) {
+          const profileCall = supabase.from('profiles').select('onboarding_completed').eq('id', user.id).single();
+          const { data } = await Promise.race([profileCall, timeout]) as any;
+          setIsCompleted(data?.onboarding_completed || false);
+        }
+      } catch (err) {
+        console.error('[InTracker] RootRedirect error:', err);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     };
     checkStatus();
   }, []);
 
-  if (loading) return null;
+  if (loading) return (
+    <div className="min-h-screen bg-black flex items-center justify-center">
+      <div className="w-8 h-8 border-2 border-[#00FF85]/20 border-t-[#00FF85] rounded-full animate-spin" />
+    </div>
+  );
   
   // IF GUEST MODE -> GO TO ONBOARDING (NAME)
   if (localStorage.getItem('guest_mode') === 'true') {
@@ -112,7 +139,7 @@ const RootRedirect = () => {
   }
 
   if (isCompleted) {
-    return <Navigate to="/dashboard" />;
+    return <Navigate to="/habits" />;
   }
   
   return <Navigate to="/name" />;
@@ -153,15 +180,35 @@ const router = createBrowserRouter([
   },
   {
     path: '/dashboard',
-    element: <AuthGuard><Beranda /></AuthGuard>,
+    element: <Navigate to="/habits" replace />,
   },
   {
     path: '/habit',
-    element: <AuthGuard><Beranda activeTab="habits" /></AuthGuard>,
+    element: <Navigate to="/habits" replace />,
   },
   {
     path: '/todo',
+    element: <Navigate to="/todolist" replace />,
+  },
+  {
+    path: '/beranda',
+    element: <Navigate to="/habits" replace />,
+  },
+  {
+    path: '/habits',
+    element: <AuthGuard><Beranda activeTab="habits" /></AuthGuard>,
+  },
+  {
+    path: '/todolist',
     element: <AuthGuard><Beranda activeTab="todo" /></AuthGuard>,
+  },
+  {
+    path: '/stats',
+    element: <Navigate to="/analytics" replace />,
+  },
+  {
+    path: '/analytics',
+    element: <AuthGuard><Beranda activeTab="analytics" /></AuthGuard>,
   },
   {
     path: '/journey',
@@ -176,12 +223,16 @@ const router = createBrowserRouter([
     element: <AuthGuard><Beranda activeTab="summary" /></AuthGuard>,
   },
   {
-    path: '/hub',
-    element: <AuthGuard><Beranda activeTab="hub" /></AuthGuard>,
-  },
-  {
     path: '/ai',
     element: <AuthGuard><Beranda activeTab="ai" /></AuthGuard>,
+  },
+  {
+    path: '/features',
+    element: <AuthGuard><Beranda activeTab="features" /></AuthGuard>,
+  },
+  {
+    path: '/losestreak',
+    element: <AuthGuard><LoseStreak /></AuthGuard>,
   },
   {
     path: '*',

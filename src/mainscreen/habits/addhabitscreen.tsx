@@ -1,11 +1,11 @@
 import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
-import { motion, AnimatePresence, LayoutGroup, useMotionValue, useTransform } from 'framer-motion';
+import { motion, AnimatePresence, useMotionValue, useTransform } from 'framer-motion';
 import { Icon } from '@iconify/react';
-import { HABIT_OPTIONS, HABIT_ICONS, HABIT_COLORS, getCustomIconKey, CATEGORY_ICONS, CATEGORY_COLORS } from './icons';
-import { CustomIcon, DifficultyBars } from './displaycardhabit';
+import { HABIT_OPTIONS, HABIT_ICONS, HABIT_COLORS, getCustomIconKey, CATEGORY_ICONS } from './icons';
+import { CustomIcon } from './displaycardhabit';
+import { CustomHabitForm } from './CustomHabitForm';
 
 const PickerItem = ({ value, unit, itemPos, containerScrollY, isActive }: any) => {
-  // Center is at 0 distance from containerScrollY (since padding handles centering)
   const relativeY = useTransform(containerScrollY, [itemPos - 130, itemPos, itemPos + 130], [-1, 0, 1]);
   const rotateX = useTransform(relativeY, [-1, 0, 1], [60, 0, -60]);
   const opacity = useTransform(relativeY, [-1, -0.6, 0, 0.6, 1], [0.05, 0.3, 1, 0.3, 0.05]);
@@ -18,11 +18,11 @@ const PickerItem = ({ value, unit, itemPos, containerScrollY, isActive }: any) =
       style={{ rotateX, opacity, scale, z, transformStyle: 'preserve-3d' }}
       className="picker-item snap-center h-[52px] flex items-center justify-center flex-shrink-0 w-full"
     >
-      <div className="flex items-baseline gap-2 font-['Inter']">
-        <span className={`text-[32px] font-semibold transition-all duration-300 ${isActive ? 'text-white' : 'text-[#E3DAC9]/40'}`}>
+      <div className="flex items-baseline gap-2 font-['Outfit']">
+        <span className={`text-[32px] font-black tracking-normal transition-all duration-300 ${isActive ? 'text-white' : 'text-[#E3DAC9]/40'}`}>
           {value}
         </span>
-        <span className={`text-[12px] font-bold uppercase tracking-[0.2em] transition-all duration-300 ${isActive ? 'text-white/60' : 'text-white/10'}`}>
+        <span className={`text-[12px] font-black uppercase tracking-[0.2em] transition-all duration-300 ${isActive ? 'text-white/60' : 'text-white/10'}`}>
           {unit}
         </span>
       </div>
@@ -45,94 +45,24 @@ export const TambahHabitModal = ({
   habitToEdit?: any | null,
   currentHabits?: any[]
 }) => {
-  const [selectedCategory, setSelectedCategory] = useState('Semua');
-  const [activeSubCategory, setActiveSubCategory] = useState<string | null>('Rutinitas');
-  const scrollRef = useRef<HTMLDivElement>(null);
-  const catBarRef = useRef<HTMLDivElement>(null);
-  
-  const categories = [
-    'Semua',
-    'Rutinitas',
-    'Ketenangan Diri',
-    'Evolusi Diri',
-    'Latihan Fisik'
-  ];
+  const [selectedHabitForConfig, setSelectedHabitForConfig] = useState<any>(null);
+  const [intensityValue, setIntensityValue] = useState<number | null>(8);
+  const [showIntensityPicker, setShowIntensityPicker] = useState(false);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [customFormCategory, setCustomFormCategory] = useState<string | null>(null);
+  const [scheduleType, setScheduleType] = useState<'daily' | 'weekly' | 'custom'>('daily');
+  const [scheduleDays, setScheduleDays] = useState<number[]>([0, 1, 2, 3, 4, 5, 6]);
+  const containerScrollY = useMotionValue(0);
 
-  // Scroll to top logic
-  useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTo({ top: 0 }); // Instant scroll
-    }
-  }, [selectedCategory]);
+  const categories = ['Rutinitas', 'Ketenangan Diri', 'Evolusi Diri', 'Latihan Fisik'];
 
-  // Manual Scroll Tracking for "Semua" mode
-  const lastActiveSubRef = useRef<string | null>(activeSubCategory);
-
-  const handleScroll = useCallback(() => {
-    if (selectedCategory !== 'Semua' || !scrollRef.current) return;
-
-    const container = scrollRef.current;
-    const markers = container.querySelectorAll('.category-marker');
-    let currentCat = 'Rutinitas';
-
-    // Threshold: trigger slightly before the marker hits the top area
-    const threshold = 150; 
-
-    markers.forEach((marker) => {
-      const rect = marker.getBoundingClientRect();
-      const containerRect = container.getBoundingClientRect();
-      
-      // Check if this marker has crossed the trigger line
-      if (rect.top - containerRect.top <= threshold) {
-        currentCat = marker.getAttribute('data-category') || currentCat;
-      }
-    });
-
-    if (currentCat !== lastActiveSubRef.current) {
-      lastActiveSubRef.current = currentCat;
-      setActiveSubCategory(currentCat);
-    }
-  }, [selectedCategory]);
-
-  useEffect(() => {
-    const scrollContainer = scrollRef.current;
-    if (selectedCategory === 'Semua' && scrollContainer) {
-      scrollContainer.addEventListener('scroll', handleScroll, { passive: true });
-      handleScroll(); // Initial check
-    }
-    return () => scrollContainer?.removeEventListener('scroll', handleScroll);
-  }, [selectedCategory, handleScroll]);
-
-  // Auto-scroll category bar to active sub-category
-  useEffect(() => {
-    if (selectedCategory === 'Semua' && activeSubCategory && catBarRef.current) {
-      const activeBtn = catBarRef.current.querySelector(`[data-cat="${activeSubCategory}"]`) as HTMLElement;
-      if (activeBtn) {
-        const container = catBarRef.current;
-        // Adjust scroll to keep it next to the sticky "Semua" button (approx 160px from left)
-        const stickyWidth = 150; 
-        const targetScroll = activeBtn.offsetLeft - stickyWidth - 24; 
-        container.scrollTo({ left: Math.max(0, targetScroll), behavior: 'smooth' });
-      }
-    }
-  }, [activeSubCategory, selectedCategory]);
-
-  // Group habits by category for "Semua" view
+  // Group habits by category
   const groupedHabits = useMemo(() => {
-    return categories.filter(c => c !== 'Semua').map(cat => ({
+    return categories.map(cat => ({
       category: cat,
       habits: HABIT_OPTIONS.filter(h => h.category === cat)
     })).filter(g => g.habits.length > 0);
-  }, [categories]);
-
-  const availableHabits = HABIT_OPTIONS.filter(h => 
-    selectedCategory === 'Semua' || h.category === selectedCategory
-  );
-
-  const [selectedHabitForConfig, setSelectedHabitForConfig] = useState<any>(null);
-  const [intensityValue, setIntensityValue] = useState<number | null>(8); // Default to 8 (suitable for most things like water)
-  const [showIntensityPicker, setShowIntensityPicker] = useState(false);
-  const containerScrollY = useMotionValue(0);
+  }, []);
 
   // Set default intensity when habit is selected
   useEffect(() => {
@@ -143,183 +73,90 @@ export const TambahHabitModal = ({
       if (selectedHabitForConfig.name.includes('Hidrasi')) {
         setIntensityValue(8);
       } else if (selectedHabitForConfig.intensity?.options) {
-        // Set middle option as default if not hydration
         const opts = selectedHabitForConfig.intensity.options;
         setIntensityValue(opts[Math.floor(opts.length / 2)]);
       }
     }
   }, [selectedHabitForConfig, habitToEdit]);
 
-  const handleActionClick = (habitBase: any, intensity: number | null) => {
-    // PROTEKSI DUPLICATE HABIT
-    const isDuplicate = currentHabits.some(h => h.name.toLowerCase() === habitBase.name.toLowerCase());
+  // Toast auto-dismiss
+  useEffect(() => {
+    if (toastMessage) {
+      const timer = setTimeout(() => setToastMessage(null), 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [toastMessage]);
+
+  const handleChipClick = (habit: any) => {
+    const isDuplicate = currentHabits.some(h => h.name.toLowerCase() === habit.name.toLowerCase());
     
-    if (isDuplicate && !habitToEdit) {
-      if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
-      // Simple custom feedback instead of standard alert for premium feel if possible,
-      // but for logic safety we block it here.
-      alert(`Protokol "${habitBase.name}" sudah aktif dalam sistem, Bos!`);
+    if (isDuplicate) {
+      if (navigator.vibrate) navigator.vibrate([40, 30, 40]);
+      setToastMessage(`"${habit.name}" sudah tersedia`);
       return;
     }
 
+    if (navigator.vibrate) navigator.vibrate(5);
+    setSelectedHabitForConfig(habit);
+    if (habit.intensity?.type === 'numeric') {
+      setIntensityValue(habit.intensity.defaultValue || habit.intensity.options?.[0] || 1);
+    } else {
+      setIntensityValue(null);
+    }
+  };
+
+  const handleActionClick = (habitBase: any, intensity: number | null) => {
     if (habitToEdit) {
-      onUpdateHabit?.(habitToEdit.id, {
-        target_intensity: intensity
-      });
+      onUpdateHabit?.(habitToEdit.id, { target_intensity: intensity, schedule_type: scheduleType, schedule_days: scheduleDays });
     } else {
       const newHabit = {
         ...habitBase,
         completed: false,
         skipped: false,
         target_intensity: intensity,
-        current_intensity: 0
+        current_intensity: 0,
+        schedule_type: scheduleType,
+        schedule_days: scheduleDays,
       };
       onAddHabit?.(newHabit);
     }
     onClose();
     setSelectedHabitForConfig(null);
+    setScheduleType('daily');
+    setScheduleDays([0,1,2,3,4,5,6]);
   };
 
-  // Intensity Picker Scroll Detection
+  // Intensity Picker
   const pickerRef = useRef<HTMLDivElement>(null);
   const lastVibrateRef = useRef<number | null>(null);
 
   const handlePickerScroll = useCallback(() => {
     if (!pickerRef.current || !selectedHabitForConfig) return;
-    
     const container = pickerRef.current;
-    const scrollTop = container.scrollTop;
-    containerScrollY.set(scrollTop);
-
+    containerScrollY.set(container.scrollTop);
     const items = container.querySelectorAll('.picker-item');
     const containerCenter = container.getBoundingClientRect().top + container.offsetHeight / 2;
-
     let closestValue = null;
     let minDistance = Infinity;
-
     items.forEach((item) => {
       const rect = item.getBoundingClientRect();
       const itemCenter = rect.top + rect.height / 2;
       const distance = Math.abs(containerCenter - itemCenter);
-
-      if (distance < minDistance) {
-        minDistance = distance;
-        closestValue = Number(item.getAttribute('data-value'));
-      }
+      if (distance < minDistance) { minDistance = distance; closestValue = Number(item.getAttribute('data-value')); }
     });
-
     if (closestValue !== null && closestValue !== intensityValue) {
       setIntensityValue(closestValue);
-      // Trigger haptic "trek-trek" only when value actually changes
-      if (navigator.vibrate && lastVibrateRef.current !== closestValue) {
-        // iPhone-style short haptic
-        navigator.vibrate(5); 
-        lastVibrateRef.current = closestValue;
-      }
+      if (navigator.vibrate && lastVibrateRef.current !== closestValue) { navigator.vibrate(5); lastVibrateRef.current = closestValue; }
     }
   }, [selectedHabitForConfig, intensityValue, containerScrollY]);
 
-  // Sync picker scroll position when shown
   useEffect(() => {
     if (showIntensityPicker && pickerRef.current && selectedHabitForConfig?.intensity?.options) {
       const options = selectedHabitForConfig.intensity.options;
       const index = options.indexOf(intensityValue);
-      if (index !== -1) {
-        // Small delay to ensure modal animation doesn't interfere
-        setTimeout(() => {
-          if (pickerRef.current) {
-            pickerRef.current.scrollTop = index * 52; // 52px is picker item height
-          }
-        }, 100);
-      }
+      if (index !== -1) { setTimeout(() => { if (pickerRef.current) pickerRef.current.scrollTop = index * 52; }, 100); }
     }
   }, [showIntensityPicker, selectedHabitForConfig]);
-
-  // Internal component for Habit Card
-  const HabitCard = ({ habit, index }: { habit: any, index: number }) => {
-    const isDuplicate = currentHabits.some(h => h.name.toLowerCase() === habit.name.toLowerCase());
-    const [isShaking, setIsShaking] = useState(false);
-    
-    const iconStr = HABIT_ICONS[habit.iconName] || 'solar:bolt-bold';
-
-    const handleCardClick = () => {
-      if (isDuplicate) {
-        setIsShaking(true);
-        if (navigator.vibrate) navigator.vibrate([40, 30, 40]);
-        setTimeout(() => setIsShaking(false), 500);
-        return;
-      }
-
-      if (navigator.vibrate) navigator.vibrate(5);
-      setSelectedHabitForConfig(habit);
-      if (habit.intensity?.type === 'numeric') {
-        setIntensityValue(habit.intensity.defaultValue || habit.intensity.options?.[0] || 1);
-      } else {
-        setIntensityValue(null);
-      }
-    };
-
-    return (
-      <motion.div
-        animate={isShaking ? { 
-          x: [0, -8, 8, -8, 8, 0],
-          transition: { duration: 0.4, ease: "easeInOut" }
-        } : {}}
-        whileTap={{ x: 4, y: 4, boxShadow: "0px 0px 0px black" }}
-        onClick={handleCardClick}
-        className="relative aspect-[16/7.2] rounded-[24px] overflow-hidden border-[2px] border-black shadow-[5px_5px_0px_rgba(0,0,0,1)] group cursor-pointer bg-[#212121]"
-      >
-        <img 
-          src={habit.imageUrl} 
-          className={`absolute inset-0 w-full h-full object-cover ${habit.imagePosition || 'object-center'} opacity-65 group-hover:opacity-85 transition-opacity duration-300`} 
-          alt={habit.name} 
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent" />
-        
-        <div className="absolute inset-0 p-5 flex flex-col justify-end">
-          <div>
-            <h3 className="text-[22px] font-black font-['Outfit'] text-white mb-1.5 leading-tight tracking-[0.5px]">{habit.name}</h3>
-            <div className="flex items-center gap-2 text-white/60">
-              <div className="flex items-center gap-1.5">
-                <CustomIcon 
-                  icon={iconStr} 
-                  width={18} 
-                  height={18}
-                  color={HABIT_COLORS[habit.iconName] || '#00FF85'}
-                />
-                <span className="text-[10px] font-black tracking-[0.15em] uppercase leading-none">{habit.frequency}</span>
-              </div>
-              
-              <span className="text-white/10 font-light">|</span>
-              
-              <div className="flex items-center gap-1.5">
-                <DifficultyBars level={habit.difficulty} />
-                <span className="text-[10px] font-black tracking-[0.15em] uppercase text-white/40 leading-none">Level</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* SUDAH TERSEDIA OVERLAY */}
-        <AnimatePresence>
-          {isDuplicate && (
-            <motion.div 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="absolute inset-0 bg-black/60 backdrop-blur-[2px] flex items-center justify-center z-10"
-            >
-              <div className="flex flex-col items-center gap-2">
-                <div className="bg-[#EF4444]/20 p-2 rounded-full border border-[#EF4444]/30 backdrop-blur-md">
-                  <Icon icon="solar:shield-warning-bold" width={24} height={24} className="text-[#EF4444]" />
-                </div>
-                <span className="text-[10px] font-black font-['Outfit'] text-[#EF4444] uppercase tracking-[0.2em] drop-shadow-lg">Sudah Tersedia</span>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </motion.div>
-    );
-  };
 
   return (
     <>
@@ -330,139 +167,110 @@ export const TambahHabitModal = ({
           animate={{ y: 0 }}
           exit={{ y: '100%' }}
           transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-          className="fixed inset-0 bg-[#212121] z-50 flex flex-col"
+          className="fixed inset-0 bg-[#16181c] z-[200] flex flex-col"
         >
           {/* Header */}
-          <div className="pt-14 pb-6 px-6 flex justify-between items-center bg-[#212121]/90 backdrop-blur-xl border-b border-white/5 sticky top-0 z-20">
-            <div>
-              <h2 className="text-2xl font-extrabold font-['Outfit'] text-[#E3DAC9] tracking-tight">Tambah Tugas</h2>
-            </div>
+          <div className="pt-14 pb-4 px-6 flex justify-between items-center">
             <motion.button 
-              whileTap={{ x: 2, y: 2, boxShadow: "0px 0px 0px black" }}
+              whileTap={{ scale: 0.9 }}
               onClick={onClose}
-              className="w-10 h-10 rounded-2xl bg-[#222] border-[1.5px] border-black flex items-center justify-center text-[#E3DAC9] transition-all shadow-[4px_4px_0px_rgba(0,0,0,1)]"
+              className="w-9 h-9 rounded-xl bg-[#2a2c32] border border-white/10 flex items-center justify-center"
             >
-              <Icon icon="ph:x-bold" width={18} height={18} />
+              <Icon icon="ph:x-bold" width={16} className="text-[#E3DAC9]" />
             </motion.button>
+            <h2 className="text-[14px] font-bold font-['Outfit'] text-[#E3DAC9]/80">Tambah Tugas</h2>
+            <div className="w-9" /> {/* Spacer for centering */}
           </div>
 
-          {/* Categories Bar - Unified & Consistent */}
-          <div className="px-6 py-6 bg-[#212121] sticky top-[108px] z-30 border-b border-white/5 h-[100px] flex items-center">
-            <div 
-              ref={catBarRef}
-              className="flex items-center gap-3 w-full overflow-x-auto py-2 no-scrollbar relative"
-              style={{ msOverflowStyle: 'none', scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch' }}
-            >
-              <style dangerouslySetInnerHTML={{__html: `
-                .no-scrollbar::-webkit-scrollbar { display: none; }
-              `}} />
-              {categories.map((cat, idx) => {
-                const isSelected = selectedCategory === cat;
-                const isSubActive = selectedCategory === 'Semua' && activeSubCategory === cat;
-                const accentColor = cat === 'Semua' ? '#E3DAC9' : (CATEGORY_COLORS[cat] || '#FFFFFF');
-                const isSemua = cat === 'Semua';
-                
-                return (
-                  <motion.button
-                    key={cat}
-                    data-cat={cat}
-                    whileTap={{ x: 3, y: 3, boxShadow: "0px 0px 0px rgba(0,0,0,1)" }}
-                    onClick={() => {
-                      if (navigator.vibrate) navigator.vibrate(5);
-                      setSelectedCategory(cat);
-                    }}
-                    className={`flex-shrink-0 flex items-center justify-center gap-3 px-4 rounded-2xl border-[2px] shadow-[4px_4px_0_rgba(0,0,0,1)] h-[48px] w-[140px] transition-all duration-200 ${
-                      isSemua ? 'sticky left-0 z-20 bg-[#212121] mr-4' : 'bg-[#212121]'
-                    }`}
-                    style={{
-                      borderColor: isSelected ? accentColor : isSubActive ? `${accentColor}60` : `${accentColor}15`,
-                      color: isSelected ? accentColor : isSubActive ? `${accentColor}80` : `${accentColor}30`,
-                      boxShadow: isSelected 
-                        ? `4px 4px 0 rgba(0,0,0,1), 0 0 20px ${accentColor}40` 
-                        : isSubActive
-                        ? `4px 4px 0 rgba(0,0,0,1), 0 0 10px ${accentColor}20`
-                        : `4px 4px 0 rgba(0,0,0,1)`
-                    }}
-                  >
-                    <Icon 
-                      icon={CATEGORY_ICONS[cat]} 
-                      width={18} 
-                      height={18} 
-                      style={{ 
-                        color: (isSelected || isSubActive) ? accentColor : 'inherit',
-                        opacity: isSelected ? 1 : isSubActive ? 0.7 : 0.2
-                      }}
-                    />
-                    <span className="text-[13px] font-bold font-['Inter'] tracking-tight truncate">
-                      {cat}
-                    </span>
-                  </motion.button>
-                );
-              })}
-            </div>
-          </div>
+          {/* Habits List - Chips by Category */}
+          <div className="flex-1 overflow-y-auto px-6 pt-4 pb-32">
+            {groupedHabits.map((group) => {
+              const iconStr = CATEGORY_ICONS[group.category] || 'solar:bolt-bold';
+              return (
+                <div key={group.category} className="mb-10">
+                  {/* Category Header */}
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center gap-2">
+                      <Icon icon={iconStr} width={14} className="text-white/40" />
+                      <span className="text-[12px] font-bold text-white/50 font-['Outfit']">{group.category}</span>
+                    </div>
+                    <button 
+                      onClick={() => setCustomFormCategory(group.category)}
+                      className="w-7 h-7 rounded-lg bg-[#2a2c32] border border-white/10 flex items-center justify-center"
+                    >
+                      <Icon icon="ph:plus-bold" width={12} className="text-white/40" />
+                    </button>
+                  </div>
 
-          {/* Habits List */}
-          <div 
-            ref={scrollRef}
-            className="flex-1 overflow-y-auto px-5 pt-10 pb-32 space-y-[48px] no-scrollbar scroll-smooth"
-          >
-            {selectedCategory === 'Semua' ? (
-              groupedHabits.map((group) => (
-                <div key={group.category} className="space-y-[30px] relative">
-                  {/* Invisible Marker for Scrollspy - Positioned exactly at the start of the group content */}
-                  <div 
-                    className="category-marker absolute top-[0px] left-0 w-full h-[1px] pointer-events-none" 
-                    data-category={group.category} 
-                  />
-                  
-                  {group.habits.map((habit, i) => (
-                    <HabitCard key={habit.name} habit={habit} index={i} />
-                  ))}
+                  {/* Chips */}
+                  <div className="flex flex-wrap gap-2.5">
+                    {group.habits.map((habit) => {
+                      const isDuplicate = currentHabits.some(h => h.name.toLowerCase() === habit.name.toLowerCase());
+                      const habitIcon = HABIT_ICONS[habit.iconName] || 'solar:bolt-bold';
+                      
+                      return (
+                        <motion.button
+                          key={habit.name}
+                          whileTap={{ scale: 0.95 }}
+                          onClick={() => handleChipClick(habit)}
+                          className={`flex items-center gap-1.5 px-3 py-2 rounded-lg border transition-all ${
+                            isDuplicate 
+                              ? 'bg-[#2a2c32]/50 border-white/5 opacity-40' 
+                              : 'bg-[#2a2c32] border-white/15 active:border-[#00FF85]/30'
+                          }`}
+                        >
+                          <CustomIcon icon={habitIcon} width={14} height={14} color={isDuplicate ? 'rgba(255,255,255,0.3)' : 'rgba(255,255,255,0.6)'} />
+                          <span className={`text-[11px] font-bold font-['Outfit'] ${isDuplicate ? 'text-white/30' : 'text-[#E3DAC9]/80'}`}>
+                            {habit.name}
+                          </span>
+                        </motion.button>
+                      );
+                    })}
+                  </div>
                 </div>
-              ))
-            ) : availableHabits.length > 0 ? (
-              <div className="space-y-[30px]">
-                {availableHabits.map((habit, i) => (
-                  <HabitCard key={habit.name} habit={habit} index={i} />
-                ))}
-              </div>
-            ) : (
-              <div className="flex items-center justify-center gap-3 py-20 px-10 text-center opacity-20">
-                <Icon icon="solar:box-minimalistic-bold" width={24} height={24} />
-                <p className="text-[11px] font-black font-['Outfit'] uppercase tracking-[0.2em] whitespace-nowrap">Semua protokol kategori ini aktif</p>
-              </div>
-            )}
+              );
+            })}
           </div>
+
+          {/* Toast */}
+          <AnimatePresence>
+            {toastMessage && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 20 }}
+                className="fixed bottom-24 left-1/2 -translate-x-1/2 z-[210] bg-[#EF4444]/20 border border-[#EF4444]/30 backdrop-blur-md px-4 py-2.5 rounded-xl"
+              >
+                <span className="text-[11px] font-bold text-[#EF4444] font-['Outfit']">{toastMessage}</span>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </motion.div>
       )}
     </AnimatePresence>
 
-    {/* Intensity/Config Bottom Sheet */}
-    {/* Layer 1: Config Bottom Sheet */}
+    {/* Config Bottom Sheet */}
     <AnimatePresence>
       {selectedHabitForConfig && (
         <>
           <motion.div 
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
             onClick={() => { setSelectedHabitForConfig(null); setShowIntensityPicker(false); }}
-            className="fixed inset-0 bg-black/90 z-[60] backdrop-blur-md"
+            className="fixed inset-0 bg-black/95 z-[210]"
           />
           <motion.div 
             initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }}
             transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-            className="fixed bottom-0 left-0 right-0 bg-[#212121] z-[70] rounded-t-[32px] border-t border-white/5 p-6 pb-10 shadow-[0_-20px_50px_rgba(0,0,0,0.8)] flex flex-col h-[55vh]"
+            className="fixed bottom-0 left-0 right-0 bg-[#16181c] z-[220] rounded-t-[32px] border-t border-white/5 p-6 pb-10 shadow-[0_-20px_50px_rgba(0,0,0,0.8)] flex flex-col h-[55vh]"
           >
-            {/* Grab Handle */}
             <div className="w-10 h-1 bg-white/10 rounded-full mx-auto mb-6" />
             
-            {/* Header */}
             <div className="relative flex items-center justify-center mb-8">
               <button 
                 onClick={() => { setSelectedHabitForConfig(null); setShowIntensityPicker(false); }}
                 className="absolute left-0 p-2 text-white/40 active:text-white"
               >
-                <Icon icon="solar:alt-arrow-left-bold" width={24} height={24} />
+                <Icon icon="solar:alt-arrow-left-bold" width={24} />
               </button>
               <h3 className="text-[17px] font-bold font-['Outfit'] text-[#E3DAC9]">{habitToEdit ? 'Edit Tugas' : 'Tambah Tugas Baru'}</h3>
             </div>
@@ -474,8 +282,7 @@ export const TambahHabitModal = ({
                 <div className="w-[60px] h-full bg-[#222] rounded-2xl border border-white/10 flex items-center justify-center">
                   <CustomIcon 
                     icon={HABIT_ICONS[selectedHabitForConfig.iconName] || 'solar:bolt-bold'} 
-                    width={28} 
-                    height={28}
+                    width={28} height={28}
                     color={HABIT_COLORS[selectedHabitForConfig.iconName] || HABIT_COLORS[getCustomIconKey(HABIT_ICONS[selectedHabitForConfig.iconName])] || '#E3DAC9'}
                   />
                 </div>
@@ -485,8 +292,8 @@ export const TambahHabitModal = ({
               </div>
             </div>
 
-            {/* Select Intensity - Clickable Field */}
-            <div className="mb-8">
+            {/* Select Intensity */}
+            <div className="mb-6">
               <p className="text-[10px] font-bold text-white/30 uppercase tracking-[0.2em] mb-3 ml-1">Pilih Intensitas</p>
               {selectedHabitForConfig.intensity?.type === 'numeric' ? (
                 <button
@@ -496,32 +303,80 @@ export const TambahHabitModal = ({
                   <span className="text-[15px] font-bold font-['Outfit'] text-[#E3DAC9]/80">
                     {selectedHabitForConfig.name.split(' ')[0]} untuk {intensityValue} {selectedHabitForConfig.intensity.unit}
                   </span>
-                  <Icon icon="solar:alt-arrow-up-down-bold" width={18} height={18} className="text-white/30" />
+                  <Icon icon="solar:alt-arrow-up-down-bold" width={18} className="text-white/30" />
                 </button>
               ) : (
                 <div className="w-full h-[60px] bg-[#222] rounded-2xl border border-white/10 border-dashed px-5 flex items-center justify-center gap-3">
-                  <Icon icon="solar:check-read-bold" width={20} height={20} className="text-[#00FF85]/40" />
+                  <Icon icon="solar:check-read-bold" width={20} className="text-[#00FF85]/40" />
                   <span className="text-[13px] font-bold text-[#E3DAC9]/40 uppercase tracking-widest">Single Action Task</span>
                 </div>
               )}
             </div>
 
-            {/* Spacer */}
+            {/* Schedule Type Selector */}
+            <div className="mb-6">
+              <p className="text-[10px] font-bold text-white/30 uppercase tracking-[0.2em] mb-3 ml-1">Jadwal</p>
+              <div className="flex gap-2 mb-3">
+                {([['daily', 'Harian'], ['weekly', 'Mingguan'], ['custom', 'Custom']] as const).map(([type, label]) => (
+                  <button
+                    key={type}
+                    onClick={() => {
+                      if (navigator.vibrate) navigator.vibrate(3);
+                      setScheduleType(type);
+                      if (type === 'daily') setScheduleDays([0,1,2,3,4,5,6]);
+                      else if (type === 'weekly') setScheduleDays(scheduleDays.length === 1 ? scheduleDays : [1]);
+                    }}
+                    className={`flex-1 py-2.5 rounded-xl text-[11px] font-black font-['Outfit'] uppercase tracking-wider transition-all ${
+                      scheduleType === type
+                        ? 'bg-[#00FF85] text-black'
+                        : 'bg-[#222] text-white/40 border border-white/10'
+                    }`}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+              {(scheduleType === 'weekly' || scheduleType === 'custom') && (
+                <div className="flex justify-center gap-2">
+                  {['Min','Sen','Sel','Rab','Kam','Jum','Sab'].map((day, i) => (
+                    <button
+                      key={i}
+                      onClick={() => {
+                        if (navigator.vibrate) navigator.vibrate(3);
+                        if (scheduleType === 'weekly') {
+                          setScheduleDays([i]);
+                        } else {
+                          setScheduleDays(prev => prev.includes(i) ? prev.filter(d => d !== i) : [...prev, i]);
+                        }
+                      }}
+                      className={`w-9 h-9 rounded-full flex items-center justify-center text-[10px] font-bold font-['Outfit'] transition-all ${
+                        scheduleDays.includes(i)
+                          ? 'bg-[#00FF85] text-black'
+                          : 'bg-[#2a2c32] text-white/40 border border-white/10'
+                      }`}
+                    >
+                      {day}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
             <div className="flex-1" />
 
             {/* Action Buttons */}
             <div className="flex gap-4">
               <motion.button 
-                whileTap={{ x: 2, y: 2, boxShadow: "0px 0px 0px black" }}
+                whileTap={{ scale: 0.95 }}
                 onClick={() => { setSelectedHabitForConfig(null); setShowIntensityPicker(false); }}
-                className="flex-1 h-[56px] rounded-2xl bg-[#222] border-[1.5px] border-black text-[#E3DAC9]/80 font-black font-['Outfit'] uppercase tracking-[0.15em] text-[13px] shadow-[4px_4px_0px_rgba(0,0,0,1)] transition-all"
+                className="flex-1 h-[56px] rounded-2xl bg-[#222] border border-white/10 text-[#E3DAC9]/80 font-black font-['Outfit'] uppercase tracking-[0.15em] text-[13px]"
               >
                 Batal
               </motion.button>
               <motion.button 
-                whileTap={{ x: 3, y: 3, boxShadow: "0px 0px 0px rgba(0,0,0,1)" }}
+                whileTap={{ scale: 0.95 }}
                 onClick={() => handleActionClick(selectedHabitForConfig, intensityValue)}
-                className="flex-[1.5] h-[56px] rounded-2xl bg-[#00FF85] border-[2px] border-black text-black font-black font-['Outfit'] uppercase tracking-[0.15em] text-[13px] shadow-[6px_6px_0px_rgba(0,0,0,1)] transition-all flex items-center justify-center gap-2"
+                className="flex-[1.5] h-[56px] rounded-2xl bg-[#00FF85] text-black font-black font-['Outfit'] uppercase tracking-[0.15em] text-[13px] flex items-center justify-center gap-2"
               >
                 {habitToEdit ? 'Simpan' : 'Tambah'}
               </motion.button>
@@ -531,72 +386,51 @@ export const TambahHabitModal = ({
       )}
     </AnimatePresence>
 
-    {/* Layer 2: Intensity Picker (Nested Bottom Sheet) */}
+    {/* Intensity Picker */}
     <AnimatePresence>
       {showIntensityPicker && selectedHabitForConfig?.intensity?.type === 'numeric' && (
         <>
           <motion.div 
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
             onClick={() => setShowIntensityPicker(false)}
-            className="fixed inset-0 bg-black/60 z-[80] backdrop-blur-sm"
+            className="fixed inset-0 bg-black/80 z-[230]"
           />
           <motion.div 
             initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }}
             transition={{ type: 'spring', damping: 28, stiffness: 220 }}
-            className="fixed bottom-0 left-0 right-0 bg-[#212121] z-[90] rounded-t-[32px] border-t border-white/5 p-6 pb-10 shadow-[0_-20px_50px_rgba(0,0,0,0.8)] flex flex-col h-[55vh]"
+            className="fixed bottom-0 left-0 right-0 bg-[#16181c] z-[240] rounded-t-[32px] border-t border-white/5 p-6 pb-10 flex flex-col h-[55vh]"
           >
-            {/* Grab Handle */}
             <div className="w-10 h-1 bg-white/10 rounded-full mx-auto mb-5" />
-            
-            {/* Title */}
             <h3 className="text-[16px] font-black font-['Outfit'] text-[#E3DAC9] text-center mb-6">Pilih Intensitas</h3>
 
-            {/* Vertical Rolling Picker */}
             <div className="relative w-full h-[300px] overflow-hidden flex items-center justify-center">
-              {/* Highlight Box */}
               <div className="absolute inset-x-4 h-[52px] bg-[#00FF85]/8 border border-[#00FF85]/20 pointer-events-none z-0 rounded-2xl" />
-              
               <div 
                 ref={pickerRef}
                 onScroll={handlePickerScroll}
                 style={{ perspective: '1200px', transformStyle: 'preserve-3d' }}
                 className="w-full h-full overflow-y-auto no-scrollbar snap-y snap-mandatory px-4 py-[124px] flex flex-col items-center scroll-smooth relative z-10"
               >
-                {selectedHabitForConfig.intensity.options.map((opt: number, idx: number) => {
-                  const itemPos = idx * 52;
-                  // Use individual transforms for each item based on its distance from current scroll
-                  return (
-                    <PickerItem 
-                      key={opt} 
-                      value={opt} 
-                      unit={selectedHabitForConfig.intensity.unit}
-                      idx={idx}
-                      itemPos={itemPos}
-                      containerScrollY={containerScrollY}
-                      isActive={intensityValue === opt}
-                    />
-                  );
-                })}
+                {selectedHabitForConfig.intensity.options.map((opt: number, idx: number) => (
+                  <PickerItem key={opt} value={opt} unit={selectedHabitForConfig.intensity.unit} idx={idx} itemPos={idx * 52} containerScrollY={containerScrollY} isActive={intensityValue === opt} />
+                ))}
               </div>
-              
-              {/* Fade Overlays */}
-              <div className="absolute top-0 inset-x-0 h-16 bg-gradient-to-b from-[#212121] to-transparent pointer-events-none z-20" />
-              <div className="absolute bottom-0 inset-x-0 h-16 bg-gradient-to-t from-[#212121] to-transparent pointer-events-none z-20" />
+              <div className="absolute top-0 inset-x-0 h-16 bg-gradient-to-b from-[#16181c] to-transparent pointer-events-none z-20" />
+              <div className="absolute bottom-0 inset-x-0 h-16 bg-gradient-to-t from-[#16181c] to-transparent pointer-events-none z-20" />
             </div>
 
-            {/* Action Buttons */}
             <div className="flex gap-4 mt-6">
               <motion.button 
-                whileTap={{ x: 2, y: 2, boxShadow: "0px 0px 0px black" }}
+                whileTap={{ scale: 0.95 }}
                 onClick={() => setShowIntensityPicker(false)}
-                className="flex-1 h-[56px] rounded-2xl bg-[#222] border-[1.5px] border-black text-[#E3DAC9]/80 font-black font-['Outfit'] uppercase tracking-[0.15em] text-[13px] shadow-[4px_4px_0px_rgba(0,0,0,1)] transition-all"
+                className="flex-1 h-[56px] rounded-2xl bg-[#222] border border-white/10 text-[#E3DAC9]/80 font-black font-['Outfit'] uppercase tracking-[0.15em] text-[13px]"
               >
                 Batal
               </motion.button>
               <motion.button 
-                whileTap={{ x: 3, y: 3, boxShadow: "0px 0px 0px rgba(0,0,0,1)" }}
+                whileTap={{ scale: 0.95 }}
                 onClick={() => { if (navigator.vibrate) navigator.vibrate(5); setShowIntensityPicker(false); }}
-                className="flex-[1.5] h-[56px] rounded-2xl bg-[#00FF85] border-[2px] border-black text-black font-black font-['Outfit'] uppercase tracking-[0.15em] text-[13px] shadow-[6px_6px_0px_rgba(0,0,0,1)] transition-all"
+                className="flex-[1.5] h-[56px] rounded-2xl bg-[#00FF85] text-black font-black font-['Outfit'] uppercase tracking-[0.15em] text-[13px]"
               >
                 Selesai
               </motion.button>
@@ -605,6 +439,18 @@ export const TambahHabitModal = ({
         </>
       )}
     </AnimatePresence>
+
+    {/* Custom Habit Form */}
+    <CustomHabitForm
+      isOpen={!!customFormCategory}
+      category={customFormCategory || 'Rutinitas'}
+      onClose={() => setCustomFormCategory(null)}
+      onSubmit={(habit) => {
+        onAddHabit?.(habit);
+        onClose();
+      }}
+      currentHabits={currentHabits}
+    />
     </>
   );
 };

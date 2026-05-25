@@ -15,3 +15,4 @@ export const getPrismStyle = (id: string) => {
     backgroundRepeat: 'no-repeat'
   };
 };
+

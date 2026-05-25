@@ -55,7 +55,7 @@ export default function Nickname() {
             animate={{ opacity: 1 }}
             transition={{ duration: 0.5, ease: CUBIC_BEZIER }}
           >
-            <h1 className="text-[24px] font-bold font-['Outfit'] text-center tracking-tight leading-tight">
+            <h1 className="text-[24px] font-bold font-['Outfit'] text-center tracking-normal leading-tight">
               Panggilan apa yang paling pas buat kamu?
             </h1>
             <p className="text-white/40 text-center text-[14px] mt-2 font-medium">

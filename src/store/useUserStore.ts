@@ -12,6 +12,7 @@ interface UserProfile {
   onboarding_completed: boolean;
   streak_count: number;
   last_login_date: string | null;
+  created_at: string;
 }
 
 interface UserStore {

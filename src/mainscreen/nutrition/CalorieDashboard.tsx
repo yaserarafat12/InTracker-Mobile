@@ -1,0 +1,204 @@
+import { useState, useMemo, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Icon } from '@iconify/react';
+import { useNutritionStore } from '../../store/useNutritionStore';
+import { useFoodLogStore } from '../../store/useFoodLogStore';
+import { calculateProgressRing, calculateMacroBars } from '../../engines/dashboardEngine';
+import { calculateDailyTotals } from '../../engines/foodLogEngine';
+import { OnboardingWizard } from './OnboardingWizard';
+import { NutritionSettings } from './NutritionSettings';
+import { ProgressRing } from './components/ProgressRing';
+import { MacroBars } from './components/MacroBars';
+import { DateNavigator } from './components/DateNavigator';
+import { WeeklyChart } from './components/WeeklyChart';
+import { FoodLog } from './components/FoodLog';
+import { QuickAddSheet } from './QuickAddSheet';
+import { FoodScanner } from './FoodScanner';
+
+// --- Types ---
+
+type DashboardView = 'dashboard' | 'settings' | 'quick-add' | 'scanner';
+
+interface CalorieDashboardProps {
+  onBack: () => void;
+}
+
+// --- Main Component ---
+
+export function CalorieDashboard({ onBack }: CalorieDashboardProps) {
+  const { onboardingComplete, targets } = useNutritionStore();
+  const { selectedDate, getEntriesForDate, setSelectedDate } = useFoodLogStore();
+  const [activeView, setActiveView] = useState<DashboardView>('dashboard');
+
+  // Reset to today when dashboard opens
+  useEffect(() => {
+    setSelectedDate(new Date().toLocaleDateString('en-CA'));
+  }, [setSelectedDate]);
+
+  // Get entries for the selected date
+  const entries = useMemo(
+    () => getEntriesForDate(selectedDate),
+    [getEntriesForDate, selectedDate]
+  );
+
+  // Calculate daily totals from entries
+  const dailyTotals = useMemo(() => calculateDailyTotals(entries), [entries]);
+
+  // Calculate progress ring data
+  const progressData = useMemo(
+    () => calculateProgressRing(dailyTotals.calories, targets?.dailyCalories ?? 0),
+    [dailyTotals.calories, targets?.dailyCalories]
+  );
+
+  // Calculate macro bar data
+  const macroData = useMemo(
+    () =>
+      calculateMacroBars(
+        { protein: dailyTotals.protein, carbs: dailyTotals.carbs, fat: dailyTotals.fat },
+        { protein: targets?.protein ?? 0, carbs: targets?.carbs ?? 0, fat: targets?.fat ?? 0 }
+      ),
+    [dailyTotals, targets]
+  );
+
+  // --- Onboarding Gate ---
+  if (!onboardingComplete) {
+    return <OnboardingWizard onExit={onBack} />;
+  }
+
+  // --- Sub-view Navigation ---
+  if (activeView === 'settings') {
+    return <NutritionSettings onBack={() => setActiveView('dashboard')} />;
+  }
+
+  if (activeView === 'scanner') {
+    return (
+      <FoodScanner
+        isOpen={true}
+        onClose={() => setActiveView('dashboard')}
+      />
+    );
+  }
+
+  // --- Dashboard View ---
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.2 }}
+      className="fixed inset-0 bg-[#16181c] z-[100] flex flex-col overflow-hidden"
+    >
+      {/* Background image - subtle top ambient */}
+      <div 
+        className="absolute top-0 left-0 right-0 h-[50vh] pointer-events-none opacity-[0.6]"
+        style={{ 
+          backgroundImage: "url('/all_images/features_bg/calorie_bg.png')",
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          maskImage: 'linear-gradient(to bottom, black 0%, transparent 100%)',
+          WebkitMaskImage: 'linear-gradient(to bottom, black 0%, transparent 100%)'
+        }}
+      />
+      {/* Header */}
+      <div className="pt-14 pb-3 px-6 flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <motion.button
+            whileTap={{ scale: 0.9 }}
+            onClick={onBack}
+            className="w-9 h-9 rounded-xl bg-[#2a2c32] border border-white/10 flex items-center justify-center"
+            aria-label="Go back"
+          >
+            <Icon icon="ph:arrow-left-bold" width={18} className="text-[#E3DAC9]/80" />
+          </motion.button>
+          <h1 className="text-[20px] font-black font-['Outfit'] text-white">
+            Nutrisi
+          </h1>
+        </div>
+
+        <motion.button
+          whileTap={{ scale: 0.9 }}
+          onClick={() => setActiveView('settings')}
+          className="w-9 h-9 rounded-xl bg-[#2a2c32] border border-white/10 flex items-center justify-center"
+          aria-label="Nutrition settings"
+        >
+          <Icon icon="ph:gear-six-bold" width={18} className="text-[#E3DAC9]/80" />
+        </motion.button>
+      </div>
+
+      {/* Scrollable Content */}
+      <div className="flex-1 overflow-y-auto px-6 pb-32">
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={selectedDate}
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.2 }}
+            className="space-y-6"
+          >
+            {/* Progress Ring */}
+            <div className="flex flex-col items-center pt-2">
+              <ProgressRing
+                consumed={dailyTotals.calories}
+                target={targets?.dailyCalories ?? 0}
+              />
+            </div>
+
+            {/* Macro Bars */}
+            <MacroBars data={macroData} />
+
+            {/* Calories Remaining */}
+            <div className="text-center">
+              <p className="text-[13px] font-medium font-['Outfit'] text-white/30">
+                {progressData.remaining >= 0
+                  ? `${Math.round(progressData.remaining)} kalori tersisa`
+                  : `${Math.abs(Math.round(progressData.remaining))} kalori berlebih`
+                }
+              </p>
+            </div>
+
+            {/* Date Navigator */}
+            <DateNavigator />
+
+            {/* Weekly Chart */}
+            <WeeklyChart selectedDate={selectedDate} />
+
+            {/* Action Buttons */}
+            <div className="flex gap-3">
+              <motion.button
+                whileTap={{ scale: 0.95 }}
+                onClick={() => setActiveView('scanner')}
+                className="flex-1 h-14 rounded-2xl bg-[#2a2c32] border border-white/10 flex items-center justify-center gap-2 transition-all active:border-[#00FF85]/30"
+              >
+                <Icon icon="ph:camera-bold" width={20} className="text-[#00FF85]" />
+                <span className="text-[13px] font-bold font-['Outfit'] text-[#E3DAC9]">
+                  Scan Food
+                </span>
+              </motion.button>
+
+              <motion.button
+                whileTap={{ scale: 0.95 }}
+                onClick={() => setActiveView('quick-add')}
+                className="flex-1 h-14 rounded-2xl bg-[#00FF85] border-2 border-black flex items-center justify-center gap-2 transition-all"
+              >
+                <Icon icon="ph:plus-bold" width={18} className="text-black" />
+                <span className="text-[13px] font-black font-['Outfit'] text-black">
+                  Quick Add
+                </span>
+              </motion.button>
+            </div>
+
+            {/* Food Log */}
+            <FoodLog entries={entries} selectedDate={selectedDate} />
+          </motion.div>
+        </AnimatePresence>
+      </div>
+
+      {/* Quick Add Bottom Sheet */}
+      <QuickAddSheet
+        isOpen={activeView === 'quick-add'}
+        onClose={() => setActiveView('dashboard')}
+      />
+    </motion.div>
+  );
+}

@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { supabase } from '../lib/supabase';
+import { useProgressionStore } from './useProgressionStore';
 
 export type TargetMode = 'checklist' | 'number';
 export type TargetWindow = 'today' | 'upcoming' | 'someday' | 'delayed';
@@ -45,6 +46,7 @@ interface TargetStore {
   updateTargetWindow: (targetId: string, window: TargetWindow) => Promise<void>;
   toggleComplete: (targetId: string) => Promise<void>;
   updateTarget: (id: string, updates: Partial<TargetItem>) => Promise<void>;
+  reorderTargets: (orderedIds: string[]) => Promise<void>;
 }
 
 const createId = () => `${Date.now()}-${Math.random().toString(16).slice(2)}`;
@@ -87,6 +89,7 @@ export const useTargetStore = create<TargetStore>()(
           .from('targets')
           .select('*')
           .eq('user_id', user.id)
+          .order('position', { ascending: true })
           .order('created_at', { ascending: false });
 
         if (!error && data) {
@@ -100,9 +103,15 @@ export const useTargetStore = create<TargetStore>()(
             completedAt: t.completed_at,
           }));
 
-          // AUTO-SWEEP LOGIC: Move uncompleted 'today' targets from previous days to 'delayed'
+          // AUTO-SWEEP LOGIC: 
+          // 1. Move uncompleted 'upcoming' targets from before today to 'today'
+          // 2. Move uncompleted 'today' targets from previous days to 'delayed'
           const updatedTargets = mappedData.map(t => {
             const itemDate = new Date(t.createdAt).toLocaleDateString('en-CA');
+            // If it was 'upcoming' but created before today and not completed, move to 'today'
+            if (t.window === 'upcoming' && !t.completed && itemDate < today) {
+              return { ...t, window: 'today' as const };
+            }
             // If it was meant for 'today' but created before today and not completed, move to 'delayed'
             if (t.window === 'today' && !t.completed && itemDate < today) {
               return { ...t, window: 'delayed' as const };
@@ -110,7 +119,17 @@ export const useTargetStore = create<TargetStore>()(
             return t;
           });
 
-          // Sync 'delayed' status back to DB if changed
+          // Sync 'upcoming' → 'today' status back to DB if changed
+          const toTodayIds = updatedTargets
+            .filter((t, i) => t.window === 'today' && mappedData[i].window === 'upcoming')
+            .map(t => t.id);
+
+          if (toTodayIds.length > 0) {
+            console.log(`[InTracker] Auto-moving ${toTodayIds.length} upcoming targets to today.`);
+            supabase.from('targets').update({ window: 'today' }).in('id', toTodayIds).then();
+          }
+
+          // Sync 'today' → 'delayed' status back to DB if changed
           const toDelayIds = updatedTargets
             .filter((t, i) => t.window === 'delayed' && mappedData[i].window === 'today')
             .map(t => t.id);
@@ -188,6 +207,11 @@ export const useTargetStore = create<TargetStore>()(
           ),
         }));
 
+        // Award XP if target just became completed (dedup handled by progression store)
+        if (nextCompleted && !target.completed) {
+          useProgressionStore.getState().awardTodoCompletion(targetId);
+        }
+
         await supabase
           .from('targets')
           .update({ steps: nextSteps, completed: nextCompleted })
@@ -231,6 +255,9 @@ export const useTargetStore = create<TargetStore>()(
               : t
           ),
         }));
+
+        // Award XP for todo completion
+        useProgressionStore.getState().awardTodoCompletion(targetId);
 
         await supabase
           .from('targets')
@@ -299,6 +326,11 @@ export const useTargetStore = create<TargetStore>()(
           ),
         }));
 
+        // Award XP for todo completion (dedup handled by progression store)
+        if (nextCompleted) {
+          useProgressionStore.getState().awardTodoCompletion(targetId);
+        }
+
         await supabase
           .from('targets')
           .update({
@@ -331,6 +363,32 @@ export const useTargetStore = create<TargetStore>()(
         if (error) {
           console.error('Error updating target:', error);
           // Rollback could be implemented here if needed
+        }
+      },
+
+      reorderTargets: async (orderedIds) => {
+        // 1. Optimistic update: sort local targets based on orderedIds
+        set((state) => {
+          const targetsMap = new Map(state.targets.map(t => [t.id, t]));
+          const sortedTargets = orderedIds
+            .map(id => targetsMap.get(id))
+            .filter((t): t is TargetItem => !!t);
+          
+          // Keep targets that were not in orderedIds at the end
+          const remainingTargets = state.targets.filter(t => !orderedIds.includes(t.id));
+          
+          return { targets: [...sortedTargets, ...remainingTargets] };
+        });
+
+        // 2. Persist positions to Supabase using UPDATE (not upsert) to avoid NOT NULL constraint issues
+        const updatePromises = orderedIds.map((id, index) =>
+          supabase.from('targets').update({ position: index }).eq('id', id)
+        );
+
+        const results = await Promise.all(updatePromises);
+        const failed = results.filter(r => r.error);
+        if (failed.length > 0) {
+          console.error('[InTracker] Error persisting target order:', failed[0].error);
         }
       },
     }),

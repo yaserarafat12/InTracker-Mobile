@@ -6,7 +6,7 @@ import { Icon } from '@iconify/react';
 const HomeView = () => (
   <div className="p-6 pt-12">
     <p className="text-os-green text-[10px] font-black uppercase tracking-[4px] mb-2">Systems Online</p>
-    <h1 className="text-4xl font-black italic tracking-tighter uppercase mb-8">DASHBOARD</h1>
+    <h1 className="text-4xl font-black italic tracking-normal uppercase mb-8">DASHBOARD</h1>
     <div className="grid grid-cols-1 gap-4">
       <div className="glass p-8 rounded-[40px] border-os-green/20">
         <p className="text-xs font-bold text-white/40 uppercase tracking-widest mb-1">Energy Score</p>

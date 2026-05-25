@@ -1,0 +1,22 @@
+============================================
+GREETING & QUOTES - PLACEHOLDER
+Disimpan: 15 Mei 2026
+============================================
+
+## KOMPONEN YANG DISIMPAN (dari Beranda lama)
+
+1. GreetingHeader.tsx — Day X/90 counter + greeting text
+2. Soul Insight / Quotes card — random quotes rotation
+3. Quote data: src/data/quotes.ts
+
+## CATATAN
+- Nanti quotes bisa dipindah ke tempat lain (habits header? atau dedicated section)
+- Day X/90 pindah ke habits header
+- Progress card (list habit & todo) dihapus dari home
+
+## STATUS
+[ ] Tentukan posisi baru quotes
+[ ] Redesign habits header dengan Day counter
+[ ] Cleanup file Beranda lama
+
+============================================

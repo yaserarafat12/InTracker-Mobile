@@ -101,7 +101,7 @@ export default function Login() {
               className="w-full"
             >
               <div className="text-center mb-[5vh]">
-                <h1 className="text-[24px] font-medium leading-[1.3] tracking-tight text-white/95 font-['Outfit']">
+                <h1 className="text-[24px] font-medium leading-[1.3] tracking-normal text-white/95 font-['Outfit']">
                   Mulailah perjalananmu<br />
                   dengan <span className="text-[#00FF85] font-semibold">semua usahamu.</span>
                 </h1>
@@ -111,18 +111,18 @@ export default function Login() {
                 {/* APPLE LOGIN */}
                 <button
                   onClick={handleApple}
-                  className="w-full flex items-center justify-center gap-3 py-[14px] rounded-xl bg-white active:scale-[0.97] transition-all"
+                  className="w-full flex items-center justify-center gap-3 py-[14px] rounded-xl bg-white border-[2.5px] border-black shadow-[5px_5px_0px_rgba(0,0,0,1)] active:scale-[0.97] active:shadow-none transition-all"
                 >
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="black">
                     <path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.7 9.05 7.42c1.27.07 2.15.62 2.88.65.95-.17 1.85-.77 2.9-.7 1.23.1 2.15.58 2.75 1.45-2.5 1.5-1.85 4.76.5 5.7-.42 1.2-.98 2.36-1.03 5.76zm-5.35-13.1c-.08-2.26 1.68-4.2 3.98-4.48.27 2.56-2.25 4.7-3.98 4.48z" />
                   </svg>
-                  <span className="text-[14px] font-extrabold text-black tracking-tight font-['Outfit']">Lanjutkan dengan Apple</span>
+                  <span className="text-[14px] font-black text-black tracking-normal font-['Outfit'] uppercase">Lanjutkan dengan Apple</span>
                 </button>
 
                 {/* GOOGLE LOGIN */}
                 <button
                   onClick={handleGoogle}
-                  className="w-full flex items-center justify-center gap-3 py-[14px] rounded-xl bg-[#212121] border border-white/10 active:scale-[0.97] transition-all"
+                  className="w-full flex items-center justify-center gap-3 py-[14px] rounded-xl bg-[#1A1A1A] border-[1.5px] border-[#E3DAC9]/20 shadow-[5px_5px_0px_rgba(0,0,0,1)] active:scale-[0.97] active:shadow-none transition-all"
                 >
                   <svg width="18" height="18" viewBox="0 0 24 24">
                     <path fill="#EA4335" d="M12 5.04c1.64 0 3.12.56 4.28 1.67l3.21-3.21C17.39 1.54 14.92 1 12 1 7.31 1 3.28 3.69 1.42 7.61l3.77 2.92C6.09 7.42 8.81 5.04 12 5.04z" />
@@ -130,16 +130,16 @@ export default function Login() {
                     <path fill="#FBBC05" d="M5.19 14.54a7.28 7.28 0 0 1 0-5.08L1.42 6.54c-.81 1.62-1.42 3.42-1.42 5.46s.61 3.84 1.42 5.46l3.77-2.92z" />
                     <path fill="#34A853" d="M12 23c2.97 0 5.47-.98 7.28-2.66l-3.69-2.87c-1 .67-2.28 1.07-3.59 1.07-3.19 0-5.91-2.38-6.81-5.49l-3.77 2.92C3.28 20.31 7.31 23 12 23z" />
                   </svg>
-                  <span className="text-[14px] font-bold text-white tracking-tight">Lanjutkan dengan Google</span>
+                  <span className="text-[14px] font-black text-white tracking-normal font-['Outfit'] uppercase">Lanjutkan dengan Google</span>
                 </button>
 
                 {/* EMAIL LOGIN */}
                 <button
                   onClick={() => setView('email')}
-                  className="w-full flex items-center justify-center gap-3 py-[14px] rounded-xl bg-[#212121] border border-white/10 active:scale-[0.97] transition-all"
+                  className="w-full flex items-center justify-center gap-3 py-[14px] rounded-xl bg-[#1A1A1A] border-[1.5px] border-[#E3DAC9]/20 shadow-[5px_5px_0px_rgba(0,0,0,1)] active:scale-[0.97] active:shadow-none transition-all"
                 >
                   <Icon icon="solar:letter-bold" width={18} height={18} className="text-[#00FF85]" />
-                  <span className="text-[14px] font-bold text-white tracking-tight">Lanjutkan dengan Email</span>
+                  <span className="text-[14px] font-black text-white tracking-normal font-['Outfit'] uppercase">Lanjutkan dengan Email</span>
                 </button>
               </div>
             </motion.div>
@@ -171,15 +171,15 @@ export default function Login() {
                   placeholder="Contoh: yaser@gmail.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full bg-[#0A0A0A] border border-white/20 rounded-xl py-4 px-6 text-[15px] outline-none focus:border-[#00FF85] focus:shadow-[0_0_20px_rgba(0,255,133,0.15)] transition-all placeholder:text-white/40"
+                  className="w-full bg-[#1A1A1A] border border-[#E3DAC9]/20 rounded-xl py-4 px-6 text-[15px] outline-none focus:border-[#00FF85] transition-all placeholder:text-white/40 font-['Outfit'] font-bold tracking-wide"
                 />
                 <button
                   type="submit"
                   disabled={loading || !email}
-                  className={`w-full flex items-center justify-center gap-3 py-[16px] rounded-xl font-bold text-[14px] transition-all ${
+                  className={`w-full flex items-center justify-center gap-3 py-[16px] rounded-xl font-black text-[15px] tracking-[0.1em] transition-all uppercase ${
                     loading || !email 
                     ? 'bg-white/5 text-white/20 cursor-not-allowed' 
-                    : 'bg-[#00FF85] text-black shadow-[0_0_20px_rgba(0,255,133,0.2)]'
+                    : 'bg-[#00FF85] text-black border-[2px] border-black shadow-[6px_6px_0px_rgba(0,0,0,1)] active:scale-[0.97] active:shadow-none'
                   }`}
                 >
                   {loading ? 'Mengirim...' : 'Kirim Link Login'}
@@ -196,13 +196,13 @@ export default function Login() {
       <AnimatePresence>
         {(error || message) && (
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed bottom-[10vh] left-1/2 -translate-x-1/2 bg-[#212121]/90 border border-white/10 px-8 py-3 rounded-2xl backdrop-blur-xl z-[60] shadow-2xl flex items-center gap-3"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 20 }}
+            className="fixed bottom-[10vh] left-1/2 -translate-x-1/2 bg-[#1A1A1A] border border-[#E3DAC9]/20 px-8 py-4 rounded-2xl backdrop-blur-xl z-[60] shadow-[8px_8px_0px_rgba(0,0,0,1)] flex items-center gap-3"
           >
-            <div className={`w-2 h-2 rounded-full animate-pulse ${error ? 'bg-red-500' : 'bg-[#00FF85]'}`} />
-            <p className="text-[12px] text-white/90 font-medium tracking-tight">{error || message}</p>
+            <div className={`w-2 h-2 rounded-full ${error ? 'bg-red-500' : 'bg-[#00FF85]'}`} />
+            <p className="text-[13px] text-white font-bold font-['Outfit'] tracking-wide uppercase">{error || message}</p>
           </motion.div>
         )}
       </AnimatePresence>
