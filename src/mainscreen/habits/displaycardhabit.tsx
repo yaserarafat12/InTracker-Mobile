@@ -109,11 +109,11 @@ const KartuTugas = ({ habit, index, activeFilter, onDoubleTap, onEdit, isDraggab
     const velocity = info.velocity.x;
 
     if (currentX > threshold || velocity > 400) {
-      animate(x, 130, { type: "spring", stiffness: 600, damping: 35 });
+      animate(x, 130, { type: "spring", stiffness: 200, damping: 22 });
     } else if (currentX < -threshold || velocity < -400) {
-      animate(x, -130, { type: "spring", stiffness: 600, damping: 35 });
+      animate(x, -130, { type: "spring", stiffness: 200, damping: 22 });
     } else {
-      animate(x, 0, { type: "spring", stiffness: 800, damping: 45 });
+      animate(x, 0, { type: "spring", stiffness: 250, damping: 26 });
     }
   };
 
@@ -213,7 +213,7 @@ const KartuTugas = ({ habit, index, activeFilter, onDoubleTap, onEdit, isDraggab
         setShowScheduleEditor(true);
         break;
     }
-    animate(x, 0, { type: "spring", stiffness: 800, damping: 45 });
+    animate(x, 0, { type: "spring", stiffness: 250, damping: 26 });
   };
 
   return (
@@ -270,7 +270,7 @@ const KartuTugas = ({ habit, index, activeFilter, onDoubleTap, onEdit, isDraggab
         dragListener={false}
         dragControls={swipeControls}
         dragConstraints={{ left: -140, right: 140 }}
-        dragElastic={0.05}
+        dragElastic={0.2}
         onDragEnd={handleDragEnd}
         whileTap={{ 
           scale: 0.98,
