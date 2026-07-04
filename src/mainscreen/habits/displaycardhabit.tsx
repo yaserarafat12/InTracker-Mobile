@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { motion, useMotionValue, useTransform, animate, AnimatePresence } from 'framer-motion';
+import { motion, useMotionValue, useTransform, animate, AnimatePresence, useDragControls } from 'framer-motion';
 import { Icon } from '@iconify/react';
 import { HABIT_ICONS, HABIT_COLORS, CATEGORY_COLORS, isCustomIcon, getCustomIconKey, HABIT_OPTIONS } from './icons';
 import { CUSTOM_SVGS } from '../../utils/icons';
@@ -74,6 +74,7 @@ const KartuTugas = ({ habit, index, activeFilter, onDoubleTap, onEdit, isDraggab
   const [showScheduleEditor, setShowScheduleEditor] = useState(false);
   const [showInfoModal, setShowInfoModal] = useState(false);
   const x = useMotionValue(0);
+  const swipeControls = useDragControls();
 
   const isToday = !selectedDate || (() => {
     const today = new Date();
@@ -266,6 +267,8 @@ const KartuTugas = ({ habit, index, activeFilter, onDoubleTap, onEdit, isDraggab
 
       <motion.div
         drag={canDrag ? "x" : false}
+        dragListener={false}
+        dragControls={swipeControls}
         dragConstraints={{ left: -140, right: 140 }}
         dragElastic={0.05}
         onDragEnd={handleDragEnd}
@@ -495,6 +498,22 @@ const KartuTugas = ({ habit, index, activeFilter, onDoubleTap, onEdit, isDraggab
             style={{ touchAction: 'none' }}
             className="absolute inset-0 z-[10] cursor-grab active:cursor-grabbing"
           />
+        )}
+
+        {/* Left and Right Swipe Handles (15% width each, below Info button) */}
+        {canDrag && (
+          <>
+            <div 
+              className="absolute left-0 top-[40px] bottom-0 w-[15%] z-[45] cursor-grab active:cursor-grabbing"
+              onPointerDown={(e) => swipeControls.start(e)}
+              style={{ touchAction: 'none' }}
+            />
+            <div 
+              className="absolute right-0 top-[40px] bottom-0 w-[15%] z-[45] cursor-grab active:cursor-grabbing"
+              onPointerDown={(e) => swipeControls.start(e)}
+              style={{ touchAction: 'none' }}
+            />
+          </>
         )}
       </motion.div>
 
