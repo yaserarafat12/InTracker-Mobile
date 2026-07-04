@@ -69,11 +69,11 @@ export default function Login() {
       {/* 1. BACKGROUND VISUAL */}
       <div className="absolute inset-0 z-0 overflow-hidden bg-[#0d0f12]">
         <motion.img
-          key="bg-statistik"
+          key="bg-sky"
           initial={{ opacity: 0, scale: 1.05 }}
           animate={{ opacity: 0.7, scale: 1 }}
           transition={{ duration: 1.5, ease: "easeOut" as const }}
-          src="/all_images/antigravitybg/statistik_bg.png" 
+          src="/all_images/antigravitybg/login_sky.jpg" 
           className="w-full h-full object-cover opacity-70" 
           onError={(e) => {
             (e.target as HTMLElement).style.display = 'none';
@@ -81,8 +81,8 @@ export default function Login() {
         />
         
         {/* Glow Effects */}
-        <div className="absolute top-[-20%] left-[-20%] w-[60%] h-[60%] rounded-full bg-[#00FF85]/10 blur-[150px] pointer-events-none" />
-        <div className="absolute bottom-[-20%] right-[-20%] w-[60%] h-[60%] rounded-full bg-[#00FF85]/5 blur-[150px] pointer-events-none" />
+        <div className="absolute top-[-20%] left-[-20%] w-[60%] h-[60%] rounded-full bg-[#10B981]/10 blur-[150px] pointer-events-none" />
+        <div className="absolute bottom-[-20%] right-[-20%] w-[60%] h-[60%] rounded-full bg-[#10B981]/5 blur-[150px] pointer-events-none" />
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#0d0f12]/20 to-[#0d0f12]" />
       </div>
 
@@ -126,7 +126,7 @@ export default function Login() {
               <div className="text-center mb-[2.5vh]">
                 <h1 className="text-[24px] font-medium leading-[1.3] tracking-normal text-white/95 font-['Outfit']">
                   Mulailah perjalananmu<br />
-                  dengan <span className="text-[#00FF85] font-semibold">semua usahamu.</span>
+                  dengan <span className="text-[#10B981] font-semibold">semua usahamu.</span>
                 </h1>
               </div>
 
@@ -134,7 +134,7 @@ export default function Login() {
                 {/* APPLE LOGIN */}
                 <button
                   onClick={handleApple}
-                  className="w-full flex items-center justify-center gap-3 py-[14px] rounded-xl bg-white border-[2.5px] border-black shadow-[5px_5px_0px_rgba(0,0,0,1)] active:scale-[0.97] active:shadow-none transition-all"
+                  className="w-full flex items-center justify-center gap-3 h-[50px] rounded-xl bg-white border-[2px] border-black shadow-[3px_3px_0px_rgba(0,0,0,1)] active:scale-[0.97] active:shadow-none transition-all"
                 >
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="black">
                     <path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.7 9.05 7.42c1.27.07 2.15.62 2.88.65.95-.17 1.85-.77 2.9-.7 1.23.1 2.15.58 2.75 1.45-2.5 1.5-1.85 4.76.5 5.7-.42 1.2-.98 2.36-1.03 5.76zm-5.35-13.1c-.08-2.26 1.68-4.2 3.98-4.48.27 2.56-2.25 4.7-3.98 4.48z" />
@@ -145,7 +145,7 @@ export default function Login() {
                 {/* GOOGLE LOGIN */}
                 <button
                   onClick={handleGoogle}
-                  className="w-full flex items-center justify-center gap-3 py-[14px] rounded-xl bg-black border-[2.5px] border-white shadow-[5px_5px_0px_rgba(0,0,0,1)] active:scale-[0.97] active:shadow-none transition-all"
+                  className="w-full flex items-center justify-center gap-3 h-[50px] rounded-xl bg-black border-[2px] border-white shadow-[3px_3px_0px_rgba(0,0,0,1)] active:scale-[0.97] active:shadow-none transition-all"
                 >
                   <svg width="18" height="18" viewBox="0 0 24 24">
                     <path fill="#EA4335" d="M12 5.04c1.64 0 3.12.56 4.28 1.67l3.21-3.21C17.39 1.54 14.92 1 12 1 7.31 1 3.28 3.69 1.42 7.61l3.77 2.92C6.09 7.42 8.81 5.04 12 5.04z" />
@@ -159,14 +159,9 @@ export default function Login() {
                 {/* EMAIL LOGIN */}
                 <button
                   onClick={() => setView('email')}
-                  className="w-full flex items-center justify-center gap-3 py-[14px] rounded-xl bg-black border-[2.5px] border-white shadow-[5px_5px_0px_rgba(0,0,0,1)] active:scale-[0.97] active:shadow-none transition-all"
+                  className="w-full flex items-center justify-center gap-3 h-[50px] rounded-xl bg-black border-[2px] border-white shadow-[3px_3px_0px_rgba(0,0,0,1)] active:scale-[0.97] active:shadow-none transition-all"
                 >
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M20 18H18V8L12 12L6 8V18H4V6C4 5.12 4.72 4.4 5.6 4.4H8.4L12 7.6L15.6 4.4H18.4C19.28 4.4 20 5.12 20 6V18Z" fill="#EA4335" />
-                    <path d="M4 18V6C4 5.12 4.72 4.4 5.6 4.4H8.4L10 6V18H4Z" fill="#4285F4" />
-                    <path d="M20 18V6C20 5.12 19.28 4.4 18.4 4.4H15.6L14 6V18H20Z" fill="#34A853" />
-                    <path d="M10 6L12 7.6L14 6V18H10V6Z" fill="#FBBC05" />
-                  </svg>
+                  <Icon icon="solar:letter-bold" width={20} height={20} className="text-white" />
                   <span className="text-[14px] font-black text-white tracking-normal font-['Outfit']">Lanjutkan dengan Email</span>
                 </button>
               </div>
@@ -181,7 +176,7 @@ export default function Login() {
             >
               <button 
                 onClick={() => setView('initial')}
-                className="flex items-center gap-2 text-white/40 mb-6 hover:text-[#00FF85] transition-colors"
+                className="flex items-center gap-2 text-white/40 mb-6 hover:text-[#10B981] transition-colors"
               >
                 <Icon icon="solar:alt-arrow-left-bold" width={20} height={20} />
                 <span className="text-[14px] font-medium">Kembali</span>
@@ -199,15 +194,15 @@ export default function Login() {
                   placeholder="Contoh: yaser@gmail.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full bg-[#1A1A1A] border border-[#E3DAC9]/20 rounded-xl py-4 px-6 text-[15px] outline-none focus:border-[#00FF85] transition-all placeholder:text-white/40 font-['Outfit'] font-bold tracking-wide"
+                  className="w-full bg-[#1A1A1A] border border-[#E3DAC9]/20 rounded-xl py-4 px-6 text-[15px] outline-none focus:border-[#10B981] transition-all placeholder:text-white/40 font-['Outfit'] font-bold tracking-wide"
                 />
                 <button
                   type="submit"
                   disabled={loading || !email}
-                  className={`w-full flex items-center justify-center gap-3 py-[16px] rounded-xl font-black text-[15px] tracking-[0.1em] transition-all uppercase ${
+                  className={`w-full flex items-center justify-center gap-3 h-[50px] rounded-xl font-black text-[14px] tracking-[0.1em] transition-all uppercase ${
                     loading || !email 
                     ? 'bg-white/5 text-white/20 cursor-not-allowed' 
-                    : 'bg-os-green text-black border-[2px] border-black shadow-[6px_6px_0px_rgba(0,0,0,1)] active:scale-[0.97] active:shadow-none'
+                    : 'bg-[#10B981] text-black border-[2px] border-black shadow-[3px_3px_0px_rgba(0,0,0,1)] active:scale-[0.97] active:shadow-none'
                   }`}
                 >
                   {loading ? 'Mengirim...' : 'Kirim Link Login'}

@@ -11,7 +11,7 @@ import { getHabitBenefitData } from '../data/habitBenefitsData';
 
 const STAT_DISPLAY: Record<string, { key: string; icon: string; color: string }> = {
   kebijaksanaan: { key: 'rpg.stats.wisdom', icon: 'ph:brain-bold', color: '#A855F7' },
-  kepercayaanDiri: { key: 'rpg.stats.confidence', icon: 'ph:crown-bold', color: '#00FF85' },
+  kepercayaanDiri: { key: 'rpg.stats.confidence', icon: 'ph:crown-bold', color: '#10B981' },
   kekuatan: { key: 'rpg.stats.strength', icon: 'ph:lightning-bold', color: '#FF4D00' },
   disiplin: { key: 'rpg.stats.discipline', icon: 'ph:sword-bold', color: '#3B82F6' },
   fokus: { key: 'rpg.stats.focus', icon: 'ph:crosshair-bold', color: '#F59E0B' },
@@ -29,7 +29,7 @@ const CinematicButton = ({ onClick, children, className = "", disabled = false }
       className={`group relative overflow-hidden rounded-xl py-3 px-8 border-[2px] border-black transition-all ${
         disabled 
         ? 'bg-neutral-800 border-neutral-700 text-neutral-500 cursor-not-allowed' 
-        : 'bg-[#00FF85] shadow-[5px_5px_0px_rgba(0,0,0,1)] active:scale-[0.98] active:shadow-none'
+        : 'bg-[#10B981] shadow-[5px_5px_0px_rgba(0,0,0,1)] active:scale-[0.98] active:shadow-none'
       } ${className}`}
     >
       <div className={`absolute inset-0 bg-[#0F1110]/10 ${disabled ? '' : 'group-hover:bg-transparent'} transition-colors`} />
@@ -535,26 +535,26 @@ const MONTH_NAMES = {
 const HABIT_REC_POOL = [
   // Rutinitas (Daily Routines)
   { name: 'Hidrasi Harian', iconName: 'ph:drop-bold', category: 'Rutinitas', imageUrl: '/all_images/display_images/minumair.png', difficulty: 1, color: '#3B82F6', frequency: 'harian', imagePosition: 'object-center' },
-  { name: 'Bangun Pagi', iconName: 'solar:sunrise-bold', category: 'Rutinitas', imageUrl: '/all_images/display_images/bangunpagi.png', difficulty: 2, color: '#00FF85', frequency: 'harian', imagePosition: 'object-top' },
+  { name: 'Bangun Pagi', iconName: 'solar:sunrise-bold', category: 'Rutinitas', imageUrl: '/all_images/display_images/bangunpagi.png', difficulty: 2, color: '#10B981', frequency: 'harian', imagePosition: 'object-top' },
   { name: 'Mandi Pagi', iconName: 'ph:shower-bold', category: 'Rutinitas', imageUrl: '/all_images/display_images/mandi.png', difficulty: 1, color: '#A855F7', frequency: 'harian', imagePosition: 'object-center' },
   { name: 'Tidur 8 Jam', iconName: 'ph:bed-bold', category: 'Rutinitas', imageUrl: '/all_images/display_images/tidur8jam.png', difficulty: 1, color: '#F59E0B', frequency: 'harian', imagePosition: 'object-right' },
 
   // Ketenangan Diri (Mindfulness)
-  { name: 'Beribadah', iconName: 'ph:hands-praying-bold', category: 'Ketenangan Diri', imageUrl: '/all_images/display_images/beribadah.png', difficulty: 1, color: '#00FF85', frequency: 'harian', imagePosition: 'object-center' },
+  { name: 'Beribadah', iconName: 'ph:hands-praying-bold', category: 'Ketenangan Diri', imageUrl: '/all_images/display_images/beribadah.png', difficulty: 1, color: '#10B981', frequency: 'harian', imagePosition: 'object-center' },
   { name: 'Meditasi', iconName: 'ph:sparkles-bold', category: 'Ketenangan Diri', imageUrl: '/all_images/display_images/meditation.png', difficulty: 2, color: '#A855F7', frequency: 'harian', imagePosition: 'object-center' },
   { name: 'Jalan Santai', iconName: 'ph:sneaker-move-bold', category: 'Ketenangan Diri', imageUrl: '/all_images/display_images/walkingchild.png', difficulty: 1, color: '#3B82F6', frequency: 'harian', imagePosition: 'object-center' },
   { name: 'Mendengar Musik', iconName: 'ph:music-notes-bold', category: 'Ketenangan Diri', imageUrl: '/all_images/display_images/dengarmusik.png', difficulty: 1, color: '#FF4D00', frequency: 'harian', imagePosition: 'object-center' },
 
   // Evolusi Diri (Self Evolution)
   { name: 'Deep Work', iconName: 'ph:crosshair-bold', category: 'Evolusi Diri', imageUrl: '/all_images/display_images/deepworking.png', difficulty: 3, color: '#FF4D00', frequency: 'harian', imagePosition: 'object-center' },
-  { name: 'Deep Learning', iconName: 'ph:book-open-bold', category: 'Evolusi Diri', imageUrl: '/all_images/display_images/deeplearning.png', difficulty: 2, color: '#00FF85', frequency: 'harian', imagePosition: 'object-center' },
+  { name: 'Deep Learning', iconName: 'ph:book-open-bold', category: 'Evolusi Diri', imageUrl: '/all_images/display_images/deeplearning.png', difficulty: 2, color: '#10B981', frequency: 'harian', imagePosition: 'object-center' },
   { name: 'Rencana Esok Hari', iconName: 'ph:calendar-blank-bold', category: 'Evolusi Diri', imageUrl: '/all_images/display_images/perencanaanbesok.png', difficulty: 1, color: '#3B82F6', frequency: 'harian', imagePosition: 'object-center' },
   { name: 'Journaling', iconName: 'ph:notebook-bold', category: 'Evolusi Diri', imageUrl: '/all_images/display_images/jurnal.png', difficulty: 1, color: '#F59E0B', frequency: 'harian', imagePosition: 'object-right' },
 
   // Latihan Fisik (Physical Exercise)
   { name: 'Push-Up', iconName: 'ph:lightning-bold', category: 'Latihan Fisik', imageUrl: '/all_images/display_images/pushup.png', difficulty: 2, color: '#FF4D00', frequency: 'harian', imagePosition: 'object-center' },
   { name: 'Sit-Up', iconName: 'ph:barbell-bold', category: 'Latihan Fisik', imageUrl: '/all_images/display_images/sit_up.png', difficulty: 2, color: '#3B82F6', frequency: 'harian', imagePosition: 'object-center' },
-  { name: 'Renang', iconName: 'ph:waves-bold', category: 'Latihan Fisik', imageUrl: '/all_images/display_images/swimming.png', difficulty: 2, color: '#00FF85', frequency: 'harian', imagePosition: 'object-center' },
+  { name: 'Renang', iconName: 'ph:waves-bold', category: 'Latihan Fisik', imageUrl: '/all_images/display_images/swimming.png', difficulty: 2, color: '#10B981', frequency: 'harian', imagePosition: 'object-center' },
   { name: 'Lari', iconName: 'ph:wind-bold', category: 'Latihan Fisik', imageUrl: '/all_images/display_images/jogging.png', difficulty: 2, color: '#F59E0B', frequency: 'harian', imagePosition: 'object-center' },
 ];
 
@@ -1168,15 +1168,15 @@ const GlitchLoadingScreen = ({ onNext, language }: { onNext: () => void; languag
             <circle
               cx="48" cy="48" r="38"
               fill="none"
-              stroke="#00FF85"
+              stroke="#10B981"
               strokeWidth="6"
               strokeLinecap="round"
               strokeDasharray={circumference}
               strokeDashoffset={strokeOffset}
-              style={{ filter: 'drop-shadow(0 0 6px rgba(0,255,133,0.5))', transition: 'stroke-dashoffset 0.04s linear' }}
+              style={{ filter: 'drop-shadow(0 0 6px rgba(16, 185, 129,0.5))', transition: 'stroke-dashoffset 0.04s linear' }}
             />
           </svg>
-          <span className="relative font-mono text-[14px] font-black text-[#00FF85] tabular-nums">
+          <span className="relative font-mono text-[14px] font-black text-[#10B981] tabular-nums">
             {progress}%
           </span>
         </div>
@@ -1188,9 +1188,9 @@ const GlitchLoadingScreen = ({ onNext, language }: { onNext: () => void; languag
 
           {/* Telemetry logger — lowercase, no underscores */}
           <div className={`px-4 py-3 rounded-xl min-h-[46px] flex items-center justify-center border-[3px] shadow-[4px_4px_0px_rgba(0,0,0,1)] ${
-            isLight ? 'bg-white border-black text-black' : 'bg-[#111] border-white/10 text-[#00FF85]'
+            isLight ? 'bg-white border-black text-black' : 'bg-[#111] border-white/10 text-[#10B981]'
           }`}>
-            <span className={`font-mono text-[11px] font-bold tracking-wide break-all leading-snug ${isLight ? 'text-black' : 'text-[#00FF85]'}`}>
+            <span className={`font-mono text-[11px] font-bold tracking-wide break-all leading-snug ${isLight ? 'text-black' : 'text-[#10B981]'}`}>
               {telemetry}
             </span>
           </div>
@@ -1201,7 +1201,7 @@ const GlitchLoadingScreen = ({ onNext, language }: { onNext: () => void; languag
               <div key={i} className="flex items-center gap-3">
                 <div className={`w-5 h-5 rounded-md border-2 flex items-center justify-center shrink-0 transition-all duration-300 ${
                   item.done 
-                    ? 'bg-[#00FF85] border-black' 
+                    ? 'bg-[#10B981] border-black' 
                     : `bg-transparent ${isLight ? 'border-black/20' : 'border-white/20'}`
                 }`}>
                   {item.done && <Icon icon="ph:check-bold" width={10} className="text-black font-black" />}
@@ -1303,8 +1303,8 @@ const RadarChart = ({ stats }: { stats: { kebijaksanaan: number; kepercayaanDiri
       {/* Stats Polygon with Glow Filter */}
       <polygon
         points={statsPoints}
-        fill="rgba(0, 255, 133, 0.18)"
-        stroke="#00FF85"
+        fill="rgba(16, 185, 129, 0.18)"
+        stroke="#10B981"
         strokeWidth="3.5"
         filter="url(#glow)"
         className="transition-all duration-700 ease-out"
@@ -1323,7 +1323,7 @@ const RadarChart = ({ stats }: { stats: { kebijaksanaan: number; kepercayaanDiri
             cx={px}
             cy={py}
             r="4"
-            fill="#00FF85"
+            fill="#10B981"
             stroke="black"
             strokeWidth="1.5"
           />
@@ -1420,10 +1420,10 @@ const RadarChartScreen = ({ acceptedHabits, answers, onNext, onBack, language }:
     }`}>
       {/* Glow decorators */}
       <div className={`absolute top-[-10%] left-[-20%] w-[50%] h-[50%] rounded-full blur-[120px] pointer-events-none z-0 ${
-        isLight ? 'bg-[#00FF85]/03' : 'bg-[#00FF85]/08'
+        isLight ? 'bg-[#10B981]/03' : 'bg-[#10B981]/08'
       }`} />
       <div className={`absolute bottom-[-10%] right-[-20%] w-[50%] h-[50%] rounded-full blur-[120px] pointer-events-none z-0 ${
-        isLight ? 'bg-[#00FF85]/03' : 'bg-[#00FF85]/08'
+        isLight ? 'bg-[#10B981]/03' : 'bg-[#10B981]/08'
       }`} />
 
       {/* Top Header */}
@@ -1442,7 +1442,7 @@ const RadarChartScreen = ({ acceptedHabits, answers, onNext, onBack, language }:
 
       {/* Main Info */}
       <div className="relative z-10 w-full max-w-[420px] flex flex-col items-center text-center gap-2 mt-4">
-        <span className="text-[10px] font-black tracking-[0.25em] text-[#00FF85] uppercase">
+        <span className="text-[10px] font-black tracking-[0.25em] text-[#10B981] uppercase">
           {trans.journeyLabel}
         </span>
         <h1 className={`text-[22px] font-black uppercase tracking-wide leading-tight ${isLight ? 'text-black' : 'text-white'}`}>
@@ -1455,7 +1455,7 @@ const RadarChartScreen = ({ acceptedHabits, answers, onNext, onBack, language }:
       {/* Radar Chart Visual */}
       <div className="flex-1 flex items-center justify-center py-4 w-full relative z-10">
         <div className={`absolute w-[240px] h-[240px] rounded-full blur-[55px] pointer-events-none z-0 ${
-          isLight ? 'bg-[#00FF85]/05' : 'bg-[#00FF85]/10'
+          isLight ? 'bg-[#10B981]/05' : 'bg-[#10B981]/10'
         }`} />
         <div className="relative z-10">
           <RadarChart stats={activeStats} />
@@ -1549,7 +1549,7 @@ const SwipeCard = ({ habit, onSwipe, index, isTop }: { habit: any, onSwipe: (dir
             </motion.div>
             <motion.div
               style={{ opacity: addOpacity }}
-              className="absolute top-6 left-6 border-[3px] border-[#00FF85] text-[#00FF85] font-black tracking-widest text-[16px] px-3 py-1.5 uppercase rounded-lg -rotate-12 bg-black/80"
+              className="absolute top-6 left-6 border-[3px] border-[#10B981] text-[#10B981] font-black tracking-widest text-[16px] px-3 py-1.5 uppercase rounded-lg -rotate-12 bg-black/80"
             >
               {trans.swipeAdd}
             </motion.div>
@@ -1602,13 +1602,13 @@ const SwipeCard = ({ habit, onSwipe, index, isTop }: { habit: any, onSwipe: (dir
 
             {/* XP Row */}
             <div className="flex items-center gap-3">
-              <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${isLight ? 'bg-[#00FF85]/20' : 'bg-[#00FF85]/10'}`}>
-                <Icon icon="ph:star-four-bold" width={16} height={16} className="text-[#00FF85]" />
+              <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${isLight ? 'bg-[#10B981]/20' : 'bg-[#10B981]/10'}`}>
+                <Icon icon="ph:star-four-bold" width={16} height={16} className="text-[#10B981]" />
               </div>
               <span className={`text-[12px] font-bold font-['Outfit'] flex-1 ${isLight ? 'text-black/80' : 'text-white/80'}`}>
                 {trans.xpPoints}
               </span>
-              <span className="text-[12px] font-black font-['Outfit'] text-[#00FF85]">
+              <span className="text-[12px] font-black font-['Outfit'] text-[#10B981]">
                 +{xp} XP
               </span>
             </div>
@@ -1623,7 +1623,7 @@ const SwipeCard = ({ habit, onSwipe, index, isTop }: { habit: any, onSwipe: (dir
           <ul className="space-y-1.5">
             {translatedBenefits.slice(0, 3).map((benefit, i) => (
               <li key={i} className={`flex items-start gap-2 text-[11px] leading-relaxed font-semibold ${isLight ? 'text-black/70' : 'text-white/70'}`}>
-                <span className="w-1.5 h-1.5 rounded-full bg-[#00FF85] shrink-0 mt-1.5" />
+                <span className="w-1.5 h-1.5 rounded-full bg-[#10B981] shrink-0 mt-1.5" />
                 <span>{benefit}</span>
               </li>
             ))}
@@ -1734,10 +1734,10 @@ const SwipeDeckScreen = ({ answers, onComplete, onBack }: { answers: Record<numb
                 <circle cx="40" cy="40" r="32" fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="5" />
                 <circle
                   cx="40" cy="40" r="32"
-                  fill="none" stroke="#00FF85" strokeWidth="5"
+                  fill="none" stroke="#10B981" strokeWidth="5"
                   strokeLinecap="round"
                   strokeDasharray={`${2 * Math.PI * 32 * 0.7} ${2 * Math.PI * 32 * 0.3}`}
-                  style={{ filter: 'drop-shadow(0 0 8px rgba(0,255,133,0.6))' }}
+                  style={{ filter: 'drop-shadow(0 0 8px rgba(16, 185, 129,0.6))' }}
                 />
               </svg>
             </div>
@@ -1766,7 +1766,7 @@ const SwipeDeckScreen = ({ answers, onComplete, onBack }: { answers: Record<numb
               animate={{ scale: 1, y: 0 }}
               exit={{ scale: 0.9, y: 20 }}
               transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
-              className={`relative z-10 w-full max-w-[340px] border-[3px] border-[#00FF85] rounded-2xl p-6 shadow-[6px_6px_0px_rgba(0,255,133,0.3)] flex flex-col items-center gap-5 text-center ${
+              className={`relative z-10 w-full max-w-[340px] border-[3px] border-[#10B981] rounded-2xl p-6 shadow-[6px_6px_0px_rgba(16, 185, 129,0.3)] flex flex-col items-center gap-5 text-center ${
                 isLight ? 'bg-white' : 'bg-[#111]'
               }`}
             >
@@ -1783,7 +1783,7 @@ const SwipeDeckScreen = ({ answers, onComplete, onBack }: { answers: Record<numb
               {/* Continue Button */}
               <button
                 onClick={() => triggerComplete(accepted)}
-                className="w-full py-4 bg-[#00FF85] text-black font-black font-['Outfit'] text-[14px] uppercase tracking-widest rounded-xl border-[3px] border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-x-[4px] active:translate-y-[4px] transition-all"
+                className="w-full py-4 bg-[#10B981] text-black font-black font-['Outfit'] text-[14px] uppercase tracking-widest rounded-xl border-[3px] border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-x-[4px] active:translate-y-[4px] transition-all"
               >
                 {trans.startProgramBtn} →
               </button>
@@ -1956,8 +1956,8 @@ const SwipeDeckScreen = ({ answers, onComplete, onBack }: { answers: Record<numb
                         onClick={() => handleSwipeRight(h)}
                         className={`w-7 h-7 rounded-lg flex items-center justify-center active:scale-90 transition-transform ${
                           isLight 
-                            ? 'bg-black border border-black text-[#00FF85]' 
-                            : 'bg-[#00FF85]/10 border border-[#00FF85]/20 text-[#00FF85]'
+                            ? 'bg-black border border-black text-[#10B981]' 
+                            : 'bg-[#10B981]/10 border border-[#10B981]/20 text-[#10B981]'
                         }`}
                       >
                         <Icon icon="ph:plus-bold" width={14} />
@@ -2009,12 +2009,12 @@ const SavingOverlay = ({ language, isUsernameCheck = false }: { language: string
             animate={{ rotate: 360 }}
             transition={{ repeat: Infinity, duration: 1.5, ease: "linear" }}
             className={`w-12 h-12 border-[4px] rounded-full border-t-transparent ${
-              isLight ? 'border-black' : 'border-[#00FF85]'
+              isLight ? 'border-black' : 'border-[#10B981]'
             }`}
           />
           <Icon 
             icon={isUsernameCheck ? "solar:user-bold" : "solar:magic-stick-bold"} 
-            className={`absolute ${isLight ? 'text-black' : 'text-[#00FF85]'}`}
+            className={`absolute ${isLight ? 'text-black' : 'text-[#10B981]'}`}
             width={20} 
           />
         </div>
@@ -2406,7 +2406,7 @@ export default function Questions() {
               difficulty: h.difficulty || 1,
               iconName: h.iconName || 'Sunrise',
               category: h.category,
-              color: h.color || '#00FF85',
+              color: h.color || '#10B981',
               completed: false,
               skipped: false,
               isSpecial: false,
@@ -2568,7 +2568,7 @@ export default function Questions() {
     return (
       <div className="min-h-screen bg-black text-white font-['Inter'] relative flex flex-col items-center overflow-hidden">
         {/* Ambient glow */}
-        <div className="absolute top-[-10%] left-[-20%] w-[50%] h-[50%] bg-[#00FF85]/05 rounded-full blur-[120px] pointer-events-none z-0" />
+        <div className="absolute top-[-10%] left-[-20%] w-[50%] h-[50%] bg-[#10B981]/05 rounded-full blur-[120px] pointer-events-none z-0" />
         <div className="relative z-20 w-full px-6 pt-12 flex flex-col gap-4">
           <div className="flex items-center gap-4">
             <button onClick={handleBack} className="w-10 h-10 flex items-center justify-center bg-[#1A1A1A] border-2 border-white/20 rounded-xl active:scale-95 transition-transform shadow-[3px_3px_0px_rgba(255,255,255,0.15)]">
@@ -2594,7 +2594,7 @@ export default function Questions() {
               onChange={(e) => setSearchQuery(e.target.value)} 
               autoFocus
               autoComplete="off"
-              className="w-full bg-white/5 border border-white/10 rounded-xl py-3.5 pl-12 pr-4 text-[15px] font-['Outfit'] focus:outline-none focus:border-[#00FF85]/40 focus:bg-[#00FF85]/5 transition-all" 
+              className="w-full bg-white/5 border border-white/10 rounded-xl py-3.5 pl-12 pr-4 text-[15px] font-['Outfit'] focus:outline-none focus:border-[#10B981]/40 focus:bg-[#10B981]/5 transition-all" 
             />
             {searchQuery && (
               <button 
@@ -2630,7 +2630,7 @@ export default function Questions() {
                     key={idx} 
                     whileTap={{ scale: 0.98 }}
                     onClick={() => { setSelectedOptions([country]); setIsTransitioning(true); setTimeout(() => handleNext([country]), 450); }} 
-                    className="w-full py-3.5 px-4 bg-[#1A1A1A] border border-[#E3DAC9]/15 rounded-xl text-left hover:border-[#00FF85]/40 hover:bg-[#00FF85]/5 active:scale-[0.99] transition-all shadow-[3px_3px_0px_rgba(0,0,0,1)] flex items-center gap-3"
+                    className="w-full py-3.5 px-4 bg-[#1A1A1A] border border-[#E3DAC9]/15 rounded-xl text-left hover:border-[#10B981]/40 hover:bg-[#10B981]/5 active:scale-[0.99] transition-all shadow-[3px_3px_0px_rgba(0,0,0,1)] flex items-center gap-3"
                   >
                     <div className="w-7 h-5 flex items-center justify-center bg-white/5 rounded overflow-hidden shrink-0 border border-white/10">
                       {code ? (
@@ -2714,8 +2714,8 @@ export default function Questions() {
                   className={`flex items-center justify-between py-3 px-4 rounded-xl border-2 text-left transition-all duration-200 backdrop-blur-md shadow-[3px_3px_0px_rgba(0,0,0,1)] ${
                     isSelected 
                       ? isLight 
-                        ? 'bg-[#00FF85]/20 border-black text-black' 
-                        : 'bg-[#00FF85]/10 border-[#00FF85] text-white' 
+                        ? 'bg-[#10B981]/20 border-black text-black' 
+                        : 'bg-[#10B981]/10 border-[#10B981] text-white' 
                       : isLight 
                         ? 'bg-white border-black text-black hover:bg-neutral-50' 
                         : 'bg-[#111]/85 border-white/[0.08] text-white/70 hover:border-white/20'
@@ -2734,7 +2734,7 @@ export default function Questions() {
                   </div>
                   <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${
                     isSelected 
-                      ? isLight ? 'bg-[#00FF85] border-black' : 'bg-[#00FF85] border-[#00FF85]' 
+                      ? isLight ? 'bg-[#10B981] border-black' : 'bg-[#10B981] border-[#10B981]' 
                       : isLight ? 'bg-transparent border-black/20' : 'bg-transparent border-white/20'
                   }`}>
                     {isSelected && <Icon icon="ph:check-bold" className="text-black font-bold text-[10px]" />}
@@ -2818,7 +2818,7 @@ export default function Questions() {
                 {trans.lightMode}
               </span>
               <span className={`absolute -top-2.5 px-2 py-0.5 rounded-full text-[8px] font-black uppercase tracking-wider border border-black shadow-[1px_1px_0px_rgba(0,0,0,1)] ${
-                activeTheme === 'Light' ? 'bg-[#00FF85] text-black' : 'bg-neutral-800 text-white/40 border-white/10'
+                activeTheme === 'Light' ? 'bg-[#10B981] text-black' : 'bg-neutral-800 text-white/40 border-white/10'
               }`}>
                 {trans.recommended}
               </span>
@@ -2830,7 +2830,7 @@ export default function Questions() {
               onClick={() => updateSettings({ theme: 'Dark' })}
               className={`py-5 px-4 rounded-xl border flex flex-col items-center justify-center gap-2 transition-all duration-200 shadow-[4px_4px_0px_rgba(0,0,0,1)] ${
                 activeTheme === 'Dark'
-                  ? 'bg-[#1a1a1a] border-[#00FF85] text-white'
+                  ? 'bg-[#1a1a1a] border-[#10B981] text-white'
                   : 'bg-[#111]/85 border-white/[0.08] text-white/60 hover:border-white/20'
               }`}
             >
@@ -2958,8 +2958,8 @@ export default function Questions() {
                 placeholder={isIndo ? "Nama Depan" : "First Name"}
                 className={`w-full border-2 rounded-xl py-4 px-6 text-sm outline-none transition-all font-['Outfit'] font-bold tracking-wide ${
                   isLight 
-                    ? 'bg-white border-black text-black focus:border-[#00FF85] placeholder:text-black/30 shadow-[4px_4px_0px_rgba(0,0,0,1)]' 
-                    : 'bg-[#1A1A1A] border-[#E3DAC9]/20 text-white focus:border-[#00FF85] placeholder:text-white/20'
+                    ? 'bg-white border-black text-black focus:border-[#10B981] placeholder:text-black/30 shadow-[4px_4px_0px_rgba(0,0,0,1)]' 
+                    : 'bg-[#1A1A1A] border-[#E3DAC9]/20 text-white focus:border-[#10B981] placeholder:text-white/20'
                 }`}
                 autoFocus
                 autoComplete="off"
@@ -2976,8 +2976,8 @@ export default function Questions() {
                 placeholder={isIndo ? "Nama Belakang" : "Last Name"}
                 className={`w-full border-2 rounded-xl py-4 px-6 text-sm outline-none transition-all font-['Outfit'] font-bold tracking-wide ${
                   isLight 
-                    ? 'bg-white border-black text-black focus:border-[#00FF85] placeholder:text-black/30 shadow-[4px_4px_0px_rgba(0,0,0,1)]' 
-                    : 'bg-[#1A1A1A] border-[#E3DAC9]/20 text-white focus:border-[#00FF85] placeholder:text-white/20'
+                    ? 'bg-white border-black text-black focus:border-[#10B981] placeholder:text-black/30 shadow-[4px_4px_0px_rgba(0,0,0,1)]' 
+                    : 'bg-[#1A1A1A] border-[#E3DAC9]/20 text-white focus:border-[#10B981] placeholder:text-white/20'
                 }`}
                 autoComplete="off"
               />
@@ -2997,8 +2997,8 @@ export default function Questions() {
               placeholder={isIndo ? "Nama Panggilan" : "Nickname"}
               className={`w-full border-2 rounded-xl py-4 px-6 text-sm outline-none transition-all font-['Outfit'] font-bold tracking-wide ${
                 isLight 
-                  ? 'bg-white border-black text-black focus:border-[#00FF85] placeholder:text-black/30 shadow-[4px_4px_0px_rgba(0,0,0,1)]' 
-                  : 'bg-[#1A1A1A] border-[#E3DAC9]/20 text-white focus:border-[#00FF85] placeholder:text-white/20'
+                  ? 'bg-white border-black text-black focus:border-[#10B981] placeholder:text-black/30 shadow-[4px_4px_0px_rgba(0,0,0,1)]' 
+                  : 'bg-[#1A1A1A] border-[#E3DAC9]/20 text-white focus:border-[#10B981] placeholder:text-white/20'
               }`}
               autoFocus
               autoComplete="off"
@@ -3018,8 +3018,8 @@ export default function Questions() {
               placeholder="username"
               className={`w-full border-2 rounded-xl py-4 px-6 text-sm outline-none transition-all font-['Outfit'] font-bold tracking-wide ${
                 isLight 
-                  ? 'bg-white border-black text-[#00E070] focus:border-[#00FF85] placeholder:text-[#00E070]/40 shadow-[4px_4px_0px_rgba(0,0,0,1)]' 
-                  : 'bg-[#1A1A1A] border-[#E3DAC9]/20 text-[#00FF85] focus:border-[#00FF85] placeholder:text-[#00FF85]/20'
+                  ? 'bg-white border-black text-[#10B981] focus:border-[#10B981] placeholder:text-[#10B981]/40 shadow-[4px_4px_0px_rgba(0,0,0,1)]' 
+                  : 'bg-[#1A1A1A] border-[#E3DAC9]/20 text-[#10B981] focus:border-[#10B981] placeholder:text-[#10B981]/20'
               }`}
               autoFocus
               autoComplete="off"
@@ -3050,8 +3050,8 @@ export default function Questions() {
                 className={`py-8 px-6 rounded-2xl border-2 flex flex-col items-center justify-center gap-4 transition-all duration-300 shadow-[4px_4px_0px_rgba(0,0,0,1)] ${
                   gender === 'Male'
                     ? isLight 
-                      ? 'bg-[#00FF85]/20 border-black text-black'
-                      : 'bg-[#00FF85]/10 border-[#00FF85] text-white'
+                      ? 'bg-[#10B981]/20 border-black text-black'
+                      : 'bg-[#10B981]/10 border-[#10B981] text-white'
                     : isLight
                       ? 'bg-white border-black text-neutral-400 hover:text-neutral-700'
                       : 'bg-[#1A1A1A] border-[#E3DAC9]/20 text-white/40 hover:border-[#E3DAC9]/40 hover:text-white/60'
@@ -3059,10 +3059,10 @@ export default function Questions() {
               >
                 <div className={`w-16 h-16 rounded-full flex items-center justify-center border-2 transition-colors ${
                   gender === 'Male' 
-                    ? isLight ? 'border-black bg-[#00FF85]/35' : 'border-[#00FF85] bg-[#00FF85]/10' 
+                    ? isLight ? 'border-black bg-[#10B981]/35' : 'border-[#10B981] bg-[#10B981]/10' 
                     : isLight ? 'border-black/10 bg-neutral-50' : 'border-white/10 bg-black/40'
                 }`}>
-                  <Icon icon="ph:gender-male-bold" className={gender === 'Male' ? (isLight ? 'text-black' : 'text-[#00FF85]') : 'text-neutral-400'} width={36} height={36} />
+                  <Icon icon="ph:gender-male-bold" className={gender === 'Male' ? (isLight ? 'text-black' : 'text-[#10B981]') : 'text-neutral-400'} width={36} height={36} />
                 </div>
                 <span className={`text-sm font-black font-['Outfit'] tracking-wider ${gender === 'Male' ? 'text-black' : isLight ? 'text-neutral-700' : 'text-white/40'}`}>
                   {isIndo ? 'Laki-laki' : 'Male'}
@@ -3084,8 +3084,8 @@ export default function Questions() {
                 className={`py-8 px-6 rounded-2xl border-2 flex flex-col items-center justify-center gap-4 transition-all duration-300 shadow-[4px_4px_0px_rgba(0,0,0,1)] ${
                   gender === 'Female'
                     ? isLight 
-                      ? 'bg-[#00FF85]/20 border-black text-black'
-                      : 'bg-[#00FF85]/10 border-[#00FF85] text-white'
+                      ? 'bg-[#10B981]/20 border-black text-black'
+                      : 'bg-[#10B981]/10 border-[#10B981] text-white'
                     : isLight
                       ? 'bg-white border-black text-neutral-400 hover:text-neutral-700'
                       : 'bg-[#1A1A1A] border-[#E3DAC9]/20 text-white/40 hover:border-[#E3DAC9]/40 hover:text-white/60'
@@ -3093,10 +3093,10 @@ export default function Questions() {
               >
                 <div className={`w-16 h-16 rounded-full flex items-center justify-center border-2 transition-colors ${
                   gender === 'Female' 
-                    ? isLight ? 'border-black bg-[#00FF85]/35' : 'border-[#00FF85] bg-[#00FF85]/10' 
+                    ? isLight ? 'border-black bg-[#10B981]/35' : 'border-[#10B981] bg-[#10B981]/10' 
                     : isLight ? 'border-black/10 bg-neutral-50' : 'border-white/10 bg-black/40'
                 }`}>
-                  <Icon icon="ph:gender-female-bold" className={gender === 'Female' ? (isLight ? 'text-black' : 'text-[#00FF85]') : 'text-neutral-400'} width={36} height={36} />
+                  <Icon icon="ph:gender-female-bold" className={gender === 'Female' ? (isLight ? 'text-black' : 'text-[#10B981]') : 'text-neutral-400'} width={36} height={36} />
                 </div>
                 <span className={`text-sm font-black font-['Outfit'] tracking-wider ${gender === 'Female' ? 'text-black' : isLight ? 'text-neutral-700' : 'text-white/40'}`}>
                   {isIndo ? 'Perempuan' : 'Female'}
@@ -3119,14 +3119,14 @@ export default function Questions() {
               className={`py-4 px-6 rounded-xl border-2 flex items-center justify-center gap-3 transition-all duration-300 shadow-[4px_4px_0px_rgba(0,0,0,1)] ${
                 gender === 'Other'
                   ? isLight
-                    ? 'bg-[#00FF85]/20 border-black text-black'
-                    : 'bg-[#00FF85]/10 border-[#00FF85] text-[#00FF85]'
+                    ? 'bg-[#10B981]/20 border-black text-black'
+                    : 'bg-[#10B981]/10 border-[#10B981] text-[#10B981]'
                   : isLight
                     ? 'bg-white border-black text-neutral-400 hover:text-neutral-700'
                     : 'bg-[#1A1A1A] border-[#E3DAC9]/20 text-white/40 hover:border-[#E3DAC9]/40 hover:text-white/60'
               }`}
             >
-              <Icon icon="ph:gender-neuter-bold" className={gender === 'Other' ? (isLight ? 'text-black' : 'text-[#00FF85]') : 'text-neutral-400'} width={20} height={20} />
+              <Icon icon="ph:gender-neuter-bold" className={gender === 'Other' ? (isLight ? 'text-black' : 'text-[#10B981]') : 'text-neutral-400'} width={20} height={20} />
               <span className={`text-xs font-black font-['Outfit'] tracking-wider ${gender === 'Other' ? 'text-black font-extrabold' : isLight ? 'text-neutral-700 font-bold' : 'text-white/40'}`}>
                 {isIndo ? 'Lainnya' : 'Other'}
               </span>
@@ -3200,13 +3200,13 @@ export default function Questions() {
                     setShowWheelMode(!showWheelMode);
                   }}
                   className={`flex items-center gap-1.5 text-sm font-black font-['Outfit'] transition-colors ${
-                    isLight ? 'text-black hover:text-[#00E070]' : 'text-white hover:text-[#00FF85]'
+                    isLight ? 'text-black hover:text-[#10B981]' : 'text-white hover:text-[#10B981]'
                   }`}
                 >
                   <span>{activeMonths[selMonth - 1]} {selYear}</span>
                   <Icon 
                     icon={showWheelMode ? "solar:alt-arrow-up-bold" : "solar:alt-arrow-right-bold"} 
-                    className="text-[#00FF85]" 
+                    className="text-[#10B981]" 
                     width={14} 
                   />
                 </button>
@@ -3278,7 +3278,7 @@ export default function Questions() {
                           <div 
                             key={i} 
                             className={`snap-center h-11 flex items-center justify-center text-xs font-black transition-colors duration-200 ${
-                              isSelected ? 'text-[#00FF85]' : isLight ? 'text-black/35' : 'text-white/30'
+                              isSelected ? 'text-[#10B981]' : isLight ? 'text-black/35' : 'text-white/30'
                             }`}
                           >
                             {name}
@@ -3302,7 +3302,7 @@ export default function Questions() {
                           <div 
                             key={i} 
                             className={`snap-center h-11 flex items-center justify-center text-[18px] font-black transition-colors duration-200 ${
-                              isSelected ? 'text-[#00FF85]' : isLight ? 'text-black/35' : 'text-white/30'
+                              isSelected ? 'text-[#10B981]' : isLight ? 'text-black/35' : 'text-white/30'
                             }`}
                           >
                             {val}
@@ -3342,7 +3342,7 @@ export default function Questions() {
                             }}
                             className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-black transition-all ${
                               isSelected 
-                                ? 'bg-[#00FF85] text-black border-[1.5px] border-black shadow-[2px_2px_0px_rgba(0,0,0,1)]' 
+                                ? 'bg-[#10B981] text-black border-[1.5px] border-black shadow-[2px_2px_0px_rgba(0,0,0,1)]' 
                                 : isLight 
                                   ? 'text-black hover:bg-black/5 active:scale-90'
                                   : 'text-white/80 hover:bg-white/5 active:scale-90'
@@ -3360,7 +3360,7 @@ export default function Questions() {
             
             {/* Display parsed result */}
             <p className={`text-xs font-bold tracking-wide font-['Outfit'] mt-1 ${isLight ? 'text-black/50' : 'text-white/50'}`}>
-              {isIndo ? 'Tanggal Lahir:' : 'Date of Birth:'} <span className="text-[#00FF85] font-black">{dob}</span>
+              {isIndo ? 'Tanggal Lahir:' : 'Date of Birth:'} <span className="text-[#10B981] font-black">{dob}</span>
             </p>
           </div>
         );
@@ -3380,8 +3380,8 @@ export default function Questions() {
                   placeholder="70"
                   className={`w-full border-2 rounded-xl py-4 px-6 text-sm outline-none transition-all font-['Outfit'] font-bold tracking-wide ${
                     isLight 
-                      ? 'bg-white border-black text-black focus:border-[#00FF85] placeholder:text-black/30 shadow-[4px_4px_0px_rgba(0,0,0,1)]' 
-                      : 'bg-[#1A1A1A] border-[#E3DAC9]/20 text-white focus:border-[#00FF85] placeholder:text-white/20'
+                      ? 'bg-white border-black text-black focus:border-[#10B981] placeholder:text-black/30 shadow-[4px_4px_0px_rgba(0,0,0,1)]' 
+                      : 'bg-[#1A1A1A] border-[#E3DAC9]/20 text-white focus:border-[#10B981] placeholder:text-white/20'
                   }`}
                   autoFocus
                   autoComplete="off"
@@ -3398,8 +3398,8 @@ export default function Questions() {
                   placeholder="175"
                   className={`w-full border-2 rounded-xl py-4 px-6 text-sm outline-none transition-all font-['Outfit'] font-bold tracking-wide ${
                     isLight 
-                      ? 'bg-white border-black text-black focus:border-[#00FF85] placeholder:text-black/30 shadow-[4px_4px_0px_rgba(0,0,0,1)]' 
-                      : 'bg-[#1A1A1A] border-[#E3DAC9]/20 text-white focus:border-[#00FF85] placeholder:text-white/20'
+                      ? 'bg-white border-black text-black focus:border-[#10B981] placeholder:text-black/30 shadow-[4px_4px_0px_rgba(0,0,0,1)]' 
+                      : 'bg-[#1A1A1A] border-[#E3DAC9]/20 text-white focus:border-[#10B981] placeholder:text-white/20'
                   }`}
                   autoComplete="off"
                 />
@@ -3485,7 +3485,7 @@ export default function Questions() {
                     }}
                     className={`w-full px-3 py-2.5 text-left text-[11px] font-black font-['Outfit'] transition-colors ${
                       language === lang.name 
-                        ? 'text-[#00FF85] bg-[#00FF85]/10' 
+                        ? 'text-[#10B981] bg-[#10B981]/10' 
                         : isLight 
                           ? 'text-black/60 hover:text-black hover:bg-black/5' 
                           : 'text-white/60 hover:text-white hover:bg-white/5'
@@ -3505,7 +3505,7 @@ export default function Questions() {
             initial={{ width: 0 }} 
             animate={{ width: `${(currentStep / STEPS.length) * 100}%` }} 
             transition={{ duration: 0.8, ease: CUBIC_BEZIER }} 
-            className="relative h-full bg-[#00FF85] shadow-[0_0_12px_rgba(0,255,133,0.5)]"
+            className="relative h-full bg-[#10B981] shadow-[0_0_12px_rgba(16, 185, 129,0.5)]"
           >
             <div className="absolute right-0 top-0 h-full w-2 bg-white/30 rounded-full" />
           </motion.div>
@@ -3564,20 +3564,20 @@ export default function Questions() {
                         className={`relative py-4 px-6 rounded-xl text-left transition-all duration-300 border-2 backdrop-blur-md ${
                           isSelected 
                           ? isLight
-                            ? 'bg-[#00FF85]/20 border-black text-black shadow-[4px_4px_0px_rgba(0,0,0,1)]'
-                            : 'bg-[#00FF85]/10 border-[#00FF85] text-white shadow-[5px_5px_0px_rgba(0,0,0,1)]'
+                            ? 'bg-[#10B981]/20 border-black text-black shadow-[4px_4px_0px_rgba(0,0,0,1)]'
+                            : 'bg-[#10B981]/10 border-[#10B981] text-white shadow-[5px_5px_0px_rgba(0,0,0,1)]'
                           : isLight
                             ? 'bg-white border-black text-black hover:bg-neutral-50 shadow-[4px_4px_0px_rgba(0,0,0,1)]'
                             : 'bg-[#1A1A1A] border-[#E3DAC9]/20 hover:border-[#E3DAC9]/40 text-white/80 shadow-[5px_5px_0px_rgba(0,0,0,1)]'
                         }`}
                       >
                         <div className="flex items-center justify-between gap-2">
-                          <span className={`text-[15px] font-bold transition-colors ${isSelected ? (isLight ? 'text-black font-extrabold' : 'text-[#00FF85]') : (isLight ? 'text-neutral-700 font-bold' : 'text-white/60')}`}>
+                          <span className={`text-[15px] font-bold transition-colors ${isSelected ? (isLight ? 'text-black font-extrabold' : 'text-[#10B981]') : (isLight ? 'text-neutral-700 font-bold' : 'text-white/60')}`}>
                             {translatedOption}
                           </span>
                           <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all shrink-0 ${
                             isSelected 
-                              ? isLight ? 'bg-[#00FF85] border-black' : 'bg-[#00FF85] border-[#00FF85]' 
+                              ? isLight ? 'bg-[#10B981] border-black' : 'bg-[#10B981] border-[#10B981]' 
                               : isLight ? 'bg-transparent border-black/25' : 'bg-transparent border-white/20'
                           }`}>
                             <AnimatePresence>
