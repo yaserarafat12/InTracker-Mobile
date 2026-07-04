@@ -482,9 +482,9 @@ const KartuTugas = ({ habit, index, activeFilter, onDoubleTap, onEdit, isDraggab
               const startY = e.clientY;
               
               const timer = setTimeout(() => {
-                if (navigator.vibrate) navigator.vibrate(30);
+                if (navigator.vibrate) navigator.vibrate(50);
                 dragControls?.start(e);
-              }, 250); // Reduced to 250ms for better responsiveness
+              }, 2000); // 2 seconds hold to drag/reorder
 
               const handleMove = (moveEvent: PointerEvent) => {
                 const dist = Math.sqrt(
