@@ -506,60 +506,16 @@ const KartuTugas = ({ habit, index, activeFilter, onDoubleTap, onEdit, isDraggab
             <div 
               className="absolute left-0 top-[40px] bottom-0 w-[15%] z-[45] cursor-grab active:cursor-grabbing"
               onPointerDown={(e) => {
-                const startX = e.clientX;
-                const startY = e.clientY;
-                
-                const timer = setTimeout(() => {
-                  if (navigator.vibrate) navigator.vibrate(20);
-                  swipeControls.start(e);
-                }, 300); // 300ms hold to activate swipe
-
-                const handleMove = (moveEvent: PointerEvent) => {
-                  const dist = Math.sqrt(
-                    Math.pow(moveEvent.clientX - startX, 2) + 
-                    Math.pow(moveEvent.clientY - startY, 2)
-                  );
-                  if (dist > 8) clearTimeout(timer);
-                };
-
-                const handleUp = () => {
-                  clearTimeout(timer);
-                  window.removeEventListener('pointermove', handleMove);
-                  window.removeEventListener('pointerup', handleUp);
-                };
-
-                window.addEventListener('pointermove', handleMove);
-                window.addEventListener('pointerup', handleUp);
+                if (navigator.vibrate) navigator.vibrate(10);
+                swipeControls.start(e);
               }}
               style={{ touchAction: 'none' }}
             />
             <div 
               className="absolute right-0 top-[40px] bottom-0 w-[15%] z-[45] cursor-grab active:cursor-grabbing"
               onPointerDown={(e) => {
-                const startX = e.clientX;
-                const startY = e.clientY;
-                
-                const timer = setTimeout(() => {
-                  if (navigator.vibrate) navigator.vibrate(20);
-                  swipeControls.start(e);
-                }, 300); // 300ms hold to activate swipe
-
-                const handleMove = (moveEvent: PointerEvent) => {
-                  const dist = Math.sqrt(
-                    Math.pow(moveEvent.clientX - startX, 2) + 
-                    Math.pow(moveEvent.clientY - startY, 2)
-                  );
-                  if (dist > 8) clearTimeout(timer);
-                };
-
-                const handleUp = () => {
-                  clearTimeout(timer);
-                  window.removeEventListener('pointermove', handleMove);
-                  window.removeEventListener('pointerup', handleUp);
-                };
-
-                window.addEventListener('pointermove', handleMove);
-                window.addEventListener('pointerup', handleUp);
+                if (navigator.vibrate) navigator.vibrate(10);
+                swipeControls.start(e);
               }}
               style={{ touchAction: 'none' }}
             />
