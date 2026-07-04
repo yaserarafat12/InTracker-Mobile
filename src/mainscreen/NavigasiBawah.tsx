@@ -32,8 +32,14 @@ export const NavigasiBawah: React.FC<NavigasiBawahProps> = ({ activeTab, setActi
         { id: 'features', icon: 'solar:widget-bold', label: t('nav.features'), path: '/features' },
       ];
 
+  const isLight = settings?.theme === 'Light';
+
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-[#0d0f12]/70 backdrop-blur-[20px] backdrop-saturate-150 border-t border-white/[0.08] h-[calc(80px+env(safe-area-inset-bottom,0px))] rounded-t-[24px] px-2 shadow-[0_-4px_30px_rgba(0,0,0,0.3)]">
+    <nav className={`fixed bottom-0 left-0 right-0 z-50 h-[calc(80px+env(safe-area-inset-bottom,0px))] rounded-t-[24px] px-2 transition-colors duration-300 border-t ${
+      isLight 
+        ? 'bg-white border-neutral-300 shadow-[0_-2px_15px_rgba(0,0,0,0.05)]' 
+        : 'bg-[#0d0f12] border-white/[0.08] shadow-[0_-4px_30px_rgba(0,0,0,0.3)]'
+    }`}>
       {/* Center ambient glow - wider spread */}
       <div className="absolute -top-6 left-1/2 -translate-x-1/2 w-[280px] h-[80px] bg-os-green/5 blur-[50px] rounded-full pointer-events-none" />
       <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[350px] h-[40px] bg-os-green/3 blur-[30px] rounded-full pointer-events-none" />
