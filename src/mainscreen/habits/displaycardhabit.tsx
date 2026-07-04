@@ -281,11 +281,6 @@ const KartuTugas = ({ habit, index, activeFilter, onDoubleTap, onEdit, isDraggab
         dragConstraints={{ left: -140, right: 140 }}
         dragElastic={0.2}
         onDragEnd={handleDragEnd}
-        whileTap={{ 
-          scale: 0.98,
-          boxShadow: "0px 0px 0px rgba(0,0,0,1)",
-          transition: { duration: 0.1 }
-        }}
         initial={{ opacity: 0, y: 20, x: 0 }}
         animate={{ opacity: 1, y: 0, x: 0 }}
         exit={{ 
@@ -504,7 +499,7 @@ const KartuTugas = ({ habit, index, activeFilter, onDoubleTap, onEdit, isDraggab
               window.addEventListener('pointerup', handleUp);
             }}
             onContextMenu={(e) => e.preventDefault()}
-            style={{ touchAction: 'none' }}
+            style={{ touchAction: 'pan-y' }}
             className="absolute inset-0 z-[10] cursor-grab active:cursor-grabbing"
           />
         )}

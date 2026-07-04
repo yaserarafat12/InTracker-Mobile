@@ -17,7 +17,7 @@ export const NavigasiAtas = ({ activeTab }: NavigasiAtasProps) => {
   const navigate = useNavigate();
 
   return (
-    <div className="fixed top-0 left-0 right-0 z-[100] bg-[#0d0f12]/70 backdrop-blur-[20px] backdrop-saturate-150 border-b border-white/[0.08] px-6 flex justify-between items-center h-[80px] rounded-b-[24px] shadow-[0_4px_30px_rgba(0,0,0,0.3)]">
+    <div className="fixed top-0 left-0 right-0 z-[100] bg-[#0d0f12] border-b border-white/[0.08] px-6 flex justify-between items-center h-[80px] shadow-[0_4px_30px_rgba(0,0,0,0.3)]">
       {activeTab === 'habits' ? (
         <>
           <motion.div 
@@ -27,14 +27,14 @@ export const NavigasiAtas = ({ activeTab }: NavigasiAtasProps) => {
             <Icon icon="solar:fire-bold" width={22} height={22} className="text-white" />
             <span className="text-[20px] font-black font-['Outfit'] text-white tracking-normal leading-none">{totalStreak || profile?.streak_count || 0}</span>
           </motion.div>
-
+ 
           <div className="flex items-center gap-3">
             <AmbientPlayer />
             <motion.button
               whileTap={{ x: 2, y: 2, boxShadow: "0px 0px 0px black" }}
               onClick={toggleSettings}
               className={`w-11 h-11 rounded-xl shadow-[4px_4px_0px_rgba(0,0,0,1)] flex items-center justify-center transition-all border-[1.5px] ${
-                isSettingsOpen ? 'bg-[#00FF85] border-black' : 'bg-[#1A1A1A] border-white/10'
+                isSettingsOpen ? 'bg-[#10B981] border-black' : 'bg-[#1A1A1A] border-white/10'
               }`}
             >
               <Icon icon="solar:settings-bold" width={22} className={isSettingsOpen ? 'text-black' : 'text-[#8E8E8E]'} />
@@ -55,14 +55,14 @@ export const NavigasiAtas = ({ activeTab }: NavigasiAtasProps) => {
               </h2>
             </div>
           </div>
-
+ 
           <div className="flex items-center gap-3">
             <AmbientPlayer />
             <motion.button
               whileTap={{ x: 2, y: 2, boxShadow: "0px 0px 0px black" }}
               onClick={toggleSettings}
               className={`w-11 h-11 rounded-xl shadow-[4px_4px_0px_rgba(0,0,0,1)] flex items-center justify-center transition-all border-[1.5px] ${
-                isSettingsOpen ? 'bg-[#00FF85] border-black' : 'bg-[#1A1A1A] border-white/10'
+                isSettingsOpen ? 'bg-[#10B981] border-black' : 'bg-[#1A1A1A] border-white/10'
               }`}
             >
               <Icon icon="solar:settings-bold" width={22} className={isSettingsOpen ? 'text-black' : 'text-[#8E8E8E]'} />
@@ -70,7 +70,7 @@ export const NavigasiAtas = ({ activeTab }: NavigasiAtasProps) => {
           </div>
         </div>
       )}
-
+ 
     </div>
   );
 };
