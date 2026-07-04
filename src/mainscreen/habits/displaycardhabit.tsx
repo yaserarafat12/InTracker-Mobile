@@ -509,11 +509,11 @@ const KartuTugas = ({ habit, index, activeFilter, onDoubleTap, onEdit, isDraggab
           />
         )}
 
-        {/* Left and Right Swipe Handles (15% width each, below Info button) */}
+        {/* Left and Right Swipe Handles (20% width each, below Info button) */}
         {canDrag && (
           <>
             <div 
-              className="absolute left-0 top-[40px] bottom-0 w-[15%] z-[45] cursor-grab active:cursor-grabbing"
+              className="absolute left-0 top-[40px] bottom-0 w-[20%] z-[45] cursor-grab active:cursor-grabbing"
               onPointerDown={(e) => {
                 if (navigator.vibrate) navigator.vibrate(10);
                 swipeControls.start(e);
@@ -521,7 +521,7 @@ const KartuTugas = ({ habit, index, activeFilter, onDoubleTap, onEdit, isDraggab
               style={{ touchAction: 'none' }}
             />
             <div 
-              className="absolute right-0 top-[40px] bottom-0 w-[15%] z-[45] cursor-grab active:cursor-grabbing"
+              className="absolute right-0 top-[40px] bottom-0 w-[20%] z-[45] cursor-grab active:cursor-grabbing"
               onPointerDown={(e) => {
                 if (navigator.vibrate) navigator.vibrate(10);
                 swipeControls.start(e);
