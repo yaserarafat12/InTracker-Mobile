@@ -3064,7 +3064,7 @@ export default function Questions() {
                 }`}>
                   <Icon icon="ph:gender-male-bold" className={gender === 'Male' ? (isLight ? 'text-black' : 'text-[#10B981]') : 'text-neutral-400'} width={36} height={36} />
                 </div>
-                <span className={`text-sm font-black font-['Outfit'] tracking-wider ${gender === 'Male' ? 'text-black' : isLight ? 'text-neutral-700' : 'text-white/40'}`}>
+                <span className={`text-sm font-black font-['Outfit'] tracking-wider ${gender === 'Male' ? (isLight ? 'text-black' : 'text-white') : isLight ? 'text-neutral-700' : 'text-white/40'}`}>
                   {isIndo ? 'Laki-laki' : 'Male'}
                 </span>
               </motion.button>
@@ -3098,7 +3098,7 @@ export default function Questions() {
                 }`}>
                   <Icon icon="ph:gender-female-bold" className={gender === 'Female' ? (isLight ? 'text-black' : 'text-[#10B981]') : 'text-neutral-400'} width={36} height={36} />
                 </div>
-                <span className={`text-sm font-black font-['Outfit'] tracking-wider ${gender === 'Female' ? 'text-black' : isLight ? 'text-neutral-700' : 'text-white/40'}`}>
+                <span className={`text-sm font-black font-['Outfit'] tracking-wider ${gender === 'Female' ? (isLight ? 'text-black' : 'text-white') : isLight ? 'text-neutral-700' : 'text-white/40'}`}>
                   {isIndo ? 'Perempuan' : 'Female'}
                 </span>
               </motion.button>
@@ -3127,7 +3127,7 @@ export default function Questions() {
               }`}
             >
               <Icon icon="ph:gender-neuter-bold" className={gender === 'Other' ? (isLight ? 'text-black' : 'text-[#10B981]') : 'text-neutral-400'} width={20} height={20} />
-              <span className={`text-xs font-black font-['Outfit'] tracking-wider ${gender === 'Other' ? 'text-black font-extrabold' : isLight ? 'text-neutral-700 font-bold' : 'text-white/40'}`}>
+              <span className={`text-xs font-black font-['Outfit'] tracking-wider ${gender === 'Other' ? (isLight ? 'text-black font-extrabold' : 'text-white font-extrabold') : isLight ? 'text-neutral-700 font-bold' : 'text-white/40'}`}>
                 {isIndo ? 'Lainnya' : 'Other'}
               </span>
             </motion.button>
