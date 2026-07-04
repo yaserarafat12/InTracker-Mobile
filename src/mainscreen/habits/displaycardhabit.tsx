@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, useMotionValue, useTransform, animate, AnimatePresence, useDragControls } from 'framer-motion';
 import { Icon } from '@iconify/react';
 import { HABIT_ICONS, HABIT_COLORS, CATEGORY_COLORS, isCustomIcon, getCustomIconKey, HABIT_OPTIONS } from './icons';
@@ -75,6 +75,15 @@ const KartuTugas = ({ habit, index, activeFilter, onDoubleTap, onEdit, isDraggab
   const [showInfoModal, setShowInfoModal] = useState(false);
   const x = useMotionValue(0);
   const swipeControls = useDragControls();
+  const [isSwiped, setIsSwiped] = useState(false);
+
+  useEffect(() => {
+    const unsubscribe = x.on("change", (latest) => {
+      const active = Math.abs(latest) > 5;
+      setIsSwiped(active);
+    });
+    return () => unsubscribe();
+  }, [x]);
 
   const isToday = !selectedDate || (() => {
     const today = new Date();
@@ -267,7 +276,7 @@ const KartuTugas = ({ habit, index, activeFilter, onDoubleTap, onEdit, isDraggab
 
       <motion.div
         drag={canDrag ? "x" : false}
-        dragListener={false}
+        dragListener={isSwiped}
         dragControls={swipeControls}
         dragConstraints={{ left: -140, right: 140 }}
         dragElastic={0.2}

@@ -73,7 +73,7 @@ export default function Login() {
           initial={{ opacity: 0, scale: 1.05 }}
           animate={{ opacity: 0.7, scale: 1 }}
           transition={{ duration: 1.5, ease: "easeOut" as const }}
-          src="/all_images/antigravitybg/login_sky.jpg" 
+          src="/all_images/antigravitybg/log_bg.png" 
           className="w-full h-full object-cover opacity-70" 
           onError={(e) => {
             (e.target as HTMLElement).style.display = 'none';
