@@ -13,7 +13,7 @@ const CinematicButton = ({ onClick, children, className = "" }: { onClick: () =>
     <motion.button
       onClick={onClick}
       whileTap={{ scale: 0.98, x: 2, y: 2, boxShadow: "0px 0px 0px rgba(0,0,0,1)" }}
-      className={`group relative overflow-hidden rounded-xl bg-[#00FF85] py-3 px-8 border-[2px] border-black shadow-[5px_5px_0px_rgba(0,0,0,1)] transition-all ${className}`}
+      className={`group relative overflow-hidden rounded-xl bg-[#10B981] py-3 px-8 border-[2px] border-black shadow-[5px_5px_0px_rgba(0,0,0,1)] transition-all ${className}`}
     >
       <div className="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors" />
       <span className="relative z-10 font-['Outfit'] text-[15px] font-black tracking-wide text-[#050A07]">
@@ -34,25 +34,25 @@ const IndustrialToggle = ({ active, onToggle }: { active: boolean, onToggle: () 
         e.stopPropagation();
         onToggle();
       }} 
-      className={`relative w-[52px] h-[28px] rounded-full border-2 transition-colors duration-300 overflow-hidden ${
+      className={`relative w-[52px] h-[28px] rounded-full border-[2px] border-black transition-colors duration-300 ${
         isLight
           ? active
-            ? 'bg-[#00FF85] border-black'
-            : 'bg-[#E5E5EA] border-black'
+            ? 'bg-[#10B981]'
+            : 'bg-[#E5E5EA]'
           : active
-            ? 'bg-[#00FF85] border-black'
-            : 'bg-[#2A2A2A] border-white/20'
+            ? 'bg-[#10B981]'
+            : 'bg-[#2A2A2A]'
       }`}
     >
       <motion.div
         animate={{ x: active ? 24 : 2 }}
         transition={{ type: "spring", stiffness: 500, damping: 30 }}
-        className={`absolute top-[2px] w-[20px] h-[20px] rounded-full border transition-all ${
+        className={`absolute top-[2px] w-[20px] h-[20px] rounded-full border border-black shadow-[1px_1px_0px_rgba(0,0,0,1)] transition-all ${
           isLight
-            ? 'bg-white border-black shadow-[1px_1px_0px_rgba(0,0,0,1)]'
+            ? 'bg-white'
             : active
-              ? 'bg-white border-black shadow-[1px_1px_0px_rgba(0,0,0,1)]'
-              : 'bg-[#A0A0A0] border-transparent'
+              ? 'bg-white'
+              : 'bg-neutral-500'
         }`}
       />
     </button>
@@ -78,13 +78,13 @@ const NotificationCard = ({ item, active, onToggle, variants }: any) => {
           transition-all duration-300 ease-out shadow-[5px_5px_0px_rgba(0,0,0,1)]
           ${isLight 
             ? active 
-              ? 'bg-[#00FF85]/10 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] text-black' 
+              ? 'bg-[#10B981]/10 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] text-black' 
               : 'bg-white border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] text-black'
             : active
-              ? 'bg-[#00FF85]/05 border-[#00FF85] shadow-[5px_5px_0px_rgba(0,0,0,1)] text-white'
+              ? 'bg-[#10B981]/05 border-[#10B981] shadow-[5px_5px_0px_rgba(0,0,0,1)] text-white'
               : 'bg-[#1A1A1A] border-white/[0.08] shadow-[5px_5px_0px_rgba(0,0,0,1)] text-white'
           }
-          group-hover:border-[#00FF85]/40
+          group-hover:border-[#10B981]/40
           cursor-pointer
         `}
       >
@@ -233,10 +233,10 @@ export default function Notif() {
     }`}>
       {/* Background glow decorators — brighter */}
       <div className={`absolute top-[-10%] left-[-20%] w-[60%] h-[60%] rounded-full pointer-events-none z-0 ${
-        isLight ? 'bg-[#00FF85]/03 blur-[80px]' : 'bg-[#00FF85]/15 blur-[100px]'
+        isLight ? 'bg-[#10B981]/03 blur-[80px]' : 'bg-[#10B981]/15 blur-[100px]'
       }`} />
       <div className={`absolute bottom-[-10%] right-[-20%] w-[60%] h-[60%] rounded-full pointer-events-none z-0 ${
-        isLight ? 'bg-[#00FF85]/03 blur-[80px]' : 'bg-[#00FF85]/15 blur-[100px]'
+        isLight ? 'bg-[#10B981]/03 blur-[80px]' : 'bg-[#10B981]/15 blur-[100px]'
       }`} />
 
       <div className="relative z-10 w-full max-w-[420px] px-6 flex flex-col flex-1 pt-24">
@@ -250,9 +250,9 @@ export default function Notif() {
             className="flex flex-col items-center text-center gap-4"
           >
             <div className={`w-14 h-14 rounded-full flex items-center justify-center border relative ${
-              isLight ? 'bg-[#00FF85]/20 border-black' : 'bg-[#00FF85]/10 border-[#00FF85]/20'
+              isLight ? 'bg-[#10B981]/20 border-black' : 'bg-[#10B981]/10 border-[#10B981]/20'
             }`}>
-              <Icon icon="solar:bell-bing-bold" className={isLight ? 'text-black' : 'text-[#00FF85]'} width={24} height={24} />
+              <Icon icon="solar:bell-bing-bold" className={isLight ? 'text-black' : 'text-[#10B981]'} width={24} height={24} />
             </div>
             <h1 className={`font-['Outfit'] text-[20px] font-bold leading-tight tracking-normal px-4 text-center ${
               isLight ? 'text-black font-extrabold' : 'text-white'
