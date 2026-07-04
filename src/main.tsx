@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import ReactDOM from 'react-dom/client';
 import { createBrowserRouter, RouterProvider, Navigate } from 'react-router-dom';
 import { supabase } from './lib/supabase';
+import { injectSpeedInsights } from '@vercel/speed-insights';
 
 import Login from './pages/Login.tsx';
 import Name from './pages/Name.tsx';
@@ -77,6 +78,7 @@ const initTheme = () => {
 
 initTheme();
 startReminderService();
+injectSpeedInsights();
 
 // Komponen buat ngecek: Lu udah login apa belum?
 const AuthGuard = ({ children }: { children: React.ReactNode }) => {
