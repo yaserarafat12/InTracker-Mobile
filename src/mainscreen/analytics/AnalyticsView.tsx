@@ -12,6 +12,7 @@ import { calculateBarHeights, shouldShowIntensityPicker } from '../../utils/inte
 import { isScheduledDay } from '../../utils/scheduleHelpers';
 import { getLevelInfo } from '../../engines/levelSystem';
 import LoadingScreen from '../../components/LoadingScreen';
+import { useTranslation } from '../../i18n';
 
 // --- Types ---
 type MainTab = 'recap' | 'pattern' | 'stats';
@@ -47,7 +48,7 @@ function formatDate(d: Date): string {
   return `${d.getFullYear()}-${(d.getMonth() + 1).toString().padStart(2, '0')}-${d.getDate().toString().padStart(2, '0')}`;
 }
 
-function getDateRange(range: TimeRange): { startDate: string; endDate: string; days: number } {
+function getDateRange(range: TimeRange, programDuration: number = 90): { startDate: string; endDate: string; days: number } {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   const endDate = formatDate(today);
@@ -66,7 +67,7 @@ function getDateRange(range: TimeRange): { startDate: string; endDate: string; d
   let daysCount: number;
   switch (range) {
     case 'monthly': daysCount = 30; break;
-    case '90days': daysCount = 90; break;
+    case '90days': daysCount = programDuration; break;
     default: daysCount = 7;
   }
 
@@ -77,7 +78,7 @@ function getDateRange(range: TimeRange): { startDate: string; endDate: string; d
   return { startDate, endDate, days: daysCount };
 }
 
-function buildDayStatuses(range: TimeRange, activeDates: Set<string>): DayStatus[] {
+function buildDayStatuses(range: TimeRange, activeDates: Set<string>, programDuration: number = 90): DayStatus[] {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   const todayStr = formatDate(today);
@@ -107,7 +108,7 @@ function buildDayStatuses(range: TimeRange, activeDates: Set<string>): DayStatus
   }
 
   // Monthly & 90 days: show last N days
-  const { days } = getDateRange(range);
+  const { days } = getDateRange(range, programDuration);
   const result: DayStatus[] = [];
   for (let i = days - 1; i >= 0; i--) {
     const date = new Date(today);
@@ -130,8 +131,9 @@ const DAY_LABELS = ['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min'];
 
 // --- Main Component ---
 export const AnalyticsView = () => {
+  const { t } = useTranslation();
   const { habits, fetchHabits } = useHabitStore();
-  const { profile } = useUserStore();
+  const { profile, settings } = useUserStore();
   const { targets } = useTargetStore();
   const { entries: journeyEntries, fetchEntries } = useJourneyStore();
 
@@ -144,8 +146,29 @@ export const AnalyticsView = () => {
     loading: true,
   });
 
-  // Fetch habit logs from Supabase
+  // Fetch habit logs from Supabase or Local Storage (Guest Mode)
   const fetchAnalytics = useCallback(async () => {
+    const isGuest = localStorage.getItem('guest_mode') === 'true';
+    if (isGuest) {
+      setAnalyticsData(prev => ({ ...prev, loading: true }));
+      const guestLogsStr = localStorage.getItem('guest_habit_logs') || '[]';
+      try {
+        const guestLogs = JSON.parse(guestLogsStr);
+        const mappedLogs = guestLogs.map((l: any) => ({
+          id: l.id || Math.random().toString(),
+          user_id: 'guest-id',
+          habit_id: l.habit_id,
+          date: l.date,
+          status: l.status,
+          intensity_value: l.intensity_value ?? null,
+        }));
+        setAnalyticsData({ habitLogs: mappedLogs, loading: false });
+      } catch {
+        setAnalyticsData({ habitLogs: [], loading: false });
+      }
+      return;
+    }
+
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
       setAnalyticsData({ habitLogs: [], loading: false });
@@ -167,10 +190,6 @@ export const AnalyticsView = () => {
       }
     }
     
-    // Always fetch from at least 90 days ago to cover full program
-    const startDate = formatDate(fetchFrom);
-    const endDate = formatDate(new Date());
-
     // Fetch ALL habit logs (no date filter) to ensure 90-day program has full data
     const { data: logs, error } = await supabase
       .from('habit_logs')
@@ -191,34 +210,39 @@ export const AnalyticsView = () => {
   }, [fetchAnalytics, fetchHabits, fetchEntries]);
 
   const mainTabs: { id: MainTab; label: string }[] = [
-    { id: 'pattern', label: 'Pola' },
-    { id: 'recap', label: 'Aktivitas' },
-    { id: 'stats', label: 'Statistik' },
+    { id: 'pattern', label: t('analytics.tabs.pattern') },
+    { id: 'stats', label: t('analytics.tabs.stats') },
+    { id: 'recap', label: t('analytics.tabs.activity') },
   ];
 
+  const programDuration = settings.programDuration || 90;
   const timeRanges: { id: TimeRange; label: string }[] = [
-    { id: 'weekly', label: 'Minggu' },
-    { id: 'monthly', label: 'Bulan' },
-    { id: '90days', label: '90 Hari' },
+    { id: 'weekly', label: t('analytics.ranges.week') },
+    { id: 'monthly', label: t('analytics.ranges.month') },
+    { id: '90days', label: `${programDuration} Hari` },
   ];
 
   if (analyticsData.loading) {
-    return <LoadingScreen message="Memuat analytics..." />;
+    return <LoadingScreen message={t('analytics.loading')} />;
   }
 
+  const isLight = !document.documentElement.classList.contains('dark');
+
   return (
-    <div className="flex flex-col h-full text-[#E3DAC9] font-['Outfit'] px-5 pt-8 pb-32">
+    <div className={`flex flex-col h-full font-['Outfit'] px-5 pt-8 pb-32 ${isLight ? 'text-black' : 'text-[#E3DAC9]'}`}>
       {/* Main Tabs */}
-      <div className="flex items-center gap-2 mb-14">
+      <div className="flex items-center gap-3 mb-14">
         {mainTabs.map((tab) => (
           <motion.button
             key={tab.id}
-            whileTap={{ scale: 0.95 }}
+            whileTap={{ x: 2, y: 2, boxShadow: "0px 0px 0px rgba(0,0,0,1)" }}
             onClick={() => setMainTab(tab.id)}
-            className={`flex-1 py-2.5 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all border ${
+            className={`flex-1 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all border-[2px] ${
               mainTab === tab.id
-                ? 'bg-[#E3DAC9] text-black border-[#E3DAC9] shadow-[0_2px_10px_rgba(227,218,201,0.15)]'
-                : 'bg-[#1c1e22]/80 backdrop-blur-md text-[#E3DAC9]/50 border-white/10'
+                ? 'bg-[#E3DAC9] text-black border-black shadow-[4px_4px_0px_rgba(0,0,0,1)]'
+                : (isLight
+                    ? 'bg-white text-black/55 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)]'
+                    : 'bg-os-card-bg dark:bg-[#22252a] text-[#E3DAC9]/50 dark:text-white/45 border-black dark:border-white/15 shadow-[4px_4px_0px_rgba(0,0,0,1)] dark:shadow-none')
             }`}
           >
             {tab.label}
@@ -299,32 +323,38 @@ function ActivityRecap({ habits, habitLogs, targets, journeyEntries, timeRange, 
   timeRanges: { id: TimeRange; label: string }[];
   profile: any;
 }) {
-  const { startDate, endDate, days: daysInRange } = useMemo(() => getDateRange(timeRange), [timeRange]);
+  const { t } = useTranslation();
+  const { settings } = useUserStore();
+  const isLight = !document.documentElement.classList.contains('dark');
+  const programDuration = settings.programDuration || 90;
+  const { startDate, endDate, days: daysInRange } = useMemo(() => getDateRange(timeRange, programDuration), [timeRange, programDuration]);
 
   // Filter logs for current time range
   const logsInRange = useMemo(() => {
     return habitLogs.filter(log => log.date >= startDate && log.date <= endDate);
   }, [habitLogs, startDate, endDate]);
 
-  // Completed logs only
+  // Completed logs only for active habits
   const completedLogs = useMemo(() => {
-    return logsInRange.filter(log => log.status === 'completed');
-  }, [logsInRange]);
+    const activeHabitIds = new Set(habits.map(h => h.id));
+    return logsInRange.filter(log => log.status === 'completed' && activeHabitIds.has(log.habit_id));
+  }, [logsInRange, habits]);
 
   // Active dates (days with at least 1 completed habit)
-  // For 90-day view, use ALL logs from join date (not just last 90 days)
+  // For program duration view, use ALL logs from join date (not just last N days)
   const activeDates = useMemo(() => {
     const dates = new Set<string>();
     if (timeRange === '90days') {
+      const activeHabitIds = new Set(habits.map(h => h.id));
       // Use all completed logs regardless of range filter
       habitLogs
-        .filter(log => log.status === 'completed')
+        .filter(log => log.status === 'completed' && activeHabitIds.has(log.habit_id))
         .forEach(log => dates.add(log.date));
     } else {
       completedLogs.forEach(log => dates.add(log.date));
     }
     return dates;
-  }, [timeRange, completedLogs, habitLogs]);
+  }, [timeRange, completedLogs, habitLogs, habits]);
 
   // Build day statuses for calendar
   const dayStatuses = useMemo(() => {
@@ -342,10 +372,10 @@ function ActivityRecap({ habits, habitLogs, targets, journeyEntries, timeRange, 
         joinDate = new Date(sortedDates[0] + 'T00:00:00');
       }
       
-      // Final fallback: 90 days ago
+      // Final fallback: N days ago
       if (!joinDate) {
         joinDate = new Date();
-        joinDate.setDate(joinDate.getDate() - 89);
+        joinDate.setDate(joinDate.getDate() - (programDuration - 1));
       }
       
       joinDate.setHours(0, 0, 0, 0);
@@ -354,7 +384,7 @@ function ActivityRecap({ habits, habitLogs, targets, journeyEntries, timeRange, 
       const todayStr = formatDate(today);
       
       const result: DayStatus[] = [];
-      for (let i = 0; i < 90; i++) {
+      for (let i = 0; i < programDuration; i++) {
         const date = new Date(joinDate);
         date.setDate(joinDate.getDate() + i);
         const dateStr = formatDate(date);
@@ -370,16 +400,54 @@ function ActivityRecap({ habits, habitLogs, targets, journeyEntries, timeRange, 
       }
       return result;
     }
-    return buildDayStatuses(timeRange, activeDates);
-  }, [timeRange, activeDates, profile?.created_at, habitLogs]);
+    return buildDayStatuses(timeRange, activeDates, programDuration);
+  }, [timeRange, activeDates, profile?.created_at, habitLogs, programDuration]);
 
-  // Habit Rate = completed logs / (total habits × days in range) × 100
+  // Habit Rate = completed logs on scheduled days / total possible scheduled days x 100
   const habitRate = useMemo(() => {
-    const totalHabits = habits.length || 1;
-    const totalPossible = totalHabits * daysInRange;
+    let totalPossible = 0;
+    let completedCount = 0;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const habitIds = new Set(habits.map(h => h.id));
+    const activeCompletedLogs = completedLogs.filter(log => habitIds.has(log.habit_id));
+
+    habits.forEach(h => {
+      const created = h.created_at ? new Date(h.created_at) : new Date(0);
+      created.setHours(0, 0, 0, 0);
+
+      const start = new Date(startDate);
+      start.setHours(0, 0, 0, 0);
+      const rangeStart = created > start ? created : start;
+
+      const end = new Date(endDate);
+      end.setHours(0, 0, 0, 0);
+      const rangeEnd = end < today ? end : today;
+
+      const scheduleDays = h.schedule_days && h.schedule_days.length > 0
+        ? h.schedule_days
+        : [0, 1, 2, 3, 4, 5, 6];
+
+      if (rangeStart <= rangeEnd) {
+        const temp = new Date(rangeStart);
+        while (temp <= rangeEnd) {
+          if (scheduleDays.includes(temp.getDay())) {
+            totalPossible++;
+            const dateStr = formatDate(temp);
+            const isCompleted = activeCompletedLogs.some(log => log.habit_id === h.id && log.date === dateStr);
+            if (isCompleted) {
+              completedCount++;
+            }
+          }
+          temp.setDate(temp.getDate() + 1);
+        }
+      }
+    });
+
     if (totalPossible === 0) return 0;
-    return Math.round((completedLogs.length / totalPossible) * 100);
-  }, [completedLogs.length, habits.length, daysInRange]);
+    return Math.min(100, Math.round((completedCount / totalPossible) * 100));
+  }, [completedLogs, habits, startDate, endDate]);
 
   // To-Do Selesai = completed targets in range (using local date from completedAt)
   const todosCompleted = useMemo(() => {
@@ -413,15 +481,21 @@ function ActivityRecap({ habits, habitLogs, targets, journeyEntries, timeRange, 
   return (
     <div className="space-y-4">
       {/* Time Range Toggle - compact */}
-      <div className="bg-[#1c1e22] border-[2px] border-white/15 rounded-[10px] px-2 py-2 flex items-center gap-3 w-fit">
+      <div className={`border-[2px] rounded-[10px] px-2 py-2 flex items-center gap-3 w-fit transition-all ${
+        isLight ? 'bg-white border-black shadow-[2px_2px_0px_rgba(0,0,0,1)]' : 'bg-[#1c1e22] border-white/15'
+      }`}>
         {timeRanges.map((r) => (
           <button
             key={r.id}
             onClick={() => setTimeRange(r.id)}
             className={`px-2.5 py-1 rounded-md text-[8px] font-black uppercase tracking-wider transition-all ${
               timeRange === r.id
-                ? 'bg-[#00FF85]/15 text-[#00FF85] border border-[#00FF85]/30'
-                : 'text-[#E3DAC9]/30 border border-transparent'
+                ? (isLight
+                    ? 'bg-[#00FF85] text-black border border-black shadow-[1px_1px_0px_rgba(0,0,0,1)]'
+                    : 'bg-[#00FF85]/15 text-[#00FF85] border border-[#00FF85]/30')
+                : (isLight
+                    ? 'text-black/55 border border-transparent'
+                    : 'text-[#E3DAC9]/30 border border-transparent')
             }`}
           >
             {r.label}
@@ -430,7 +504,11 @@ function ActivityRecap({ habits, habitLogs, targets, journeyEntries, timeRange, 
       </div>
 
       {/* Dot Calendar */}
-      <div className="bg-[#1c1e22]/70 backdrop-blur-md border-[2px] border-white/10 rounded-[20px] p-5">
+      <div className={`backdrop-blur-md rounded-[20px] p-5 border-[2.5px] transition-all ${
+        isLight
+          ? 'bg-white border-black shadow-[4px_4px_0px_rgba(0,0,0,0.65)]'
+          : 'bg-[#1c1e22]/70 border-white/10'
+      }`}>
 
         {timeRange === 'weekly' && <WeeklyGrid days={dayStatuses} />}
         {timeRange === 'monthly' && <MonthlyGrid days={dayStatuses} />}
@@ -439,17 +517,17 @@ function ActivityRecap({ habits, habitLogs, targets, journeyEntries, timeRange, 
 
       {/* Summary Cards */}
       <div className="grid grid-cols-3 gap-3">
-        <SummaryCard icon="solar:checklist-minimalistic-bold" value={`${habitRate}%`} label="Rasio Habit" color="#00FF85" />
-        <SummaryCard icon="solar:target-bold" value={`${todosCompleted}`} label="To-Do Selesai" color="#00FF85" />
-        <SummaryCard icon="solar:notebook-bold" value={`${journalDays}`} label="Hari Jurnal" color="#00FF85" />
+        <SummaryCard icon="solar:checklist-minimalistic-bold" value={`${habitRate}%`} label={t('analytics.summary.habitRate')} color="#00FF85" />
+        <SummaryCard icon="solar:target-bold" value={`${todosCompleted}`} label={t('analytics.summary.todoCompleted')} color="#00FF85" />
+        <SummaryCard icon="solar:notebook-bold" value={`${journalDays}`} label={t('analytics.summary.journalDays')} color="#00FF85" />
       </div>
 
       {/* Empty state */}
       {completedLogs.length === 0 && (
         <div className="bg-os-card-bg border border-os-green/20 rounded-[20px] p-5 text-center shadow-[0_0_15px_rgba(0,255,133,0.05)]">
           <Icon icon="solar:ghost-bold" className="text-os-green/30 mx-auto mb-2" width={28} />
-          <p className="text-[11px] text-white/50 font-bold">Belum ada aktivitas di periode ini</p>
-          <p className="text-[9px] text-white/30 mt-1">Selesaikan habit untuk melihat progress-mu!</p>
+          <p className="text-[11px] text-white/50 font-bold">{t('analytics.empty.title')}</p>
+          <p className="text-[9px] text-white/30 mt-1">{t('analytics.empty.subtitle')}</p>
         </div>
       )}
     </div>
@@ -467,6 +545,9 @@ function HabitPattern({ habits, habitLogs, timeRange, setTimeRange, timeRanges }
   setTimeRange: (r: TimeRange) => void;
   timeRanges: { id: TimeRange; label: string }[];
 }) {
+  const { t } = useTranslation();
+  const { settings } = useUserStore();
+  const isLight = !document.documentElement.classList.contains('dark');
   const [selectedCategory, setSelectedCategory] = useState('Semua');
   const [expandedHabit, setExpandedHabit] = useState<string | null>(null);
 
@@ -499,6 +580,17 @@ function HabitPattern({ habits, habitLogs, timeRange, setTimeRange, timeRanges }
   // Fixed categories matching addhabit modal
   const categories = ['Semua', 'Rutinitas', 'Ketenangan Diri', 'Evolusi Diri', 'Latihan Fisik'];
 
+  const getCategoryLabel = (cat: string) => {
+    switch (cat) {
+      case 'Semua': return t('habits.categories.all');
+      case 'Rutinitas': return t('habits.categories.routine');
+      case 'Ketenangan Diri': return t('habits.categories.mindfulness');
+      case 'Evolusi Diri': return t('habits.categories.evolution');
+      case 'Latihan Fisik': return t('habits.categories.exercise');
+      default: return cat;
+    }
+  };
+
   // Filter habits by category
   const filteredHabits = useMemo(() => {
     if (selectedCategory === 'Semua') return habits;
@@ -511,10 +603,15 @@ function HabitPattern({ habits, habitLogs, timeRange, setTimeRange, timeRanges }
       const habitCompletedLogs = habitLogs.filter(
         log => log.habit_id === habit.id && log.status === 'completed'
       );
-      const totalDays = Math.max(1, Math.floor((Date.now() - new Date(habitCompletedLogs[0]?.date || Date.now()).getTime()) / (1000 * 60 * 60 * 24)) + 1);
+      const startDate = habit.created_at ? new Date(habit.created_at) : (habitCompletedLogs[0]?.date ? new Date(habitCompletedLogs[0].date + 'T00:00:00') : new Date());
+      startDate.setHours(0, 0, 0, 0);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const totalDays = Math.max(1, Math.floor((today.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)) + 1);
       const completionRate = Math.min(100, Math.round((habitCompletedLogs.length / Math.min(totalDays, 90)) * 100));
 
       return {
+        ...habit,
         id: habit.id,
         name: habit.name,
         iconName: habit.iconName || habit.icon_name || '',
@@ -539,20 +636,23 @@ function HabitPattern({ habits, habitLogs, timeRange, setTimeRange, timeRanges }
         <div 
           ref={catScrollRef}
           onScroll={handleCatScroll}
-          className="flex gap-2 overflow-x-auto no-scrollbar pb-2"
+          className="flex gap-3 overflow-x-auto no-scrollbar pb-3"
         >
           {categories.map((cat) => (
-            <button
+            <motion.button
               key={cat}
+              whileTap={{ x: 2, y: 2, boxShadow: "0px 0px 0px rgba(0,0,0,1)" }}
               onClick={() => setSelectedCategory(cat)}
-              className={`px-3.5 py-2 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all whitespace-nowrap border ${
+              className={`px-4 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all whitespace-nowrap border-[2px] ${
                 selectedCategory === cat
-                  ? 'bg-[#E3DAC9] text-black border-[#E3DAC9] shadow-[0_4px_12px_rgba(227,218,201,0.15)]'
-                  : 'bg-[#1c1e22]/80 backdrop-blur-md text-[#E3DAC9]/40 border-white/10 hover:text-white hover:border-white/20'
+                  ? 'bg-[#E3DAC9] text-black border-black shadow-[4px_4px_0px_rgba(0,0,0,1)]'
+                  : (isLight
+                      ? 'bg-white text-black/55 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)]'
+                      : 'bg-os-card-bg dark:bg-[#22252a] text-[#E3DAC9]/40 dark:text-white/45 border-black dark:border-white/15 shadow-[4px_4px_0px_rgba(0,0,0,1)] dark:shadow-none')
               }`}
             >
-              {cat}
-            </button>
+              {getCategoryLabel(cat)}
+            </motion.button>
           ))}
         </div>
         {/* Custom Scroll Indicator - thin & premium */}
@@ -580,7 +680,11 @@ function HabitPattern({ habits, habitLogs, timeRange, setTimeRange, timeRanges }
                 <motion.button
                   whileTap={{ scale: 0.97 }}
                   onClick={() => setExpandedHabit(isExpanded ? null : h.id)}
-                  className={`w-full relative overflow-visible border-[3px] border-white/30 shadow-[0_8px_25px_rgba(0,0,0,0.8)] text-left h-[120px] ${
+                  className={`w-full relative overflow-visible border-[3px] text-left h-[120px] habit-analytics-card transition-all ${
+                    isLight 
+                      ? 'border-black shadow-[4px_4px_0px_rgba(0,0,0,0.65)]' 
+                      : 'border-white/30 shadow-[0_8px_25px_rgba(0,0,0,0.8)]'
+                  } ${
                     isExpanded ? 'rounded-t-[14px] rounded-b-none border-b-0' : 'rounded-[14px]'
                   }`}
                 >
@@ -605,7 +709,9 @@ function HabitPattern({ habits, habitLogs, timeRange, setTimeRange, timeRanges }
 
                   {/* Content */}
                   <div className="absolute inset-0 p-4 flex flex-col justify-end z-10">
-                    <span className="text-[15px] font-black text-white font-['Outfit'] drop-shadow-lg">{h.name}</span>
+                    <span className="text-[15px] font-black text-white font-['Outfit'] drop-shadow-lg">
+                      {t(`presets.${h.name}`) === `presets.${h.name}` ? h.name : t(`presets.${h.name}`)}
+                    </span>
                   </div>
                 </motion.button>
 
@@ -628,25 +734,38 @@ function HabitPattern({ habits, habitLogs, timeRange, setTimeRange, timeRanges }
           })}
         </div>
       ) : (
-        <div className="bg-os-card-bg border border-os-green/20 rounded-[20px] p-6 text-center shadow-[0_0_15px_rgba(0,255,133,0.05)]">
-          <Icon icon="solar:ghost-bold" className="text-os-green/30 mx-auto mb-2" width={28} />
-          <p className="text-[11px] text-white/50 font-bold">Belum ada habit untuk dianalisis</p>
+        <div className={`flex flex-col items-center justify-center min-h-[320px] rounded-[20px] p-8 text-center border-2 transition-all duration-300 ${
+          isLight
+            ? 'bg-white border-black text-black shadow-[4px_4px_0px_rgba(0,0,0,1)]'
+            : 'bg-os-card-bg border-os-green/20 text-white shadow-[0_0_15px_rgba(0,255,133,0.05)]'
+        }`}>
+          <Icon icon="solar:ghost-bold" className={`mx-auto mb-3 ${isLight ? 'text-black/30' : 'text-[#00FF85]/30'}`} width={32} />
+          <p className={`text-[12px] font-bold ${isLight ? 'text-black/60' : 'text-white/50'}`}>
+            {t('analytics.emptyHabits')}
+          </p>
         </div>
       )}
     </div>
   );
 }
-
 // --- Inline Detail (expands below card) ---
 function HabitInlineDetail({ habit, habitLogs }: { habit: any; habitLogs: HabitLog[] }) {
+  const { t, language } = useTranslation();
+  const { settings } = useUserStore();
+  const isLight = !document.documentElement.classList.contains('dark');
   const [recordMonth, setRecordMonth] = useState<1 | 2 | 3>(1);
 
   const allHabitLogs = useMemo(() => {
     return habitLogs.filter(l => l.habit_id === habit.id && l.status === 'completed');
   }, [habitLogs, habit.id]);
 
-  // First log date = Day 1
+  // First log date = Day 1 (or habit creation date)
   const firstLogDate = useMemo(() => {
+    if (habit.created_at) {
+      const d = new Date(habit.created_at);
+      d.setHours(0, 0, 0, 0);
+      return d;
+    }
     const sorted = allHabitLogs.map(l => l.date).sort();
     if (sorted.length > 0) {
       const d = new Date(sorted[0] + 'T00:00:00');
@@ -656,12 +775,20 @@ function HabitInlineDetail({ habit, habitLogs }: { habit: any; habitLogs: HabitL
     const d = new Date();
     d.setHours(0, 0, 0, 0);
     return d;
-  }, [allHabitLogs]);
+  }, [allHabitLogs, habit.created_at]);
 
   // Current day & week
   const today = new Date();
   today.setHours(0, 0, 0, 0);
-  const currentDayNumber = Math.max(1, Math.floor((today.getTime() - firstLogDate.getTime()) / (1000 * 60 * 60 * 24)) + 1);
+  
+  const pausedDays = settings.pausedDays || [];
+  const pausedBeforeToday = pausedDays.filter(dStr => {
+    const d = new Date(dStr + 'T00:00:00');
+    d.setHours(0, 0, 0, 0);
+    return d >= firstLogDate && d <= today;
+  }).length;
+
+  const currentDayNumber = Math.max(1, Math.floor((today.getTime() - firstLogDate.getTime()) / (1000 * 60 * 60 * 24)) - pausedBeforeToday + 1);
   const totalWeeks = Math.ceil(currentDayNumber / 7);
   const [currentWeek, setCurrentWeek] = useState(totalWeeks);
 
@@ -687,10 +814,10 @@ function HabitInlineDetail({ habit, habitLogs }: { habit: any; habitLogs: HabitL
 
   const completedThisWeek = weeklyData.filter(d => d.done && !d.isFuture && d.isScheduled).length;
 
-  // Determine if this is a numeric habit using shouldShowIntensityPicker
+  // Determine if this is a numeric habit using shouldShowIntensityPicker or database target_intensity
   const isNumericHabit = useMemo(() => {
-    return shouldShowIntensityPicker(habit.name);
-  }, [habit.name]);
+    return shouldShowIntensityPicker(habit.name) || (habit.target_intensity || habit.targetIntensity || 0) > 0;
+  }, [habit.name, habit.target_intensity, habit.targetIntensity]);
 
   // Calculate week dates for bar height computation
   const weekDates = useMemo(() => {
@@ -711,7 +838,7 @@ function HabitInlineDetail({ habit, habitLogs }: { habit: any; habitLogs: HabitL
     }));
     const habitOption = HABIT_OPTIONS.find(o => o.name === habit.name);
     const intensityConfig = habitOption?.intensity;
-    const defaultIntensity = intensityConfig?.defaultValue || habit.target_intensity || 1;
+    const defaultIntensity = habit.target_intensity ?? intensityConfig?.defaultValue ?? 1;
     const options = intensityConfig?.options;
     return calculateBarHeights(logsWithIntensity, weekDates, true, defaultIntensity, options);
   }, [isNumericHabit, allHabitLogs, weekDates, habit.name, habit.target_intensity]);
@@ -731,7 +858,9 @@ function HabitInlineDetail({ habit, habitLogs }: { habit: any; habitLogs: HabitL
 
   const startIdx = (recordMonth - 1) * 28;
   const monthSlice = allTimeRecord.slice(startIdx, startIdx + 28);
-  const dayNames = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
+  const dayNames = language === 'Bahasa Indonesia'
+    ? ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab']
+    : ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
   
   // Dynamic day labels based on actual dates in current week
   const dayLabels = useMemo(() => {
@@ -741,23 +870,29 @@ function HabitInlineDetail({ habit, habitLogs }: { habit: any; habitLogs: HabitL
       d.setDate(firstLogDate.getDate() + weekStartDay + i);
       return dayNames[d.getDay()];
     });
-  }, [currentWeek, firstLogDate]);
+  }, [currentWeek, firstLogDate, dayNames]);
 
   return (
-    <div className="bg-[#1c1e22]/70 backdrop-blur-sm border-[3px] border-t-0 border-white/20 rounded-b-[14px] p-4 pt-5 space-y-4 shadow-[0_8px_40px_rgba(0,255,133,0.04)]">
+    <div className={`backdrop-blur-sm border-[3px] border-t-0 rounded-b-[14px] p-4 pt-5 space-y-4 transition-all ${
+      isLight
+        ? 'bg-[#fbfbfb] border-black shadow-[4px_4px_0px_rgba(0,0,0,0.65)] text-black'
+        : 'bg-[#1c1e22]/70 border-white/20 text-white shadow-[0_8px_40px_rgba(0,255,133,0.04)]'
+    } habit-analytics-detail`}>
 
       {/* Weekly Section */}
       <div>
         <div className="flex items-center justify-between mb-6">
-          <span className="text-[10px] font-bold text-white/40 uppercase tracking-widest">Minggu {currentWeek}</span>
-          <div className="flex items-center gap-1.5">
+          <span className={`text-[10px] font-bold uppercase tracking-widest ${isLight ? 'text-black/50' : 'text-white/40'}`}>
+            {t('analytics.weekNum')} {currentWeek}
+          </span>
+          <div className="flex items-center gap-3">
             <button onClick={() => setCurrentWeek(w => Math.max(1, w - 1))} disabled={currentWeek <= 1}
-              className="w-5 h-5 rounded bg-[#2a2c32] border border-white/10 flex items-center justify-center">
-              <Icon icon="ph:caret-left-bold" className={currentWeek <= 1 ? 'text-white/10' : 'text-white/50'} width={10} />
+               className="p-0 bg-transparent border-none outline-none">
+              <Icon icon="ph:triangle-bold" className={currentWeek <= 1 ? (isLight ? 'text-black/20' : 'text-white/15') : (isLight ? 'text-black' : 'text-white')} width={12} style={{ transform: 'rotate(-90deg)' }} />
             </button>
             <button onClick={() => setCurrentWeek(w => Math.min(totalWeeks, w + 1))} disabled={currentWeek >= totalWeeks}
-              className="w-5 h-5 rounded bg-[#2a2c32] border border-white/10 flex items-center justify-center">
-              <Icon icon="ph:caret-right-bold" className={currentWeek >= totalWeeks ? 'text-white/10' : 'text-white/50'} width={10} />
+               className="p-0 bg-transparent border-none outline-none">
+              <Icon icon="ph:triangle-bold" className={currentWeek >= totalWeeks ? (isLight ? 'text-black/20' : 'text-white/15') : (isLight ? 'text-black' : 'text-white')} width={12} style={{ transform: 'rotate(90deg)' }} />
             </button>
           </div>
         </div>
@@ -767,30 +902,46 @@ function HabitInlineDetail({ habit, habitLogs }: { habit: any; habitLogs: HabitL
           <>
           <div className="relative flex gap-2">
             {/* Radial glow behind chart */}
-            <div className="absolute inset-0 bg-[#00FF85]/[0.02] blur-[30px] rounded-full pointer-events-none" />
+            {!isLight && <div className="absolute inset-0 bg-[#00FF85]/[0.02] blur-[30px] rounded-full pointer-events-none" />}
             {/* Y-axis labels - dynamic based on intensity data */}
             <div className="flex flex-col justify-between h-[120px] pr-1 py-0">
               {barChartData && barChartData.yAxisLabels.length > 0 ? (
                 [...barChartData.yAxisLabels].reverse().map((label, i) => (
-                  <span key={i} className="text-[8px] font-bold text-white/20">{label}</span>
+                  <span key={i} className={`text-[8px] font-bold ${isLight ? 'text-black/35' : 'text-white/20'}`}>{label}</span>
                 ))
               ) : (
                 <>
-                  <span className="text-[8px] font-bold text-white/20">5</span>
-                  <span className="text-[8px] font-bold text-white/20">4</span>
-                  <span className="text-[8px] font-bold text-white/20">3</span>
-                  <span className="text-[8px] font-bold text-white/20">2</span>
-                  <span className="text-[8px] font-bold text-white/20">1</span>
-                  <span className="text-[8px] font-bold text-white/20">0</span>
+                  <span className={`text-[8px] font-bold ${isLight ? 'text-black/35' : 'text-white/20'}`}>5</span>
+                  <span className={`text-[8px] font-bold ${isLight ? 'text-black/35' : 'text-white/20'}`}>4</span>
+                  <span className={`text-[8px] font-bold ${isLight ? 'text-black/35' : 'text-white/20'}`}>3</span>
+                  <span className={`text-[8px] font-bold ${isLight ? 'text-black/35' : 'text-white/20'}`}>2</span>
+                  <span className={`text-[8px] font-bold ${isLight ? 'text-black/35' : 'text-white/20'}`}>1</span>
+                  <span className={`text-[8px] font-bold ${isLight ? 'text-black/35' : 'text-white/20'}`}>0</span>
                 </>
               )}
             </div>
             {/* Chart area */}
             <div className="flex-1 relative h-[120px]">
-              {/* Horizontal guide lines */}
-              <div className="absolute top-0 left-0 right-0 border-t border-white/[0.12]" />
-              <div className="absolute top-1/2 left-0 right-0 border-t border-white/[0.12]" />
-              <div className="absolute bottom-0 left-0 right-0 border-t border-white/[0.12]" />
+              {/* Horizontal guide lines - rendered dynamically to match ticks exactly */}
+              {barChartData && barChartData.yAxisLabels.length > 1 ? (
+                [...barChartData.yAxisLabels].reverse().map((_, index) => {
+                  const topPercent = (index / (barChartData.yAxisLabels.length - 1)) * 100;
+                  const isMajor = index === 0 || index === barChartData.yAxisLabels.length - 1 || index === Math.floor((barChartData.yAxisLabels.length - 1) / 2);
+                  return (
+                    <div 
+                      key={index} 
+                      className={`absolute left-0 right-0 border-t ${isMajor ? (isLight ? 'border-black/[0.12]' : 'border-white/[0.12]') : (isLight ? 'border-black/[0.06]' : 'border-white/[0.06]')}`} 
+                      style={{ top: `${topPercent}%` }} 
+                    />
+                  );
+                })
+              ) : (
+                <>
+                  <div className={`absolute top-0 left-0 right-0 border-t ${isLight ? 'border-black/[0.12]' : 'border-white/[0.12]'}`} />
+                  <div className={`absolute top-1/2 left-0 right-0 border-t ${isLight ? 'border-black/[0.12]' : 'border-white/[0.12]'}`} />
+                  <div className={`absolute bottom-0 left-0 right-0 border-t ${isLight ? 'border-black/[0.12]' : 'border-white/[0.12]'}`} />
+                </>
+              )}
               {/* Bars */}
               <div className="flex items-end gap-2 h-full">
                 {weeklyData.map((day, i) => {
@@ -800,8 +951,8 @@ function HabitInlineDetail({ habit, habitLogs }: { habit: any; habitLogs: HabitL
                   return (
                     <div key={i} className="flex-1 flex flex-col items-center h-full justify-end">
                       <div className="flex-1 w-full flex items-end justify-center">
-                        <div className={`w-[50%] rounded-t-[2px] ${!day.isScheduled ? 'bg-white/[0.03]' : day.isFuture ? 'bg-transparent' : hasValue ? 'bg-[#00FF85]/80 shadow-[0_0_10px_rgba(0,255,133,0.25)]' : 'bg-[#2a2c32]'}`}
-                          style={{ height: heightPercent, minHeight: !day.isScheduled ? 2 : day.isFuture ? 0 : 2 }} />
+                        <div className={`w-[50%] rounded-t-[2px] ${!day.isScheduled ? (isLight ? 'bg-black/[0.03]' : 'bg-white/[0.03]') : day.isFuture ? 'bg-transparent' : hasValue ? 'bg-[#00FF85]/80 shadow-[0_0_10px_rgba(0,255,133,0.25)] border-[1.5px] border-black/30 border-b-0' : (isLight ? 'bg-black/[0.15]' : 'bg-white/[0.18]')}`}
+                           style={{ height: heightPercent, minHeight: !day.isScheduled ? 2 : day.isFuture ? 0 : 2 }} />
                       </div>
                     </div>
                   );
@@ -813,7 +964,7 @@ function HabitInlineDetail({ habit, habitLogs }: { habit: any; habitLogs: HabitL
           <div className="flex gap-2 ml-[28px]">
             {weeklyData.map((day, i) => (
               <div key={i} className="flex-1 text-center">
-                <span className={`text-[8px] font-bold ${!day.isScheduled ? 'text-white/20' : 'text-white/30'}`}>{dayLabels[i]}</span>
+                <span className={`text-[8px] font-bold ${!day.isScheduled ? (isLight ? 'text-black/20' : 'text-white/20') : (isLight ? 'text-black/40' : 'text-white/30')}`}>{dayLabels[i]}</span>
               </div>
             ))}
           </div>
@@ -823,30 +974,41 @@ function HabitInlineDetail({ habit, habitLogs }: { habit: any; habitLogs: HabitL
           <div className="flex items-center gap-2">
             {weeklyData.map((day, i) => (
               <div key={i} className="flex-1 flex flex-col items-center gap-1.5">
-                <div className={`w-7 h-7 rounded-[6px] flex items-center justify-center ${
-                  !day.isScheduled ? 'bg-white/[0.03] border-[2px] border-white/5' : day.isFuture ? 'border-[2px] border-white/10' : day.done ? 'bg-[#00FF85]/80 shadow-[0_0_8px_rgba(0,255,133,0.25)]' : 'border-[2px] border-white/40'
+                <div className={`w-7 h-7 rounded-[6px] flex items-center justify-center transition-all ${
+                  !day.isScheduled
+                    ? (isLight ? 'bg-black/[0.02] border-[2px] border-black/10' : 'bg-white/[0.03] border-[2px] border-white/5')
+                    : day.isFuture
+                      ? (isLight ? 'border-[2px] border-black/15' : 'border-[2px] border-white/10')
+                      : day.done
+                        ? 'bg-[#00FF85]/80 shadow-[0_0_8px_rgba(0,255,133,0.25)] border-[2px] border-black/30'
+                        : (isLight ? 'bg-white border-[2px] border-black/30' : 'border-[2px] border-white/40')
                 }`}>
-                  {day.done && !day.isFuture && day.isScheduled && <Icon icon="ph:check-bold" className="text-black/80" width={14} style={{ strokeWidth: 2 }} />}
+                  {day.done && !day.isFuture && day.isScheduled && <Icon icon="ph:check-bold" className="text-black" width={14} style={{ strokeWidth: 2 }} />}
                 </div>
-                <span className={`text-[8px] font-black ${!day.isScheduled ? 'text-white/20' : 'text-white/60'}`}>{dayLabels[i]}</span>
+                <span className={`text-[8px] font-black ${!day.isScheduled ? (isLight ? 'text-black/20' : 'text-white/20') : (isLight ? 'text-black/60' : 'text-white/60')}`}>{dayLabels[i]}</span>
               </div>
             ))}
           </div>
         )}
 
-        <p className="text-[9px] text-[#00FF85] font-bold mt-2">{completedThisWeek} hari selesai minggu ini</p>
+        <p className={`text-[9px] font-bold mt-2 ${isLight ? 'text-black/80' : 'text-[#00FF85]'}`}>{completedThisWeek} {t('analytics.daysCompletedThisWeek')}</p>
       </div>
 
-      {/* Monthly Record - 7 cols × 4 rows = 28 per page */}
       {/* Monthly Record */}
-      <div className="bg-[#1c1e22]/40 rounded-2xl p-4 border border-white/5">
+      <div className={`rounded-2xl p-4 border transition-all ${
+        isLight
+          ? 'bg-white border-black shadow-[3px_3px_0px_rgba(0,0,0,0.65)]'
+          : 'bg-[#1c1e22]/40 border-white/5'
+      }`}>
         <div className="flex items-center justify-between mb-4">
-          <span className="text-[9px] font-bold text-white/25 uppercase tracking-widest">Rekam Jejak</span>
+          <span className={`text-[9px] font-bold uppercase tracking-widest ${isLight ? 'text-black/55' : 'text-white/25'}`}>{t('analytics.recordTrack')}</span>
           <div className="flex items-center gap-1.5">
             {([1, 2, 3] as const).map((m) => (
               <button key={m} onClick={() => setRecordMonth(m)}
                 className={`w-6 h-6 rounded-md text-[9px] font-black flex items-center justify-center transition-all ${
-                  recordMonth === m ? 'bg-[#00FF85]/15 text-[#00FF85] border border-[#00FF85]/30 shadow-[0_0_8px_rgba(0,255,133,0.15)]' : 'text-white/30 border border-white/10 hover:text-white hover:border-white/20'
+                  recordMonth === m
+                    ? (isLight ? 'bg-black text-white border border-black shadow-[0_0_4px_rgba(0,0,0,0.15)]' : 'bg-[#00FF85]/15 text-[#00FF85] border border-[#00FF85]/30 shadow-[0_0_8px_rgba(0,255,133,0.15)]')
+                    : (isLight ? 'text-black/60 border border-black/20 hover:border-black/50 bg-white' : 'text-white/45 border border-white/15 hover:text-white/80 hover:border-white/30')
                 }`}>{m}</button>
             ))}
           </div>
@@ -855,9 +1017,23 @@ function HabitInlineDetail({ habit, habitLogs }: { habit: any; habitLogs: HabitL
         <div className="max-w-[280px] mx-auto grid grid-cols-7 gap-2">
           {monthSlice.map((day, idx) => (
             <div key={idx} className={`aspect-square rounded-[8px] flex items-center justify-center transition-all ${
-              !day.isScheduled ? 'bg-white/[0.03] border border-white/5' : day.isFuture ? 'bg-white/[0.03] border border-white/5' : day.done ? 'bg-[#00FF85]/80 shadow-[0_2px_8px_rgba(0,255,133,0.25)]' : 'bg-[#2a2c32]/80 border border-white/10'
+              !day.isScheduled
+                ? (isLight ? 'bg-black/[0.02] border border-black/10' : 'bg-white/[0.03] border border-white/5')
+                : day.isFuture
+                  ? (isLight ? 'bg-black/[0.02] border border-black/10' : 'bg-white/[0.03] border border-white/5')
+                  : day.done
+                    ? 'bg-[#00FF85]/80 shadow-[0_2px_8px_rgba(0,255,133,0.25)] border border-black/30'
+                    : (isLight ? 'bg-white border border-black/25' : 'bg-white/[0.14] border border-white/20')
             }`}>
-              <span className={`text-[9px] font-black ${!day.isScheduled ? 'text-white/10' : day.isFuture ? 'text-white/10' : day.done ? 'text-black/80' : 'text-white/30'}`}>
+              <span className={`text-[9px] font-black ${
+                !day.isScheduled
+                  ? 'text-black/20 dark:text-white/20'
+                  : day.isFuture
+                    ? 'text-black/20 dark:text-white/20'
+                    : day.done
+                      ? 'text-black/80'
+                      : (isLight ? 'text-black/60' : 'text-white/45')
+              }`}>
                 {startIdx + idx + 1}
               </span>
             </div>
@@ -868,6 +1044,9 @@ function HabitInlineDetail({ habit, habitLogs }: { habit: any; habitLogs: HabitL
   );
 }
 function HabitDetailModal({ habit, habitLogs, onClose }: { habit: any; habitLogs: HabitLog[]; onClose: () => void }) {
+  const { t, language } = useTranslation();
+  const { settings } = useUserStore();
+  const isLight = !document.documentElement.classList.contains('dark');
   const [recordMonth, setRecordMonth] = useState<1 | 2 | 3>(1);
 
   // Get all completed logs for this habit (all time)
@@ -875,8 +1054,13 @@ function HabitDetailModal({ habit, habitLogs, onClose }: { habit: any; habitLogs
     return habitLogs.filter(l => l.habit_id === habit.id && l.status === 'completed');
   }, [habitLogs, habit.id]);
 
-  // Find the earliest log date (Day 1)
+  // Find the earliest log date (Day 1 or habit creation date)
   const firstLogDate = useMemo(() => {
+    if (habit.created_at) {
+      const d = new Date(habit.created_at);
+      d.setHours(0, 0, 0, 0);
+      return d;
+    }
     const sorted = allHabitLogs.map(l => l.date).sort();
     if (sorted.length > 0) {
       const d = new Date(sorted[0] + 'T00:00:00');
@@ -887,15 +1071,23 @@ function HabitDetailModal({ habit, habitLogs, onClose }: { habit: any; habitLogs
     const d = new Date();
     d.setHours(0, 0, 0, 0);
     return d;
-  }, [allHabitLogs]);
+  }, [allHabitLogs, habit.created_at]);
 
   // Current day number (from Day 1)
   const currentDayNumber = useMemo(() => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const diff = Math.floor((today.getTime() - firstLogDate.getTime()) / (1000 * 60 * 60 * 24));
-    return Math.max(1, diff + 1);
-  }, [firstLogDate]);
+    
+    const pausedDays = settings.pausedDays || [];
+    const pausedSinceCreation = pausedDays.filter(dStr => {
+      const d = new Date(dStr + 'T00:00:00');
+      d.setHours(0, 0, 0, 0);
+      return d >= firstLogDate && d <= today;
+    }).length;
+    
+    return Math.max(1, diff - pausedSinceCreation + 1);
+  }, [firstLogDate, settings.pausedDays]);
 
   // Current week number
   const totalWeeks = Math.ceil(currentDayNumber / 7);
@@ -942,22 +1134,25 @@ function HabitDetailModal({ habit, habitLogs, onClose }: { habit: any; habitLogs
   const monthSlice = allTimeRecord.slice(startIdx, startIdx + 30);
 
   // Day labels
-  const dayLabels = ['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min'];
+  const dayLabels = language === 'Bahasa Indonesia'
+    ? ['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min']
+    : ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
   // Get habit action text for summary
   const getHabitAction = (name: string) => {
     const lower = name.toLowerCase();
-    if (lower.includes('hidrasi') || lower.includes('minum')) return 'minum air';
-    if (lower.includes('bangun')) return 'bangun pagi';
-    if (lower.includes('tidur')) return 'tidur 8 jam';
-    if (lower.includes('baca') || lower.includes('membaca')) return 'membaca';
-    if (lower.includes('olahraga') || lower.includes('workout') || lower.includes('push') || lower.includes('sit')) return 'berolahraga';
-    if (lower.includes('ibadah') || lower.includes('beribadah')) return 'beribadah';
-    if (lower.includes('journal')) return 'menulis jurnal';
-    if (lower.includes('deep work')) return 'deep work';
-    if (lower.includes('napas')) return 'latihan napas';
-    if (lower.includes('musik')) return 'berlatih musik';
-    return `melakukan ${name.toLowerCase()}`;
+    if (lower.includes('hidrasi') || lower.includes('minum')) return t('habits.actions.drink');
+    if (lower.includes('bangun')) return t('habits.actions.wakeUp');
+    if (lower.includes('tidur')) return t('habits.actions.sleep');
+    if (lower.includes('baca') || lower.includes('membaca')) return t('habits.actions.read');
+    if (lower.includes('olahraga') || lower.includes('workout') || lower.includes('push') || lower.includes('sit')) return t('habits.actions.workout');
+    if (lower.includes('ibadah') || lower.includes('beribadah')) return t('habits.actions.pray');
+    if (lower.includes('journal')) return t('habits.actions.journal');
+    if (lower.includes('deep work')) return t('habits.actions.deepWork');
+    if (lower.includes('napas')) return t('habits.actions.breathe');
+    if (lower.includes('musik')) return t('habits.actions.music');
+    const transName = t(`presets.${name}`) === `presets.${name}` ? name : t(`presets.${name}`);
+    return `${t('habits.actions.do')} ${transName.toLowerCase()}`;
   };
 
   // Find HABIT_OPTIONS match for image
@@ -970,16 +1165,22 @@ function HabitDetailModal({ habit, habitLogs, onClose }: { habit: any; habitLogs
       animate={{ y: 0 }}
       exit={{ y: '100%' }}
       transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-      className="fixed inset-0 bg-[#16181c] z-[100] flex flex-col overflow-y-auto"
+      className={`fixed inset-0 z-[100] flex flex-col overflow-y-auto transition-all ${
+        isLight ? 'bg-white text-black' : 'bg-[#16181c] text-white'
+      }`}
     >
       {/* Close Button */}
       <div className="absolute top-12 right-5 z-20">
         <motion.button
           whileTap={{ scale: 0.9 }}
           onClick={onClose}
-          className="w-9 h-9 rounded-full bg-[#2a2c32] border border-white/10 flex items-center justify-center"
+          className={`w-9 h-9 rounded-xl border-[2px] flex items-center justify-center transition-all active:translate-x-[2px] active:translate-y-[2px] active:shadow-none ${
+            isLight
+              ? 'bg-white border-black text-black shadow-[3px_3px_0px_rgba(0,0,0,1)]'
+              : 'border-white/10 bg-[#2a2c32] text-white shadow-none'
+          }`}
         >
-          <Icon icon="ph:x-bold" className="text-[#E3DAC9]" width={16} />
+          <Icon icon="ph:x-bold" width={16} />
         </motion.button>
       </div>
 
@@ -987,7 +1188,9 @@ function HabitDetailModal({ habit, habitLogs, onClose }: { habit: any; habitLogs
       <div className="flex-1 px-5 pt-10 pb-10 space-y-6">
 
         {/* 1. Header Card (bigger image card) */}
-        <div className="relative rounded-[20px] overflow-hidden border-[2px] border-white/15 h-[140px]">
+        <div className={`relative rounded-[20px] overflow-hidden border-[2px] h-[140px] ${
+          isLight ? 'border-black shadow-[3.5px_3.5px_0px_rgba(0,0,0,0.65)]' : 'border-white/15'
+        }`}>
           {habitOption && (
             <img
               src={habitOption.imageUrl}
@@ -999,7 +1202,9 @@ function HabitDetailModal({ habit, habitLogs, onClose }: { habit: any; habitLogs
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
           <div className="relative z-10 p-5 h-full flex flex-col justify-end">
             <div className="flex items-center justify-between">
-              <span className="text-[20px] font-black text-white font-['Outfit'] drop-shadow-lg">{habit.name}</span>
+              <span className="text-[20px] font-black text-white font-['Outfit'] drop-shadow-lg">
+                {t(`presets.${habit.name}`) === `presets.${habit.name}` ? habit.name : t(`presets.${habit.name}`)}
+              </span>
               <div className="flex items-center gap-1.5 bg-black/50 px-3 py-1 rounded-lg border border-white/10">
                 <Icon icon="solar:fire-bold" className="text-[#FF4D00]" width={14} />
                 <span className="text-[12px] font-black text-[#FF4D00]">{habit.streak}d</span>
@@ -1009,25 +1214,35 @@ function HabitDetailModal({ habit, habitLogs, onClose }: { habit: any; habitLogs
         </div>
 
         {/* 2. Weekly Chart Section */}
-        <div className="bg-[#1c1e22] border-[2px] border-white/10 rounded-[16px] p-4 space-y-4">
+        <div className={`rounded-[16px] p-4 space-y-4 border-[2px] transition-all ${
+          isLight 
+            ? 'bg-[#fbfbfb] border-black shadow-[3.5px_3.5px_0px_rgba(0,0,0,0.65)] text-black' 
+            : 'bg-[#1c1e22] border-white/10 text-white'
+        }`}>
           {/* Title + Week Navigation */}
           <div className="flex items-center justify-between">
-            <span className="text-[13px] font-black text-[#E3DAC9] font-['Outfit']">{habit.name}</span>
+            <span className={`text-[13px] font-black font-['Outfit'] ${isLight ? 'text-black' : 'text-[#E3DAC9]'}`}>
+              {t(`presets.${habit.name}`) === `presets.${habit.name}` ? habit.name : t(`presets.${habit.name}`)}
+            </span>
             <div className="flex items-center gap-2">
               <button
                 onClick={() => setCurrentWeek(w => Math.max(1, w - 1))}
-                className="w-6 h-6 rounded-md bg-[#2a2c32] border border-white/10 flex items-center justify-center"
+                className={`w-6 h-6 rounded-md border flex items-center justify-center ${
+                  isLight ? 'bg-white border-black text-black' : 'bg-[#2a2c32] border-white/10 text-[#E3DAC9]'
+                }`}
                 disabled={currentWeek <= 1}
               >
-                <Icon icon="ph:caret-left-bold" className={`${currentWeek <= 1 ? 'text-white/20' : 'text-[#E3DAC9]'}`} width={12} />
+                <Icon icon="ph:caret-left-bold" className={`${currentWeek <= 1 ? (isLight ? 'text-black/20' : 'text-white/20') : (isLight ? 'text-black' : 'text-[#E3DAC9]')}`} width={12} />
               </button>
-              <span className="text-[10px] font-bold text-white/50 min-w-[60px] text-center">Minggu {currentWeek}</span>
+              <span className={`text-[10px] font-bold min-w-[60px] text-center ${isLight ? 'text-black/50' : 'text-white/50'}`}>{t('analytics.weekNum')} {currentWeek}</span>
               <button
                 onClick={() => setCurrentWeek(w => Math.min(totalWeeks, w + 1))}
-                className="w-6 h-6 rounded-md bg-[#2a2c32] border border-white/10 flex items-center justify-center"
+                className={`w-6 h-6 rounded-md border flex items-center justify-center ${
+                  isLight ? 'bg-white border-black text-black' : 'bg-[#2a2c32] border-white/10 text-[#E3DAC9]'
+                }`}
                 disabled={currentWeek >= totalWeeks}
               >
-                <Icon icon="ph:caret-right-bold" className={`${currentWeek >= totalWeeks ? 'text-white/20' : 'text-[#E3DAC9]'}`} width={12} />
+                <Icon icon="ph:caret-right-bold" className={`${currentWeek >= totalWeeks ? (isLight ? 'text-black/20' : 'text-white/20') : (isLight ? 'text-black' : 'text-[#E3DAC9]')}`} width={12} />
               </button>
             </div>
           </div>
@@ -1040,15 +1255,20 @@ function HabitDetailModal({ habit, habitLogs, onClose }: { habit: any; habitLogs
                 <div key={i} className="flex-1 flex flex-col items-center gap-1 h-full justify-end">
                   <div className="flex-1 w-full flex items-end justify-center">
                     <div
-                      className="w-full rounded-t-[4px] transition-all"
+                      className={`w-full rounded-t-[4px] transition-all ${
+                        day.isFuture 
+                          ? 'bg-transparent' 
+                          : day.done 
+                            ? 'bg-[#00FF85] border-[1.5px] border-black border-b-0 shadow-[1.5px_0_0_rgba(0,0,0,1)]' 
+                            : (isLight ? 'bg-black/[0.12]' : 'bg-[#2a2c32]')
+                      }`}
                       style={{
                         height: day.isFuture ? '0%' : day.done ? '100%' : '8%',
-                        backgroundColor: day.isFuture ? 'transparent' : day.done ? '#00FF85' : '#2a2c32',
                         minHeight: day.isFuture ? 0 : 4,
                       }}
                     />
                   </div>
-                  <span className="text-[8px] font-bold text-white/30">{dayLabels[i]}</span>
+                  <span className={`text-[8px] font-bold ${isLight ? 'text-black/40' : 'text-white/30'}`}>{dayLabels[i]}</span>
                 </div>
               ))}
             </div>
@@ -1059,16 +1279,16 @@ function HabitDetailModal({ habit, habitLogs, onClose }: { habit: any; habitLogs
                 <div key={i} className="flex-1 flex flex-col items-center gap-2">
                   <div className={`w-8 h-8 rounded-full flex items-center justify-center transition-all ${
                     day.isFuture
-                      ? 'border-[2px] border-white/5'
+                      ? (isLight ? 'border-[2px] border-black/10' : 'border-[2px] border-white/5')
                       : day.done
-                        ? 'bg-[#00FF85]'
-                        : 'border-[2px] border-white/20'
+                        ? 'bg-[#00FF85] border-[2px] border-black shadow-[2px_2px_0px_rgba(0,0,0,1)]'
+                        : (isLight ? 'border-[2px] border-black/30 bg-white' : 'border-[2px] border-white/20')
                   }`}>
                     {day.done && !day.isFuture && (
                       <Icon icon="ph:check-bold" className="text-black" width={14} />
                     )}
                   </div>
-                  <span className="text-[8px] font-bold text-white/30">{dayLabels[i]}</span>
+                  <span className={`text-[8px] font-bold ${isLight ? 'text-black/40' : 'text-white/30'}`}>{dayLabels[i]}</span>
                 </div>
               ))}
             </div>
@@ -1077,15 +1297,21 @@ function HabitDetailModal({ habit, habitLogs, onClose }: { habit: any; habitLogs
 
         {/* 3. Summary Text */}
         <div className="px-1">
-          <p className="text-[12px] text-[#E3DAC9]/60 font-bold font-['Outfit']">
-            Kamu {getHabitAction(habit.name)} <span className="text-[#00FF85] font-black">{completedThisWeek}</span> hari minggu ini
+          <p className={`text-[12px] font-bold font-['Outfit'] ${isLight ? 'text-black/80' : 'text-[#E3DAC9]/60'}`}>
+            {t('analytics.weeklySummaryText')
+              .replace('{action}', getHabitAction(habit.name))
+              .replace('{count}', String(completedThisWeek))}
           </p>
         </div>
 
         {/* 4. Monthly Record (Rekam Jejak) */}
-        <div className="bg-[#1c1e22] border-[2px] border-white/10 rounded-[16px] p-4 space-y-3">
+        <div className={`rounded-[16px] p-4 space-y-3 border-[2px] transition-all ${
+          isLight 
+            ? 'bg-[#fbfbfb] border-black shadow-[3.5px_3.5px_0px_rgba(0,0,0,0.65)] text-black' 
+            : 'bg-[#1c1e22] border-white/10 text-white'
+        }`}>
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-black text-[#E3DAC9]/50 uppercase tracking-widest font-['Outfit']">Rekam Jejak</span>
+            <span className={`text-[11px] font-black uppercase tracking-widest font-['Outfit'] ${isLight ? 'text-black/50' : 'text-[#E3DAC9]/50'}`}>{t('analytics.recordTrack')}</span>
             <div className="flex items-center gap-1">
               {([1, 2, 3] as const).map((m) => (
                 <button
@@ -1093,8 +1319,8 @@ function HabitDetailModal({ habit, habitLogs, onClose }: { habit: any; habitLogs
                   onClick={() => setRecordMonth(m)}
                   className={`w-6 h-6 rounded-md text-[9px] font-black flex items-center justify-center transition-all ${
                     recordMonth === m
-                      ? 'bg-[#00FF85]/15 text-[#00FF85] border border-[#00FF85]/30'
-                      : 'text-white/30 border border-white/10'
+                      ? (isLight ? 'bg-black text-white border border-black shadow-[0_0_4px_rgba(0,0,0,0.15)]' : 'bg-[#00FF85]/15 text-[#00FF85] border border-[#00FF85]/30')
+                      : (isLight ? 'text-black/60 border border-black/20 bg-white hover:border-black/50' : 'text-white/45 border border-white/15 hover:text-white/80 hover:border-white/30')
                   }`}
                 >
                   {m}
@@ -1102,12 +1328,16 @@ function HabitDetailModal({ habit, habitLogs, onClose }: { habit: any; habitLogs
               ))}
             </div>
           </div>
-          <div className="grid grid-cols-10 gap-[4px]">
+          <div className="grid grid-cols-10 gap-[6px]">
             {monthSlice.map((day, idx) => (
               <div
                 key={idx}
-                className={`aspect-square rounded-[4px] ${
-                  day.isFuture ? 'bg-white/5' : day.done ? 'bg-[#00FF85]' : 'bg-[#2a2c32]'
+                className={`aspect-square rounded-[4px] border transition-all ${
+                  day.isFuture 
+                    ? (isLight ? 'bg-black/[0.02] border-black/10' : 'bg-white/5 border-transparent') 
+                    : day.done 
+                      ? 'bg-[#00FF85] border-black shadow-[1px_1px_0px_rgba(0,0,0,1)]' 
+                      : (isLight ? 'bg-white border-black/25' : 'bg-[#2a2c32] border-transparent')
                 }`}
               />
             ))}
@@ -1128,6 +1358,7 @@ function StatsRPG({ profile, habits, habitLogs }: {
   habits: any[];
   habitLogs: HabitLog[];
 }) {
+  const { t, language } = useTranslation();
   const streakCount = profile?.streak_count || 0;
 
   // Use persistent progression store values
@@ -1138,11 +1369,11 @@ function StatsRPG({ profile, habits, habitLogs }: {
   const xpForNext = levelInfo.xpNeededForNext;
 
   const statsList = [
-    { name: 'Kebijaksanaan', value: progressionStats.kebijaksanaan, icon: 'ph:brain-bold', color: '#A855F7' },
-    { name: 'Kepercayaan Diri', value: progressionStats.kepercayaanDiri, icon: 'ph:crown-bold', color: '#00FF85' },
-    { name: 'Kekuatan', value: progressionStats.kekuatan, icon: 'ph:lightning-bold', color: '#FF4D00' },
-    { name: 'Disiplin', value: progressionStats.disiplin, icon: 'ph:sword-bold', color: '#3B82F6' },
-    { name: 'Fokus', value: progressionStats.fokus, icon: 'ph:crosshair-bold', color: '#F59E0B' },
+    { name: t('rpg.stats.wisdom'), value: progressionStats.kebijaksanaan, icon: 'ph:brain-bold', color: '#A855F7' },
+    { name: t('rpg.stats.confidence'), value: progressionStats.kepercayaanDiri, icon: 'ph:crown-bold', color: '#00FF85' },
+    { name: t('rpg.stats.strength'), value: progressionStats.kekuatan, icon: 'ph:lightning-bold', color: '#FF4D00' },
+    { name: t('rpg.stats.discipline'), value: progressionStats.disiplin, icon: 'ph:sword-bold', color: '#3B82F6' },
+    { name: t('rpg.stats.focus'), value: progressionStats.fokus, icon: 'ph:crosshair-bold', color: '#F59E0B' },
   ];
 
   return (
@@ -1163,14 +1394,14 @@ function StatsRPG({ profile, habits, habitLogs }: {
           {/* Level Badge */}
           <div className="w-[72px] h-[72px] bg-[#00FF85] rounded-2xl flex flex-col items-center justify-center shadow-[0_4px_20px_rgba(0,255,133,0.3)]">
             <span className="text-[28px] font-black text-black leading-none">{level}</span>
-            <span className="text-[8px] font-black text-black/60 uppercase tracking-wider">Level</span>
+            <span className="text-[8px] font-black text-black/60 uppercase tracking-wider">{t('rpg.level')}</span>
           </div>
           
           {/* XP Info */}
           <div className="flex-1">
             <div className="flex items-baseline gap-2">
               <span className="text-[32px] font-black text-white leading-none">{totalXP}</span>
-              <span className="text-[11px] font-bold text-[#E3DAC9]/40 uppercase">XP earned</span>
+              <span className="text-[11px] font-bold text-[#E3DAC9]/40 uppercase">{t('rpg.xpEarned')}</span>
             </div>
           </div>
 
@@ -1180,7 +1411,7 @@ function StatsRPG({ profile, habits, habitLogs }: {
               <Icon icon="solar:fire-bold" className="text-[#FF4D00]" width={16} />
               <span className="text-[18px] font-black text-[#FF4D00]">{streakCount}</span>
             </div>
-            <span className="text-[7px] text-[#E3DAC9]/30 font-bold uppercase">hari streak</span>
+            <span className="text-[7px] text-[#E3DAC9]/30 font-bold uppercase">{t('rpg.streakDays')}</span>
           </div>
         </div>
 
@@ -1199,7 +1430,9 @@ function StatsRPG({ profile, habits, habitLogs }: {
           })}
         </div>
         <p className="text-[12px] font-black text-[#E3DAC9]/50 text-center mt-1">
-          {xpForNext - levelInfo.xpIntoCurrentLevel} XP ke Lvl {level < 100 ? level + 1 : 'MAX'}
+          {language === 'Bahasa Indonesia'
+            ? `${xpForNext - levelInfo.xpIntoCurrentLevel} XP ke Lvl ${level < 100 ? level + 1 : 'MAX'}`
+            : `${xpForNext - levelInfo.xpIntoCurrentLevel} XP to Lvl ${level < 100 ? level + 1 : 'MAX'}`}
         </p>
       </div>
 
@@ -1263,10 +1496,15 @@ function SummaryCard({ icon, value, label, color }: { icon: string; value: strin
 // --- Calendar Grids ---
 
 function WeeklyGrid({ days }: { days: DayStatus[] }) {
+  const { language } = useTranslation();
+  const dayLabels = language === 'Bahasa Indonesia'
+    ? ['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min']
+    : ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+
   return (
     <div className="flex flex-col gap-2">
       <div className="grid grid-cols-7 gap-2">
-        {DAY_LABELS.map((l, i) => (
+        {dayLabels.map((l, i) => (
           <span key={i} className="text-center text-[9px] font-bold text-[#E3DAC9]/30">{l}</span>
         ))}
       </div>
@@ -1280,6 +1518,11 @@ function WeeklyGrid({ days }: { days: DayStatus[] }) {
 }
 
 function MonthlyGrid({ days }: { days: DayStatus[] }) {
+  const { language } = useTranslation();
+  const dayLabels = language === 'Bahasa Indonesia'
+    ? ['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min']
+    : ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+
   // Show full current month (1st to last day)
   const today = new Date();
   const year = today.getFullYear();
@@ -1313,7 +1556,7 @@ function MonthlyGrid({ days }: { days: DayStatus[] }) {
   return (
     <div className="flex flex-col gap-2">
       <div className="grid grid-cols-7 gap-2">
-        {DAY_LABELS.map((l, i) => (
+        {dayLabels.map((l, i) => (
           <span key={i} className="text-center text-[9px] font-bold text-[#E3DAC9]/30">{l}</span>
         ))}
       </div>
@@ -1330,6 +1573,7 @@ function MonthlyGrid({ days }: { days: DayStatus[] }) {
 }
 
 function CompactGrid({ days }: { days: DayStatus[] }) {
+  const { t } = useTranslation();
   const [programMonth, setProgramMonth] = useState<1 | 2 | 3>(1);
 
   // Slice days for current program month (30 days each)
@@ -1341,7 +1585,7 @@ function CompactGrid({ days }: { days: DayStatus[] }) {
       {/* Header row: title left, month toggle right */}
       <div className="flex items-center justify-between">
         <span className="text-[9px] font-bold text-[#E3DAC9]/30 uppercase tracking-wider">
-          Program 90 Hari
+          {t('analytics.program90Days')}
         </span>
 
         {/* Compact month toggle - top right */}
@@ -1374,6 +1618,9 @@ function CompactGrid({ days }: { days: DayStatus[] }) {
 }
 
 function DayCell({ day, size, showDayNumber }: { day: DayStatus; size: 'sm' | 'md' | 'lg'; showDayNumber?: boolean }) {
+  const { settings } = useUserStore();
+  const isLight = !document.documentElement.classList.contains('dark');
+
   const sizeClasses = {
     sm: 'w-[14px] h-[14px] rounded-[3px]',
     md: 'w-[26px] h-[26px] rounded-[7px]',
@@ -1386,26 +1633,44 @@ function DayCell({ day, size, showDayNumber }: { day: DayStatus; size: 'sm' | 'm
     lg: 'text-[11px]',
   };
 
-  const bg = day.isFuture
-    ? 'bg-[#E3DAC9]/5'
-    : day.active
-      ? 'bg-[#00FF85]/80 shadow-[0_2px_8px_rgba(0,255,133,0.25)]'
-      : 'bg-[#3a3a3a]';
+  let bg = '';
+  let border = '';
+  let textColor = '';
+
+  if (isLight) {
+    if (day.isFuture) {
+      bg = 'bg-white/40';
+      border = 'border border-dashed border-black/10';
+      textColor = 'text-black/25';
+    } else if (day.active) {
+      bg = 'bg-[#00FF85]/80 shadow-[0_2px_8px_rgba(0,255,133,0.25)]';
+      textColor = 'text-black/80';
+    } else {
+      bg = 'bg-white';
+      border = 'border-[1.5px] border-black/20';
+      textColor = 'text-black/60';
+    }
+  } else {
+    if (day.isFuture) {
+      bg = 'bg-[#E3DAC9]/5';
+      textColor = 'text-[#E3DAC9]/10';
+    } else if (day.active) {
+      bg = 'bg-[#00FF85]/80 shadow-[0_2px_8px_rgba(0,255,133,0.25)]';
+      textColor = 'text-black/45';
+    } else {
+      bg = 'bg-[#3a3a3a]';
+      textColor = 'text-white';
+    }
+  }
 
   const ring = day.isToday 
-    ? (day.active ? 'ring-[2px] ring-black/30' : 'ring-1 ring-[#E3DAC9]/30') 
+    ? (day.active ? 'ring-[2px] ring-black/30' : `ring-1 ${isLight ? 'ring-black/45' : 'ring-[#E3DAC9]/30'}`) 
     : '';
-
-  const textColor = day.isFuture
-    ? 'text-[#E3DAC9]/10'
-    : day.active
-      ? 'text-black/45'
-      : 'text-white';
 
   const displayNumber = showDayNumber && day.dayNumber ? day.dayNumber : day.dayOfMonth;
 
   return (
-    <div className={`${sizeClasses[size]} ${bg} ${ring} flex items-center justify-center relative`}>
+    <div className={`${sizeClasses[size]} ${bg} ${border} ${ring} flex items-center justify-center relative`}>
       <span className={`${fontSizes[size]} font-bold ${textColor} select-none`}>
         {displayNumber}
       </span>

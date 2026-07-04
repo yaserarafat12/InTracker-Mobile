@@ -1,9 +1,19 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence, useMotionValue, useTransform } from 'framer-motion';
 import { Icon } from '@iconify/react';
 import { HABIT_OPTIONS, HABIT_ICONS, HABIT_COLORS, getCustomIconKey, CATEGORY_ICONS } from './icons';
 import { CustomIcon } from './displaycardhabit';
 import { CustomHabitForm } from './CustomHabitForm';
+import { useTranslation } from '../../i18n';
+
+const categories = ['Rutinitas', 'Ketenangan Diri', 'Evolusi Diri', 'Latihan Fisik'];
+const categoryKeys: Record<string, string> = {
+  'Rutinitas': 'habits.categories.routine',
+  'Ketenangan Diri': 'habits.categories.mindfulness',
+  'Evolusi Diri': 'habits.categories.evolution',
+  'Latihan Fisik': 'habits.categories.exercise'
+};
 
 const PickerItem = ({ value, unit, itemPos, containerScrollY, isActive }: any) => {
   const relativeY = useTransform(containerScrollY, [itemPos - 130, itemPos, itemPos + 130], [-1, 0, 1]);
@@ -46,6 +56,8 @@ export const TambahHabitModal = ({
   currentHabits?: any[]
 }) => {
   const [selectedHabitForConfig, setSelectedHabitForConfig] = useState<any>(null);
+  const { t, language } = useTranslation();
+  const isLight = !document.documentElement.classList.contains('dark');
   const [intensityValue, setIntensityValue] = useState<number | null>(8);
   const [showIntensityPicker, setShowIntensityPicker] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
@@ -54,7 +66,7 @@ export const TambahHabitModal = ({
   const [scheduleDays, setScheduleDays] = useState<number[]>([0, 1, 2, 3, 4, 5, 6]);
   const containerScrollY = useMotionValue(0);
 
-  const categories = ['Rutinitas', 'Ketenangan Diri', 'Evolusi Diri', 'Latihan Fisik'];
+
 
   // Group habits by category
   const groupedHabits = useMemo(() => {
@@ -66,17 +78,33 @@ export const TambahHabitModal = ({
 
   // Set default intensity when habit is selected
   useEffect(() => {
+    let active = true;
     if (habitToEdit) {
-      setSelectedHabitForConfig(habitToEdit);
-      setIntensityValue(habitToEdit.target_intensity || null);
-    } else if (selectedHabitForConfig) {
-      if (selectedHabitForConfig.name.includes('Hidrasi')) {
-        setIntensityValue(8);
-      } else if (selectedHabitForConfig.intensity?.options) {
-        const opts = selectedHabitForConfig.intensity.options;
-        setIntensityValue(opts[Math.floor(opts.length / 2)]);
-      }
+      requestAnimationFrame(() => {
+        if (active) {
+          setSelectedHabitForConfig(habitToEdit);
+          setIntensityValue(habitToEdit.target_intensity || null);
+        }
+      });
     }
+    return () => { active = false; };
+  }, [habitToEdit]);
+
+  useEffect(() => {
+    let active = true;
+    if (!habitToEdit && selectedHabitForConfig) {
+      requestAnimationFrame(() => {
+        if (active) {
+          if (selectedHabitForConfig.name.includes('Hidrasi')) {
+            setIntensityValue(8);
+          } else if (selectedHabitForConfig.intensity?.options) {
+            const opts = selectedHabitForConfig.intensity.options;
+            setIntensityValue(opts[Math.floor(opts.length / 2)]);
+          }
+        }
+      });
+    }
+    return () => { active = false; };
   }, [selectedHabitForConfig, habitToEdit]);
 
   // Toast auto-dismiss
@@ -92,7 +120,8 @@ export const TambahHabitModal = ({
     
     if (isDuplicate) {
       if (navigator.vibrate) navigator.vibrate([40, 30, 40]);
-      setToastMessage(`"${habit.name}" sudah tersedia`);
+      const translatedName = t(`presets.${habit.name}`) === `presets.${habit.name}` ? habit.name : t(`presets.${habit.name}`);
+      setToastMessage(`"${translatedName}" ${t('addHabit.alreadyExists')}`);
       return;
     }
 
@@ -156,7 +185,7 @@ export const TambahHabitModal = ({
       const index = options.indexOf(intensityValue);
       if (index !== -1) { setTimeout(() => { if (pickerRef.current) pickerRef.current.scrollTop = index * 52; }, 100); }
     }
-  }, [showIntensityPicker, selectedHabitForConfig]);
+  }, [showIntensityPicker, selectedHabitForConfig, intensityValue]);
 
   return (
     <>
@@ -170,16 +199,20 @@ export const TambahHabitModal = ({
           className="fixed inset-0 bg-[#16181c] z-[200] flex flex-col"
         >
           {/* Header */}
-          <div className="pt-14 pb-4 px-6 flex justify-between items-center">
-            <motion.button 
-              whileTap={{ scale: 0.9 }}
-              onClick={onClose}
-              className="w-9 h-9 rounded-xl bg-[#2a2c32] border border-white/10 flex items-center justify-center"
-            >
-              <Icon icon="ph:x-bold" width={16} className="text-[#E3DAC9]" />
-            </motion.button>
-            <h2 className="text-[14px] font-bold font-['Outfit'] text-[#E3DAC9]/80">Tambah Tugas</h2>
+          <div className="pt-14 pb-4 px-6 flex justify-between items-center border-b border-white/5">
             <div className="w-9" /> {/* Spacer for centering */}
+            <h2 className="text-[15px] font-bold font-['Outfit'] text-[#E3DAC9]/80">{t('addHabit.title')}</h2>
+            <motion.button 
+              whileTap={{ scale: 0.95 }}
+              onClick={onClose}
+              className={`w-9 h-9 rounded-xl border-2 flex items-center justify-center transition-all active:translate-x-[2px] active:translate-y-[2px] active:shadow-none -mr-1.5 ${
+                isLight 
+                  ? 'bg-white border-black text-black shadow-[3px_3px_0px_rgba(0,0,0,1)]' 
+                  : 'border-white/10 bg-[#2a2c32] text-white shadow-none'
+              }`}
+            >
+              <Icon icon="ph:x-bold" width={16} height={16} />
+            </motion.button>
           </div>
 
           {/* Habits List - Chips by Category */}
@@ -192,7 +225,7 @@ export const TambahHabitModal = ({
                   <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center gap-2">
                       <Icon icon={iconStr} width={14} className="text-white/40" />
-                      <span className="text-[12px] font-bold text-white/50 font-['Outfit']">{group.category}</span>
+                      <span className="text-[12px] font-bold text-white/50 font-['Outfit']">{t(categoryKeys[group.category] || group.category)}</span>
                     </div>
                     <button 
                       onClick={() => setCustomFormCategory(group.category)}
@@ -219,9 +252,14 @@ export const TambahHabitModal = ({
                               : 'bg-[#2a2c32] border-white/15 active:border-[#00FF85]/30'
                           }`}
                         >
-                          <CustomIcon icon={habitIcon} width={14} height={14} color={isDuplicate ? 'rgba(255,255,255,0.3)' : 'rgba(255,255,255,0.6)'} />
+                          <CustomIcon 
+                            icon={habitIcon} 
+                            width={14} 
+                            height={14} 
+                            className={isDuplicate ? 'text-white/30' : 'text-neutral-500 dark:text-white/60'} 
+                          />
                           <span className={`text-[11px] font-bold font-['Outfit'] ${isDuplicate ? 'text-white/30' : 'text-[#E3DAC9]/80'}`}>
-                            {habit.name}
+                            {t(`presets.${habit.name}`) === `presets.${habit.name}` ? habit.name : t(`presets.${habit.name}`)}
                           </span>
                         </motion.button>
                       );
@@ -272,12 +310,12 @@ export const TambahHabitModal = ({
               >
                 <Icon icon="solar:alt-arrow-left-bold" width={24} />
               </button>
-              <h3 className="text-[17px] font-bold font-['Outfit'] text-[#E3DAC9]">{habitToEdit ? 'Edit Tugas' : 'Tambah Tugas Baru'}</h3>
+              <h3 className="text-[17px] font-bold font-['Outfit'] text-[#E3DAC9]">{habitToEdit ? t('addHabit.editTitle') : t('addHabit.addNew')}</h3>
             </div>
 
             {/* Task Icon & Name */}
             <div className="mb-6">
-              <p className="text-[10px] font-bold text-white/30 uppercase tracking-[0.2em] mb-3 ml-1">Ikon & Nama Tugas</p>
+              <p className="text-[10px] font-bold text-white/30 uppercase tracking-[0.2em] mb-3 ml-1">{t('addHabit.iconAndName')}</p>
               <div className="flex gap-4 h-[60px]">
                 <div className="w-[60px] h-full bg-[#222] rounded-2xl border border-white/10 flex items-center justify-center">
                   <CustomIcon 
@@ -287,37 +325,69 @@ export const TambahHabitModal = ({
                   />
                 </div>
                 <div className="flex-1 h-full bg-[#222] rounded-2xl border border-white/10 flex items-center px-5">
-                  <span className="text-[16px] font-bold font-['Outfit'] text-[#E3DAC9]">{selectedHabitForConfig.name}</span>
+                  <span className="text-[16px] font-bold font-['Outfit'] text-[#E3DAC9]">
+                    {t(`presets.${selectedHabitForConfig.name}`) === `presets.${selectedHabitForConfig.name}` ? selectedHabitForConfig.name : t(`presets.${selectedHabitForConfig.name}`)}
+                  </span>
                 </div>
               </div>
             </div>
 
             {/* Select Intensity */}
             <div className="mb-6">
-              <p className="text-[10px] font-bold text-white/30 uppercase tracking-[0.2em] mb-3 ml-1">Pilih Intensitas</p>
+              <p className="text-[10px] font-bold text-white/30 uppercase tracking-[0.2em] mb-3 ml-1">{t('addHabit.selectIntensity')}</p>
               {selectedHabitForConfig.intensity?.type === 'numeric' ? (
                 <button
                   onClick={() => { if (navigator.vibrate) navigator.vibrate(3); setShowIntensityPicker(true); }}
-                  className="w-full h-[60px] bg-[#222] rounded-2xl border border-white/10 px-5 flex items-center justify-between active:scale-[0.98] transition-all"
+                  className={`w-full h-[46px] rounded-xl border flex items-center justify-between px-4 active:scale-[0.98] transition-all ${
+                    isLight
+                      ? 'bg-white border-black text-black shadow-[3px_3px_0px_rgba(0,0,0,0.65)]'
+                      : 'bg-[#1a1a1a] border-white/10 text-white shadow-none'
+                  }`}
                 >
-                  <span className="text-[15px] font-bold font-['Outfit'] text-[#E3DAC9]/80">
-                    {selectedHabitForConfig.name.split(' ')[0]} untuk {intensityValue} {selectedHabitForConfig.intensity.unit}
+                  <span className="text-[13px] font-bold font-['Outfit']">
+                    {(() => {
+                      const nameTrans = t(`presets.${selectedHabitForConfig.name}`) === `presets.${selectedHabitForConfig.name}` ? selectedHabitForConfig.name : t(`presets.${selectedHabitForConfig.name}`);
+                      const actionWord = nameTrans.split(' ')[0];
+                      const unitTrans = t(`units.${selectedHabitForConfig.intensity.unit}`) || selectedHabitForConfig.intensity.unit;
+                      return language === 'Bahasa Indonesia'
+                        ? `${actionWord} untuk ${intensityValue} ${unitTrans}`
+                        : `${actionWord} for ${intensityValue} ${unitTrans}`;
+                    })()}
                   </span>
-                  <Icon icon="solar:alt-arrow-up-down-bold" width={18} className="text-white/30" />
+                  <Icon icon="solar:alt-arrow-up-down-bold" width={16} className={isLight ? 'text-black/30' : 'text-white/30'} />
                 </button>
               ) : (
-                <div className="w-full h-[60px] bg-[#222] rounded-2xl border border-white/10 border-dashed px-5 flex items-center justify-center gap-3">
-                  <Icon icon="solar:check-read-bold" width={20} className="text-[#00FF85]/40" />
-                  <span className="text-[13px] font-bold text-[#E3DAC9]/40 uppercase tracking-widest">Single Action Task</span>
+                <div className={`w-full h-[46px] rounded-xl border border-dashed px-4 flex items-center justify-center gap-2 ${
+                  isLight ? 'bg-white border-black/10' : 'bg-[#1c1e22] border-white/[0.06]'
+                }`}>
+                  <Icon icon="solar:slash-circle-bold" width={16} className={isLight ? 'text-black/20' : 'text-white/20'} />
+                  <span className={`text-[11px] font-black uppercase tracking-wider ${
+                    isLight ? 'text-black/30' : 'text-white/30'
+                  }`}>
+                    {(() => {
+                      switch (language) {
+                        case 'Bahasa Indonesia': return 'Tidak Tersedia';
+                        case '日本語': return '利用不可';
+                        case 'Español': return 'No disponible';
+                        case 'Français': return 'Indisponible';
+                        case 'Deutsch': return 'Nicht verfügbar';
+                        case 'Português': return 'Indisponível';
+                        case '简体中文': return '不可用';
+                        case 'العربية': return 'غير متوفر';
+                        case 'हिन्दी': return 'अनुपलब्ध';
+                        default: return 'Unavailable';
+                      }
+                    })()}
+                  </span>
                 </div>
               )}
             </div>
 
             {/* Schedule Type Selector */}
             <div className="mb-6">
-              <p className="text-[10px] font-bold text-white/30 uppercase tracking-[0.2em] mb-3 ml-1">Jadwal</p>
+              <p className="text-[10px] font-bold text-white/30 uppercase tracking-[0.2em] mb-3 ml-1">{t('addHabit.schedule')}</p>
               <div className="flex gap-2 mb-3">
-                {([['daily', 'Harian'], ['weekly', 'Mingguan'], ['custom', 'Custom']] as const).map(([type, label]) => (
+                {([['daily', 'addHabit.daily'], ['weekly', 'addHabit.weekly'], ['custom', 'addHabit.custom']] as const).map(([type, labelKey]) => (
                   <button
                     key={type}
                     onClick={() => {
@@ -326,19 +396,29 @@ export const TambahHabitModal = ({
                       if (type === 'daily') setScheduleDays([0,1,2,3,4,5,6]);
                       else if (type === 'weekly') setScheduleDays(scheduleDays.length === 1 ? scheduleDays : [1]);
                     }}
-                    className={`flex-1 py-2.5 rounded-xl text-[11px] font-black font-['Outfit'] uppercase tracking-wider transition-all ${
+                    className={`flex-1 py-2 rounded-lg text-[10px] font-black font-['Outfit'] uppercase tracking-wider transition-all ${
                       scheduleType === type
-                        ? 'bg-[#00FF85] text-black'
-                        : 'bg-[#222] text-white/40 border border-white/10'
+                        ? 'bg-[#10B981] text-black border-2 border-black shadow-[2px_2px_0px_rgba(0,0,0,1)]'
+                        : isLight
+                          ? 'bg-white text-black/50 border border-black/10'
+                          : 'bg-[#1a1a1a] text-white/40 border border-white/5'
                     }`}
                   >
-                    {label}
+                    {t(labelKey)}
                   </button>
                 ))}
               </div>
               {(scheduleType === 'weekly' || scheduleType === 'custom') && (
                 <div className="flex justify-center gap-2">
-                  {['Min','Sen','Sel','Rab','Kam','Jum','Sab'].map((day, i) => (
+                  {[
+                    'addHabit.days.sun',
+                    'addHabit.days.mon',
+                    'addHabit.days.tue',
+                    'addHabit.days.wed',
+                    'addHabit.days.thu',
+                    'addHabit.days.fri',
+                    'addHabit.days.sat'
+                  ].map((dayKey, i) => (
                     <button
                       key={i}
                       onClick={() => {
@@ -349,13 +429,15 @@ export const TambahHabitModal = ({
                           setScheduleDays(prev => prev.includes(i) ? prev.filter(d => d !== i) : [...prev, i]);
                         }
                       }}
-                      className={`w-9 h-9 rounded-full flex items-center justify-center text-[10px] font-bold font-['Outfit'] transition-all ${
+                      className={`w-8 h-8 rounded-full flex items-center justify-center text-[10px] font-bold font-['Outfit'] transition-all ${
                         scheduleDays.includes(i)
-                          ? 'bg-[#00FF85] text-black'
-                          : 'bg-[#2a2c32] text-white/40 border border-white/10'
+                          ? 'bg-[#10B981] text-black border-2 border-black shadow-[1.5px_1.5px_0px_rgba(0,0,0,1)]'
+                          : isLight
+                            ? 'bg-white text-black/50 border border-black/10'
+                            : 'bg-[#1a1a1a] text-[#E3DAC9]/40 border border-white/5'
                       }`}
                     >
-                      {day}
+                      {t(dayKey)}
                     </button>
                   ))}
                 </div>
@@ -369,16 +451,24 @@ export const TambahHabitModal = ({
               <motion.button 
                 whileTap={{ scale: 0.95 }}
                 onClick={() => { setSelectedHabitForConfig(null); setShowIntensityPicker(false); }}
-                className="flex-1 h-[56px] rounded-2xl bg-[#222] border border-white/10 text-[#E3DAC9]/80 font-black font-['Outfit'] uppercase tracking-[0.15em] text-[13px]"
+                className={`flex-1 h-[48px] rounded-xl font-black font-['Outfit'] uppercase tracking-[0.15em] text-[12px] border transition-all ${
+                  isLight
+                    ? 'bg-white border-black text-black shadow-[2.5px_2.5px_0px_rgba(0,0,0,1)]'
+                    : 'bg-[#2a2c32] border-white/10 text-[#E3DAC9]/60 shadow-none'
+                }`}
               >
-                Batal
+                {t('addHabit.cancel')}
               </motion.button>
               <motion.button 
                 whileTap={{ scale: 0.95 }}
                 onClick={() => handleActionClick(selectedHabitForConfig, intensityValue)}
-                className="flex-[1.5] h-[56px] rounded-2xl bg-[#00FF85] text-black font-black font-['Outfit'] uppercase tracking-[0.15em] text-[13px] flex items-center justify-center gap-2"
+                className={`flex-[1.5] h-[48px] rounded-xl font-black font-['Outfit'] uppercase tracking-[0.15em] text-[12px] border transition-all flex items-center justify-center gap-2 ${
+                  isLight
+                    ? 'bg-[#10B981] border-black text-black shadow-[2.5px_2.5px_0px_rgba(0,0,0,1)]'
+                    : 'bg-[#10B981] border-transparent text-black shadow-none'
+                }`}
               >
-                {habitToEdit ? 'Simpan' : 'Tambah'}
+                {habitToEdit ? t('addHabit.save') : t('addHabit.add')}
               </motion.button>
             </div>
           </motion.div>
@@ -401,10 +491,10 @@ export const TambahHabitModal = ({
             className="fixed bottom-0 left-0 right-0 bg-[#16181c] z-[240] rounded-t-[32px] border-t border-white/5 p-6 pb-10 flex flex-col h-[55vh]"
           >
             <div className="w-10 h-1 bg-white/10 rounded-full mx-auto mb-5" />
-            <h3 className="text-[16px] font-black font-['Outfit'] text-[#E3DAC9] text-center mb-6">Pilih Intensitas</h3>
+            <h3 className="text-[16px] font-black font-['Outfit'] text-[#E3DAC9] text-center mb-6">{t('addHabit.selectIntensityTitle')}</h3>
 
             <div className="relative w-full h-[300px] overflow-hidden flex items-center justify-center">
-              <div className="absolute inset-x-4 h-[52px] bg-[#00FF85]/8 border border-[#00FF85]/20 pointer-events-none z-0 rounded-2xl" />
+              <div className="absolute inset-x-4 h-[52px] bg-[#10B981]/8 border border-[#10B981]/20 pointer-events-none z-0 rounded-2xl" />
               <div 
                 ref={pickerRef}
                 onScroll={handlePickerScroll}
@@ -423,16 +513,24 @@ export const TambahHabitModal = ({
               <motion.button 
                 whileTap={{ scale: 0.95 }}
                 onClick={() => setShowIntensityPicker(false)}
-                className="flex-1 h-[56px] rounded-2xl bg-[#222] border border-white/10 text-[#E3DAC9]/80 font-black font-['Outfit'] uppercase tracking-[0.15em] text-[13px]"
+                className={`flex-1 h-[48px] rounded-xl font-black font-['Outfit'] uppercase tracking-[0.15em] text-[12px] border transition-all ${
+                  isLight
+                    ? 'bg-white border-black text-black shadow-[2.5px_2.5px_0px_rgba(0,0,0,1)]'
+                    : 'bg-[#222] border border-white/10 text-[#E3DAC9]/60 shadow-none'
+                }`}
               >
-                Batal
+                {t('addHabit.cancel')}
               </motion.button>
               <motion.button 
                 whileTap={{ scale: 0.95 }}
                 onClick={() => { if (navigator.vibrate) navigator.vibrate(5); setShowIntensityPicker(false); }}
-                className="flex-[1.5] h-[56px] rounded-2xl bg-[#00FF85] text-black font-black font-['Outfit'] uppercase tracking-[0.15em] text-[13px]"
+                className={`flex-[1.5] h-[48px] rounded-xl font-black font-['Outfit'] uppercase tracking-[0.15em] text-[12px] border transition-all flex items-center justify-center ${
+                  isLight
+                    ? 'bg-[#10B981] border-black text-black shadow-[2.5px_2.5px_0px_rgba(0,0,0,1)]'
+                    : 'bg-[#10B981] border-transparent text-black shadow-none'
+                }`}
               >
-                Selesai
+                {t('addHabit.done')}
               </motion.button>
             </div>
           </motion.div>

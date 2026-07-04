@@ -212,8 +212,8 @@ export const HABIT_OPTIONS: HabitOption[] = [
     intensity: { type: 'none' } 
   },
   { 
-    name: 'Perencanaan besok', 
-    iconName: 'Agenda', 
+    name: 'Rencana Esok Hari', 
+    iconName: 'ph:calendar-blank-bold', 
     category: 'Evolusi Diri', 
     imageUrl: '/all_images/display_images/perencanaanbesok.png', 
     frequency: 'harian', 

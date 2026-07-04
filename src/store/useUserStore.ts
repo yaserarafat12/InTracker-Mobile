@@ -15,9 +15,42 @@ interface UserProfile {
   created_at: string;
 }
 
+export interface UserSettings {
+  firstName: string;
+  lastName: string;
+  nickname: string;
+  username: string;
+  email: string;
+  gender: 'Male' | 'Female' | 'Other' | '';
+  dob: string;
+  weight: string;
+  height: string;
+  country: string;
+  appleHealth: boolean;
+  garminConnect: boolean;
+  fitbit: boolean;
+  dailyReminder: boolean;
+  dailyReminderTime: string;
+  weeklySummary: boolean;
+  newFeatures: boolean;
+  twoFactor: boolean;
+  biometricLogin: boolean;
+  language: string;
+  theme: 'System' | 'Light' | 'Dark';
+  weightUnit: 'Metric' | 'Imperial';
+  heightUnit: 'Metric' | 'Imperial';
+  timezone: string;
+  programPaused: boolean;
+  pausedDays?: string[];
+  programDuration?: 30 | 60 | 90;
+  avatarUrl?: string;
+}
+
 interface UserStore {
   profile: UserProfile | null;
   loading: boolean;
+  settings: UserSettings;
+  subscriptionPlan: 'free' | 'weekly' | 'monthly' | 'annual';
   isProActive: () => boolean;
   fetchProfile: () => Promise<void>;
   claimTrial: () => Promise<void>;
@@ -25,6 +58,8 @@ interface UserStore {
   useStreakFreeze: () => Promise<boolean>;
   addStreakFreeze: (count: number) => Promise<void>;
   updateDailyStreak: () => Promise<void>;
+  updateSettings: (settings: Partial<UserSettings>) => void;
+  setSubscriptionPlan: (plan: 'free' | 'weekly' | 'monthly' | 'annual') => void;
 }
 
 export const useUserStore = create<UserStore>()(
@@ -32,6 +67,54 @@ export const useUserStore = create<UserStore>()(
     (set, get) => ({
       profile: null,
       loading: false,
+      settings: {
+        firstName: '',
+        lastName: '',
+        nickname: '',
+        username: '',
+        email: '',
+        gender: '',
+        dob: '',
+        weight: '',
+        height: '',
+        country: '',
+        appleHealth: false,
+        garminConnect: false,
+        fitbit: false,
+        dailyReminder: false,
+        dailyReminderTime: '08:00 AM',
+        weeklySummary: false,
+        newFeatures: false,
+        twoFactor: false,
+        biometricLogin: false,
+        language: '',
+        theme: 'System',
+        weightUnit: 'Metric',
+        heightUnit: 'Metric',
+        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone || 'Asia/Jakarta',
+        programPaused: false,
+        pausedDays: [],
+        programDuration: 90,
+        avatarUrl: '',
+      },
+      subscriptionPlan: 'free',
+      updateSettings: (newSettings) => {
+        set((state) => ({
+          settings: {
+            ...state.settings,
+            ...newSettings,
+          },
+        }));
+      },
+      setSubscriptionPlan: (plan) => {
+        set({ subscriptionPlan: plan });
+        const isPro = plan !== 'free';
+        const profile = get().profile;
+        if (profile) {
+          set({ profile: { ...profile, is_pro: isPro } });
+          void supabase.from('profiles').update({ is_pro: isPro }).eq('id', profile.id);
+        }
+      },
 
       isProActive: () => {
         const { profile } = get();
@@ -43,11 +126,80 @@ export const useUserStore = create<UserStore>()(
         return false;
       },
 
-      fetchProfile: async () => {
+       fetchProfile: async () => {
+        if (localStorage.getItem('guest_mode') === 'true') {
+          const currentProfile = get().profile;
+          if (!currentProfile) {
+            const guestJoinedDate = new Date();
+            set({
+              profile: {
+                id: 'guest-id',
+                full_name: 'Guest User',
+                is_pro: false,
+                pro_until: null,
+                streak_freeze_count: 0,
+                nickname: 'guest',
+                onboarding_completed: true,
+                streak_count: 0,
+                last_login_date: new Date().toISOString().split('T')[0],
+                created_at: guestJoinedDate.toISOString()
+              }
+            });
+          }
+          set({ loading: false });
+          return;
+        }
+
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) return;
 
+        const lastUserId = localStorage.getItem('intracker-last-user-id');
+        const currentProfile = get().profile;
+        const hasUserChanged = (lastUserId && lastUserId !== user.id) || (currentProfile && currentProfile.id !== user.id);
+
+        if (hasUserChanged) {
+          console.log("[InTracker] User changed! Clearing local storage safely...");
+          const keysToKeep = Object.keys(localStorage).filter(k => k.startsWith('sb-') || k.includes('auth-token'));
+          const keptValues: Record<string, string> = {};
+          keysToKeep.forEach(k => {
+            const val = localStorage.getItem(k);
+            if (val) keptValues[k] = val;
+          });
+
+          localStorage.clear();
+
+          Object.entries(keptValues).forEach(([k, v]) => localStorage.setItem(k, v));
+          localStorage.setItem('intracker-last-user-id', user.id);
+          window.location.reload();
+          return;
+        }
+        localStorage.setItem('intracker-last-user-id', user.id);
+
         set({ loading: true });
+        
+        // Pre-populate email and default name from auth if local settings are empty
+        const currentSettings = get().settings;
+        const updatedEmail = currentSettings.email || user.email || '';
+        let fullName = user.user_metadata?.full_name || '';
+        if (fullName.toLowerCase().includes('yaser') || fullName.toLowerCase().includes('arafat')) {
+          fullName = 'Yaman Dien';
+        }
+        const updatedFirstName = currentSettings.firstName || fullName.split(' ')[0] || '';
+        const updatedLastName = currentSettings.lastName || fullName.split(' ').slice(1).join(' ') || '';
+        const updatedNickname = currentSettings.nickname || fullName.split(' ')[0] || '';
+        const updatedUsername = currentSettings.username || user.user_metadata?.name || fullName.split(' ')[0]?.toLowerCase() || '';
+        
+        set((state) => ({
+          settings: {
+            ...state.settings,
+            email: updatedEmail,
+            firstName: updatedFirstName,
+            lastName: updatedLastName,
+            nickname: updatedNickname,
+            username: updatedUsername,
+          }
+        }));
+
         const { data, error } = await supabase
           .from('profiles')
           .select('*')
@@ -55,8 +207,38 @@ export const useUserStore = create<UserStore>()(
           .single();
 
         if (!error && data) {
-          set({ profile: data as UserProfile });
+          const profileData = data as UserProfile;
+          if (profileData.full_name && (profileData.full_name.toLowerCase().includes('yaser') || profileData.full_name.toLowerCase().includes('arafat'))) {
+            profileData.full_name = 'Yaman Dien';
+          }
+          if (!profileData.created_at && user.created_at) {
+            profileData.created_at = user.created_at;
+            // Sync fallback to DB
+            void supabase.from('profiles').update({ created_at: user.created_at }).eq('id', user.id);
+          }
+          set({ profile: profileData });
           
+          const isPro = data.is_pro || (data.pro_until && new Date(data.pro_until) > new Date());
+          if (!isPro) {
+            set({ subscriptionPlan: 'free' });
+          } else if (get().subscriptionPlan === 'free') {
+            set({ subscriptionPlan: 'monthly' });
+          }
+
+          // Sync database values to settings (database nickname -> username, database full_name -> nickname)
+          let dbFullName = data.full_name || '';
+          if (dbFullName.toLowerCase().includes('yaser') || dbFullName.toLowerCase().includes('arafat')) {
+            dbFullName = 'Yaman Dien';
+          }
+          set((state) => ({
+            settings: {
+              ...state.settings,
+              username: data.nickname || state.settings.username || '',
+              nickname: dbFullName || state.settings.nickname || '',
+              avatarUrl: data.avatar_url || state.settings.avatarUrl || '',
+            }
+          }));
+
           // Update login streak
           await get().updateDailyStreak();
 

@@ -50,7 +50,7 @@ const FeedCard: React.FC<FeedCardProps> = ({ id, user, type, content, metadata, 
     };
   };
 
-  const [reactions, setReactions] = useState(normalizeReactions(initialReactions));
+  const [reactions, setReactions] = useState<Record<string, number>>(normalizeReactions(initialReactions));
   const [isReacting, setIsReacting] = useState(false);
   const [hasReacted, setHasReacted] = useState(false);
   const [reactedEmoji, setReactedEmoji] = useState<string | null>(null);
@@ -153,94 +153,97 @@ const FeedCard: React.FC<FeedCardProps> = ({ id, user, type, content, metadata, 
       className="pb-6 mb-6 border-b-[2px] border-white/20 last:border-0 flex flex-col gap-3"
     >
       {/* Header: Avatar + Name + Time */}
-      <div className="flex items-center justify-between px-4">
-        <div className="flex items-center gap-3">
-          <div 
-            onClick={onProfileClick}
-            className="w-10 h-10 bg-[#c4c4c4] flex items-center justify-center overflow-hidden rounded-full active:scale-95 transition-transform cursor-pointer"
-          >
-            {user.avatar_url ? (
-              <img src={user.avatar_url} alt={user.nickname} className="w-full h-full object-cover" />
-            ) : (
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                <circle cx="12" cy="9" r="4" fill="#8a8a8a"/>
-                <path d="M4 20c0-3.5 3.5-6 8-6s8 2.5 8 6" fill="#8a8a8a"/>
-              </svg>
-            )}
-          </div>
-          <div>
-            <div className="flex items-center gap-2">
+      <div className="flex flex-col gap-2.5 px-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div 
+              onClick={onProfileClick}
+              className="w-10 h-10 bg-[#c4c4c4] flex items-center justify-center overflow-hidden rounded-full active:scale-95 transition-transform cursor-pointer"
+            >
+              {user.avatar_url ? (
+                <img src={user.avatar_url} alt={user.nickname} className="w-full h-full object-cover" />
+              ) : (
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                  <circle cx="12" cy="9" r="4" fill="#8a8a8a"/>
+                  <path d="M4 20c0-3.5 3.5-6 8-6s8 2.5 8 6" fill="#8a8a8a"/>
+                </svg>
+              )}
+            </div>
+            <div className="flex flex-col gap-0.5">
               <h4 
                 onClick={onProfileClick}
-                className="font-black text-[#E3DAC9] text-[14px] tracking-normal cursor-pointer hover:text-[#00FF85] transition-colors"
+                className="font-black text-[#E3DAC9] text-[14px] tracking-normal cursor-pointer hover:text-[#00FF85] transition-colors leading-tight"
               >
                 {user.nickname}
               </h4>
-              <span className="text-[11px] text-[#E3DAC9]/30 font-medium">{timeAgo(created_at)}</span>
+              <span className="text-[10px] text-[#E3DAC9]/40 font-bold leading-none">{timeAgo(created_at)}</span>
             </div>
-            {/* Habit subtitle - green like reference */}
-            {type === 'habit_completion' && metadata?.habit_name && (
-              <p className="text-[12px] font-bold text-[#00FF85] mt-0.5">
-                Day {metadata?.streak || 0} of {metadata.habit_name}
-              </p>
+          </div>
+          <div className="relative">
+            <button 
+              onClick={() => setShowMenu(!showMenu)}
+              className="text-white/70 hover:text-white transition-colors"
+            >
+              <Icon icon="solar:menu-dots-bold" width={18} />
+            </button>
+            {/* Delete menu - only for own posts */}
+            {showMenu && profile?.id === user.id && onDelete && (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="absolute right-0 top-8 bg-[#1c1e22] border border-white/10 rounded-xl p-1 z-50 shadow-lg"
+              >
+                <button
+                  onClick={() => { if (confirm('Hapus postingan ini?')) { onDelete(id); } setShowMenu(false); }}
+                  className="flex items-center gap-2 px-3 py-2 rounded-lg text-[#FF4D00] hover:bg-white/5 transition-colors w-full"
+                >
+                  <Icon icon="solar:trash-bin-trash-bold" width={14} />
+                  <span className="text-[11px] font-bold">Hapus</span>
+                </button>
+              </motion.div>
             )}
-            {type === 'streak' && (
-              <p className="text-[12px] font-bold text-[#FF4D00] mt-0.5">
-                🔥 Streak {metadata?.count} Hari
-              </p>
-            )}
-            {type === 'milestone' && (
-              <p className="text-[12px] font-bold text-[#E3DAC9]/60 mt-0.5">
-                🏆 Milestone
-              </p>
+            {showMenu && profile?.id !== user.id && (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="absolute right-0 top-8 bg-[#1c1e22] border border-white/10 rounded-xl p-2 z-50 shadow-lg"
+              >
+                <span className="text-[10px] text-white/30 px-2">Tidak ada opsi</span>
+              </motion.div>
             )}
           </div>
         </div>
-        <div className="relative">
-          <button 
-            onClick={() => setShowMenu(!showMenu)}
-            className="text-white/70 hover:text-white transition-colors"
-          >
-            <Icon icon="solar:menu-dots-bold" width={18} />
-          </button>
-          {/* Delete menu - only for own posts */}
-          {showMenu && profile?.id === user.id && onDelete && (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              className="absolute right-0 top-8 bg-[#1c1e22] border border-white/10 rounded-xl p-1 z-50 shadow-lg"
-            >
-              <button
-                onClick={() => { if (confirm('Hapus postingan ini?')) { onDelete(id); } setShowMenu(false); }}
-                className="flex items-center gap-2 px-3 py-2 rounded-lg text-[#FF4D00] hover:bg-white/5 transition-colors w-full"
-              >
-                <Icon icon="solar:trash-bin-trash-bold" width={14} />
-                <span className="text-[11px] font-bold">Hapus</span>
-              </button>
-            </motion.div>
-          )}
-          {showMenu && profile?.id !== user.id && (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              className="absolute right-0 top-8 bg-[#1c1e22] border border-white/10 rounded-xl p-2 z-50 shadow-lg"
-            >
-              <span className="text-[10px] text-white/30 px-2">Tidak ada opsi</span>
-            </motion.div>
-          )}
-        </div>
+
+        {/* Subtitle rendered below the avatar/name row */}
+        {type === 'habit_completion' && metadata?.habit_name && (
+          <p className="text-[14px] font-black text-[#00FF85] px-1 font-['Outfit'] uppercase tracking-wide">
+            Day {metadata?.streak || 0} of {metadata.habit_name}
+          </p>
+        )}
+        {type === 'streak' && (
+          <p className="text-[14px] font-black text-[#FF4D00] px-1 font-['Outfit'] uppercase tracking-wide">
+            🔥 Streak {metadata?.count} Hari
+          </p>
+        )}
+        {type === 'milestone' && (
+          <p className="text-[14px] font-black text-[#E3DAC9]/80 px-1 font-['Outfit'] uppercase tracking-wide">
+            🏆 Milestone
+          </p>
+        )}
       </div>
 
-      {/* Image - 9:16 portrait but constrained height */}
+      {/* Image - constrained to a professional social media format (Instagram/TikTok style) */}
       {metadata?.image_url && (
-        <div className="w-[65%] aspect-[9/16] overflow-hidden bg-black/20 rounded-[12px] mx-4 border border-white/25">
-          <img src={metadata.image_url} alt="" className="w-full h-full object-cover" />
+        <div className="px-4">
+          <div className="w-full aspect-square sm:aspect-[4/5] max-h-[420px] overflow-hidden bg-black/20 rounded-[16px] border border-white/20 shadow-[4px_4px_0px_rgba(0,0,0,0.6)]">
+            <img src={metadata.image_url} alt="" className="w-full h-full object-cover" />
+          </div>
         </div>
       )}
 
       {/* Caption / Content */}
       {content && (
-        <p className="text-[#E3DAC9] font-medium text-[14px] leading-relaxed px-4">
+        <p className={`text-[#E3DAC9] font-bold text-[15px] leading-relaxed px-4 ${metadata?.image_url ? 'mt-4' : 'mt-1'}`}>
           {content}
         </p>
       )}

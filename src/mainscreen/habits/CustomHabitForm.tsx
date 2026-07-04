@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Icon } from '@iconify/react';
 import { CATEGORY_COLORS } from './icons';
+import { useTranslation } from '../../i18n';
+import { useUserStore } from '../../store/useUserStore';
 
 // Curated icon list for habit tracking (~90 icons)
 const ICON_GROUPS = [
@@ -77,7 +79,16 @@ export const CustomHabitForm = ({ isOpen, category, onClose, onSubmit, currentHa
   const [showIconPicker, setShowIconPicker] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
+  const { t } = useTranslation();
+  const { settings } = useUserStore();
+  const isLight = !document.documentElement.classList.contains('dark');
   const categoryColor = CATEGORY_COLORS[category] || '#00FF85';
+  const categoryKeys: Record<string, string> = {
+    'Rutinitas': 'habits.categories.routine',
+    'Ketenangan Diri': 'habits.categories.mindfulness',
+    'Evolusi Diri': 'habits.categories.evolution',
+    'Latihan Fisik': 'habits.categories.exercise'
+  };
 
   const filteredIcons = searchQuery
     ? ALL_ICONS.filter(icon => icon.toLowerCase().includes(searchQuery.toLowerCase().replace(' ', '-')))
@@ -126,10 +137,17 @@ export const CustomHabitForm = ({ isOpen, category, onClose, onSubmit, currentHa
           >
             {/* Header */}
             <div className="px-6 pt-14 pb-4 flex items-center justify-between">
-              <button onClick={onClose} className="text-white/40 active:text-white">
-                <Icon icon="ph:x-bold" width={18} />
+              <button 
+                onClick={onClose}
+                className={`w-9 h-9 rounded-xl border-2 flex items-center justify-center transition-all active:translate-x-[2px] active:translate-y-[2px] active:shadow-none ${
+                  isLight 
+                    ? 'bg-white border-black text-black shadow-[3px_3px_0px_rgba(0,0,0,1)]' 
+                    : 'border-white/10 bg-[#2a2c32] text-white shadow-none'
+                }`}
+              >
+                <Icon icon="ph:x-bold" width={16} />
               </button>
-              <h3 className="text-[15px] font-bold font-['Outfit'] text-[#E3DAC9]">Custom Habit</h3>
+              <h3 className="text-[15px] font-bold font-['Outfit'] text-[#E3DAC9]">{t('addHabit.customHabit')}</h3>
               <button
                 onClick={handleSubmit}
                 disabled={!name.trim()}
@@ -148,13 +166,13 @@ export const CustomHabitForm = ({ isOpen, category, onClose, onSubmit, currentHa
                   type="text"
                   value={name}
                   onChange={(e) => setName(e.target.value.slice(0, 30))}
-                  placeholder="Nama habit..."
+                  placeholder={t('addHabit.namePlaceholder')}
                   className="flex-1 bg-transparent text-[15px] font-bold font-['Outfit'] text-[#E3DAC9] placeholder:text-white/25 outline-none"
                   autoFocus
                 />
               </div>
               <div className="flex items-center justify-between mt-2 px-1">
-                <span className="text-[9px] font-bold text-white/20 uppercase">{category}</span>
+                <span className="text-[9px] font-bold text-white/20 uppercase">{t(categoryKeys[category] || category)}</span>
                 <span className="text-[9px] font-bold text-white/20">{name.length}/30</span>
               </div>
             </div>
@@ -167,7 +185,7 @@ export const CustomHabitForm = ({ isOpen, category, onClose, onSubmit, currentHa
               >
                 <div className="flex items-center gap-3">
                   <Icon icon="solar:palette-bold" width={18} className="text-white/40" />
-                  <span className="text-[13px] font-bold text-[#E3DAC9]/70 font-['Outfit']">Pilih Icon</span>
+                  <span className="text-[13px] font-bold text-[#E3DAC9]/70 font-['Outfit']">{t('addHabit.chooseIcon')}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Icon icon={selectedIcon} width={18} style={{ color: categoryColor }} />
@@ -193,7 +211,7 @@ export const CustomHabitForm = ({ isOpen, category, onClose, onSubmit, currentHa
                         type="text"
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        placeholder="Cari icon..."
+                        placeholder={t('addHabit.searchIcon')}
                         className="flex-1 bg-transparent text-[12px] font-bold text-[#E3DAC9] placeholder:text-white/20 outline-none font-['Outfit']"
                       />
                     </div>

@@ -1,4 +1,5 @@
 import { HABIT_OPTIONS, type HabitIntensity } from '../mainscreen/habits/icons/index';
+import { dictionaries } from '../i18n/index';
 
 /**
  * Look up the intensity configuration for a habit by its name.
@@ -6,9 +7,24 @@ import { HABIT_OPTIONS, type HabitIntensity } from '../mainscreen/habits/icons/i
  * doesn't exist in HABIT_OPTIONS or has no intensity defined.
  */
 export function getIntensityConfig(habitName: string): HabitIntensity | null {
-  const habit = HABIT_OPTIONS.find((h) => h.name === habitName);
-  if (!habit || !habit.intensity) return null;
-  return habit.intensity;
+  if (!habitName) return null;
+  
+  // 1. Direct match in HABIT_OPTIONS (English/Indonesian preset name)
+  let habit = HABIT_OPTIONS.find((h) => h.name.toLowerCase() === habitName.toLowerCase());
+  if (habit && habit.intensity) return habit.intensity;
+
+  // 2. Match against translated preset names in all dictionaries
+  for (const h of HABIT_OPTIONS) {
+    for (const dict of Object.values(dictionaries)) {
+      const presetsDict = dict.presets || {};
+      const translatedName = presetsDict[h.name];
+      if (translatedName && typeof translatedName === 'string' && translatedName.toLowerCase() === habitName.toLowerCase()) {
+        if (h.intensity) return h.intensity;
+      }
+    }
+  }
+
+  return null;
 }
 
 /**
@@ -21,7 +37,8 @@ export function getIntensityConfig(habitName: string): HabitIntensity | null {
  */
 export function formatIntensityLabel(
   habitName: string,
-  targetIntensity?: number | null
+  targetIntensity?: number | null,
+  t?: (key: string) => string
 ): string | null {
   const config = getIntensityConfig(habitName);
   if (!config || config.type !== 'numeric') return null;
@@ -29,7 +46,8 @@ export function formatIntensityLabel(
   const value = targetIntensity != null ? targetIntensity : config.defaultValue;
   if (value == null) return null;
 
-  return `${value} ${config.unit}`;
+  const unitLabel = t ? (t(`units.${config.unit}`) || config.unit) : config.unit;
+  return `${value} ${unitLabel}`;
 }
 
 /**
@@ -63,7 +81,7 @@ export function calculateBarHeights(
     return { heights, maxValue: 1, yAxisLabels: [0, 1] };
   }
 
-  // Use the user's target (defaultIntensity) as the chart max
+  // Use the user's target (defaultIntensity) as the base
   const target = defaultIntensity || 1;
   const optionsMax = options && options.length > 0 ? Math.max(...options) : target;
 
@@ -81,15 +99,33 @@ export function calculateBarHeights(
   // Normalize heights: value / maxValue
   const heights = dayValues.map((v) => (maxValue > 0 ? Math.min(1, v / maxValue) : 0));
 
-  // Y-axis: simple evenly spaced from 0 to maxValue (5 labels)
-  const step = maxValue / 4;
-  const yAxisLabels = [
-    0,
-    Math.round(step),
-    Math.round(step * 2),
-    Math.round(step * 3),
-    maxValue,
-  ];
+  // Y-axis ticks generation based on maxValue
+  let tickStep = 1;
+  if (maxValue <= 5) {
+    tickStep = 1;
+  } else if (maxValue <= 10) {
+    tickStep = 2;
+  } else if (maxValue <= 15) {
+    tickStep = 3;
+  } else if (maxValue <= 20) {
+    tickStep = 5;
+  } else if (maxValue <= 40) {
+    tickStep = 10;
+  } else if (maxValue <= 60) {
+    tickStep = 15;
+  } else if (maxValue <= 100) {
+    tickStep = 20;
+  } else {
+    tickStep = 30;
+  }
+
+  const yAxisLabels: number[] = [];
+  for (let val = 0; val <= maxValue; val += tickStep) {
+    yAxisLabels.push(val);
+  }
+  if (yAxisLabels[yAxisLabels.length - 1] !== maxValue) {
+    yAxisLabels.push(maxValue);
+  }
 
   return { heights, maxValue, yAxisLabels };
 }

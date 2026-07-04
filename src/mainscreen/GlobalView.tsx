@@ -10,11 +10,13 @@ import { Search, UserPlus, Check, X, Users } from 'lucide-react';
 import { Icon } from '@iconify/react';
 import { AddGlobalPost } from './global/AddGlobalPost';
 import LoadingScreen from '../components/LoadingScreen';
+import { useTranslation } from '../i18n';
 
 type TabType = 'Publik' | 'Teman' | 'Personal';
 
 const GlobalView: React.FC = () => {
   const { profile } = useUserStore();
+  const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState<TabType>('Publik');
   const [posts, setPosts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -133,7 +135,7 @@ const GlobalView: React.FC = () => {
                     : 'bg-[#1c1e22] border-[#E3DAC9]/15 text-[#E3DAC9]/40'
                 }`}
               >
-                {tab}
+                {tab === 'Publik' ? t('global.tabs.public') : tab === 'Teman' ? t('global.tabs.friends') : t('global.tabs.personal')}
               </motion.button>
             ))}
           </div>
@@ -158,7 +160,7 @@ const GlobalView: React.FC = () => {
       <div className="flex-1 overflow-y-auto py-4 no-scrollbar">
         <AnimatePresence mode="wait">
           {loading ? (
-            <LoadingScreen message="Memuat feed..." />
+            <LoadingScreen message={t('global.loading')} />
           ) : (
             <motion.div
               key={activeTab}
@@ -192,8 +194,8 @@ const GlobalView: React.FC = () => {
                   <div className="w-14 h-14 border-[1.5px] border-[#E3DAC9]/20 rounded-2xl mb-5 flex items-center justify-center">
                     <Icon icon="solar:cloud-cross-bold" className="text-[#E3DAC9]/40" width={24} />
                   </div>
-                  <h3 className="font-black text-[14px] tracking-normal uppercase text-[#E3DAC9]">Mulai Berbagi</h3>
-                  <p className="text-[11px] mt-2 tracking-normal max-w-[220px] font-medium leading-relaxed text-[#E3DAC9]">Post progress pertamamu dan inspirasi orang lain!</p>
+                  <h3 className="font-black text-[14px] tracking-normal uppercase text-[#E3DAC9]">{t('global.empty.title')}</h3>
+                  <p className="text-[11px] mt-2 tracking-normal max-w-[220px] font-medium leading-relaxed text-[#E3DAC9]">{t('global.empty.subtitle')}</p>
                 </div>
               )}
             </motion.div>
@@ -243,11 +245,11 @@ const GlobalView: React.FC = () => {
               className="fixed bottom-0 left-0 right-0 bg-[#1c1e22] border-t-[2px] border-[#E3DAC9]/15 rounded-t-[32px] z-[101] p-6 pb-10 shadow-[0_-10px_40px_rgba(0,0,0,0.6)]"
             >
               <div className="w-10 h-1 rounded-full bg-white/10 mx-auto mb-6" />
-              <h3 className="text-[18px] font-black font-['Outfit'] text-[#E3DAC9] uppercase tracking-wider mb-5">Teman</h3>
+              <h3 className="text-[18px] font-black font-['Outfit'] text-[#E3DAC9] uppercase tracking-wider mb-5">{t('global.friends.title')}</h3>
               <div className="w-full p-4 bg-[#16181c] border-[1.5px] border-[#E3DAC9]/15 rounded-[14px] mb-4">
                 <input
                   type="text"
-                  placeholder="Masukkan ID atau username teman"
+                  placeholder={t('global.friends.placeholder')}
                   disabled
                   className="w-full bg-transparent border-none outline-none text-[13px] font-medium font-['Outfit'] text-[#E3DAC9]/30 placeholder:text-[#E3DAC9]/30"
                 />
@@ -256,10 +258,10 @@ const GlobalView: React.FC = () => {
                 disabled
                 className="w-full py-3.5 rounded-[12px] bg-[#00FF85]/20 border-[1.5px] border-[#00FF85]/20 text-[#00FF85]/40 font-black font-['Outfit'] uppercase text-[12px] tracking-wider mb-4"
               >
-                Tambah
+                {t('global.friends.addBtn')}
               </button>
               <p className="text-center text-[11px] font-bold font-['Outfit'] text-[#E3DAC9]/30 uppercase tracking-widest">
-                Fitur ini akan segera hadir
+                {t('global.friends.comingSoon')}
               </p>
             </motion.div>
           </>
@@ -386,7 +388,7 @@ const GlobalView: React.FC = () => {
 
                 {/* Friends List */}
                 <div className="mb-10">
-                  <h4 className="text-[10px] font-black text-white/20 uppercase tracking-[0.3em] mb-4">Daftar Teman ({friends.length})</h4>
+                  <h4 className="text-[10px] font-black text-white/20 uppercase tracking-[0.3em] mb-4">{t('global.friends.title')} ({friends.length})</h4>
                   {friends.length > 0 ? (
                     <div className="grid grid-cols-1 gap-3">
                       {friends.map((friend) => (
@@ -408,7 +410,7 @@ const GlobalView: React.FC = () => {
                   ) : (
                     <div className="text-center py-10 opacity-20">
                       <Users size={32} className="mx-auto mb-3" />
-                      <p className="text-[10px] font-black uppercase tracking-widest">Belum ada teman, Bos.</p>
+                      <p className="text-[10px] font-black uppercase tracking-widest">{t('global.friends.noFriends')}</p>
                     </div>
                   )}
                 </div>
@@ -435,7 +437,7 @@ const GlobalView: React.FC = () => {
               className="fixed inset-10 bg-[#1c1e22] border-[3px] border-black rounded-[40px] z-[121] flex flex-col overflow-hidden shadow-[20px_20px_0px_rgba(0,0,0,1)]"
             >
               <div className="h-32 bg-[#00FF85] border-b-[3px] border-black relative">
-                <div className="absolute -bottom-12 left-8 w-24 h-24 bg-[#222] border-[3px] border-black rounded-[28px] shadow-[6px_6px_0px_rgba(0,0,0,1)] flex items-center justify-center overflow-hidden rotate-[-3deg]">
+                <div className="absolute -bottom-12 left-8 w-24 h-24 bg-[#222] border-[3px] border-black rounded-full shadow-[6px_6px_0px_rgba(0,0,0,1)] flex items-center justify-center overflow-hidden">
                   {selectedProfile.avatar_url ? (
                     <img src={selectedProfile.avatar_url} alt={selectedProfile.nickname} className="w-full h-full object-cover" />
                   ) : (
@@ -458,19 +460,19 @@ const GlobalView: React.FC = () => {
                   )}
                 </div>
                 <p className="text-[12px] text-white/40 font-bold uppercase tracking-widest mb-6">
-                  {selectedProfile.location?.region || 'InUniverse'} • MEMBER SINCE {new Date(selectedProfile.created_at).getFullYear()}
+                  {selectedProfile.location?.region || 'InUniverse'} • {t('global.profile.memberSince')} {new Date(selectedProfile.created_at).getFullYear()}
                 </p>
 
                 <div className="grid grid-cols-2 gap-4 mb-8">
                   <div className="bg-black/40 border-[2px] border-black p-4 rounded-2xl shadow-[4px_4px_0px_rgba(0,0,0,1)]">
-                    <span className="text-[9px] font-black text-[#00FF85] uppercase tracking-widest block mb-1">Current Streak</span>
+                    <span className="text-[9px] font-black text-[#00FF85] uppercase tracking-widest block mb-1">{t('global.profile.currentStreak')}</span>
                     <div className="flex items-center gap-2">
                       <Icon icon="solar:fire-bold" className="text-orange-500" width={20} />
-                      <span className="text-xl font-black">{selectedProfile.streak_count || 0} DAYS</span>
+                      <span className="text-xl font-black">{selectedProfile.streak_count || 0} {t('global.profile.days')}</span>
                     </div>
                   </div>
                   <div className="bg-black/40 border-[2px] border-black p-4 rounded-2xl shadow-[4px_4px_0px_rgba(0,0,0,1)]">
-                    <span className="text-[9px] font-black text-[#00FF85] uppercase tracking-widest block mb-1">InTracker Level</span>
+                    <span className="text-[9px] font-black text-[#00FF85] uppercase tracking-widest block mb-1">{t('global.profile.intrackerLevel')}</span>
                     <div className="flex items-center gap-2">
                       <Icon icon="solar:star-bold" className="text-[#00FF85]" width={20} />
                       <span className="text-xl font-black">LVL {Math.floor((selectedProfile.streak_count || 0) / 10) + 1}</span>
@@ -479,7 +481,7 @@ const GlobalView: React.FC = () => {
                 </div>
 
                 <div className="space-y-4">
-                  <h4 className="text-[10px] font-black text-white/20 uppercase tracking-[0.3em]">Quick Actions</h4>
+                  <h4 className="text-[10px] font-black text-white/20 uppercase tracking-[0.3em]">{t('global.profile.quickActions')}</h4>
                   <div className="grid grid-cols-1 gap-3">
                     {!friends.some(f => f.id === selectedProfile.id) && profile?.id !== selectedProfile.id && (
                       <motion.button
@@ -488,7 +490,7 @@ const GlobalView: React.FC = () => {
                         className="w-full py-4 bg-[#00FF85] text-black font-black uppercase italic rounded-2xl border-[2px] border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] flex items-center justify-center gap-2"
                       >
                         <UserPlus size={18} strokeWidth={3} />
-                        <span>Kirim Pertemanan</span>
+                        <span>{t('global.profile.sendRequest')}</span>
                       </motion.button>
                     )}
                     <motion.button
@@ -496,7 +498,7 @@ const GlobalView: React.FC = () => {
                       className="w-full py-4 bg-white/5 text-white/60 font-black uppercase italic rounded-2xl border-[2px] border-black flex items-center justify-center gap-2"
                     >
                       <Icon icon="solar:chat-round-dots-bold" width={18} />
-                      <span>Kirim Pesan</span>
+                      <span>{t('global.profile.sendMessage')}</span>
                     </motion.button>
                   </div>
                 </div>

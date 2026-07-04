@@ -11,7 +11,72 @@ import Location from './pages/Location.tsx';
 import Nickname from './pages/Nickname.tsx';
 import LoseStreak from './pages/LoseStreak.tsx';
 import Beranda from './mainscreen/beranda/Beranda';
+import Lab from './pages/Lab.tsx';
+import { useUserStore } from './store/useUserStore';
+import { ErrorBoundary } from './components/ErrorBoundary';
+import { startReminderService } from './utils/reminderService';
 import './index.css';
+
+// --- GLOBAL THEME INITIALIZATION & OS SYNC ---
+const initTheme = () => {
+  try {
+    const apply = (t: string) => {
+      if (t === 'Dark') {
+        document.documentElement.classList.add('dark');
+      } else if (t === 'Light') {
+        document.documentElement.classList.remove('dark');
+      } else {
+        // System Theme Mode (follows OS settings)
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        if (prefersDark) {
+          document.documentElement.classList.add('dark');
+        } else {
+          document.documentElement.classList.remove('dark');
+        }
+      }
+    };
+
+    // 1. Apply theme on initial startup
+    const currentTheme = useUserStore.getState().settings?.theme || 'System';
+    apply(currentTheme);
+
+    // 2. Reactively listen to Zustand store updates
+    useUserStore.subscribe((state) => {
+      const updatedTheme = state.settings?.theme || 'System';
+      apply(updatedTheme);
+    });
+
+    // 3. Listen to OS changes (when in System theme mode)
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    const handleMediaChange = () => {
+      const activeTheme = useUserStore.getState().settings?.theme || 'System';
+      if (activeTheme === 'System') {
+        if (mediaQuery.matches) {
+          document.documentElement.classList.add('dark');
+        } else {
+          document.documentElement.classList.remove('dark');
+        }
+      }
+    };
+    mediaQuery.addEventListener('change', handleMediaChange);
+
+    // 4. Keyboard Shortcut: Ctrl + D to toggle Dark/Light Mode
+    window.addEventListener('keydown', (e) => {
+      if (e.ctrlKey && e.key.toLowerCase() === 'd') {
+        e.preventDefault(); // Prevent browser bookmark dialog
+        const isCurrentlyDark = document.documentElement.classList.contains('dark');
+        const nextTheme = isCurrentlyDark ? 'Light' : 'Dark';
+        useUserStore.getState().updateSettings({ theme: nextTheme });
+        console.log(`[InTracker] Theme toggled via Ctrl+D to: ${nextTheme}`);
+      }
+    });
+  } catch (error) {
+    console.error('[InTracker] Theme synchronizer failed:', error);
+  }
+};
+
+initTheme();
+startReminderService();
 
 // Komponen buat ngecek: Lu udah login apa belum?
 const AuthGuard = ({ children }: { children: React.ReactNode }) => {
@@ -25,6 +90,30 @@ const AuthGuard = ({ children }: { children: React.ReactNode }) => {
         const timeout = new Promise((_, reject) => setTimeout(() => reject(new Error('Auth timeout')), 5000));
         const authCall = supabase.auth.getUser();
         const { data: { user } } = await Promise.race([authCall, timeout]) as any;
+        
+        if (user) {
+          const lastUserId = localStorage.getItem('intracker-last-user-id');
+          if (lastUserId && lastUserId !== user.id) {
+            console.log('[InTracker] User ID mismatch detected in AuthGuard! Clearing local data safely...');
+            // Preserve Supabase session keys so user remains logged in
+            const keysToKeep = Object.keys(localStorage).filter(k => k.startsWith('sb-') || k.includes('auth-token'));
+            const keptValues: Record<string, string> = {};
+            keysToKeep.forEach(k => {
+              const val = localStorage.getItem(k);
+              if (val) keptValues[k] = val;
+            });
+
+            localStorage.clear();
+
+            // Restore Supabase keys
+            Object.entries(keptValues).forEach(([k, v]) => localStorage.setItem(k, v));
+            localStorage.setItem('intracker-last-user-id', user.id);
+            window.location.reload();
+            return;
+          }
+          localStorage.setItem('intracker-last-user-id', user.id);
+        }
+
         setUser(user);
       } catch (err) {
         console.error('[InTracker] AuthGuard error:', err);
@@ -93,10 +182,10 @@ const OnboardingGuard = ({ children }: { children: React.ReactNode }) => {
     </div>
   );
 
-  // If already completed, redirect to dashboard
-  if (isCompleted) {
-    return <Navigate to="/habits" replace />;
-  }
+  // If already completed, redirect to dashboard (Disabled for developer testing access)
+  // if (isCompleted) {
+  //   return <Navigate to="/habits" replace />;
+  // }
 
   return <>{children}</>;
 };
@@ -133,16 +222,16 @@ const RootRedirect = () => {
     </div>
   );
   
-  // IF GUEST MODE -> GO TO ONBOARDING (NAME)
+  // IF GUEST MODE -> GO TO ONBOARDING (QUESTIONS/0)
   if (localStorage.getItem('guest_mode') === 'true') {
-    return <Navigate to="/name" />;
+    return <Navigate to="/questions/0" />;
   }
 
   if (isCompleted) {
     return <Navigate to="/habits" />;
   }
   
-  return <Navigate to="/name" />;
+  return <Navigate to="/questions/0" />;
 };
 
 const router = createBrowserRouter([
@@ -155,12 +244,16 @@ const router = createBrowserRouter([
     element: <Login />,
   },
   {
+    path: '/lab',
+    element: <Lab />,
+  },
+  {
     path: '/name',
-    element: <AuthGuard><OnboardingGuard><Name /></OnboardingGuard></AuthGuard>,
+    element: <AuthGuard><OnboardingGuard><Navigate to="/questions/1" replace /></OnboardingGuard></AuthGuard>,
   },
   {
     path: '/nickname',
-    element: <AuthGuard><OnboardingGuard><Nickname /></OnboardingGuard></AuthGuard>,
+    element: <AuthGuard><OnboardingGuard><Navigate to="/questions/2" replace /></OnboardingGuard></AuthGuard>,
   },
   {
     path: '/questions',
@@ -248,7 +341,9 @@ try {
     root.innerHTML = '<p style="color:#00FF85;padding:20px">React mounting...</p>';
     ReactDOM.createRoot(root).render(
       <React.StrictMode>
-        <RouterProvider router={router} />
+        <ErrorBoundary>
+          <RouterProvider router={router} />
+        </ErrorBoundary>
       </React.StrictMode>,
     );
     console.log('[InTracker] ReactDOM.createRoot().render() called successfully');

@@ -72,6 +72,10 @@ export const useTargetStore = create<TargetStore>()(
       currentUserId: null,
 
       fetchTargets: async () => {
+        if (localStorage.getItem('guest_mode') === 'true') {
+          set({ loading: false });
+          return;
+        }
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) {
           set({ loading: false, targets: [], currentUserId: null });
@@ -145,6 +149,28 @@ export const useTargetStore = create<TargetStore>()(
       },
 
       addTarget: async (target) => {
+        const isGuest = localStorage.getItem('guest_mode') === 'true';
+        if (isGuest) {
+          const guestTarget: TargetItem = {
+            id: 'guest-' + Date.now() + '-' + Math.random().toString(36).substring(2, 9),
+            title: target.title,
+            icon: target.icon,
+            accent: target.accent,
+            window: target.window,
+            priority: target.priority,
+            mode: target.mode,
+            steps: target.steps,
+            currentValue: 0,
+            targetValue: target.targetValue,
+            unit: target.unit,
+            completed: false,
+            starred: target.starred ?? false,
+            createdAt: new Date().toISOString(),
+          };
+          set((state) => ({ targets: [guestTarget, ...state.targets] }));
+          return;
+        }
+
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) return;
 
@@ -183,6 +209,12 @@ export const useTargetStore = create<TargetStore>()(
       },
 
       deleteTarget: async (id) => {
+        if (localStorage.getItem('guest_mode') === 'true') {
+          set((state) => ({
+            targets: state.targets.filter((target) => target.id !== id),
+          }));
+          return;
+        }
         const { error } = await supabase.from('targets').delete().eq('id', id);
         if (!error) {
           set((state) => ({
@@ -212,6 +244,10 @@ export const useTargetStore = create<TargetStore>()(
           useProgressionStore.getState().awardTodoCompletion(targetId);
         }
 
+        if (localStorage.getItem('guest_mode') === 'true') {
+          return;
+        }
+
         await supabase
           .from('targets')
           .update({ steps: nextSteps, completed: nextCompleted })
@@ -231,6 +267,10 @@ export const useTargetStore = create<TargetStore>()(
             t.id === targetId ? { ...t, currentValue: nextValue, completed: nextCompleted } : t
           ),
         }));
+
+        if (localStorage.getItem('guest_mode') === 'true') {
+          return;
+        }
 
         await supabase
           .from('targets')
@@ -259,6 +299,10 @@ export const useTargetStore = create<TargetStore>()(
         // Award XP for todo completion
         useProgressionStore.getState().awardTodoCompletion(targetId);
 
+        if (localStorage.getItem('guest_mode') === 'true') {
+          return;
+        }
+
         await supabase
           .from('targets')
           .update({
@@ -283,6 +327,10 @@ export const useTargetStore = create<TargetStore>()(
           ),
         }));
 
+        if (localStorage.getItem('guest_mode') === 'true') {
+          return;
+        }
+
         await supabase
           .from('targets')
           .update({ starred: nextStarred })
@@ -298,6 +346,10 @@ export const useTargetStore = create<TargetStore>()(
             t.id === targetId ? { ...t, window } : t
           ),
         }));
+
+        if (localStorage.getItem('guest_mode') === 'true') {
+          return;
+        }
 
         await supabase
           .from('targets')
@@ -331,6 +383,10 @@ export const useTargetStore = create<TargetStore>()(
           useProgressionStore.getState().awardTodoCompletion(targetId);
         }
 
+        if (localStorage.getItem('guest_mode') === 'true') {
+          return;
+        }
+
         await supabase
           .from('targets')
           .update({
@@ -359,6 +415,10 @@ export const useTargetStore = create<TargetStore>()(
           targets: state.targets.map((t) => (t.id === id ? { ...t, ...updates } : t)),
         }));
 
+        if (localStorage.getItem('guest_mode') === 'true') {
+          return;
+        }
+
         const { error } = await supabase.from('targets').update(dbUpdates).eq('id', id);
         if (error) {
           console.error('Error updating target:', error);
@@ -379,6 +439,10 @@ export const useTargetStore = create<TargetStore>()(
           
           return { targets: [...sortedTargets, ...remainingTargets] };
         });
+
+        if (localStorage.getItem('guest_mode') === 'true') {
+          return;
+        }
 
         // 2. Persist positions to Supabase using UPDATE (not upsert) to avoid NOT NULL constraint issues
         const updatePromises = orderedIds.map((id, index) =>

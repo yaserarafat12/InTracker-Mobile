@@ -7,7 +7,7 @@ import {
   filterHabitsByDay,
   isScheduledDay,
   calculateScheduleAwareStreak,
-  ScheduleConfig,
+  type ScheduleConfig,
 } from './scheduleHelpers';
 
 // ============================================================================
@@ -320,6 +320,7 @@ describe('Property 6: Schedule-Aware Streak Calculation', () => {
         fc.integer({ min: 0, max: 30 }), // number of consecutive completions from today
         fc.date({ min: new Date(2024, 0, 1), max: new Date(2024, 11, 31) }),
         (scheduleDays, streakLength, today) => {
+          if (isNaN(today.getTime())) return;
           today.setHours(0, 0, 0, 0);
 
           // Build completion dates: walk backward from today, find scheduled days, complete `streakLength` of them
@@ -349,6 +350,7 @@ describe('Property 6: Schedule-Aware Streak Calculation', () => {
         fc.integer({ min: 2, max: 10 }), // at least 2 scheduled days to have a gap
         fc.date({ min: new Date(2024, 0, 15), max: new Date(2024, 11, 31) }),
         (scheduleDays, totalScheduledDays, today) => {
+          if (isNaN(today.getTime())) return;
           today.setHours(0, 0, 0, 0);
 
           // Find scheduled days walking backward

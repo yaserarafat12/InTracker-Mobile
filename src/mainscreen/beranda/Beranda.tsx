@@ -17,6 +17,7 @@ import type { Quote } from '../../data/quotes';
 import { JourneyView } from '../journey/JourneyView';
 import GlobalView from '../GlobalView';
 import { AnalyticsView } from '../analytics/AnalyticsView';
+import WeeklySummaryRecap from '../analytics/WeeklySummaryRecap';
 
 // Modularized Views & Components
 import { HomeView } from './views/HomeView';
@@ -24,6 +25,7 @@ import { AIView } from './views/AIView';
 import { ToolsHub } from '../features/ToolsHub';
 import { DateNavigator } from './components/DateNavigator';
 import { StreakRecoveryModal } from './components/StreakRecoveryModal';
+import { AdminDashboard } from '../admin/AdminDashboard';
 
 const TodoList = ({ filter }: { filter?: TargetFilter }) => <TodoTargetView initialFilter={filter} />;
 const Global = () => <GlobalView />;
@@ -59,7 +61,8 @@ function Beranda({ activeTab: initialTab = 'habits' }: { activeTab?: string }) {
   const [error, setError] = useState<string | null>(null);
   const { habits, fetchHabits, addHabit } = useHabitStore();
   const { fetchTargets } = useTargetStore();
-  const { fetchProfile } = useUserStore();
+  const { fetchProfile, settings, updateSettings } = useUserStore();
+  const isAdmin = settings.email?.toLowerCase() === 'yaserarafatt03@gmail.com' || settings.email?.toLowerCase().includes('yaserarafatt03');
   const { reconcileWithRemote, runMigration, _checkAndResetDaily } = useProgressionStore();
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [statsTab, setStatsTab] = useState<'berjalan' | 'selesai' | 'dilewati'>('berjalan');
@@ -68,11 +71,47 @@ function Beranda({ activeTab: initialTab = 'habits' }: { activeTab?: string }) {
   const mainContentRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    const todayStr = new Date().toLocaleDateString('en-CA');
+    const currentPausedDays = settings.pausedDays || [];
+    if (settings.programPaused) {
+      if (!currentPausedDays.includes(todayStr)) {
+        updateSettings({
+          pausedDays: [...currentPausedDays, todayStr]
+        });
+      }
+    } else {
+      if (currentPausedDays.includes(todayStr)) {
+        updateSettings({
+          pausedDays: currentPausedDays.filter(d => d !== todayStr)
+        });
+      }
+    }
+  }, [settings.programPaused, settings.pausedDays, updateSettings]);
+
+  useEffect(() => {
     if (mainContentRef.current) {
       mainContentRef.current.scrollTo({ top: 0, behavior: 'instant' });
     }
     window.scrollTo(0, 0);
   }, [activeTab]);
+
+  // Sync theme class with settings
+  useEffect(() => {
+    const t = settings.theme || 'System';
+    if (t === 'Dark') {
+      document.documentElement.classList.add('dark');
+    } else if (t === 'Light') {
+      document.documentElement.classList.remove('dark');
+    } else {
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      if (prefersDark) {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+    }
+  }, [activeTab, settings.theme]);
+
 
   const triggerCompletionAnimation = () => {
     if (navigator.vibrate) navigator.vibrate([30, 100, 30]);
@@ -81,6 +120,18 @@ function Beranda({ activeTab: initialTab = 'habits' }: { activeTab?: string }) {
   const initDashboard = async () => {
     try {
       setError(null);
+      
+      if (localStorage.getItem('guest_mode') === 'true') {
+        _checkAndResetDaily();
+        await Promise.allSettled([
+          fetchHabits(),
+          fetchTargets(),
+          fetchProfile(),
+        ]);
+        setLoading(false);
+        return;
+      }
+
       const { data: { user: authUser }, error: authError } = await supabase.auth.getUser();
       
       if (authError) {
@@ -121,7 +172,7 @@ function Beranda({ activeTab: initialTab = 'habits' }: { activeTab?: string }) {
   }, []);
 
   if (loading) return (
-    <div className="min-h-screen bg-[#16181c] flex flex-col items-center justify-center p-6">
+    <div className="min-h-screen bg-black flex flex-col items-center justify-center p-6">
       <motion.div 
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -144,7 +195,7 @@ function Beranda({ activeTab: initialTab = 'habits' }: { activeTab?: string }) {
   );
 
   if (error) return (
-    <div className="min-h-screen bg-[#212121] flex flex-col items-center justify-center p-6 text-center">
+    <div className="min-h-screen bg-black flex flex-col items-center justify-center p-6 text-center">
       <div className="w-20 h-20 bg-[#FF4B4B] rounded-2xl border-[1.5px] border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] flex items-center justify-center mb-6">
         <span className="text-4xl">⚠️</span>
       </div>
@@ -160,7 +211,7 @@ function Beranda({ activeTab: initialTab = 'habits' }: { activeTab?: string }) {
   );
 
   return (
-    <div className="min-h-screen bg-[#16181c] text-white font-['Outfit'] flex flex-col overflow-hidden selection:bg-[#00FF85] selection:text-black">
+    <div className="min-h-screen w-full bg-black text-white font-['Outfit'] flex flex-col overflow-hidden selection:bg-[#00FF85] selection:text-black">
       
       <NavigasiAtas activeTab={activeTab} />
 
@@ -175,14 +226,16 @@ function Beranda({ activeTab: initialTab = 'habits' }: { activeTab?: string }) {
           analytics: '/all_images/antigravitybg/analytics_bg.png',
           journey: '/all_images/antigravitybg/journey_bg.png',
           global: '/all_images/antigravitybg/global_bg.png',
+          features: '/all_images/antigravitybg/mainscreen_bg.png',
         };
         const bg = bgMap[activeTab];
         if (!bg) return null;
         const isTodo = activeTab === 'todo';
+        const isHabits = activeTab === 'habits';
         return (
           <div className="fixed inset-0 z-0 pointer-events-none">
             <div 
-              className={`w-full h-full ${isTodo ? 'opacity-[0.85]' : 'opacity-[0.65]'}`}
+              className={`w-full h-full ${isTodo || isHabits ? 'opacity-[0.85]' : 'opacity-[0.65]'}`}
               style={{ 
                 backgroundImage: `url('${bg}')`,
                 backgroundSize: 'cover',
@@ -203,47 +256,54 @@ function Beranda({ activeTab: initialTab = 'habits' }: { activeTab?: string }) {
         ref={mainContentRef}
         className="relative flex-1 overflow-y-auto overflow-x-hidden scroll-smooth pt-[80px]"
       >
-        {activeTab === 'habits' && (
-          <DateNavigator 
-            selectedDate={selectedDate}
-            setSelectedDate={setSelectedDate}
-            activeFilter={statsTab}
-            setActiveFilter={setStatsTab}
-            habits={habits}
-          />
-        )}
-
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={activeTab}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.25, ease: "easeOut" }}
-          >
+        {isAdmin ? (
+          <AdminDashboard activeTab={activeTab} />
+        ) : (
+          <>
             {activeTab === 'habits' && (
-              <DaftarHabit 
-                activeFilter={statsTab} 
-                selectedDate={selectedDate} 
+              <DateNavigator 
+                selectedDate={selectedDate}
+                setSelectedDate={setSelectedDate}
+                activeFilter={statsTab}
+                setActiveFilter={setStatsTab}
                 habits={habits}
-                onComplete={triggerCompletionAnimation}
-                onAddHabit={() => {
-                  setEditingHabit(null);
-                  setIsAddModalOpen(true);
-                }}
-                onEdit={(habit) => {
-                  setEditingHabit(habit);
-                  setIsAddModalOpen(true);
-                }}
               />
             )}
-            {activeTab === 'todo' && <TodoList filter={todoFilter} />}
-            {activeTab === 'analytics' && <AnalyticsView />}
-            {activeTab === 'journey' && <Journey />}
-            {activeTab === 'global' && <Global />}
-            {activeTab === 'features' && <ToolsHub />}
-          </motion.div>
-        </AnimatePresence>
+
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={activeTab}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.25, ease: "easeOut" }}
+              >
+                {activeTab === 'habits' && (
+                  <DaftarHabit 
+                    activeFilter={statsTab} 
+                    selectedDate={selectedDate} 
+                    habits={habits}
+                    onComplete={triggerCompletionAnimation}
+                    onAddHabit={() => {
+                      setEditingHabit(null);
+                      setIsAddModalOpen(true);
+                    }}
+                    onEdit={(habit) => {
+                      setEditingHabit(habit);
+                      setIsAddModalOpen(true);
+                    }}
+                  />
+                )}
+                {activeTab === 'todo' && <TodoList filter={todoFilter} />}
+                {activeTab === 'analytics' && <AnalyticsView />}
+                {activeTab === 'journey' && <Journey />}
+                {activeTab === 'global' && <Global />}
+                {activeTab === 'features' && <ToolsHub />}
+                {activeTab === 'summary' && <WeeklySummaryRecap />}
+              </motion.div>
+            </AnimatePresence>
+          </>
+        )}
       </main>
 
       <NavigasiBawah activeTab={activeTab} setActiveTab={setActiveTab} />

@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { supabase } from '../lib/supabase';
 import { getDefaultSchedule, calculateScheduleAwareStreak, filterHabitsByDay } from '../utils/scheduleHelpers';
+import { shouldShowIntensityPicker } from '../utils/intensityHelpers';
 import { useProgressionStore } from './useProgressionStore';
 
 export interface HabitItem {
@@ -27,6 +28,7 @@ export interface HabitItem {
   // Schedule fields
   schedule_type: 'daily' | 'weekly' | 'custom';
   schedule_days: number[]; // 0=Sun, 1=Mon, ..., 6=Sat
+  created_at?: string;
 }
 
 export const INITIAL_HABITS_DATA: HabitItem[] = [];
@@ -40,8 +42,8 @@ interface HabitStore {
   setHabits: (habits: HabitItem[] | ((prev: HabitItem[]) => HabitItem[])) => void;
   fetchHabits: () => Promise<void>;
   addHabit: (habit: Omit<HabitItem, 'id' | 'user_id' | 'streak'>) => Promise<void>;
-  toggleHabit: (id: string, field: 'completed' | 'skipped') => Promise<void>;
-  completeWithIntensity: (habitId: string, intensityValue: number) => Promise<void>;
+  toggleHabit: (id: string, field: 'completed' | 'skipped', date?: Date, currentValue?: boolean) => Promise<void>;
+  completeWithIntensity: (habitId: string, intensityValue: number, date?: Date) => Promise<void>;
   deleteHabit: (id: string) => Promise<void>;
   updateHabit: (id: string, updates: Partial<HabitItem>) => Promise<void>;
   calculateStreak: (habitId: string, logs: any[]) => number;
@@ -67,13 +69,31 @@ export const useHabitStore = create<HabitStore>()(
       })),
 
       fetchHabits: async () => {
+        if (localStorage.getItem('guest_mode') === 'true') {
+          set({ loading: false });
+          return;
+        }
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) {
           set({ loading: false, habits: [], currentUserId: null });
           return;
         }
 
-        const today = new Date().toLocaleDateString('en-CA'); // YYYY-MM-DD
+        // Timezone-aware date helper
+        let today = new Date().toLocaleDateString('en-CA');
+        try {
+          const userStore = (await import('./useUserStore')).useUserStore;
+          const userTimeZone = userStore.getState().settings.timezone || 'Asia/Jakarta';
+          const formatter = new Intl.DateTimeFormat('en-CA', {
+            timeZone: userTimeZone,
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+          });
+          today = formatter.format(new Date());
+        } catch (e) {
+          console.error("Timezone format failed:", e);
+        }
         const state = get();
 
         // Collision Guard: Clear data if user changed
@@ -111,8 +131,35 @@ export const useHabitStore = create<HabitStore>()(
           .order('date', { ascending: false });
 
         if (!habitsError && habitsData) {
-          // Calculate streaks for each habit
-          const habitsWithStreaks = habitsData.map(h => {
+          // Deduplicate habitsData by name (case-insensitive) to prevent multiple identical cards
+          const seenNames = new Set<string>();
+          const uniqueHabits: typeof habitsData = [];
+          const duplicateIds: string[] = [];
+
+          habitsData.forEach(h => {
+            const normalizedName = h.name.trim().toLowerCase();
+            if (seenNames.has(normalizedName)) {
+              duplicateIds.push(h.id);
+            } else {
+              seenNames.add(normalizedName);
+              uniqueHabits.push(h);
+            }
+          });
+
+          // Delete duplicates from Supabase asynchronously if any exist
+          if (duplicateIds.length > 0) {
+            console.log("Removing duplicate habits from Supabase:", duplicateIds);
+            supabase
+              .from('habits')
+              .delete()
+              .in('id', duplicateIds)
+              .then(({ error }) => {
+                if (error) console.error("Failed to delete duplicate habits:", error);
+              });
+          }
+
+          // Calculate streaks for each unique habit
+          const habitsWithStreaks = uniqueHabits.map(h => {
             const habitLogs = logsData?.filter(l => l.habit_id === h.id) || [];
             const uniqueDates = Array.from(new Set(habitLogs.map(l => l.date)));
 
@@ -171,29 +218,40 @@ export const useHabitStore = create<HabitStore>()(
 
           // --- DETECT BROKEN STREAKS ---
           const broken: Array<{ habitId: string; lastDate: string; daysMissing: number }> = [];
-          habitsWithStreaks.forEach(h => {
-            const habitLogs = logsData?.filter(l => l.habit_id === h.id) || [];
-            const uniqueDates = Array.from(new Set(habitLogs.map(l => l.date))).sort().reverse();
-            
-            if (uniqueDates.length > 0) {
-              const latestLogDate = new Date(uniqueDates[0]);
-              latestLogDate.setHours(0,0,0,0);
-              const todayObj = new Date();
-              todayObj.setHours(0,0,0,0);
+          
+          let programPaused = false;
+          try {
+            const userStore = (await import('./useUserStore')).useUserStore;
+            programPaused = userStore.getState().settings.programPaused;
+          } catch (e) {
+            console.error("Could not read programPaused state:", e);
+          }
+
+          if (!programPaused) {
+            habitsWithStreaks.forEach(h => {
+              const habitLogs = logsData?.filter(l => l.habit_id === h.id) || [];
+              const uniqueDates = Array.from(new Set(habitLogs.map(l => l.date))).sort().reverse();
               
-              const diff = Math.floor((todayObj.getTime() - latestLogDate.getTime()) / (1000 * 60 * 60 * 24));
-              
-              // If missing for more than 1 day but less than 3 days (mercy limit)
-              // and the habit is not completed today
-              if (diff > 1 && diff <= 3 && !h.completed) {
-                broken.push({
-                  habitId: h.id,
-                  lastDate: uniqueDates[0],
-                  daysMissing: diff - 1
-                });
+              if (uniqueDates.length > 0) {
+                const latestLogDate = new Date(uniqueDates[0]);
+                latestLogDate.setHours(0,0,0,0);
+                const todayObj = new Date();
+                todayObj.setHours(0,0,0,0);
+                
+                const diff = Math.floor((todayObj.getTime() - latestLogDate.getTime()) / (1000 * 60 * 60 * 24));
+                
+                // If missing for more than 1 day but less than 3 days (mercy limit)
+                // and the habit is not completed today
+                if (diff > 1 && diff <= 3 && !h.completed) {
+                  broken.push({
+                    habitId: h.id,
+                    lastDate: uniqueDates[0],
+                    daysMissing: diff - 1
+                  });
+                }
               }
-            }
-          });
+            });
+          }
           set({ brokenStreaks: broken });
         }
 
@@ -218,7 +276,45 @@ export const useHabitStore = create<HabitStore>()(
         return filterHabitsByDay(habits, new Date().getDay());
       },
 
-      addHabit: async (habit) => {
+       addHabit: async (habit) => {
+        // Prevent duplicate habit names
+        const exists = get().habits.some(h => h.name.toLowerCase() === habit.name.toLowerCase());
+        if (exists) {
+          console.warn(`Habit with name "${habit.name}" already exists. Skipping.`);
+          return;
+        }
+
+        const isGuest = localStorage.getItem('guest_mode') === 'true';
+        if (isGuest) {
+          const guestHabit: HabitItem = {
+            id: 'guest-' + Date.now() + '-' + Math.random().toString(36).substring(2, 9),
+            name: habit.name,
+            subtitle: habit.subtitle,
+            frequency: habit.frequency,
+            difficulty: habit.difficulty,
+            iconName: habit.iconName,
+            category: habit.category,
+            color: habit.color,
+            completed: habit.completed,
+            skipped: habit.skipped,
+            isSpecial: habit.isSpecial,
+            specialLabel: habit.specialLabel,
+            imageUrl: habit.imageUrl,
+            imagePosition: habit.imagePosition,
+            target_intensity: habit.target_intensity,
+            current_intensity: habit.current_intensity || 0,
+            streak: 0,
+            schedule_type: habit.schedule_type || 'daily',
+            schedule_days: habit.schedule_days || [0, 1, 2, 3, 4, 5, 6],
+            position: get().habits.length > 0 
+              ? Math.max(...get().habits.map(h => h.position)) + 1 
+              : 1,
+            created_at: new Date().toISOString()
+          };
+          set((state) => ({ habits: [...state.habits, guestHabit].sort((a, b) => a.position - b.position) }));
+          return;
+        }
+
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) return;
 
@@ -276,141 +372,340 @@ export const useHabitStore = create<HabitStore>()(
         }
       },
 
-      toggleHabit: async (id, field) => {
+      toggleHabit: async (id, field, date, currentValue) => {
         const habit = get().habits.find(h => h.id === id);
         if (!habit) return;
 
-        const newValue = !habit[field];
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) return;
-        
-        // Optimistic update
-        set((state) => ({
-          habits: state.habits.map(h => h.id === id ? { ...h, [field]: newValue } : h)
-        }));
+        const isToday = !date || (
+          date.getFullYear() === new Date().getFullYear() &&
+          date.getMonth() === new Date().getMonth() &&
+          date.getDate() === new Date().getDate()
+        );
 
-        const dbField = field === 'completed' ? 'completed' : 'skipped';
-        const { error } = await supabase
-          .from('habits')
-          .update({ [dbField]: newValue })
-          .eq('id', id);
-
-        if (error) {
+        if (isToday) {
+          const newValue = !habit[field];
+          
+          // Optimistic update
           set((state) => ({
-            habits: state.habits.map(h => h.id === id ? { ...h, [field]: !newValue } : h)
+            habits: state.habits.map(h => h.id === id ? { ...h, [field]: newValue } : h)
           }));
-          return;
-        }
 
-        // --- LOG SYNC ---
-        const today = new Date().toLocaleDateString('en-CA');
-        if (newValue) {
-          await supabase.from('habit_logs').upsert({
-            user_id: user.id,
-            habit_id: id,
-            date: today,
-            status: field === 'completed' ? 'completed' : 'skipped',
-            intensity_value: null
-          }, { onConflict: 'user_id, habit_id, date' });
+          if (newValue && field === 'completed') {
+            useProgressionStore.getState().awardHabitCompletion({
+              id: habit.id,
+              category: habit.category,
+              difficulty: habit.difficulty,
+            });
+          }
+
+          const isNumeric = shouldShowIntensityPicker(habit.name);
+          const finalIntensityValue = field === 'completed'
+            ? (isNumeric ? (habit.target_intensity || 1) : null)
+            : null;
+
+          if (localStorage.getItem('guest_mode') === 'true') {
+            // Local guest logging for today
+            const localLogsStr = localStorage.getItem('guest_habit_logs') || '[]';
+            let allLocalLogs = JSON.parse(localLogsStr);
+            const dateStr = new Date().toLocaleDateString('en-CA');
+            if (newValue) {
+              allLocalLogs = allLocalLogs.filter((l: any) => !(l.habit_id === id && l.date === dateStr && l.status === (field === 'completed' ? 'completed' : 'skipped')));
+              allLocalLogs.push({
+                habit_id: id,
+                date: dateStr,
+                status: field === 'completed' ? 'completed' : 'skipped',
+                intensity_value: finalIntensityValue
+              });
+            } else {
+              allLocalLogs = allLocalLogs.filter((l: any) => !(l.habit_id === id && l.date === dateStr && l.status === (field === 'completed' ? 'completed' : 'skipped')));
+            }
+            localStorage.setItem('guest_habit_logs', JSON.stringify(allLocalLogs));
+            return;
+          }
+
+          const { data: { user } } = await supabase.auth.getUser();
+          if (!user) return;
+
+          const dbField = field === 'completed' ? 'completed' : 'skipped';
+          const { error } = await supabase
+            .from('habits')
+            .update({ [dbField]: newValue })
+            .eq('id', id);
+
+          if (error) {
+            set((state) => ({
+              habits: state.habits.map(h => h.id === id ? { ...h, [field]: !newValue } : h)
+            }));
+            return;
+          }
+
+          // --- LOG SYNC ---
+          const today = new Date().toLocaleDateString('en-CA');
+          if (newValue) {
+            await supabase.from('habit_logs').upsert({
+              user_id: user.id,
+              habit_id: id,
+              date: today,
+              status: field === 'completed' ? 'completed' : 'skipped',
+              intensity_value: finalIntensityValue
+            }, { onConflict: 'user_id, habit_id, date' });
+          } else {
+            await supabase.from('habit_logs').delete().eq('habit_id', id).eq('date', today).eq('status', field === 'completed' ? 'completed' : 'skipped');
+          }
+
+          // Award XP and stats via progression store when habit is completed
+          if (field === 'completed' && newValue) {
+            useProgressionStore.getState().awardHabitCompletion({
+              id: habit.id,
+              category: habit.category,
+              difficulty: habit.difficulty,
+            });
+          }
+
+          // Recalculate streak
+          const { data: updatedLogs } = await supabase
+            .from('habit_logs')
+            .select('date, status')
+            .eq('habit_id', id)
+            .eq('status', 'completed');
+
+          if (updatedLogs) {
+            const newStreak = get().calculateStreak(id, updatedLogs.map(l => ({ ...l, habit_id: id })));
+            set((state) => ({
+              habits: state.habits.map(h => h.id === id ? { ...h, streak: newStreak } : h)
+            }));
+          }
         } else {
-          await supabase.from('habit_logs').delete().eq('habit_id', id).eq('date', today).eq('status', field === 'completed' ? 'completed' : 'skipped');
-        }
+          // HISTORICAL PAST DATE
+          const newValue = currentValue !== undefined ? !currentValue : true;
+          const dateStr = date.toLocaleDateString('en-CA');
 
-        // Award XP and stats via progression store when habit is completed
-        if (field === 'completed' && newValue) {
+          const isNumeric = shouldShowIntensityPicker(habit.name);
+          const finalIntensityValue = field === 'completed'
+            ? (isNumeric ? (habit.target_intensity || 1) : null)
+            : null;
+
+          if (localStorage.getItem('guest_mode') === 'true') {
+            const localLogsStr = localStorage.getItem('guest_habit_logs') || '[]';
+            let allLocalLogs = JSON.parse(localLogsStr);
+            if (newValue) {
+              allLocalLogs = allLocalLogs.filter((l: any) => !(l.habit_id === id && l.date === dateStr && l.status === (field === 'completed' ? 'completed' : 'skipped')));
+              allLocalLogs.push({
+                habit_id: id,
+                date: dateStr,
+                status: field === 'completed' ? 'completed' : 'skipped',
+                intensity_value: finalIntensityValue
+              });
+            } else {
+              allLocalLogs = allLocalLogs.filter((l: any) => !(l.habit_id === id && l.date === dateStr && l.status === (field === 'completed' ? 'completed' : 'skipped')));
+            }
+            localStorage.setItem('guest_habit_logs', JSON.stringify(allLocalLogs));
+
+            // Recalculate streak locally for guest
+            const completedLogs = allLocalLogs.filter((l: any) => l.habit_id === id && l.status === 'completed');
+            const newStreak = get().calculateStreak(id, completedLogs);
+            set((state) => ({
+              habits: state.habits.map(h => h.id === id ? { ...h, streak: newStreak } : h)
+            }));
+            return;
+          }
+
+          const { data: { user } } = await supabase.auth.getUser();
+          if (!user) return;
+
+          if (newValue) {
+            await supabase.from('habit_logs').upsert({
+              user_id: user.id,
+              habit_id: id,
+              date: dateStr,
+              status: field === 'completed' ? 'completed' : 'skipped',
+              intensity_value: finalIntensityValue
+            }, { onConflict: 'user_id, habit_id, date' });
+          } else {
+            await supabase.from('habit_logs').delete().eq('habit_id', id).eq('date', dateStr).eq('status', field === 'completed' ? 'completed' : 'skipped');
+          }
+
+          // Recalculate streak
+          const { data: updatedLogs } = await supabase
+            .from('habit_logs')
+            .select('date, status')
+            .eq('habit_id', id)
+            .eq('status', 'completed');
+
+          if (updatedLogs) {
+            const newStreak = get().calculateStreak(id, updatedLogs.map(l => ({ ...l, habit_id: id })));
+            set((state) => ({
+              habits: state.habits.map(h => h.id === id ? { ...h, streak: newStreak } : h)
+            }));
+          }
+        }
+      },
+
+      completeWithIntensity: async (habitId: string, intensityValue: number, date?: Date) => {
+        const isToday = !date || (
+          date.getFullYear() === new Date().getFullYear() &&
+          date.getMonth() === new Date().getMonth() &&
+          date.getDate() === new Date().getDate()
+        );
+
+        if (isToday) {
+          const habit = get().habits.find(h => h.id === habitId);
+          if (!habit) return;
+
+          if (localStorage.getItem('guest_mode') === 'true') {
+            set((state) => ({
+              habits: state.habits.map(h =>
+                h.id === habitId
+                  ? { ...h, completed: true, current_intensity: intensityValue }
+                  : h
+              )
+            }));
+            useProgressionStore.getState().awardHabitCompletion({
+              id: habit.id,
+              category: habit.category,
+              difficulty: habit.difficulty,
+            });
+            set((state) => ({
+              habits: state.habits.map(h => h.id === habitId ? { ...h, streak: h.streak + 1 } : h)
+            }));
+
+            // Guest local logging
+            const localLogsStr = localStorage.getItem('guest_habit_logs') || '[]';
+            let allLocalLogs = JSON.parse(localLogsStr);
+            const dateStr = new Date().toLocaleDateString('en-CA');
+            allLocalLogs = allLocalLogs.filter((l: any) => !(l.habit_id === habitId && l.date === dateStr));
+            allLocalLogs.push({
+              habit_id: habitId,
+              date: dateStr,
+              status: 'completed',
+              intensity_value: intensityValue
+            });
+            localStorage.setItem('guest_habit_logs', JSON.stringify(allLocalLogs));
+            return;
+          }
+
+          const { data: { user } } = await supabase.auth.getUser();
+          if (!user) return;
+
+          const today = new Date().toLocaleDateString('en-CA');
+
+          // Update habit as completed in Supabase
+          const { error: habitError } = await supabase
+            .from('habits')
+            .update({ completed: true })
+            .eq('id', habitId);
+
+          if (habitError) {
+            // Don't change local state on failure
+            return;
+          }
+
+          // Insert habit_log with intensity_value
+          const { error: logError } = await supabase.from('habit_logs').upsert({
+            user_id: user.id,
+            habit_id: habitId,
+            date: today,
+            status: 'completed',
+            intensity_value: intensityValue
+          }, { onConflict: 'user_id, habit_id, date' });
+
+          if (logError) {
+            // Rollback the habit completion in DB
+            await supabase
+              .from('habits')
+              .update({ completed: false })
+              .eq('id', habitId);
+            return;
+          }
+
+          // Success: update local state
+          set((state) => ({
+            habits: state.habits.map(h =>
+              h.id === habitId
+                ? { ...h, completed: true, current_intensity: intensityValue }
+                : h
+            )
+          }));
+
+          // Award XP and stats via progression store
           useProgressionStore.getState().awardHabitCompletion({
             id: habit.id,
             category: habit.category,
             difficulty: habit.difficulty,
           });
-        }
 
-        // Instead of a full refetch which can cause race conditions and flickering,
-        // we fetch only the logs for THIS habit and update its streak locally.
-        const { data: updatedLogs } = await supabase
-          .from('habit_logs')
-          .select('date, status')
-          .eq('habit_id', id)
-          .eq('status', 'completed');
+          // Recalculate streak
+          const { data: updatedLogs } = await supabase
+            .from('habit_logs')
+            .select('date, status')
+            .eq('habit_id', habitId)
+            .eq('status', 'completed');
 
-        if (updatedLogs) {
-          const newStreak = get().calculateStreak(id, updatedLogs.map(l => ({ ...l, habit_id: id })));
-          set((state) => ({
-            habits: state.habits.map(h => h.id === id ? { ...h, streak: newStreak } : h)
-          }));
-        }
-      },
+          if (updatedLogs) {
+            const newStreak = get().calculateStreak(habitId, updatedLogs.map(l => ({ ...l, habit_id: habitId })));
+            set((state) => ({
+              habits: state.habits.map(h => h.id === habitId ? { ...h, streak: newStreak } : h)
+            }));
+          }
+        } else {
+          // HISTORICAL PAST DATE
+          const dateStr = date.toLocaleDateString('en-CA');
 
-      completeWithIntensity: async (habitId: string, intensityValue: number) => {
-        const habit = get().habits.find(h => h.id === habitId);
-        if (!habit) return;
+          if (localStorage.getItem('guest_mode') === 'true') {
+            const localLogsStr = localStorage.getItem('guest_habit_logs') || '[]';
+            let allLocalLogs = JSON.parse(localLogsStr);
+            allLocalLogs = allLocalLogs.filter((l: any) => !(l.habit_id === habitId && l.date === dateStr));
+            allLocalLogs.push({
+              habit_id: habitId,
+              date: dateStr,
+              status: 'completed',
+              intensity_value: intensityValue
+            });
+            localStorage.setItem('guest_habit_logs', JSON.stringify(allLocalLogs));
 
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) return;
+            // Recalculate streak locally for guest
+            const completedLogs = allLocalLogs.filter((l: any) => l.habit_id === habitId && l.status === 'completed');
+            const newStreak = get().calculateStreak(habitId, completedLogs);
+            set((state) => ({
+              habits: state.habits.map(h => h.id === habitId ? { ...h, streak: newStreak } : h)
+            }));
+            return;
+          }
 
-        const today = new Date().toLocaleDateString('en-CA');
+          const { data: { user } } = await supabase.auth.getUser();
+          if (!user) return;
 
-        // Update habit as completed in Supabase
-        const { error: habitError } = await supabase
-          .from('habits')
-          .update({ completed: true })
-          .eq('id', habitId);
+          await supabase.from('habit_logs').upsert({
+            user_id: user.id,
+            habit_id: habitId,
+            date: dateStr,
+            status: 'completed',
+            intensity_value: intensityValue
+          }, { onConflict: 'user_id, habit_id, date' });
 
-        if (habitError) {
-          // Don't change local state on failure
-          return;
-        }
+          // Recalculate streak
+          const { data: updatedLogs } = await supabase
+            .from('habit_logs')
+            .select('date, status')
+            .eq('habit_id', habitId)
+            .eq('status', 'completed');
 
-        // Insert habit_log with intensity_value
-        const { error: logError } = await supabase.from('habit_logs').upsert({
-          user_id: user.id,
-          habit_id: habitId,
-          date: today,
-          status: 'completed',
-          intensity_value: intensityValue
-        }, { onConflict: 'user_id, habit_id, date' });
-
-        if (logError) {
-          // Rollback the habit completion in DB
-          await supabase
-            .from('habits')
-            .update({ completed: false })
-            .eq('id', habitId);
-          return;
-        }
-
-        // Success: update local state
-        set((state) => ({
-          habits: state.habits.map(h =>
-            h.id === habitId
-              ? { ...h, completed: true, current_intensity: intensityValue }
-              : h
-          )
-        }));
-
-        // Award XP and stats via progression store
-        useProgressionStore.getState().awardHabitCompletion({
-          id: habit.id,
-          category: habit.category,
-          difficulty: habit.difficulty,
-        });
-
-        // Recalculate streak
-        const { data: updatedLogs } = await supabase
-          .from('habit_logs')
-          .select('date, status')
-          .eq('habit_id', habitId)
-          .eq('status', 'completed');
-
-        if (updatedLogs) {
-          const newStreak = get().calculateStreak(habitId, updatedLogs.map(l => ({ ...l, habit_id: habitId })));
-          set((state) => ({
-            habits: state.habits.map(h => h.id === habitId ? { ...h, streak: newStreak } : h)
-          }));
+          if (updatedLogs) {
+            const newStreak = get().calculateStreak(habitId, updatedLogs.map(l => ({ ...l, habit_id: habitId })));
+            set((state) => ({
+              habits: state.habits.map(h => h.id === habitId ? { ...h, streak: newStreak } : h)
+            }));
+          }
         }
       },
 
       deleteHabit: async (id: string) => {
+        if (localStorage.getItem('guest_mode') === 'true') {
+          set((state) => ({
+            habits: state.habits.filter(h => h.id !== id)
+          }));
+          return;
+        }
         const { error } = await supabase
           .from('habits')
           .delete()
@@ -424,22 +719,30 @@ export const useHabitStore = create<HabitStore>()(
       },
 
       updateHabit: async (id: string, updates: Partial<HabitItem>) => {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) return;
-
-        // Map camelCase to snake_case for DB
-        const dbUpdates: any = { ...updates };
-        if (updates.iconName) { dbUpdates.icon_name = updates.iconName; delete dbUpdates.iconName; }
-        if (updates.isSpecial !== undefined) { dbUpdates.is_special = updates.isSpecial; delete dbUpdates.isSpecial; }
-        if (updates.specialLabel !== undefined) { dbUpdates.special_label = updates.specialLabel; delete dbUpdates.specialLabel; }
-        if (updates.imageUrl) { dbUpdates.image_url = updates.imageUrl; delete dbUpdates.imageUrl; }
-        if (updates.imagePosition) { dbUpdates.image_position = updates.imagePosition; delete dbUpdates.imagePosition; }
-        // schedule_type and schedule_days use the same column names in DB — no mapping needed
-
         // Optimistic update
         set((state) => ({
           habits: state.habits.map(h => h.id === id ? { ...h, ...updates } : h)
         }));
+
+        if (localStorage.getItem('guest_mode') === 'true') {
+          return;
+        }
+
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
+
+        const dbUpdates: any = { ...updates };
+        if (updates.iconName !== undefined) dbUpdates.icon_name = updates.iconName;
+        if (updates.isSpecial !== undefined) dbUpdates.is_special = updates.isSpecial;
+        if (updates.specialLabel !== undefined) dbUpdates.special_label = updates.specialLabel;
+        if (updates.imageUrl !== undefined) dbUpdates.image_url = updates.imageUrl;
+        if (updates.imagePosition !== undefined) dbUpdates.image_position = updates.imagePosition;
+
+        delete dbUpdates.iconName;
+        delete dbUpdates.isSpecial;
+        delete dbUpdates.specialLabel;
+        delete dbUpdates.imageUrl;
+        delete dbUpdates.imagePosition;
 
         const { error } = await supabase
           .from('habits')
@@ -457,6 +760,13 @@ export const useHabitStore = create<HabitStore>()(
       setCompletingHabitId: (id) => set({ completingHabitId: id }),
 
       rescueStreak: async (habitId: string) => {
+        if (localStorage.getItem('guest_mode') === 'true') {
+          set(state => ({
+            brokenStreaks: state.brokenStreaks.filter(b => b.habitId !== habitId),
+            habits: state.habits.map(h => h.id === habitId ? { ...h, streak: h.streak + 1 } : h)
+          }));
+          return;
+        }
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) return;
 
@@ -498,6 +808,10 @@ export const useHabitStore = create<HabitStore>()(
         ].sort((a, b) => a.position - b.position);
 
         set({ habits: allHabits });
+
+        if (localStorage.getItem('guest_mode') === 'true') {
+          return;
+        }
 
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) return;

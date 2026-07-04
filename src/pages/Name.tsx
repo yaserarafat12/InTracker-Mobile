@@ -5,9 +5,20 @@ import { supabase } from '../lib/supabase';
 
 const CUBIC_BEZIER = "easeOut" as const;
 
+const GREEN_OPTIONS = [
+  { name: 'Neon Green', hex: '#00FF85', desc: 'Warna lama (sangat mencolok)' },
+  { name: 'Soft Mint', hex: '#7BE495', desc: 'Rekomendasi ChatGPT (Premium & Calming)' },
+  { name: 'Calm Mint', hex: '#73F29B', desc: 'Lebih adem, ala Notion Calendar' },
+  { name: 'Linear Mint', hex: '#6EE7B7', desc: 'Rada kebiruan, ala Linear' },
+  { name: 'Deep Emerald', hex: '#57C96D', desc: 'Hijau solid, kontras tinggi' },
+  { name: 'Vibrant Mint', hex: '#00FF9D', desc: 'Mint tapi tetep pop & terang' }
+];
+
 export default function Name() {
   const [name, setName] = useState('');
   const [isSaving, setIsSaving] = useState(false);
+  const [selectedGreen] = useState('#7BE495'); // Keep Soft Mint as default
+  const [isFocused, setIsFocused] = useState(false);
   const navigate = useNavigate();
 
   const handleContinue = async () => {
@@ -16,92 +27,87 @@ export default function Name() {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
+        // Save nickname and full_name in one go
         await supabase.from('profiles').update({
           full_name: name,
+          nickname: name,
           updated_at: new Date().toISOString()
         }).eq('id', user.id);
       }
-      navigate('/nickname');
+      navigate('/questions/0');
     } catch (error) {
       console.error("Error saving name:", error);
-      navigate('/nickname');
+      navigate('/questions/0');
     } finally {
       setIsSaving(false);
     }
   };
 
   return (
-    <div className="h-[100dvh] bg-[#212121] text-white font-['Inter'] relative flex flex-col items-center overflow-hidden select-none">
+    <div className="h-[100dvh] bg-[#000000] text-white font-['Inter'] relative flex flex-col items-center justify-center overflow-hidden select-none">
       
-      {/* BACKGROUND */}
-      <div className="absolute inset-0 z-0">
-        <motion.img
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 1 }}
-          src="/all_images/antigravitybg/2.jpg" 
-          className="w-full h-full object-cover object-top -translate-y-[5vh]" 
-        />
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#212121]/20 to-[#212121] to-80%" />
-      </div>
+      {/* GLOW DECORATION */}
+      <div 
+        className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[300px] h-[300px] blur-[100px] rounded-full pointer-events-none transition-colors duration-500" 
+        style={{ backgroundColor: `${selectedGreen}1A` }} // 10% opacity glow
+      />
 
-      {/* CONTENT SECTION (PUSHED DOWN) */}
-      <div className="relative z-10 flex-1 w-full max-w-[420px] px-6 flex flex-col justify-end pb-32">
+      {/* CONTENT SECTION (CENTERED) */}
+      <div className="relative z-10 w-full max-w-[420px] px-8 flex flex-col items-center text-center">
         
-        {/* HEADING SECTION (BELOW WINDOW) */}
-        <div className="mb-4">
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.5, ease: CUBIC_BEZIER }}
-          >
-            <h1 className="text-[24px] font-bold font-['Outfit'] text-center tracking-normal leading-tight">
-              Siapa namamu?
-            </h1>
-          </motion.div>
-        </div>
-
-        {/* INPUT SECTION (ABOVE BUTTON) */}
-        <div className="w-full">
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.1, duration: 0.5, ease: CUBIC_BEZIER }}
-            className="px-4"
-          >
-            <input
-              autoFocus
-              type="text"
-              placeholder="Ketikkan namamu..."
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="w-full bg-white/5 border border-white/10 rounded-2xl py-5 px-6 text-[18px] outline-none focus:border-[#00FF85]/40 focus:bg-white/10 backdrop-blur-xl transition-all text-center placeholder:text-white/20 font-medium shadow-2xl"
-            />
-          </motion.div>
-        </div>
-      </div>
-
-      {/* BOTTOM ACTION SECTION (MENTOK) */}
-      <div className="absolute bottom-0 left-0 w-full px-6 pb-8 bg-gradient-to-t from-[#212121] via-[#212121]/95 to-transparent pt-16 z-20 flex justify-center">
+        {/* HEADING SECTION */}
         <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.3, duration: 0.5 }}
-          className="w-full max-w-[420px]"
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, ease: CUBIC_BEZIER }}
+          className="mb-8"
         >
+          <h1 className="text-[22px] font-normal font-['Outfit'] tracking-wide leading-tight text-white/90">
+            Apa nama panggilanmu?
+          </h1>
+        </motion.div>
+
+        {/* INPUT SECTION */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.1, duration: 0.5, ease: CUBIC_BEZIER }}
+          className="w-full flex flex-col"
+        >
+          <input
+            autoFocus
+            type="text"
+            placeholder="Ketikkan nama panggilanmu..."
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            onFocus={() => setIsFocused(true)}
+            onBlur={() => setIsFocused(false)}
+            style={{ borderColor: isFocused ? selectedGreen : 'rgba(227, 218, 201, 0.2)' }}
+            className="w-full bg-[#1A1A1A] border-[2px] rounded-xl py-4 px-6 text-[18px] outline-none transition-all text-center placeholder:text-white/20 font-bold font-['Outfit'] tracking-wide shadow-xl"
+          />
+
+          <div className="h-6" />
+
+          {/* CONTINUE BUTTON (BELOW INPUT) */}
           <button
             onClick={handleContinue}
             disabled={!name || isSaving}
-            className={`w-full py-4 rounded-xl font-extrabold text-[14px] uppercase tracking-[0.2em] transition-all duration-300 ${
+            style={{ 
+              backgroundColor: name && !isSaving ? selectedGreen : 'rgba(255, 255, 255, 0.05)',
+              color: name && !isSaving ? '#000000' : 'rgba(255, 255, 255, 0.2)',
+              borderColor: name && !isSaving ? '#000000' : 'rgba(255, 255, 255, 0.1)'
+            }}
+            className={`w-full py-4 rounded-xl font-black text-[15px] tracking-wide transition-all duration-300 border ${
               name && !isSaving
-              ? "bg-[#00FF85] text-[#050A07] shadow-[0_0_25px_rgba(0,255,133,0.2)] active:scale-95" 
-              : "bg-white/5 text-white/10 cursor-not-allowed"
+              ? "shadow-[4px_4px_0px_rgba(0,0,0,1)] active:scale-[0.97] active:shadow-none cursor-pointer" 
+              : "cursor-not-allowed"
             }`}
           >
             {isSaving ? "Menyimpan..." : "Lanjutkan"}
           </button>
         </motion.div>
       </div>
+
     </div>
   );
 }

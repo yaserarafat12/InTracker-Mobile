@@ -3,12 +3,12 @@
 @import "tailwindcss";
 
 @theme {
-  --color-os-bg: #16181c;
-  --color-os-green: #00FF85;
-  --color-os-deepcharc: #16181c;
-  --color-os-card-bg: #1c1e22;
-  --color-os-amber: #F5A623;
-  --color-os-card: rgba(255, 255, 255, 0.03);
+  --color-os-bg: var(--os-bg);
+  --color-os-green: var(--os-green);
+  --color-os-deepcharc: var(--os-deepcharc);
+  --color-os-card-bg: var(--os-card-bg);
+  --color-os-amber: var(--os-amber);
+  --color-os-card: var(--os-card);
   --font-sans: Inter, system-ui, sans-serif;
   --font-inter: Inter, sans-serif;
   --font-space: "Space Grotesk", sans-serif;
@@ -16,13 +16,69 @@
   --font-silkscreen: "Silkscreen", cursive;
   --font-unbounded: "Unbounded", sans-serif;
   --font-display: Outfit, sans-serif;
-  --background-image-os-gradient: linear-gradient(to bottom, #16181c, #1a1c21);
+  --background-image-os-gradient: var(--os-gradient);
+  --color-border-theme: var(--border-theme);
 }
 
 :root {
-  background-color: #16181c;
+  --os-bg: #1e2028;
+  --os-green: #00f295;
+  --os-deepcharc: #1e2028;
+  --os-card-bg: #252830;
+  --os-amber: #F5A623;
+  --os-card: rgba(255, 255, 255, 0.04);
+  --os-gradient: linear-gradient(to bottom, #1e2028, #22252d);
+  --border-theme: rgba(255, 255, 255, 0.09);
+  --todo-card-bg: linear-gradient(145deg, #2c2f38 0%, #22252d 100%);
+
+  background-color: var(--os-bg);
   color: #fff;
   color-scheme: dark;
+}
+
+.dark {
+  --os-bg: #1e2028;
+  --os-green: #00f295;
+  --os-deepcharc: #1e2028;
+  --os-card-bg: #252830;
+  --os-amber: #F5A623;
+  --os-card: rgba(255, 255, 255, 0.04);
+  --os-gradient: linear-gradient(to bottom, #1e2028, #22252d);
+  --border-theme: rgba(255, 255, 255, 0.09);
+  
+  background-color: var(--os-bg);
+  color: #fff;
+  color-scheme: dark;
+}
+
+:root:not(.dark) {
+  --os-bg: #ffffff;
+  --os-green: #00b577;
+  --os-deepcharc: #ffffff;
+  --os-card-bg: #ffffff;
+  --os-amber: #D97706;
+  --os-card: rgba(0, 0, 0, 0.02);
+  --os-gradient: linear-gradient(to bottom, #ffffff, #ffffff);
+  --border-theme: rgba(0, 0, 0, 0.15);
+  --todo-card-bg: #ffffff;
+
+  background-color: var(--os-bg);
+  color: #1a1d20;
+  color-scheme: light;
+}
+
+/* Global override to redirect hardcoded green classes to the theme variable */
+.text-\[\#00FF85\],
+.text-\[\#7BE495\] {
+  color: var(--os-green) !important;
+}
+.bg-\[\#00FF85\],
+.bg-\[\#7BE495\] {
+  background-color: var(--os-green) !important;
+}
+.border-\[\#00FF85\],
+.border-\[\#7BE495\] {
+  border-color: var(--os-green) !important;
 }
 
 body {
@@ -30,6 +86,9 @@ body {
   overflow-x: hidden;
   -webkit-tap-highlight-color: transparent;
   position: relative;
+  width: 100%;
+  min-height: 100vh;
+  background-color: var(--os-bg);
 }
 
 /* Global Premium Noise Texture Overlay */
@@ -78,6 +137,45 @@ body::after {
   border-radius: 10px;
 }
 
+.prevent-blur {
+  -webkit-transform: translate3d(0, 0, 0);
+  transform: translate3d(0, 0, 0);
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  -webkit-font-smoothing: subpixel-antialiased;
+}
+
+.todo-checkbox {
+  border-color: #000000 !important;
+  background-color: #ffffff !important;
+}
+.dark .todo-checkbox {
+  border-color: rgba(255, 255, 255, 0.2) !important;
+  background-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+.todo-star-icon {
+  color: #000000 !important;
+}
+.dark .todo-star-icon {
+  color: rgba(255, 255, 255, 0.3) !important;
+}
+
+.text-force-white {
+  color: #ffffff !important;
+}
+.text-force-white-muted {
+  color: rgba(255, 255, 255, 0.7) !important;
+}
+
+.future-day-num {
+  color: rgba(255, 255, 255, 0.1) !important;
+}
+:root:not(.dark) .future-day-num {
+  color: rgba(0, 0, 0, 0.12) !important;
+}
+
+
 @keyframes marquee {
   0% { transform: translateX(0); }
   100% { transform: translateX(-50%); }
@@ -122,17 +220,822 @@ body::after {
   background: conic-gradient(
     from var(--tomorrow-angle),
     transparent 0%,
-    #00FF85 15%,
-    #00CC6A 30%,
-    transparent 45%,
-    transparent 55%,
-    #00FF85 70%,
-    #00CC6A 85%,
+    #00FF85 30%,
+    #00CC6A 60%,
+    transparent 90%,
     transparent 100%
   );
   -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   -webkit-mask-composite: xor;
   mask-composite: exclude;
   padding: 2px;
   animation: tomorrowBorderRotate 3s linear infinite;
+}
+
+/* ==========================================================================
+   NEOBRUTALIST LIGHT MODE GLOBAL OVERRIDES
+   ========================================================================== */
+:root:not(.dark) {
+  /* Global background elements */
+  .bg-black,
+  .bg-\[\#16181c\],
+  .bg-\[\#1e2028\],
+  .bg-\[\#000000\],
+  .bg-\[\#070707\]\/90,
+  .bg-\[\#0b0b0b\],
+  .bg-\[\#0c0c0c\],
+  .bg-os-bg,
+  .min-h-screen.bg-black,
+  .min-h-screen.bg-\[\#16181c\],
+  .min-h-screen.bg-\[\#1e2028\] {
+    background-color: #ffffff !important;
+  }
+
+  /* Cards, modals, and list containers */
+  .bg-\[\#0b0b0b\],
+  .bg-\[\#0c0c0c\],
+  .bg-\[\#111\],
+  .bg-\[\#141414\],
+  .bg-\[\#141518\],
+  .bg-\[\#1c1e22\],
+  .bg-\[\#1c1e22\]\/80,
+  .bg-\[\#1c1e22\]\/70,
+  .bg-\[\#1c1e22\]\/60,
+  .bg-\[\#1c1e22\]\/50,
+  .bg-\[\#252830\],
+  .bg-\[\#22252d\],
+  .bg-\[\#2c2f38\],
+  .bg-\[\#2e3240\],
+  .bg-\[\#383c4a\],
+  .bg-\[\#222\],
+  .bg-\[\#22252a\],
+  .bg-\[\#2a2c32\],
+  .bg-\[\#2a2c32\]\/50,
+  .bg-os-card-bg,
+  .glass {
+    background-color: #ffffff !important;
+  }
+
+  /* Glassmorphism for Light Mode */
+  .glass {
+    background: rgba(255, 255, 255, 0.8) !important;
+    backdrop-filter: blur(12px) !important;
+    -webkit-backdrop-filter: blur(12px) !important;
+  }
+
+  /* Inactive calendar day cells */
+  .bg-\[\#3a3a3a\] {
+    background-color: #edf0f4 !important;
+  }
+
+  /* Borders override */
+  .border-\[\#1c1c1c\],
+  .border-\[\#222\],
+  .border-\[\#141414\],
+  .border-white\/5,
+  .border-white\/10,
+  .border-white\/15,
+  .border-white\/20,
+  .border-\[\#E3DAC9\]\/10,
+  .border-neutral-800,
+  .border-zinc-800 {
+    border-color: #000000 !important;
+  }
+
+  /* Primary text colors */
+  .text-white,
+  .text-white\/95,
+  .text-white\/90,
+  .text-\[\#E3DAC9\],
+  .text-neutral-100,
+  .text-zinc-100 {
+    color: #1a1d20 !important;
+  }
+
+  /* Secondary / subtitle text colors */
+  .text-white\/80,
+  .text-white\/70,
+  .text-\[\#E3DAC9\]\/80,
+  .text-neutral-300 {
+    color: #4a525a !important;
+  }
+
+  /* Secondary/Muted text states */
+  .text-white\/60,
+  .text-white\/50,
+  .text-\[\#E3DAC9\]\/70,
+  .text-\[\#E3DAC9\]\/60,
+  .text-\[\#E3DAC9\]\/50,
+  .text-neutral-400 {
+    color: #6c757d !important;
+  }
+
+  .text-white\/40,
+  .text-white\/30,
+  .text-white\/20,
+  .text-\[\#E3DAC9\]\/40,
+  .text-\[\#E3DAC9\]\/30,
+  .text-\[\#E3DAC9\]\/20,
+  .text-neutral-500,
+  .text-zinc-500 {
+    color: #9ea7af !important;
+  }
+
+  .text-white\/10,
+  .text-\[\#E3DAC9\]\/10 {
+    color: #cbd5e1 !important;
+  }
+
+  /* Accent Color (Neon Green/Emerald) Contrast Fix */
+  .text-\[\#7BE495\],
+  .text-\[\#00FF85\],
+  .text-os-green {
+    color: #00b577 !important;
+  }
+
+  .bg-\[\#7BE495\],
+  .bg-\[\#00FF85\],
+  .bg-os-green {
+    background-color: #10B981 !important;
+    color: #000000 !important;
+  }
+
+  /* Action buttons (e.g. Save Profile, Premium package select) */
+  .bg-\[\#7BE495\].text-black,
+  .bg-\[\#00FF85\].text-black {
+    background-color: #10B981 !important;
+    color: #000000 !important;
+    border-color: #000000 !important;
+  }
+
+  /* Active period toggle button border */
+  .border-\[\#00FF85\]\/30 {
+    border-color: rgba(0, 181, 112, 0.3) !important;
+  }
+
+  /* Row hover indicators */
+  .hover\:bg-white\/\[0\.02\]:hover {
+    background-color: rgba(0, 0, 0, 0.03) !important;
+  }
+
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  input[type="time"],
+  input[type="number"],
+  textarea {
+    background-color: #ffffff !important;
+    color: #1a1d20 !important;
+    border-color: #cbd5e1 !important;
+  }
+  
+  input::placeholder,
+  textarea::placeholder {
+    color: #94a3b8 !important;
+  }
+
+  /* Timezone / active row selectors */
+  .bg-\[\#0a1a0d\] {
+    background-color: #e6f7ec !important;
+    border-color: #10b981 !important;
+    color: #047857 !important;
+  }
+
+  /* Warning zones / Danger card backgrounds */
+  .bg-red-950\/20 {
+    background-color: #fef2f2 !important;
+  }
+  
+  .border-red-900\/30 {
+    border-color: #fca5a5 !important;
+  }
+  
+  .text-red-400 {
+    color: #dc2626 !important;
+  }
+
+  /* Soften background noise texture & glow gradients */
+  body::after {
+    opacity: 0.015 !important;
+  }
+
+  /* Soften only ambient glow backgrounds (those containing blur class) */
+  div[class*="blur-"][class*="bg-\[\#00FF85\]"],
+  div[class*="blur-"][class*="bg-os-green"] {
+    background-color: rgba(0, 181, 112, 0.02) !important;
+  }
+
+  /* Keep green badges and small indicators readable and filled in Light Mode */
+  .bg-\[\#00FF85\]\/5,
+  .bg-\[\#00FF85\]\/10,
+  .bg-\[\#00FF85\]\/15,
+  .bg-\[\#00FF85\]\/20,
+  .bg-os-green\/5,
+  .bg-os-green\/10,
+  .bg-os-green\/15,
+  .bg-os-green\/20 {
+    background-color: rgba(0, 181, 112, 0.12) !important;
+  }
+
+  /* Dark background images opacity dampening */
+  div[style*="antigravitybg"] {
+    opacity: 0.06 !important;
+    filter: grayscale(0.5) brightness(1.3) contrast(0.9) !important;
+  }
+  
+  /* SVG & icon styling overrides */
+  .text-white\/10 {
+    color: rgba(0, 0, 0, 0.1) !important;
+  }
+
+  /* ==============================================
+     SPECIFIC COMPONENT LIGHT THEME OPTIMIZATIONS
+     ============================================== */
+
+  /* 1. Header (NavigasiAtas) & Footer (NavigasiBawah) */
+  .fixed.top-0.bg-\[\#0d0f12\]\/70,
+  .fixed.bottom-0.bg-\[\#0d0f12\]\/70 {
+    background-color: var(--os-bg) !important;
+    border: none !important;
+    box-shadow: none !important;
+    border-radius: 0px !important;
+  }
+
+  /* 2. Top and bottom navigations text and icons */
+  .fixed.top-0 h2,
+  .fixed.top-0 span:not(.bg-\[\#FF4D00\] span) {
+    color: #1a1d20 !important;
+  }
+
+  /* Streak fire badge inside top header - Keep text white */
+  .fixed.top-0 .bg-\[\#FF4D00\] span,
+  .fixed.top-0 .bg-\[\#FF4D00\] svg {
+    color: #ffffff !important;
+  }
+
+  /* 3. Settings button and Date navigator arrow button backgrounds */
+  .bg-\[\#1A1A1A\] {
+    background-color: #e2e8f0 !important;
+    border-color: #cbd5e1 !important;
+  }
+  .text-\[\#8E8E8E\] {
+    color: #5a626a !important;
+  }
+  .text-\[\#E3DAC9\]\/40 {
+    color: #6c757d !important;
+  }
+
+
+  /* 4. DateNavigator Tab Selectors ("Berjalan", "Dilewati", "Selesai") */
+  .border-white\/15 {
+    border-color: #cbd5e1 !important;
+  }
+  .text-\[\#F5F5F5\]\/80 {
+    color: #4a525a !important;
+  }
+  .text-\[\#F5F5F5\]\/40 {
+    color: #9ea7af !important;
+  }
+
+  /* 4b. Journey Page - Convert dark cards and nodes to light grey */
+
+  /* Journey main content cards (mood, journal, media boxes) */
+  .journey-card {
+    background-color: #ffffff !important;
+    border-color: #000000 !important;
+  }
+
+  /* Text inside journey cards → dark */
+  .journey-card .text-black,
+  .journey-card span:not([class*="text-os-green"]),
+  .journey-card > span {
+    color: #000000 !important;
+  }
+
+  /* Journey inner icon boxes (pen/camera container) → white, border black */
+  .journey-icon-box {
+    background-color: #ffffff !important;
+    border-color: #000000 !important;
+  }
+
+  /* Emoji buttons → white, border black */
+  .journey-mood-btn {
+    background-color: #ffffff !important;
+    border-color: #000000 !important;
+  }
+  .journey-mood-btn.bg-os-green {
+    background-color: #00b577 !important;
+    border-color: #000000 !important;
+  }
+
+  /* Journey compact timeline node (past days circle) */
+  .journey-compact-node {
+    background-color: #e2e8f0 !important;
+    border-color: rgba(0, 0, 0, 0.12) !important;
+  }
+
+  /* Journey modal bottom sheet */
+  .bg-\[\#212121\] {
+    background-color: #e2e8f0 !important;
+  }
+
+  /* Journey modal action buttons (Ambil Foto / Dari Galeri) */
+  .bg-\[\#1a1a1a\] {
+    background-color: #dde1e8 !important;
+    border-color: rgba(0, 0, 0, 0.1) !important;
+  }
+
+  /* Future-locked icon opacity in Journey */
+  .text-\[\#E3DAC9\]\/30 {
+    color: rgba(0, 0, 0, 0.25) !important;
+  }
+
+  /* Journey non-current timeline node (past/future day circles) → white, soft shadow */
+  .journey-day-node:not([class*="bg-os-green"]) {
+    background-color: #ffffff !important;
+    box-shadow: 3px 3px 0px rgba(0, 0, 0, 0.25) !important;
+  }
+
+  /* Journey mood emoji buttons (individual squares) → white background, black border */
+  .journey-mood-btn {
+    background-color: #ffffff !important;
+    border-color: #000000 !important;
+  }
+  .journey-mood-btn.bg-os-green {
+    background-color: #00b577 !important;
+    border-color: #000000 !important;
+  }
+
+  /* Journey compact "done" rows → light bg + soft border */
+  .journey-compact-row {
+    background-color: rgba(0, 0, 0, 0.025) !important;
+    border-color: rgba(0, 0, 0, 0.09) !important;
+  }
+
+  /* Date/text inside compact rows → dark readable */
+  .journey-compact-row .text-\[\#E3DAC9\] {
+    color: #1a1d20 !important;
+  }
+  .journey-compact-row .text-white\/20 {
+    color: rgba(0, 0, 0, 0.25) !important;
+  }
+  .journey-compact-row .bg-white\/20 {
+    background-color: rgba(0, 0, 0, 0.1) !important;
+  }
+
+
+  /* 5. Habit Cards & Analytics Cards (MUST retain dark style with white text for image readability) */
+  .relative.aspect-\[16\/7\.2\] > .bg-\[\#1c1e22\],
+  .habit-analytics-card {
+    background-color: #1c1e22 !important;
+    border-color: rgba(255, 255, 255, 0.15) !important;
+  }
+
+  .relative.aspect-\[16\/7\.2\] .text-white,
+  .relative.aspect-\[16\/7\.2\] .text-white\/60,
+  .relative.aspect-\[16\/7\.2\] .text-white\/50,
+  .relative.aspect-\[16\/7\.2\] .text-white\/40,
+  .relative.aspect-\[16\/7\.2\] .text-\[\#E3DAC9\]\/40,
+  .relative.aspect-\[16\/7\.2\] h3,
+  .relative.aspect-\[16\/7\.2\] span,
+  
+  .habit-analytics-card .text-white,
+  .habit-analytics-card .text-white\/60,
+  .habit-analytics-card .text-white\/50,
+  .habit-analytics-card .text-white\/40,
+  .habit-analytics-card .text-\[\#E3DAC9\]\/40,
+  .habit-analytics-card h3,
+  .habit-analytics-card span {
+    color: #ffffff !important;
+  }
+
+  /* Streak fire badges on cards - Keep background orange & text white */
+  .absolute.top-\[-6px\].right-\[-5px\] {
+    background-color: #FF4D00 !important;
+    border-color: #000000 !important;
+  }
+  .absolute.top-\[-6px\].right-\[-5px\] span,
+  .absolute.top-\[-6px\].right-\[-5px\] svg {
+    color: #ffffff !important;
+  }
+
+}
+
+/* ==========================================================================
+   NUTRITION OVERLAY - Forced Dark Theme in Light Mode
+   (Full-screen immersive overlay - must keep dark to preserve food image bg)
+   ========================================================================== */
+:root .nutrition-overlay,
+:root:not(.dark) .nutrition-overlay {
+  position: fixed !important;
+  top: 0 !important;
+  left: -2px !important;
+  right: -2px !important;
+  bottom: 0 !important;
+  width: calc(100vw + 4px) !important;
+  height: 100vh !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  box-sizing: border-box !important;
+}
+
+/* Set top background food image visibility in Light Mode */
+:root:not(.dark) .nutrition-overlay .pointer-events-none {
+  opacity: 0.5 !important;
+}
+
+/* Style scrollbars based on current theme mode */
+.nutrition-overlay ::-webkit-scrollbar {
+  width: 4px !important;
+}
+.nutrition-overlay ::-webkit-scrollbar-track {
+  background: transparent !important;
+}
+.dark .nutrition-overlay ::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15) !important;
+  border-radius: 10px !important;
+}
+:root:not(.dark) .nutrition-overlay ::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.15) !important;
+  border-radius: 10px !important;
+}
+
+/* Boost grey text readability/contrast in Dark Mode */
+.dark .nutrition-overlay .text-white\/20,
+.dark .nutrition-overlay .text-\[\#E3DAC9\]\/20 {
+  color: rgba(255, 255, 255, 0.45) !important;
+}
+.dark .nutrition-overlay .text-white\/30,
+.dark .nutrition-overlay .text-\[\#E3DAC9\]\/30 {
+  color: rgba(255, 255, 255, 0.55) !important;
+}
+.dark .nutrition-overlay .text-white\/40,
+.dark .nutrition-overlay .text-\[\#E3DAC9\]\/40 {
+  color: rgba(255, 255, 255, 0.65) !important;
+}
+.dark .nutrition-overlay .text-white\/50,
+.dark .nutrition-overlay .text-\[\#E3DAC9\]\/50 {
+  color: rgba(255, 255, 255, 0.75) !important;
+}
+.dark .nutrition-overlay .text-white\/60,
+.dark .nutrition-overlay .text-\[\#E3DAC9\]\/60 {
+  color: rgba(255, 255, 255, 0.85) !important;
+}
+.dark .nutrition-overlay .text-white\/70,
+.dark .nutrition-overlay .text-white\/80,
+.dark .nutrition-overlay .text-\[\#E3DAC9\]\/80 {
+  color: rgba(255, 255, 255, 0.92) !important;
+}
+
+/* ==========================================================================
+   NUTRITION OVERLAY - Always Dark (same as dark mode, light mode ignored)
+   ========================================================================== */
+
+/* Main overlay background — light mode uses soft green */
+:root:not(.dark) .nutrition-overlay,
+:root:not(.dark) .nutrition-overlay.bg-\[\#1e2028\],
+:root:not(.dark) .nutrition-overlay.bg-\[\#16181c\] {
+  background-color: #f0fdf4 !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+/* Cards & buttons inside overlay — white in light mode */
+:root:not(.dark) .nutrition-overlay .bg-\[\#2a2c32\],
+:root:not(.dark) .nutrition-overlay .bg-\[\#2a2c32\]\/50,
+:root:not(.dark) .nutrition-overlay .bg-\[\#252830\],
+:root:not(.dark) .nutrition-overlay .bg-\[\#383c4a\],
+:root:not(.dark) .nutrition-overlay .bg-\[\#1c1e22\] {
+  background-color: #ffffff !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border: 2px solid #111111 !important;
+  box-shadow: 3px 3px 0px rgba(0,0,0,0.65) !important;
+}
+
+/* Active state for cards — light mode */
+:root:not(.dark) .nutrition-overlay .bg-\[\#2a2c32\]:active,
+:root:not(.dark) .nutrition-overlay .bg-\[\#2a2c32\]\/50:active {
+  background-color: #f5f5f5 !important;
+}
+
+/* Inputs — light mode */
+:root:not(.dark) .nutrition-overlay input[type="text"],
+:root:not(.dark) .nutrition-overlay input[type="number"],
+:root:not(.dark) .nutrition-overlay select,
+:root:not(.dark) .nutrition-overlay textarea {
+  background-color: #ffffff !important;
+  border-color: #111111 !important;
+  color: #111111 !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+:root:not(.dark) .nutrition-overlay input::placeholder {
+  color: rgba(0, 0, 0, 0.3) !important;
+}
+
+/* Green action button — same as dark mode */
+:root:not(.dark) .nutrition-overlay .bg-\[\#00FF85\],
+:root:not(.dark) .nutrition-overlay .bg-\[\#7BE495\] {
+  background-color: #00FF85 !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  color: #000000 !important;
+  border: 2px solid #000000 !important;
+}
+
+/* bg-white opacities — dark equivalents */
+:root:not(.dark) .nutrition-overlay .bg-white\/5 {
+  background-color: rgba(255, 255, 255, 0.05) !important;
+}
+:root:not(.dark) .nutrition-overlay .bg-white\/10 {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+}
+:root:not(.dark) .nutrition-overlay .bg-white\/\[0\.06\] {
+  background-color: rgba(255, 255, 255, 0.06) !important;
+}
+:root:not(.dark) .nutrition-overlay .bg-white\/\[0\.08\] {
+  background-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+/* Text — dark/black in light mode for readability on soft green bg */
+:root:not(.dark) .nutrition-overlay .text-white,
+:root:not(.dark) .nutrition-overlay .text-\[\#E3DAC9\] {
+  color: #111111 !important;
+}
+:root:not(.dark) .nutrition-overlay .text-white\/95,
+:root:not(.dark) .nutrition-overlay .text-white\/90,
+:root:not(.dark) .nutrition-overlay .text-white\/80,
+:root:not(.dark) .nutrition-overlay .text-\[\#E3DAC9\]\/80 {
+  color: rgba(0, 0, 0, 0.85) !important;
+}
+:root:not(.dark) .nutrition-overlay .text-white\/70,
+:root:not(.dark) .nutrition-overlay .text-white\/60,
+:root:not(.dark) .nutrition-overlay .text-\[\#E3DAC9\]\/70,
+:root:not(.dark) .nutrition-overlay .text-\[\#E3DAC9\]\/60 {
+  color: rgba(0, 0, 0, 0.65) !important;
+}
+:root:not(.dark) .nutrition-overlay .text-white\/50,
+:root:not(.dark) .nutrition-overlay .text-\[\#E3DAC9\]\/50 {
+  color: rgba(0, 0, 0, 0.5) !important;
+}
+:root:not(.dark) .nutrition-overlay .text-white\/40,
+:root:not(.dark) .nutrition-overlay .text-\[\#E3DAC9\]\/40 {
+  color: rgba(0, 0, 0, 0.4) !important;
+}
+:root:not(.dark) .nutrition-overlay .text-white\/30,
+:root:not(.dark) .nutrition-overlay .text-\[\#E3DAC9\]\/30 {
+  color: rgba(0, 0, 0, 0.3) !important;
+}
+:root:not(.dark) .nutrition-overlay .text-white\/20,
+:root:not(.dark) .nutrition-overlay .text-\[\#E3DAC9\]\/20 {
+  color: rgba(0, 0, 0, 0.2) !important;
+}
+
+/* force-white overrides inside nutrition overlay in light mode */
+:root:not(.dark) .nutrition-overlay .text-force-white {
+  color: #111111 !important;
+}
+:root:not(.dark) .nutrition-overlay .text-force-white-muted {
+  color: rgba(0, 0, 0, 0.6) !important;
+}
+/* Header buttons: swap white border to black */
+:root:not(.dark) .nutrition-overlay .border-white {
+  border-color: #111111 !important;
+}
+
+/* Borders — visible on light bg */
+:root:not(.dark) .nutrition-overlay .border-white\/5,
+:root:not(.dark) .nutrition-overlay .border-white\/10,
+:root:not(.dark) .nutrition-overlay .border-white\/15,
+:root:not(.dark) .nutrition-overlay .border-white\/20 {
+  border-color: rgba(0, 0, 0, 0.12) !important;
+}
+
+/* Scrollbar — light */
+:root:not(.dark) .nutrition-overlay ::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.15) !important;
+  border-radius: 10px !important;
+}
+
+/* Food image background — reset opacity for dark */
+:root:not(.dark) .nutrition-overlay .pointer-events-none {
+  opacity: 0.6 !important;
+}
+
+/* Progress/inactive bar track */
+:root:not(.dark) .nutrition-overlay .bg-white\/10 {
+  background-color: rgba(0, 0, 0, 0.08) !important;
+}
+
+/* ==========================================================================
+   LOGIN PAGE SPECIFIC FORCED DARK THEME OVERRIDES
+   ========================================================================== */
+:root .login-page,
+:root:not(.dark) .login-page {
+  background-color: #000000 !important;
+  color: #ffffff !important;
+}
+
+:root .login-page .text-white,
+:root:not(.dark) .login-page .text-white,
+:root .login-page .text-white\/95,
+:root:not(.dark) .login-page .text-white\/95,
+:root .login-page .text-white\/90,
+:root:not(.dark) .login-page .text-white\/90,
+:root .login-page .text-white\/80,
+:root:not(.dark) .login-page .text-white\/80,
+:root .login-page .text-white\/70,
+:root:not(.dark) .login-page .text-white\/70,
+:root .login-page .text-white\/60,
+:root:not(.dark) .login-page .text-white\/60,
+:root .login-page .text-white\/50,
+:root:not(.dark) .login-page .text-white\/50,
+:root .login-page .text-white\/40,
+:root:not(.dark) .login-page .text-white\/40,
+:root .login-page .text-white\/30,
+:root:not(.dark) .login-page .text-white\/30,
+:root .login-page .text-white\/20,
+:root:not(.dark) .login-page .text-white\/20,
+:root .login-page .text-white\/10,
+:root:not(.dark) .login-page .text-white\/10 {
+  color: #ffffff !important;
+}
+
+:root .login-page .text-white\/50,
+:root:not(.dark) .login-page .text-white\/50 {
+  color: rgba(255, 255, 255, 0.5) !important;
+}
+
+:root .login-page .text-white\/40,
+:root:not(.dark) .login-page .text-white\/40 {
+  color: rgba(255, 255, 255, 0.4) !important;
+}
+
+:root .login-page .text-white\/30,
+:root:not(.dark) .login-page .text-white\/30 {
+  color: rgba(255, 255, 255, 0.3) !important;
+}
+
+:root .login-page .text-white\/20,
+:root:not(.dark) .login-page .text-white\/20 {
+  color: rgba(255, 255, 255, 0.2) !important;
+}
+
+:root .login-page .text-os-green,
+:root:not(.dark) .login-page .text-os-green,
+:root .login-page .text-\[\#00FF85\],
+:root:not(.dark) .login-page .text-\[\#00FF85\] {
+  color: #00FF85 !important;
+}
+
+:root .login-page .bg-black,
+:root:not(.dark) .login-page .bg-black,
+:root .login-page .bg-\[\#000000\],
+:root:not(.dark) .login-page .bg-\[\#000000\] {
+  background-color: #000000 !important;
+  border-color: #ffffff !important;
+}
+
+:root .login-page .bg-\[\#1A1A1A\],
+:root:not(.dark) .login-page .bg-\[\#1A1A1A\] {
+  background-color: #1a1a1a !important;
+}
+
+:root .login-page .border-\[\#E3DAC9\]\/20,
+:root:not(.dark) .login-page .border-\[\#E3DAC9\]\/20 {
+  border-color: rgba(227, 218, 201, 0.2) !important;
+}
+
+:root .login-page .placeholder\:text-white\/40::placeholder,
+:root:not(.dark) .login-page .placeholder\:text-white\/40::placeholder {
+  color: rgba(255, 255, 255, 0.4) !important;
+}
+
+/* Ensure the completed habit checkmark is green and visible in Light/Dark Mode */
+:root .relative.aspect-\[16\/7\.2\] .text-os-green,
+:root:not(.dark) .relative.aspect-\[16\/7\.2\] .text-os-green {
+  color: var(--os-green) !important;
+}
+
+/* Habit list empty completed state overrides */
+.empty-completed-title {
+  color: #000000 !important;
+}
+.dark .empty-completed-title {
+  color: #00FF85 !important;
+}
+
+.empty-completed-icon {
+  color: #000000 !important;
+}
+.dark .empty-completed-icon {
+  color: #00FF85 !important;
+}
+
+.empty-completed-icon-bg {
+  background-color: #f3f4f6 !important;
+  border-color: rgba(0, 0, 0, 0.15) !important;
+}
+.dark .empty-completed-icon-bg {
+  background-color: rgba(0, 255, 133, 0.1) !important;
+  border-color: rgba(0, 255, 133, 0.2) !important;
+}
+
+/* Force dark mode styles inside .features-dark-zone regardless of light/dark mode settings */
+:root .features-dark-zone,
+:root:not(.dark) .features-dark-zone {
+  background-color: #16181c !important;
+  color: #ffffff !important;
+}
+
+:root .features-dark-zone .bg-black,
+:root:not(.dark) .features-dark-zone .bg-black,
+:root .features-dark-zone .bg-\[\#0d0f12\],
+:root:not(.dark) .features-dark-zone .bg-\[\#0d0f12\] {
+  background-color: #0d0f12 !important;
+}
+
+:root .features-dark-zone .bg-\[\#16181c\],
+:root:not(.dark) .features-dark-zone .bg-\[\#16181c\] {
+  background-color: #16181c !important;
+}
+
+:root .features-dark-zone .bg-\[\#1c1e22\],
+:root:not(.dark) .features-dark-zone .bg-\[\#1c1e22\],
+:root .features-dark-zone .bg-\[\#1e2028\],
+:root:not(.dark) .features-dark-zone .bg-\[\#1e2028\] {
+  background-color: #1c1e22 !important;
+}
+
+:root .features-dark-zone .text-white,
+:root:not(.dark) .features-dark-zone .text-white {
+  color: #ffffff !important;
+}
+
+:root .features-dark-zone .text-white\/80,
+:root:not(.dark) .features-dark-zone .text-white\/80 {
+  color: rgba(255, 255, 255, 0.8) !important;
+}
+
+:root .features-dark-zone .text-white\/60,
+:root:not(.dark) .features-dark-zone .text-white\/60 {
+  color: rgba(255, 255, 255, 0.6) !important;
+}
+
+:root .features-dark-zone .text-white\/50,
+:root:not(.dark) .features-dark-zone .text-white\/50 {
+  color: rgba(255, 255, 255, 0.5) !important;
+}
+
+:root .features-dark-zone .text-white\/40,
+:root:not(.dark) .features-dark-zone .text-white\/40 {
+  color: rgba(255, 255, 255, 0.4) !important;
+}
+
+:root .features-dark-zone .text-white\/30,
+:root:not(.dark) .features-dark-zone .text-white\/30 {
+  color: rgba(255, 255, 255, 0.3) !important;
+}
+
+:root .features-dark-zone .text-white\/20,
+:root:not(.dark) .features-dark-zone .text-white\/20 {
+  color: rgba(255, 255, 255, 0.2) !important;
+}
+
+:root .features-dark-zone .border-white\/10,
+:root:not(.dark) .features-dark-zone .border-white\/10 {
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+:root .features-dark-zone .border-white\/20,
+:root:not(.dark) .features-dark-zone .border-white\/20 {
+  border-color: rgba(255, 255, 255, 0.2) !important;
+}
+
+:root .features-dark-zone .border-white\/15,
+:root:not(.dark) .features-dark-zone .border-white\/15 {
+  border-color: rgba(255, 255, 255, 0.15) !important;
+}
+
+:root .features-dark-zone .bg-white\/5,
+:root:not(.dark) .features-dark-zone .bg-white\/5 {
+  background-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+:root .features-dark-zone .bg-white\/10,
+:root:not(.dark) .features-dark-zone .bg-white\/10 {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Suggestion Card Lime Green styling */
+.suggestion-card-lime {
+  background-color: #00FF85 !important;
+  border: 2px solid #000000 !important;
+  box-shadow: 4px 4px 0px rgba(0, 0, 0, 1) !important;
+}
+.suggestion-card-lime p {
+  color: #000000 !important;
 }

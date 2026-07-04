@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { useUserStore } from '../../store/useUserStore';
 
 export const GreetingHeader = () => {
-  const { profile } = useUserStore();
+  const { profile, settings } = useUserStore();
 
   const getGreetingData = () => {
     const hours = new Date().getHours();
@@ -39,6 +39,32 @@ export const GreetingHeader = () => {
     return greetings[selectedCategory];
   };
 
+  const currentDay = useMemo(() => {
+    if (!profile?.created_at) return 1;
+    try {
+      const joinDate = new Date(profile.created_at);
+      joinDate.setHours(0, 0, 0, 0);
+      
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      
+      const diffTime = today.getTime() - joinDate.getTime();
+      const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+      
+      const pausedDays = settings.pausedDays || [];
+      const pausedBeforeToday = pausedDays.filter(dStr => {
+        const d = new Date(dStr + 'T00:00:00');
+        d.setHours(0, 0, 0, 0);
+        return d <= today;
+      }).length;
+      
+      const programDuration = settings.programDuration || 90;
+      return Math.min(programDuration, Math.max(1, diffDays - pausedBeforeToday + 1));
+    } catch {
+      return 1;
+    }
+  }, [profile?.created_at, settings.pausedDays, settings.programDuration]);
+
   const { h1, p } = useMemo(() => {
     const categoryList = getGreetingData();
     const randomIndex = Math.floor(Math.random() * categoryList.length);
@@ -51,7 +77,7 @@ export const GreetingHeader = () => {
         <h2 className="font-black font-['Outfit'] text-white tracking-tight flex items-baseline leading-none drop-shadow-[0_0_15px_rgba(255,255,255,0.35)]">
           <span className="text-[35px]">Day</span>
           <span className="font-['Inter'] text-[31px] text-white ml-4 tracking-[0.03em]">
-            {profile?.streak_count || 1}<span className="mx-1">/</span>90
+            {currentDay}<span className="mx-1">/</span>{settings.programDuration || 90}
           </span>
         </h2>
       </div>

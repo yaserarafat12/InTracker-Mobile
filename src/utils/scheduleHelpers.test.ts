@@ -165,11 +165,11 @@ describe('calculateScheduleAwareStreak', () => {
     expect(calculateScheduleAwareStreak([1, 3, 5], completions, today)).toBe(1);
   });
 
-  it('returns 0 when today is scheduled but not completed', () => {
+  it('keeps streak from yesterday if today is scheduled but not completed yet', () => {
     // Schedule: daily, today not completed
     const today = new Date(2024, 0, 5);
     const completions = ['2024-01-04', '2024-01-03'];
-    expect(calculateScheduleAwareStreak([0, 1, 2, 3, 4, 5, 6], completions, today)).toBe(0);
+    expect(calculateScheduleAwareStreak([0, 1, 2, 3, 4, 5, 6], completions, today)).toBe(2);
   });
 
   it('handles weekly schedule correctly', () => {

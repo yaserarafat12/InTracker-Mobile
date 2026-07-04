@@ -54,6 +54,7 @@ const DIETARY_PREFERENCES: { id: DietaryPreference; label: string }[] = [
 
 export function NutritionSettings({ onBack }: NutritionSettingsProps) {
   const { profile, targets, updateProfile } = useNutritionStore();
+  const isLight = !document.documentElement.classList.contains('dark');
 
   // Form state initialized from current profile
   const [sex, setSex] = useState<'male' | 'female'>(profile?.sex ?? 'male');
@@ -175,17 +176,21 @@ export function NutritionSettings({ onBack }: NutritionSettingsProps) {
   // --- Render ---
 
   return (
-    <div className="fixed inset-0 bg-[#16181c] z-[100] flex flex-col">
+    <div className="nutrition-overlay fixed inset-0 bg-[#16181c] z-[100] flex flex-col">
       {/* Header */}
       <div className="pt-14 pb-4 px-6 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <motion.button
             whileTap={{ scale: 0.9 }}
             onClick={onBack}
-            className="w-9 h-9 rounded-xl bg-[#2a2c32] border border-white/10 flex items-center justify-center"
+            className={`w-9 h-9 rounded-xl border-[2px] flex items-center justify-center transition-all ${
+              isLight
+                ? 'border-black bg-white text-black shadow-[3px_3px_0px_rgba(0,0,0,0.65)]'
+                : 'border-white/10 bg-[#2a2c32] text-white shadow-none'
+            }`}
             aria-label="Go back"
           >
-            <Icon icon="ph:arrow-left-bold" width={18} className="text-[#E3DAC9]/80" />
+            <Icon icon="ph:arrow-left-bold" width={18} className="text-white" />
           </motion.button>
           <h2 className="text-[20px] font-black font-['Outfit'] text-[#E3DAC9]">
             Settings

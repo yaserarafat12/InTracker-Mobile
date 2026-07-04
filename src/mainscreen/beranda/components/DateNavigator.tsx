@@ -3,6 +3,7 @@ import { Icon } from '@iconify/react';
 import { useUserStore } from '../../../store/useUserStore';
 import { useHistoryLogs } from '../../habits/useHistoryLogs';
 import { filterHabitsByDay } from '../../../utils/scheduleHelpers';
+import { useTranslation } from '../../../i18n';
 
 interface DateNavigatorProps {
   selectedDate: Date;
@@ -19,7 +20,8 @@ export const DateNavigator = ({
   setActiveFilter,
   habits 
 }: DateNavigatorProps) => {
-  const { profile } = useUserStore();
+  const { profile, settings } = useUserStore();
+  const { t } = useTranslation();
   
   // Check if viewing a past date
   const isHistorical = (() => {
@@ -31,7 +33,7 @@ export const DateNavigator = ({
     );
   })();
 
-  // Calculate actual day number from journey start (created_at) based on selectedDate
+  // Calculate actual day number from journey start (created_at) based on selectedDate, subtracting paused days
   const getDayCount = () => {
     if (!profile?.created_at) return 1;
     const start = new Date(profile.created_at);
@@ -39,7 +41,15 @@ export const DateNavigator = ({
     const selected = new Date(selectedDate);
     selected.setHours(0, 0, 0, 0);
     const diff = Math.floor((selected.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)) + 1;
-    return Math.max(1, Math.min(diff, 90)); // clamp 1-90
+    
+    const pausedDays = settings.pausedDays || [];
+    const pausedBeforeSelected = pausedDays.filter(dStr => {
+      const d = new Date(dStr + 'T00:00:00');
+      d.setHours(0, 0, 0, 0);
+      return d <= selected;
+    }).length;
+    
+    return Math.max(1, Math.min(diff - pausedBeforeSelected, 90)); // clamp 1-90
   };
   const dayCount = getDayCount();
 
@@ -54,7 +64,15 @@ export const DateNavigator = ({
       };
     }
     // Historical: compute from logs
-    const scheduledHabits = filterHabitsByDay(habits, selectedDate.getDay());
+    const scheduledHabits = filterHabitsByDay(habits, selectedDate.getDay())
+      .filter((h: any) => {
+        if (!h.created_at) return true;
+        const created = new Date(h.created_at);
+        created.setHours(0, 0, 0, 0);
+        const target = new Date(selectedDate);
+        target.setHours(0, 0, 0, 0);
+        return target.getTime() >= created.getTime();
+      });
     const completedIds = (historyLogs || []).filter(l => l.status === 'completed').map(l => l.habit_id);
     const skippedIds = (historyLogs || []).filter(l => l.status === 'skipped').map(l => l.habit_id);
     const missed = scheduledHabits.filter(h => !completedIds.includes(h.id) && !skippedIds.includes(h.id));
@@ -94,9 +112,9 @@ export const DateNavigator = ({
       <div className="flex items-center justify-between">
         <div className="flex flex-col">
           <h1 className="font-black text-white leading-none tracking-normal" style={{ fontVariantNumeric: 'tabular-nums', fontFeatureSettings: '"tnum"' }}>
-            <span className="font-['Outfit'] text-[32px]">Day</span>
+            <span className="font-['Outfit'] text-[32px]">{t('analytics.day')}</span>
             <span className="font-['Outfit'] text-[28px] ml-2.5">{dayCount}</span>
-            <span className="text-white font-['Outfit'] text-[28px]"> / 90</span>
+            <span className="text-white font-['Outfit'] text-[28px]"> / {settings.programDuration || 90}</span>
           </h1>
         </div>
         
@@ -121,9 +139,9 @@ export const DateNavigator = ({
       <div className="mt-12">
         <div className="grid grid-cols-3 gap-3 w-full">
           {[
-            { id: 'berjalan', label: isHistorical ? 'Terlewati' : 'Berjalan', count: counts.berjalan },
-            { id: 'dilewati', label: 'Dilewati', count: counts.dilewati },
-            { id: 'selesai', label: 'Selesai', count: counts.selesai }
+            { id: 'berjalan', label: isHistorical ? t('habits.filters.missed') : t('habits.filters.active'), count: counts.berjalan },
+            { id: 'dilewati', label: t('habits.filters.skipped'), count: counts.dilewati },
+            { id: 'selesai', label: t('habits.filters.completed'), count: counts.selesai }
           ].map((item) => (
             <motion.button 
               key={item.id}

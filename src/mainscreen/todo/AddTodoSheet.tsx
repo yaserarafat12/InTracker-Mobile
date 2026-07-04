@@ -7,6 +7,7 @@ import type {
   TargetItem 
 } from '../../store/useTargetStore';
 import { useTargetStore } from '../../store/useTargetStore';
+import { useTranslation } from '../../i18n';
 
 interface AddTodoSheetProps {
   isOpen: boolean;
@@ -22,24 +23,33 @@ const CATEGORIES: { id: TargetWindow; label: string }[] = [
 
 export const AddTodoSheet = ({ isOpen, onClose, targetToEdit }: AddTodoSheetProps) => {
   const { addTarget, updateTarget } = useTargetStore();
+  const { t } = useTranslation();
+  const isLight = !document.documentElement.classList.contains('dark');
   const [title, setTitle] = useState('');
   const [window, setWindow] = useState<TargetWindow>('today');
   const [isPenting, setIsPenting] = useState(false);
 
   // Sync state when isOpen or targetToEdit changes
   useEffect(() => {
+    let active = true;
     if (isOpen) {
-      if (targetToEdit) {
-        setTitle(targetToEdit.title);
-        setWindow(targetToEdit.window);
-        setIsPenting(targetToEdit.priority === 'tinggi');
-      } else {
-        setTitle('');
-        setWindow('today');
-        setIsPenting(false);
-      }
+      requestAnimationFrame(() => {
+        if (active) {
+          if (targetToEdit) {
+            if (title !== targetToEdit.title) setTitle(targetToEdit.title);
+            if (window !== targetToEdit.window) setWindow(targetToEdit.window);
+            const wantedPenting = targetToEdit.priority === 'tinggi';
+            if (isPenting !== wantedPenting) setIsPenting(wantedPenting);
+          } else {
+            if (title !== '') setTitle('');
+            if (window !== 'today') setWindow('today');
+            if (isPenting !== false) setIsPenting(false);
+          }
+        }
+      });
     }
-  }, [isOpen, targetToEdit]);
+    return () => { active = false; };
+  }, [isOpen, targetToEdit, title, window, isPenting]);
 
   const handleSubmit = async () => {
     const cleanTitle = title.trim();
@@ -104,14 +114,18 @@ export const AddTodoSheet = ({ isOpen, onClose, targetToEdit }: AddTodoSheetProp
 
             <div className="flex items-center justify-between mb-8">
               <h3 className="text-[20px] font-black font-['Outfit'] text-[#E3DAC9] uppercase tracking-[0.1em]">
-                {targetToEdit ? 'Edit Rencana' : 'Tambah To-Do Baru'}
+                {targetToEdit ? t('todo.editTitle') : t('todo.addTitle')}
               </h3>
               <motion.button 
                 whileTap={{ x: 2, y: 2, boxShadow: "0px 0px 0px rgba(0,0,0,1)" }}
                 onClick={onClose}
-                className="w-10 h-10 rounded-xl bg-[#2a2c32] border-[2px] border-black flex items-center justify-center text-[#E3DAC9] shadow-[4px_4px_0px_rgba(0,0,0,1)]"
+                className={`w-10 h-10 rounded-xl border-[2px] flex items-center justify-center transition-all ${
+                  isLight
+                    ? 'bg-white border-black text-black shadow-[4px_4px_0px_rgba(0,0,0,1)]'
+                    : 'border-white/10 bg-[#2a2c32] text-white shadow-none'
+                }`}
               >
-                <Icon icon="ph:x-bold" width={20} height={20} />
+                <Icon icon="ph:x-bold" width={18} height={18} />
               </motion.button>
             </div>
 
@@ -123,7 +137,7 @@ export const AddTodoSheet = ({ isOpen, onClose, targetToEdit }: AddTodoSheetProp
                       autoFocus
                       value={title}
                       onChange={(e) => setTitle(e.target.value)}
-                      placeholder="Apa rencana hari ini?"
+                      placeholder={t('todo.inputAddPlaceholder')}
                       className="w-full bg-transparent border-none outline-none text-[17px] font-bold font-['Outfit'] text-[#E3DAC9] placeholder:text-[#E3DAC9]/30"
                     />
                   </div>
@@ -132,67 +146,73 @@ export const AddTodoSheet = ({ isOpen, onClose, targetToEdit }: AddTodoSheetProp
 
               {/* Kategori Grid */}
               <div className="space-y-4">
-                <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.2em] ml-1">Pilih Kategori</p>
-                <div className="grid grid-cols-2 gap-4">
+                <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.2em] ml-1">{t('todo.chooseCategory')}</p>
+                <div className="grid grid-cols-2 gap-3">
                   {CATEGORIES.map((cat, idx) => (
                     <motion.button
                       key={cat.id}
-                      whileTap={{ x: 4, y: 4, boxShadow: "0px 0px 0px rgba(0,0,0,1)" }}
+                      whileTap={{ scale: 0.95 }}
                       onClick={() => {
                         setWindow(cat.id);
                         if (navigator.vibrate) navigator.vibrate(5);
                       }}
-                      className={`flex items-center justify-center p-4 rounded-2xl border-[2px] border-black transition-all shadow-[4px_4px_0px_rgba(0,0,0,1)] ${
+                      className={`flex items-center justify-center py-2.5 rounded-xl border-[2px] transition-all ${
                         idx === 0 ? 'col-span-2' : 'col-span-1'
                       } ${
                         window === cat.id 
-                        ? 'bg-[#00FF85] text-black' 
-                        : 'bg-[#2a2c32] text-[#E3DAC9]/40'
+                        ? 'bg-[#10B981] border-black text-black shadow-[2.5px_2.5px_0px_rgba(0,0,0,1)]' 
+                        : isLight
+                          ? 'bg-white border-black text-black/50 shadow-[2px_2px_0px_rgba(0,0,0,0.15)]'
+                          : 'bg-[#2a2c32] border-white/10 text-[#E3DAC9]/40 shadow-none'
                       }`}
                     >
-                      <span className="text-[12px] font-black font-['Outfit'] uppercase tracking-wider">{cat.label}</span>
+                      <span className="text-[11px] font-black font-['Outfit'] uppercase tracking-wider">{t('todo.filters.' + cat.id)}</span>
                     </motion.button>
                   ))}
                 </div>
               </div>
 
               {/* Prioritas Row */}
-              <div className="space-y-4">
-                <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.2em] ml-1">Status Rencana</p>
-                <div className="flex bg-[#2a2c32] p-1.5 rounded-2xl border-[2px] border-black shadow-[4px_4px_0px_rgba(0,0,0,1)]">
+              <div className="space-y-3">
+                <p className="text-[10px] font-black text-white/20 uppercase tracking-[0.2em] ml-1">{t('todo.planStatus')}</p>
+                <div className={`flex p-1 rounded-xl border-[2px] transition-all ${
+                  isLight
+                    ? 'bg-slate-100 border-black shadow-[3px_3px_0px_rgba(0,0,0,1)]'
+                    : 'bg-[#2a2c32] border-white/10 shadow-none'
+                }`}>
                   <motion.button
-                    whileTap={{ x: 2, y: 2, boxShadow: "0px 0px 0px rgba(0,0,0,1)" }}
+                    whileTap={{ scale: 0.95 }}
                     onClick={() => {
                       setIsPenting(false);
                       if (navigator.vibrate) navigator.vibrate(5);
                     }}
-                    className={`flex-1 py-3 rounded-xl text-[11px] font-black uppercase tracking-wider transition-all flex items-center justify-center gap-2 border-[2px] ${
+                    className={`flex-1 py-2.5 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all flex items-center justify-center gap-2 border-[2px] ${
                       !isPenting 
-                      ? 'bg-[#00FF85] border-black text-black' 
-                      : 'bg-transparent border-transparent text-[#E3DAC9]/20'
+                      ? 'bg-[#10B981] border-black text-black shadow-[1.5px_1.5px_0px_rgba(0,0,0,1)]' 
+                      : 'bg-transparent border-transparent text-[#E3DAC9]/40'
                     }`}
                   >
                     <div 
-                      className={`w-1.5 h-1.5 rounded-full ${!isPenting ? 'bg-black' : 'bg-[#E3DAC9]/20'}`}
+                      className={`w-1.5 h-1.5 rounded-full ${!isPenting ? 'bg-black' : isLight ? 'bg-black/20' : 'bg-[#E3DAC9]/20'}`}
                     />
-                    Biasa
+                    {t('todo.normal')}
                   </motion.button>
                   <motion.button
-                    whileTap={{ x: 2, y: 2, boxShadow: "0px 0px 0px rgba(0,0,0,1)" }}
+                    whileTap={{ scale: 0.95 }}
                     onClick={() => {
                       setIsPenting(true);
                       if (navigator.vibrate) navigator.vibrate(5);
                     }}
-                    className={`flex-1 py-3 rounded-xl text-[11px] font-black uppercase tracking-wider transition-all flex items-center justify-center gap-2 border-[2px] ${
+                    className={`flex-1 py-2.5 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all flex items-center justify-center gap-2 border-[2px] ${
                       isPenting 
-                      ? 'bg-[#FF4D00] border-black text-white' 
-                      : 'bg-transparent border-transparent text-[#E3DAC9]/20'
+                      ? 'bg-[#FF4D00] border-black text-white shadow-[1.5px_1.5px_0px_rgba(0,0,0,1)]' 
+                      : 'bg-transparent border-transparent text-[#E3DAC9]/40'
                     }`}
                   >
                     <div 
                       className={`w-1.5 h-1.5 rounded-full ${isPenting ? 'bg-white' : 'bg-[#FF4D00]/20'}`}
                     />
-                    Penting
+                    {t('todo.important')}
                   </motion.button>
                 </div>
               </div>
@@ -200,23 +220,31 @@ export const AddTodoSheet = ({ isOpen, onClose, targetToEdit }: AddTodoSheetProp
               {/* Action Buttons */}
               <div className="flex gap-4 pt-4">
                 <motion.button 
-                  whileTap={{ x: 4, y: 4, boxShadow: "0px 0px 0px rgba(0,0,0,1)" }}
+                  whileTap={{ scale: 0.95 }}
                   onClick={onClose}
-                  className="flex-1 h-16 rounded-2xl bg-[#FF4D00] border-[2px] border-black text-white font-black font-['Outfit'] uppercase tracking-[0.15em] text-[13px] shadow-[4px_4px_0px_rgba(0,0,0,1)]"
-                >
-                  Batal
-                </motion.button>
-                <motion.button 
-                  whileTap={title.trim() ? { x: 4, y: 4, boxShadow: "0px 0px 0px rgba(0,0,0,1)" } : {}}
-                  onClick={handleSubmit}
-                  disabled={!title.trim()}
-                  className={`flex-[2] h-16 rounded-2xl font-black font-['Outfit'] uppercase tracking-[0.15em] text-[13px] shadow-[4px_4px_0px_rgba(0,0,0,1)] transition-all flex items-center justify-center gap-2 ${
-                    title.trim() 
-                    ? 'bg-[#00FF85] text-black border-[2px] border-black' 
-                    : 'bg-[#2a2c32] text-[#E3DAC9]/10 border-[2px] border-black/20 shadow-none'
+                  className={`flex-1 h-[48px] rounded-xl font-black font-['Outfit'] uppercase tracking-[0.15em] text-[12px] border transition-all ${
+                    isLight
+                      ? 'bg-white border-black text-black shadow-[2.5px_2.5px_0px_rgba(0,0,0,1)]'
+                      : 'bg-[#2a2c32] border-white/10 text-[#E3DAC9]/60 shadow-none'
                   }`}
                 >
-                  {targetToEdit ? 'Simpan Perubahan' : 'Buat Rencana'}
+                  {t('settings.cancel')}
+                </motion.button>
+                <motion.button 
+                  whileTap={title.trim() ? { scale: 0.95 } : {}}
+                  onClick={handleSubmit}
+                  disabled={!title.trim()}
+                  className={`flex-[1.5] h-[48px] rounded-xl font-black font-['Outfit'] uppercase tracking-[0.15em] text-[12px] border transition-all flex items-center justify-center gap-2 ${
+                    title.trim() 
+                      ? isLight
+                        ? 'bg-[#10B981] border-black text-black shadow-[2.5px_2.5px_0px_rgba(0,0,0,1)]'
+                        : 'bg-[#10B981] border-transparent text-black shadow-none'
+                      : isLight
+                        ? 'bg-[#10B981]/15 border-black/10 text-black/25 cursor-not-allowed shadow-none'
+                        : 'bg-[#10B981]/10 border-white/5 text-white/20 cursor-not-allowed shadow-none'
+                  }`}
+                >
+                  {targetToEdit ? t('todo.saveChanges') : t('todo.createPlan')}
                 </motion.button>
               </div>
             </div>

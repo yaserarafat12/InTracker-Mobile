@@ -4,6 +4,7 @@ import { Icon } from '@iconify/react';
 import { useFoodLogStore } from '../../../store/useFoodLogStore';
 import { groupEntriesByMealType } from '../../../engines/foodLogEngine';
 import type { FoodEntry } from '../../../engines/foodLogEngine';
+import { useTranslation } from '../../../i18n';
 
 interface FoodLogProps {
   entries: FoodEntry[];
@@ -27,6 +28,7 @@ const MEAL_LABELS: Record<string, string> = {
 export function FoodLog({ entries, selectedDate }: FoodLogProps) {
   const { deleteEntry } = useFoodLogStore();
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
+  const { t } = useTranslation();
 
   const groupedEntries = useMemo(() => groupEntriesByMealType(entries), [entries]);
 
@@ -43,10 +45,10 @@ export function FoodLog({ entries, selectedDate }: FoodLogProps) {
           <Icon icon="ph:fork-knife" width={24} className="text-white/20" />
         </div>
         <p className="text-[13px] font-bold text-white/30 font-['Outfit']">
-          No food logged yet
+          {t('nutrition.noFoodLogged')}
         </p>
         <p className="text-[11px] text-white/20">
-          Tap Quick Add or Scan Food to start tracking
+          {t('nutrition.startTrackingHelp')}
         </p>
       </div>
     );
@@ -55,7 +57,7 @@ export function FoodLog({ entries, selectedDate }: FoodLogProps) {
   return (
     <div className="space-y-4">
       <h3 className="text-[12px] font-bold text-white/40 uppercase tracking-wider">
-        Today's Food
+        {t('nutrition.todaysFood')}
       </h3>
 
       {groupedEntries.map((group) => (
@@ -68,7 +70,7 @@ export function FoodLog({ entries, selectedDate }: FoodLogProps) {
               className="text-[#00FF85]/60"
             />
             <span className="text-[11px] font-bold text-[#E3DAC9]/50 uppercase tracking-wider">
-              {MEAL_LABELS[group.mealType]}
+              {t('nutrition.' + group.mealType)}
             </span>
             <span className="text-[11px] text-white/20 ml-auto">
               {group.totalCalories} kcal
@@ -89,20 +91,20 @@ export function FoodLog({ entries, selectedDate }: FoodLogProps) {
                 {confirmDeleteId === entry.id ? (
                   /* Delete Confirmation */
                   <div className="flex items-center gap-2 bg-red-500/10 border border-red-500/20 rounded-xl p-3">
-                    <p className="text-[12px] text-red-400 flex-1">Delete this entry?</p>
+                    <p className="text-[12px] text-red-400 flex-1">{t('nutrition.deleteEntryConfirm')}</p>
                     <motion.button
                       whileTap={{ scale: 0.9 }}
                       onClick={() => handleDelete(entry.id)}
                       className="px-3 py-1.5 bg-red-500 rounded-lg text-[11px] font-bold text-white"
                     >
-                      Delete
+                      {t('nutrition.delete')}
                     </motion.button>
                     <motion.button
                       whileTap={{ scale: 0.9 }}
                       onClick={() => setConfirmDeleteId(null)}
                       className="px-3 py-1.5 bg-white/10 rounded-lg text-[11px] font-bold text-white/60"
                     >
-                      Cancel
+                      {t('nutrition.cancel')}
                     </motion.button>
                   </div>
                 ) : (

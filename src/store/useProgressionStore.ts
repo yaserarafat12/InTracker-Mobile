@@ -6,6 +6,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { supabase } from '../lib/supabase';
+import { useUserStore } from './useUserStore';
 import {
   type StatCategory,
   makeEmptyStats,
@@ -19,6 +20,7 @@ import { getLevelInfo, validateLevelConsistency } from '../engines/levelSystem';
 // ---- State Interface ----
 
 export interface ProgressionState {
+  userId: string | null;
   // Cumulative values
   totalXP: number;
   level: number;
@@ -57,11 +59,29 @@ export interface ProgressionActions {
   scheduleBatchSync: () => void;
 }
 
+// ---- Helper for Timezone-aware date ----
+
+const getTodayString = () => {
+  try {
+    const tz = useUserStore.getState().settings.timezone || 'Asia/Jakarta';
+    const formatter = new Intl.DateTimeFormat('en-CA', {
+      timeZone: tz,
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+    });
+    return formatter.format(new Date());
+  } catch (e) {
+    return new Date().toLocaleDateString('en-CA');
+  }
+};
+
 // ---- Initial State ----
 
 function getInitialState(): ProgressionState {
-  const today = new Date().toLocaleDateString('en-CA');
+  const today = getTodayString();
   return {
+    userId: null,
     totalXP: 0,
     level: 1,
     stats: makeEmptyStats(),
@@ -94,7 +114,7 @@ export const useProgressionStore = create<ProgressionState & ProgressionActions>
 
       // ---- Daily Reset Check ----
       _checkAndResetDaily: () => {
-        const today = new Date().toLocaleDateString('en-CA');
+        const today = getTodayString();
         const state = get();
         if (state.lastResetDate !== today) {
           set({
@@ -114,7 +134,7 @@ export const useProgressionStore = create<ProgressionState & ProgressionActions>
       },
 
       resetDailyCaps: () => {
-        const today = new Date().toLocaleDateString('en-CA');
+        const today = getTodayString();
         set({
           dailyXPEarned: 0,
           dailyFeedXPEarned: 0,
@@ -329,6 +349,23 @@ export const useProgressionStore = create<ProgressionState & ProgressionActions>
           const { data: { user } } = await supabase.auth.getUser();
           if (!user) return;
 
+          const state = get();
+
+          // Collision Guard: Reset stats if user changed
+          if (state.userId && state.userId !== user.id) {
+            console.log("[Progression] User changed! Resetting progression store state...");
+            set({
+              ...getInitialState(),
+              userId: user.id
+            });
+            state.totalXP = 0;
+            state.level = 1;
+            state.stats = makeEmptyStats();
+            state.completedTodoIds = [];
+          } else if (!state.userId) {
+            set({ userId: user.id });
+          }
+
           const { data, error } = await supabase
             .from('user_stats')
             .select('*')
@@ -336,8 +373,6 @@ export const useProgressionStore = create<ProgressionState & ProgressionActions>
             .single();
 
           if (error || !data) return;
-
-          const state = get();
 
           // Higher-value-wins reconciliation
           const reconciledTotalXP = Math.max(state.totalXP, data.total_xp ?? 0);
@@ -375,12 +410,24 @@ export const useProgressionStore = create<ProgressionState & ProgressionActions>
 
       // ---- Run Migration (Task 10.1) ----
       runMigration: async () => {
-        const state = get();
-        if (state.migrationCompleted) return;
-
         try {
           const { data: { user } } = await supabase.auth.getUser();
           if (!user) return;
+
+          const state = get();
+
+          // Collision Guard: Reset stats if user changed
+          if (state.userId && state.userId !== user.id) {
+            console.log("[Progression] User changed! Resetting progression store state for migration...");
+            set({
+              ...getInitialState(),
+              userId: user.id
+            });
+          } else if (!state.userId) {
+            set({ userId: user.id });
+          }
+
+          if (get().migrationCompleted) return;
 
           // Check if user_stats row already exists
           const { data: existingRow } = await supabase

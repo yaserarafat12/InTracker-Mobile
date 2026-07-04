@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion';
+import { useUserStore } from '../../store/useUserStore';
 
 interface ToolCardProps {
   id: string;
@@ -10,11 +11,16 @@ interface ToolCardProps {
 }
 
 export function ToolCard({ id, title, description, backgroundImage, comingSoon, onPress }: ToolCardProps) {
+  const { settings } = useUserStore();
+  const isLight = !document.documentElement.classList.contains('dark');
+
   return (
     <motion.div
       whileTap={{ scale: 0.96, boxShadow: "0px 0px 0px rgba(0,0,0,1)" }}
       onClick={onPress}
-      className="relative aspect-[4/5] rounded-[16px] border-[2px] border-white/15 overflow-hidden cursor-pointer select-none shadow-[4px_4px_0px_rgba(0,0,0,1)]"
+      className={`relative aspect-[4/5] rounded-[16px] border-[2px] overflow-hidden cursor-pointer select-none shadow-[4px_4px_0px_rgba(0,0,0,1)] ${
+        isLight ? 'border-black' : 'border-white/15'
+      }`}
       style={{
         background: backgroundImage
           ? `url(${backgroundImage}) center/cover no-repeat`
@@ -26,8 +32,7 @@ export function ToolCard({ id, title, description, backgroundImage, comingSoon, 
 
       {/* Content */}
       <div className="absolute bottom-0 left-0 right-0 p-4 z-10">
-        <h3 className="text-[15px] font-black text-white leading-tight font-['Outfit']">{title}</h3>
-        <p className="text-[11px] text-white/40 mt-1 leading-snug font-['Outfit'] truncate">{description}</p>
+        <h3 className="text-[15px] font-black text-force-white leading-tight font-['Outfit']">{title}</h3>
       </div>
 
       {/* Coming Soon overlay */}

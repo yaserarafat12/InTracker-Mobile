@@ -76,8 +76,23 @@ export function isValidSchedule(config: ScheduleConfig): boolean {
  * - weekly → full Indonesian day name uppercase (e.g., "SENIN")
  * - custom → comma-separated abbreviated day names (e.g., "SEN, RAB, JUM")
  */
-export function getScheduleLabel(config: ScheduleConfig): string {
+export function getScheduleLabel(config: ScheduleConfig, t?: (key: string) => string): string {
   const { schedule_type, schedule_days } = config;
+
+  if (t) {
+    switch (schedule_type) {
+      case 'daily':
+        return t('schedule.daily');
+      case 'weekly':
+        return t(`schedule.days.full.${schedule_days[0]}`) || t('schedule.daily');
+      case 'custom': {
+        const sorted = [...schedule_days].sort((a, b) => a - b);
+        return sorted.map((day) => t(`schedule.days.short.${day}`) || '').join(', ');
+      }
+      default:
+        return t('schedule.daily');
+    }
+  }
 
   switch (schedule_type) {
     case 'daily':

@@ -7,9 +7,11 @@ import { useHabitStore } from '../../store/useHabitStore';
 import { getPrismStyle } from '../../utils/design';
 import { formatIntensityLabel, shouldShowIntensityPicker, getIntensityConfig } from '../../utils/intensityHelpers';
 import { getScheduleLabel } from '../../utils/scheduleHelpers';
+import { useTranslation } from '../../i18n';
 import IntensityPicker from './IntensityPicker';
 import ScheduleEditor from './ScheduleEditor';
 import HabitInfoModal from './HabitInfoModal';
+import { playNotifSfx } from '../../utils/sfx';
 
 // DifficultyDots removed as per user request
 
@@ -59,16 +61,40 @@ interface KartuTugasProps {
   onEdit?: (habit: any) => void;
   isDraggable?: boolean;
   dragControls?: any;
+  selectedDate?: Date;
+  onHistoricalUpdate?: () => void;
 }
 
-const KartuTugas = ({ habit, index, activeFilter, onDoubleTap, onEdit, isDraggable, dragControls }: KartuTugasProps) => {
+const KartuTugas = ({ habit, index, activeFilter, onDoubleTap, onEdit, isDraggable, dragControls, selectedDate, onHistoricalUpdate }: KartuTugasProps) => {
   const { deleteHabit, toggleHabit, updateHabit, setCompletingHabitId, completeWithIntensity } = useHabitStore();
+  const { t } = useTranslation();
   const [lastTap, setLastTap] = useState(0);
   const [isCompleting, setIsCompleting] = useState(false);
   const [showPicker, setShowPicker] = useState(false);
   const [showScheduleEditor, setShowScheduleEditor] = useState(false);
   const [showInfoModal, setShowInfoModal] = useState(false);
   const x = useMotionValue(0);
+
+  const isToday = !selectedDate || (() => {
+    const today = new Date();
+    return (
+      selectedDate.getFullYear() === today.getFullYear() &&
+      selectedDate.getMonth() === today.getMonth() &&
+      selectedDate.getDate() === today.getDate()
+    );
+  })();
+
+  const isEditable = isToday || (() => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const target = new Date(selectedDate);
+    target.setHours(0, 0, 0, 0);
+    const diffTime = today.getTime() - target.getTime();
+    const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
+    return diffDays >= 0 && diffDays <= 3;
+  })();
+
+  const canDrag = isDraggable && isEditable;
   
   const leftActionOpacity = useTransform(x, [20, 80], [0, 1]);
   const rightActionOpacity = useTransform(x, [-20, -80], [0, 1]);
@@ -97,7 +123,12 @@ const KartuTugas = ({ habit, index, activeFilter, onDoubleTap, onEdit, isDraggab
     setIsCompleting(true);
     setCompletingHabitId(habit.id);
     
-    // Reward moment 1.5s
+    // Play sound exactly when the checkmark pops up (after 200ms)
+    setTimeout(() => {
+      playNotifSfx();
+    }, 200);
+    
+    // Reward moment 1.3s (speeded up by 0.2s)
     setTimeout(() => {
       onDoubleTap(habit.id);
       // We don't setIsCompleting(false) here immediately to let the card exit with the overlay
@@ -105,19 +136,23 @@ const KartuTugas = ({ habit, index, activeFilter, onDoubleTap, onEdit, isDraggab
         setIsCompleting(false);
         setCompletingHabitId(null);
       }, 600); 
-    }, 1500);
+    }, 1300);
   };
 
   const handleDoubleTapClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (activeFilter !== 'berjalan' || habit.completed || habit.skipped || isCompleting) return;
+    if (!isEditable || isCompleting) return;
     
     const now = Date.now();
     const DOUBLE_TAP_DELAY = 300;
     
     if (now - lastTap < DOUBLE_TAP_DELAY) {
-      // All habits complete immediately on double-tap (intensity picker only via LOG button)
-      startCompletionAnimation();
+      if (isToday) {
+        if (activeFilter !== 'berjalan' || habit.completed || habit.skipped) return;
+        startCompletionAnimation();
+      } else {
+        onDoubleTap(habit.id);
+      }
     } else {
       setLastTap(now);
     }
@@ -125,8 +160,12 @@ const KartuTugas = ({ habit, index, activeFilter, onDoubleTap, onEdit, isDraggab
 
   const handlePickerConfirm = (value: number) => {
     setShowPicker(false);
-    // Just update the target intensity, don't complete the habit
-    updateHabit(habit.id, { target_intensity: value });
+    if (isToday) {
+      updateHabit(habit.id, { target_intensity: value });
+    } else {
+      completeWithIntensity(habit.id, value, selectedDate);
+      if (onHistoricalUpdate) onHistoricalUpdate();
+    }
     if (navigator.vibrate) navigator.vibrate(10);
   };
 
@@ -140,17 +179,25 @@ const KartuTugas = ({ habit, index, activeFilter, onDoubleTap, onEdit, isDraggab
   };
 
   const handleAction = (type: 'skip' | 'delete' | 'log' | 'edit') => {
+    if (!isEditable) return;
     if (navigator.vibrate) navigator.vibrate(15);
     
     switch (type) {
       case 'skip':
-        toggleHabit(habit.id, 'skipped');
+        if (isToday) {
+          toggleHabit(habit.id, 'skipped');
+        } else {
+          toggleHabit(habit.id, 'skipped', selectedDate, habit.skipped);
+          if (onHistoricalUpdate) onHistoricalUpdate();
+        }
         break;
-      case 'delete':
-        if (confirm(`Hapus habit "${habit.name}"?`)) {
+      case 'delete': {
+        const displayName = t(`presets.${habit.name}`) === `presets.${habit.name}` ? habit.name : t(`presets.${habit.name}`);
+        if (confirm(t('habits.confirmDelete').replace('{name}', displayName))) {
           deleteHabit(habit.id);
         }
         break;
+      }
       case 'log':
         if (shouldShowIntensityPicker(habit.name)) {
           // Numeric habit: show intensity picker via LOG button
@@ -182,7 +229,7 @@ const KartuTugas = ({ habit, index, activeFilter, onDoubleTap, onEdit, isDraggab
             className="flex flex-col items-center justify-center gap-1 h-full bg-[#00FF85] border-[1.5px] border-black shadow-[3px_3px_0px_rgba(0,0,0,1)] rounded-[24px] text-black transition-all w-full py-1"
           >
             <Icon icon="solar:history-bold" width={22} height={22} />
-            <span className="text-[10px] font-black font-['Outfit'] uppercase tracking-widest">Log</span>
+            <span className="text-[10px] font-black font-['Outfit'] uppercase tracking-widest">{t('habits.cardActions.log')}</span>
           </motion.button>
           <motion.button 
             whileTap={{ x: 2, y: 2, boxShadow: "0px 0px 0px black" }}
@@ -190,7 +237,7 @@ const KartuTugas = ({ habit, index, activeFilter, onDoubleTap, onEdit, isDraggab
             className="flex flex-col items-center justify-center gap-1 h-full bg-[#E3DAC9] border-[1.5px] border-black shadow-[3px_3px_0px_rgba(0,0,0,1)] rounded-[24px] text-black transition-all w-full py-1"
           >
             <Icon icon="solar:pen-new-square-bold" width={22} height={22} />
-            <span className="text-[10px] font-black font-['Outfit'] uppercase tracking-widest">Edit</span>
+            <span className="text-[10px] font-black font-['Outfit'] uppercase tracking-widest">{t('habits.cardActions.edit')}</span>
           </motion.button>
         </motion.div>
 
@@ -204,7 +251,7 @@ const KartuTugas = ({ habit, index, activeFilter, onDoubleTap, onEdit, isDraggab
             className="flex flex-col items-center justify-center gap-1 h-full bg-[#FFB800] border-[1.5px] border-black shadow-[3px_3px_0px_rgba(0,0,0,1)] rounded-[24px] text-black transition-all w-full py-1"
           >
             <Icon icon="solar:skip-next-bold" width={22} height={22} />
-            <span className="text-[10px] font-black font-['Outfit'] uppercase tracking-widest">Skip</span>
+            <span className="text-[10px] font-black font-['Outfit'] uppercase tracking-widest">{t('habits.cardActions.skip')}</span>
           </motion.button>
           <motion.button 
             whileTap={{ x: 2, y: 2, boxShadow: "0px 0px 0px black" }}
@@ -212,13 +259,13 @@ const KartuTugas = ({ habit, index, activeFilter, onDoubleTap, onEdit, isDraggab
             className="flex flex-col items-center justify-center gap-1 h-full bg-[#FF3B30] border-[1.5px] border-black shadow-[3px_3px_0px_rgba(0,0,0,1)] rounded-[24px] text-white transition-all w-full py-1"
           >
             <Icon icon="solar:trash-bin-trash-bold" width={22} height={22} />
-            <span className="text-[10px] font-black font-['Outfit'] uppercase tracking-widest">Hapus</span>
+            <span className="text-[10px] font-black font-['Outfit'] uppercase tracking-widest">{t('habits.cardActions.delete')}</span>
           </motion.button>
         </motion.div>
       </div>
 
       <motion.div
-        drag="x"
+        drag={canDrag ? "x" : false}
         dragConstraints={{ left: -140, right: 140 }}
         dragElastic={0.05}
         onDragEnd={handleDragEnd}
@@ -288,39 +335,51 @@ const KartuTugas = ({ habit, index, activeFilter, onDoubleTap, onEdit, isDraggab
                 initial={{ scale: 0, borderRadius: "100%" }}
                 animate={{ scale: 2.8, borderRadius: "0%" }}
                 exit={{ scale: 0, borderRadius: "100%", transition: { duration: 0.4, ease: "easeInOut" } }}
-                transition={{ duration: 1.5, ease: [0.22, 1, 0.36, 1] }}
-                className="absolute inset-0 bg-[#00FF85] origin-center"
+                transition={{ duration: 1.3, ease: [0.22, 1, 0.36, 1] }}
+                className="absolute inset-0 bg-os-green origin-center"
                 style={{ willChange: "transform", transform: "translateZ(0)" }}
               />
               
               {/* Content Overlay */}
               <div className="absolute inset-0 flex flex-col items-center justify-center">
-                <motion.div
-                  initial={{ scale: 0, rotate: -20 }}
-                  animate={{ scale: 1, rotate: 0 }}
-                  exit={{ opacity: 0, scale: 0, transition: { duration: 0.4 } }}
-                  transition={{ delay: 0.3, duration: 0.5, type: "spring" }}
-                >
-                  <Icon icon="solar:check-circle-bold" width={54} height={54} className="text-[#212121]" />
-                </motion.div>
-                <motion.span
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, scale: 0, transition: { duration: 0.6 } }}
-                  transition={{ delay: 0.4, duration: 0.5 }}
-                  className="text-[#212121] font-black font-['Outfit'] mt-2 text-[14px] tracking-[0.2em] uppercase"
-                >
-                  TUGAS SELESAI !
-                </motion.span>
+                <div className="relative flex flex-col items-center justify-center">
+                  {/* Floating sparkles around */}
+                  <motion.div
+                    initial={{ scale: 0, rotate: -45 }}
+                    animate={{ scale: 1, rotate: 0 }}
+                    transition={{ delay: 0.3, duration: 0.6, type: "spring" }}
+                    className="absolute -top-4 -left-12 text-white z-20"
+                  >
+                    <Icon icon="ph:sparkle-bold" width={22} height={22} className="drop-shadow-[1.5px_1.5px_0px_rgba(0,0,0,1)]" />
+                  </motion.div>
+                  <motion.div
+                    initial={{ scale: 0, rotate: 45 }}
+                    animate={{ scale: 1, rotate: 0 }}
+                    transition={{ delay: 0.4, duration: 0.6, type: "spring" }}
+                    className="absolute -bottom-1 -right-12 text-white z-20"
+                  >
+                    <Icon icon="ph:sparkle-bold" width={24} height={24} className="drop-shadow-[1.5px_1.5px_0px_rgba(0,0,0,1)]" />
+                  </motion.div>
+
+                  {/* Circular Checkmark Badge */}
+                  <motion.div
+                    initial={{ scale: 0, rotate: -20 }}
+                    animate={{ scale: 1, rotate: 0 }}
+                    exit={{ opacity: 0, scale: 0, transition: { duration: 0.4 } }}
+                    transition={{ delay: 0.2, duration: 0.5, type: "spring" }}
+                    className="w-[56px] h-[56px] rounded-full bg-white border-[2.5px] border-black shadow-[3px_3px_0px_rgba(0,0,0,1)] flex items-center justify-center z-10"
+                  >
+                    <Icon icon="ph:check-bold" width={30} height={30} className="text-os-green" />
+                  </motion.div>
+                </div>
               </div>
             </motion.div>
           )}
         </AnimatePresence>
 
-        <div className={`absolute inset-0 rounded-[10px] overflow-hidden border-[2px] border-white/15 shadow-[8px_8px_0px_rgba(0,0,0,1)] bg-[#1c1e22] group cursor-pointer transition-all duration-300 ${isCompleting ? 'opacity-0 scale-[0.95]' : ''}`}>
+        <div className={`absolute inset-0 rounded-[10px] overflow-hidden border-[2px] border-white/15 shadow-[8px_8px_0px_rgba(0,0,0,1)] bg-[#1c1e22] group cursor-pointer transition-all duration-300 ${isCompleting ? 'opacity-0 scale-[0.95]' : ''} ${!isEditable ? 'opacity-65' : ''}`}>
           {/* Background Image from HABIT_OPTIONS */}
           {(() => {
-            // Prioritize name match over iconName match to avoid collisions
             const option = HABIT_OPTIONS.find(o => o.name.toLowerCase() === habit.name?.toLowerCase()) 
               || HABIT_OPTIONS.find(o => o.iconName === habit.iconName);
             if (option && option.imageUrl) {
@@ -328,7 +387,7 @@ const KartuTugas = ({ habit, index, activeFilter, onDoubleTap, onEdit, isDraggab
                 <img 
                   src={option.imageUrl} 
                   alt=""
-                  className={`absolute inset-0 w-full h-full object-cover ${option.imagePosition || 'object-center'} opacity-[0.85] z-0 transition-transform duration-500 group-hover:scale-110`}
+                  className={`absolute inset-0 w-full h-full object-cover ${option.imagePosition || 'object-center'} opacity-[0.95] z-0 transition-transform duration-500 group-hover:scale-110`}
                 />
               );
             }
@@ -338,13 +397,15 @@ const KartuTugas = ({ habit, index, activeFilter, onDoubleTap, onEdit, isDraggab
               <img 
                 src="/all_images/custom_habit_bg.png" 
                 alt=""
-                className="absolute inset-0 w-full h-full object-cover opacity-[0.7] z-0"
+                className="absolute inset-0 w-full h-full object-cover opacity-[0.85] z-0"
               />
             );
           })()}
           
-          <div className="absolute inset-0 bg-black/40 z-[1]" />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/20 to-transparent z-[2]" />
+          <div className="absolute inset-0 bg-black/25 z-[1]" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent z-[2]" />
+          
+
           
           {/* Info Button */}
           <button
@@ -352,15 +413,18 @@ const KartuTugas = ({ habit, index, activeFilter, onDoubleTap, onEdit, isDraggab
               e.stopPropagation();
               setShowInfoModal(true);
             }}
-            className="absolute top-3 left-3 z-20 w-7 h-7 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center"
+            className="absolute top-3 left-3 z-20 w-7 h-7 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center border border-white/5 active:scale-95 transition-all"
           >
-            <Icon icon="ph:info-bold" width={14} height={14} className="text-white" />
+            <span className="font-['Times_New_Roman',Times,serif] font-bold text-[16px] text-white/90 leading-none select-none">i</span>
           </button>
           
-          <div className="absolute inset-0 p-5 flex flex-col justify-end z-10">
+          <div className="absolute inset-0 px-5 pt-5 pb-3 flex flex-col justify-end z-10">
             <div>
               <h3 className="text-[22px] font-black font-['Outfit'] text-white mb-1.5 leading-tight tracking-[0.5px]">
-                {habit.name}
+                {(() => {
+                  const translated = t(`presets.${habit.name}`);
+                  return translated === `presets.${habit.name}` ? habit.name : translated;
+                })()}
               </h3>
               
               <div className="flex items-center gap-4 text-white/60 h-5">
@@ -372,12 +436,12 @@ const KartuTugas = ({ habit, index, activeFilter, onDoubleTap, onEdit, isDraggab
                     color={HABIT_COLORS[habit.iconName] || CATEGORY_COLORS[habit.category] || '#00FF85'}
                   />
                   <span className="text-[9px] font-black tracking-[0.05em] uppercase text-white/40 leading-none mt-[2px]">
-                    {getScheduleLabel({ schedule_type: habit.schedule_type || 'daily', schedule_days: habit.schedule_days || [0,1,2,3,4,5,6] })}
+                    {getScheduleLabel({ schedule_type: habit.schedule_type || 'daily', schedule_days: habit.schedule_days || [0,1,2,3,4,5,6] }, t)}
                   </span>
                 </div>
                 
                 {(() => {
-                  const intensityLabel = formatIntensityLabel(habit.name, habit.target_intensity);
+                  const intensityLabel = formatIntensityLabel(habit.name, habit.target_intensity, t);
                   if (!intensityLabel) return null;
                   return (
                     <>
@@ -397,39 +461,41 @@ const KartuTugas = ({ habit, index, activeFilter, onDoubleTap, onEdit, isDraggab
         </div>
 
         {/* Long Press to Drag Trigger - Top Layer */}
-        <div 
-          onPointerDown={(e) => {
-            if (!isDraggable || isCompleting) return;
-            
-            const startX = e.clientX;
-            const startY = e.clientY;
-            
-            const timer = setTimeout(() => {
-              if (navigator.vibrate) navigator.vibrate(30);
-              dragControls?.start(e);
-            }, 250); // Reduced to 250ms for better responsiveness
+        {isEditable && (
+          <div 
+            onPointerDown={(e) => {
+              if (!isDraggable || isCompleting) return;
+              
+              const startX = e.clientX;
+              const startY = e.clientY;
+              
+              const timer = setTimeout(() => {
+                if (navigator.vibrate) navigator.vibrate(30);
+                dragControls?.start(e);
+              }, 250); // Reduced to 250ms for better responsiveness
 
-            const handleMove = (moveEvent: PointerEvent) => {
-              const dist = Math.sqrt(
-                Math.pow(moveEvent.clientX - startX, 2) + 
-                Math.pow(moveEvent.clientY - startY, 2)
-              );
-              if (dist > 10) clearTimeout(timer);
-            };
+              const handleMove = (moveEvent: PointerEvent) => {
+                const dist = Math.sqrt(
+                  Math.pow(moveEvent.clientX - startX, 2) + 
+                  Math.pow(moveEvent.clientY - startY, 2)
+                );
+                if (dist > 10) clearTimeout(timer);
+              };
 
-            const handleUp = () => {
-              clearTimeout(timer);
-              window.removeEventListener('pointermove', handleMove);
-              window.removeEventListener('pointerup', handleUp);
-            };
+              const handleUp = () => {
+                clearTimeout(timer);
+                window.removeEventListener('pointermove', handleMove);
+                window.removeEventListener('pointerup', handleUp);
+              };
 
-            window.addEventListener('pointermove', handleMove);
-            window.addEventListener('pointerup', handleUp);
-          }}
-          onContextMenu={(e) => e.preventDefault()}
-          style={{ touchAction: 'none' }}
-          className="absolute inset-0 z-[10] cursor-grab active:cursor-grabbing"
-        />
+              window.addEventListener('pointermove', handleMove);
+              window.addEventListener('pointerup', handleUp);
+            }}
+            onContextMenu={(e) => e.preventDefault()}
+            style={{ touchAction: 'none' }}
+            className="absolute inset-0 z-[10] cursor-grab active:cursor-grabbing"
+          />
+        )}
       </motion.div>
 
       {/* Intensity Picker for numeric habits */}
@@ -438,9 +504,9 @@ const KartuTugas = ({ habit, index, activeFilter, onDoubleTap, onEdit, isDraggab
         if (!config) return null;
         return (
           <IntensityPicker
-            options={config.options}
-            unit={config.unit}
-            defaultValue={config.defaultValue}
+            options={config.options || []}
+            unit={config.unit || ''}
+            defaultValue={config.defaultValue || 0}
             onConfirm={handlePickerConfirm}
             onCancel={handlePickerCancel}
           />

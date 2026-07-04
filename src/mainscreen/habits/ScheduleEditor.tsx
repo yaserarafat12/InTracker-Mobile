@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useTranslation } from '../../i18n';
 
 export interface ScheduleEditorProps {
   isOpen: boolean;
@@ -26,6 +27,7 @@ const ScheduleEditor = ({
   currentScheduleDays,
   onSave,
 }: ScheduleEditorProps) => {
+  const { t } = useTranslation();
   const [scheduleType, setScheduleType] = useState<ScheduleType>(currentScheduleType);
   const [selectedDays, setSelectedDays] = useState<number[]>(currentScheduleDays);
   const [showValidation, setShowValidation] = useState(false);
@@ -109,8 +111,7 @@ const ScheduleEditor = ({
             animate={{ y: 0 }}
             exit={{ y: '100%' }}
             transition={{ type: 'spring', stiffness: 400, damping: 35 }}
-            className="w-full max-w-[420px] rounded-t-[28px] border-t-[2px] border-x-[2px] border-white/10 shadow-[0_-8px_40px_rgba(0,0,0,0.6)]"
-            style={{ background: '#141518' }}
+            className="w-full max-w-[420px] rounded-t-[28px] border-t-[2px] border-x-[2px] border-border-theme shadow-[0_-8px_40px_rgba(0,0,0,0.6)] bg-os-card-bg"
           >
             {/* Handle bar */}
             <div className="flex justify-center pt-3 pb-2">
@@ -120,7 +121,7 @@ const ScheduleEditor = ({
             {/* Title */}
             <div className="text-center px-6 pb-4">
               <h3 className="text-[16px] font-bold font-['Outfit'] text-white/70 tracking-wide uppercase">
-                Atur Jadwal
+                {t('habits.scheduleEditor.title')}
               </h3>
             </div>
 
@@ -128,6 +129,7 @@ const ScheduleEditor = ({
             <div className="flex gap-2 px-6 pb-5">
               {SCHEDULE_TYPE_OPTIONS.map((option) => {
                 const isActive = scheduleType === option.value;
+                const label = t(`habits.scheduleEditor.${option.value}`);
                 return (
                   <motion.button
                     key={option.value}
@@ -139,7 +141,7 @@ const ScheduleEditor = ({
                         : 'bg-[#1c1e22] text-white/40 border border-white/10 font-bold'
                     }`}
                   >
-                    {option.label}
+                    {label}
                   </motion.button>
                 );
               })}
@@ -157,7 +159,8 @@ const ScheduleEditor = ({
                   className="overflow-hidden"
                 >
                   <div className="flex justify-center gap-2 px-6 pb-4">
-                    {DAY_LABELS.map((label, index) => {
+                    {Array.from({ length: 7 }).map((_, index) => {
+                      const label = t(`schedule.days.short.${index}`);
                       const isSelected = selectedDays.includes(index);
                       return (
                         <motion.button
@@ -189,7 +192,7 @@ const ScheduleEditor = ({
                   exit={{ opacity: 0, y: -4 }}
                   className="text-center text-red-400 text-[12px] font-['Outfit'] font-medium pb-3"
                 >
-                  Pilih minimal 1 hari
+                  {t('habits.scheduleEditor.validation')}
                 </motion.p>
               )}
             </AnimatePresence>
@@ -203,7 +206,7 @@ const ScheduleEditor = ({
                 disabled={showDayPicker && selectedDays.length === 0}
                 className="w-full py-3.5 rounded-2xl border-[1.5px] border-[#00FF85]/40 bg-[#00FF85] text-[#141518] font-black font-['Outfit'] text-[14px] tracking-wide uppercase shadow-[4px_4px_0px_rgba(0,0,0,1)] active:shadow-[2px_2px_0px_rgba(0,0,0,1)] active:translate-x-[2px] active:translate-y-[2px] transition-all disabled:opacity-40 disabled:shadow-none disabled:active:translate-x-0 disabled:active:translate-y-0"
               >
-                SIMPAN
+                {t('habits.scheduleEditor.save')}
               </motion.button>
 
               {/* Cancel button */}
@@ -212,7 +215,7 @@ const ScheduleEditor = ({
                 onClick={onClose}
                 className="w-full py-2.5 text-white/50 font-bold font-['Outfit'] text-[13px] tracking-wide uppercase transition-colors active:text-white/70"
               >
-                Batal
+                {t('habits.scheduleEditor.cancel')}
               </motion.button>
             </div>
           </motion.div>

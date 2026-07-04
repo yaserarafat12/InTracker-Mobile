@@ -7,6 +7,7 @@ import { useUserStore } from '../../store/useUserStore';
 import { filterHabitsByDay } from '../../utils/scheduleHelpers';
 import { useHistoryLogs } from './useHistoryLogs';
 import { playNotifSfx } from '../../utils/sfx';
+import { useTranslation } from '../../i18n';
 
 const HabitReorderItem = ({ habit, index, type, handleDoubleTap, onEdit, reorderHabits }: any) => {
   const dragControls = useDragControls();
@@ -59,8 +60,9 @@ const DaftarHabit = ({
 }) => {
   const [lastTap, setLastTap] = useState(0);
   const { toggleHabit, reorderHabits } = useHabitStore();
-  const { profile } = useUserStore();
+  const { profile, settings } = useUserStore();
   const [showHint, setShowHint] = useState(true);
+  const { t, language } = useTranslation();
 
   React.useEffect(() => {
     // Hide if dismissed manually before
@@ -90,21 +92,47 @@ const DaftarHabit = ({
     toggleHabit(id, 'completed');
     if (onComplete) onComplete();
     if (navigator.vibrate) navigator.vibrate([10, 30, 10]);
-    playNotifSfx();
   };
 
   const todayDay = new Date().getDay();
   const selectedDay = selectedDate.getDay();
-  const { logs: historyLogs, loading: historyLoading, isHistorical } = useHistoryLogs(selectedDate);
+  const { logs: historyLogs, loading: historyLoading, isHistorical, refetch } = useHistoryLogs(selectedDate);
 
-  // If viewing a past date, show historical data using same card layout as today (read-only)
+  const isEditableDate = (date: Date) => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const target = new Date(date);
+    target.setHours(0, 0, 0, 0);
+    const diffTime = today.getTime() - target.getTime();
+    const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
+    return diffDays >= 0 && diffDays <= 3;
+  };
+  const isDateEditable = isEditableDate(selectedDate);
+
+  const handleHistoricalDoubleTap = async (id: string, isCompleted: boolean) => {
+    if (!isDateEditable) return;
+    await toggleHabit(id, 'completed', selectedDate, isCompleted);
+    if (refetch) refetch();
+    if (onComplete && !isCompleted) onComplete();
+    if (navigator.vibrate) navigator.vibrate([10, 30, 10]);
+  };
+
+  // If viewing a past date, show historical data using same card layout as today
   if (isHistorical) {
-    const scheduledHabits = filterHabitsByDay(habits, selectedDay);
+    const scheduledHabits = filterHabitsByDay(habits, selectedDay)
+      .filter((h: any) => {
+        if (!h.created_at) return true;
+        const created = new Date(h.created_at);
+        created.setHours(0, 0, 0, 0);
+        const target = new Date(selectedDate);
+        target.setHours(0, 0, 0, 0);
+        return target.getTime() >= created.getTime();
+      });
 
     if (historyLoading) {
       return (
         <div className="flex items-center justify-center py-20">
-          <span className="text-[13px] text-white/30">Memuat riwayat...</span>
+          <span className="text-[13px] text-white/30">{t('habits.loadingHistory')}</span>
         </div>
       );
     }
@@ -129,13 +157,23 @@ const DaftarHabit = ({
 
     if (filteredHistorical.length === 0) {
       const emptyMsg = activeFilter === 'selesai'
-        ? 'Tidak ada habit yang diselesaikan'
+        ? t('habits.emptyCompleted')
         : activeFilter === 'dilewati'
-        ? 'Tidak ada habit yang dilewati'
-        : 'Tidak ada habit yang terlewat';
+        ? t('habits.emptySkipped')
+        : t('habits.emptyMissed');
 
       return (
         <div className="pt-4 px-5 pb-36">
+          {settings.programPaused && (
+            <div className="mb-4 relative">
+              <div className="flex items-center gap-3 px-5 h-[52px] rounded-[16px] bg-[#FFB800]/15 border-[1.5px] border-[#FFB800]/30 w-full">
+                <Icon icon="solar:pause-circle-bold" className="text-[#FFB800] w-5 h-5 shrink-0" />
+                <p className="text-[#FFB800] text-[13px] font-['Outfit'] font-black tracking-wide">
+                  {language === 'Bahasa Indonesia' ? 'Program Anda sedang dalam masa jeda.' : 'Your program is currently paused.'}
+                </p>
+              </div>
+            </div>
+          )}
           <div className="flex flex-col items-center justify-center py-20">
             <div className="w-16 h-16 rounded-[22px] bg-[#2a2c32] border-[1.5px] border-white/5 flex items-center justify-center mb-6">
               <Icon icon="solar:clipboard-list-bold" width={28} className="text-[#E3DAC9]/20" />
@@ -148,9 +186,19 @@ const DaftarHabit = ({
       );
     }
 
-    // Render using same card style as today but without interaction
+    // Render using same card style as today with interaction if within 3 days
     return (
       <div className="pt-4 px-5 pb-36 min-h-screen overflow-x-hidden relative">
+        {settings.programPaused && (
+          <div className="mb-4 relative">
+            <div className="flex items-center gap-3 px-5 h-[52px] rounded-[16px] bg-[#FFB800]/15 border-[1.5px] border-[#FFB800]/30 w-full">
+              <Icon icon="solar:pause-circle-bold" className="text-[#FFB800] w-5 h-5 shrink-0" />
+              <p className="text-[#FFB800] text-[13px] font-['Outfit'] font-black tracking-wide">
+                {language === 'Bahasa Indonesia' ? 'Program Anda sedang dalam masa jeda.' : 'Your program is currently paused.'}
+              </p>
+            </div>
+          </div>
+        )}
         <motion.div
           key={`history-${activeFilter}`}
           initial={{ x: 20, opacity: 0 }}
@@ -170,8 +218,10 @@ const DaftarHabit = ({
                 habit={habit}
                 index={i}
                 activeFilter={activeFilter}
-                onDoubleTap={() => {}} // No-op for historical
-                isDraggable={false}
+                onDoubleTap={() => handleHistoricalDoubleTap(habit.id, habit.completed)}
+                isDraggable={isDateEditable}
+                selectedDate={selectedDate}
+                onHistoricalUpdate={refetch}
               />
             </motion.div>
           ))}
@@ -225,16 +275,19 @@ const DaftarHabit = ({
           {/* Tip hanya untuk tab berjalan */}
           {type === 'berjalan' && showHint && (
             <div className="mt-0 mb-4 relative">
-              <div className="flex items-center gap-3 px-5 h-[52px] rounded-[16px] bg-[#00FF85]/15 border-[1.5px] border-[#00FF85]/30 w-full">
-                <Icon icon="lucide:pointer" className="text-[#00FF85] w-5 h-5 shrink-0" />
-                <p className="text-[#00FF85] text-[13px] font-['Outfit'] font-black tracking-wide">
-                  Ketuk 2x untuk menyelesaikan tugas
+              <div className="flex items-center justify-center px-10 h-[52px] rounded-[16px] bg-[#00FF85]/15 border-[1.5px] border-[#00FF85]/30 w-full">
+                <p className="text-[#00FF85] text-[13px] font-['Outfit'] font-black tracking-wide text-center">
+                  {t('habits.doubleTapHint')}
                 </p>
               </div>
               {/* X button - top right corner, half inside half outside */}
               <button 
                 onClick={dismissHint} 
-                className="absolute -top-2 -right-2 w-7 h-7 flex items-center justify-center rounded-full bg-[#1a1a1a] border-[2px] border-black shadow-[2px_2px_0px_rgba(0,0,0,1)] text-white/60 hover:text-white"
+                className={`absolute -top-2 -right-2 w-7 h-7 flex items-center justify-center rounded-lg border-[2px] transition-all ${
+                  settings.theme === 'Light'
+                    ? 'bg-white border-black text-black shadow-[2px_2px_0px_rgba(0,0,0,1)]'
+                    : 'border-white/10 bg-[#2a2c32] text-white shadow-none'
+                }`}
               >
                 <Icon icon="ph:x-bold" width={12} />
               </button>
@@ -265,7 +318,7 @@ const DaftarHabit = ({
     // Determine empty state message and style for "berjalan" tab
     let emptyIcon = 'solar:clipboard-list-bold';
     let emptyTitle = '';
-    let emptySubtitle = 'Ketuk tombol <span class="text-[#00FF85]/40">(+)</span> untuk memulai';
+    let emptySubtitle = '';
     let titleColor = 'text-[#E3DAC9]/60';
     let iconColor = 'text-[#E3DAC9]/20';
     let iconBg = 'bg-[#2a2c32] border-white/5';
@@ -273,23 +326,23 @@ const DaftarHabit = ({
     if (type === 'berjalan') {
       if (allCompletedToday) {
         emptyIcon = 'solar:check-circle-bold';
-        emptyTitle = 'Semua habit hari ini selesai!';
+        emptyTitle = t('habits.allCompleted');
         emptySubtitle = '';
-        titleColor = 'text-[#00FF85]/80';
-        iconColor = 'text-[#00FF85]/60';
-        iconBg = 'bg-[#00FF85]/10 border-[#00FF85]/20';
+        titleColor = 'empty-completed-title';
+        iconColor = 'empty-completed-icon';
+        iconBg = 'empty-completed-icon-bg';
       } else if (hasHabitsButNoneToday) {
-        emptyTitle = 'Tidak ada habit yang dijadwalkan hari ini';
+        emptyTitle = t('habits.noneScheduled');
         emptySubtitle = '';
       } else if (hasZeroHabits) {
-        emptyTitle = 'Belum ada habit. Tap + untuk menambahkan';
+        emptyTitle = t('habits.zeroHabits');
       } else {
-        emptyTitle = 'Belum ada tugas hari ini';
+        emptyTitle = t('habits.noneActive');
       }
     } else if (type === 'selesai') {
-      emptyTitle = 'Belum ada tugas yang tuntas';
+      emptyTitle = t('habits.noneCompleted');
     } else {
-      emptyTitle = 'Belum ada tugas yang dilewati';
+      emptyTitle = t('habits.noneSkipped');
     }
 
     return (
@@ -311,9 +364,10 @@ const DaftarHabit = ({
                 <Icon icon={emptyIcon} width={28} height={28} className={iconColor} />
              </div>
              
-             <h3 className={`font-black text-[15px] tracking-[0.1em] ${titleColor} uppercase font-['Outfit'] text-center px-8 leading-tight`}>
-               {emptyTitle}
-             </h3>
+             <h3 
+               className={`font-black text-[15px] tracking-wide ${titleColor} font-['Outfit'] text-center px-8 leading-tight`}
+               dangerouslySetInnerHTML={{ __html: emptyTitle }}
+             />
              
              {emptySubtitle && (
                <p className="mt-3 text-[11px] text-[#E3DAC9]/20 font-medium tracking-wide uppercase"
@@ -328,6 +382,16 @@ const DaftarHabit = ({
 
   return (
     <div className="pt-4 px-5 pb-36 min-h-screen overflow-x-hidden relative">
+      {settings.programPaused && (
+        <div className="mb-4 relative">
+          <div className="flex items-center gap-3 px-5 h-[52px] rounded-[16px] bg-[#FFB800]/15 border-[1.5px] border-[#FFB800]/30 w-full">
+            <Icon icon="solar:pause-circle-bold" className="text-[#FFB800] w-5 h-5 shrink-0" />
+            <p className="text-[#FFB800] text-[13px] font-['Outfit'] font-black tracking-wide">
+              {language === 'Bahasa Indonesia' ? 'Program Anda sedang dalam masa jeda.' : 'Your program is currently paused.'}
+            </p>
+          </div>
+        </div>
+      )}
       <AnimatePresence mode="wait">
         {activeFilter === 'berjalan'
           ? renderDisplay(todoHabits, 'berjalan')
@@ -346,7 +410,7 @@ const DaftarHabit = ({
             if (navigator.vibrate) navigator.vibrate(20);
             onAddHabit();
           }}
-          className="fixed bottom-24 right-6 w-[60px] h-[60px] bg-[#00FF85] border-[2px] border-black rounded-2xl shadow-[5px_5px_0px_rgba(0,0,0,1)] flex items-center justify-center z-[60]"
+          className="fixed bottom-24 right-6 w-[60px] h-[60px] bg-os-green border-[2px] border-black rounded-2xl shadow-[5px_5px_0px_rgba(0,0,0,1)] flex items-center justify-center z-[60]"
         >
           <svg width="30" height="30" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M12 5V19M5 12H19" stroke="black" strokeWidth="5" strokeLinecap="square" />

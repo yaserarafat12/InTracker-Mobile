@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Icon } from '@iconify/react';
 import { supabase } from '../lib/supabase';
+import { useUserStore } from '../store/useUserStore';
 
 export default function Login() {
   const navigate = useNavigate();
@@ -63,26 +64,48 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-black text-white font-['Inter'] relative flex flex-col overflow-hidden select-none">
+    <div className="login-page min-h-screen bg-black text-white font-['Inter'] relative flex flex-col overflow-hidden select-none">
       
       {/* 1. BACKGROUND VISUAL */}
-      <div className="absolute top-0 left-0 w-full h-[75vh] z-0 overflow-hidden">
+      <div className="absolute inset-0 z-0 overflow-hidden bg-[#0d0f12]">
         <motion.img
-          key="bg-png-fixed"
-          initial={{ opacity: 0, scale: 1.1 }}
-          animate={{ opacity: 1, scale: 1 }}
+          key="bg-statistik"
+          initial={{ opacity: 0, scale: 1.05 }}
+          animate={{ opacity: 0.7, scale: 1 }}
           transition={{ duration: 1.5, ease: "easeOut" as const }}
-          src="/all_images/antigravitybg/1.png" 
-          className="w-full h-full object-cover object-[center_12vh]" 
+          src="/all_images/antigravitybg/statistik_bg.png" 
+          className="w-full h-full object-cover opacity-70" 
+          onError={(e) => {
+            (e.target as HTMLElement).style.display = 'none';
+          }}
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black" />
+        
+        {/* Glow Effects */}
+        <div className="absolute top-[-20%] left-[-20%] w-[60%] h-[60%] rounded-full bg-[#00FF85]/10 blur-[150px] pointer-events-none" />
+        <div className="absolute bottom-[-20%] right-[-20%] w-[60%] h-[60%] rounded-full bg-[#00FF85]/5 blur-[150px] pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#0d0f12]/20 to-[#0d0f12]" />
       </div>
 
       {/* 1.5 INVISIBLE GUEST MODE BUTTON */}
       <button 
         onClick={() => {
           localStorage.setItem('guest_mode', 'true');
-          navigate('/name');
+          
+          // Clear profile and settings in store to start completely fresh
+          useUserStore.setState({ 
+            profile: null,
+            settings: {
+              ...useUserStore.getState().settings,
+              pausedDays: [],
+              programPaused: false
+            }
+          });
+          
+          // Remove guest profile from localStorage to force recreation on mount
+          localStorage.removeItem('intracker-guest-profile');
+
+          // Navigate directly to habits
+          navigate('/habits');
         }}
         className="absolute top-0 right-0 w-24 h-24 z-[100] opacity-0 cursor-default"
         title="Guest Mode"
@@ -100,7 +123,7 @@ export default function Login() {
               exit={{ opacity: 0 }}
               className="w-full"
             >
-              <div className="text-center mb-[5vh]">
+              <div className="text-center mb-[2.5vh]">
                 <h1 className="text-[24px] font-medium leading-[1.3] tracking-normal text-white/95 font-['Outfit']">
                   Mulailah perjalananmu<br />
                   dengan <span className="text-[#00FF85] font-semibold">semua usahamu.</span>
@@ -116,13 +139,13 @@ export default function Login() {
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="black">
                     <path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.7 9.05 7.42c1.27.07 2.15.62 2.88.65.95-.17 1.85-.77 2.9-.7 1.23.1 2.15.58 2.75 1.45-2.5 1.5-1.85 4.76.5 5.7-.42 1.2-.98 2.36-1.03 5.76zm-5.35-13.1c-.08-2.26 1.68-4.2 3.98-4.48.27 2.56-2.25 4.7-3.98 4.48z" />
                   </svg>
-                  <span className="text-[14px] font-black text-black tracking-normal font-['Outfit'] uppercase">Lanjutkan dengan Apple</span>
+                  <span className="text-[14px] font-black text-black tracking-normal font-['Outfit']">Lanjutkan dengan Apple</span>
                 </button>
 
                 {/* GOOGLE LOGIN */}
                 <button
                   onClick={handleGoogle}
-                  className="w-full flex items-center justify-center gap-3 py-[14px] rounded-xl bg-[#1A1A1A] border-[1.5px] border-[#E3DAC9]/20 shadow-[5px_5px_0px_rgba(0,0,0,1)] active:scale-[0.97] active:shadow-none transition-all"
+                  className="w-full flex items-center justify-center gap-3 py-[14px] rounded-xl bg-black border-[2.5px] border-white shadow-[5px_5px_0px_rgba(0,0,0,1)] active:scale-[0.97] active:shadow-none transition-all"
                 >
                   <svg width="18" height="18" viewBox="0 0 24 24">
                     <path fill="#EA4335" d="M12 5.04c1.64 0 3.12.56 4.28 1.67l3.21-3.21C17.39 1.54 14.92 1 12 1 7.31 1 3.28 3.69 1.42 7.61l3.77 2.92C6.09 7.42 8.81 5.04 12 5.04z" />
@@ -130,16 +153,21 @@ export default function Login() {
                     <path fill="#FBBC05" d="M5.19 14.54a7.28 7.28 0 0 1 0-5.08L1.42 6.54c-.81 1.62-1.42 3.42-1.42 5.46s.61 3.84 1.42 5.46l3.77-2.92z" />
                     <path fill="#34A853" d="M12 23c2.97 0 5.47-.98 7.28-2.66l-3.69-2.87c-1 .67-2.28 1.07-3.59 1.07-3.19 0-5.91-2.38-6.81-5.49l-3.77 2.92C3.28 20.31 7.31 23 12 23z" />
                   </svg>
-                  <span className="text-[14px] font-black text-white tracking-normal font-['Outfit'] uppercase">Lanjutkan dengan Google</span>
+                  <span className="text-[14px] font-black text-white tracking-normal font-['Outfit']">Lanjutkan dengan Google</span>
                 </button>
 
                 {/* EMAIL LOGIN */}
                 <button
                   onClick={() => setView('email')}
-                  className="w-full flex items-center justify-center gap-3 py-[14px] rounded-xl bg-[#1A1A1A] border-[1.5px] border-[#E3DAC9]/20 shadow-[5px_5px_0px_rgba(0,0,0,1)] active:scale-[0.97] active:shadow-none transition-all"
+                  className="w-full flex items-center justify-center gap-3 py-[14px] rounded-xl bg-black border-[2.5px] border-white shadow-[5px_5px_0px_rgba(0,0,0,1)] active:scale-[0.97] active:shadow-none transition-all"
                 >
-                  <Icon icon="solar:letter-bold" width={18} height={18} className="text-[#00FF85]" />
-                  <span className="text-[14px] font-black text-white tracking-normal font-['Outfit'] uppercase">Lanjutkan dengan Email</span>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M20 18H18V8L12 12L6 8V18H4V6C4 5.12 4.72 4.4 5.6 4.4H8.4L12 7.6L15.6 4.4H18.4C19.28 4.4 20 5.12 20 6V18Z" fill="#EA4335" />
+                    <path d="M4 18V6C4 5.12 4.72 4.4 5.6 4.4H8.4L10 6V18H4Z" fill="#4285F4" />
+                    <path d="M20 18V6C20 5.12 19.28 4.4 18.4 4.4H15.6L14 6V18H20Z" fill="#34A853" />
+                    <path d="M10 6L12 7.6L14 6V18H10V6Z" fill="#FBBC05" />
+                  </svg>
+                  <span className="text-[14px] font-black text-white tracking-normal font-['Outfit']">Lanjutkan dengan Email</span>
                 </button>
               </div>
             </motion.div>
@@ -179,7 +207,7 @@ export default function Login() {
                   className={`w-full flex items-center justify-center gap-3 py-[16px] rounded-xl font-black text-[15px] tracking-[0.1em] transition-all uppercase ${
                     loading || !email 
                     ? 'bg-white/5 text-white/20 cursor-not-allowed' 
-                    : 'bg-[#00FF85] text-black border-[2px] border-black shadow-[6px_6px_0px_rgba(0,0,0,1)] active:scale-[0.97] active:shadow-none'
+                    : 'bg-os-green text-black border-[2px] border-black shadow-[6px_6px_0px_rgba(0,0,0,1)] active:scale-[0.97] active:shadow-none'
                   }`}
                 >
                   {loading ? 'Mengirim...' : 'Kirim Link Login'}
@@ -201,7 +229,7 @@ export default function Login() {
             exit={{ opacity: 0, y: 20 }}
             className="fixed bottom-[10vh] left-1/2 -translate-x-1/2 bg-[#1A1A1A] border border-[#E3DAC9]/20 px-8 py-4 rounded-2xl backdrop-blur-xl z-[60] shadow-[8px_8px_0px_rgba(0,0,0,1)] flex items-center gap-3"
           >
-            <div className={`w-2 h-2 rounded-full ${error ? 'bg-red-500' : 'bg-[#00FF85]'}`} />
+            <div className={`w-2 h-2 rounded-full ${error ? 'bg-red-500' : 'bg-os-green'}`} />
             <p className="text-[13px] text-white font-bold font-['Outfit'] tracking-wide uppercase">{error || message}</p>
           </motion.div>
         )}

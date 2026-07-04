@@ -78,7 +78,7 @@ export default function Nickname() {
               placeholder="Ketikkan nama panggilanmu..."
               value={nickname}
               onChange={(e) => setNickname(e.target.value)}
-              className="w-full bg-white/5 border border-white/10 rounded-2xl py-5 px-6 text-[18px] outline-none focus:border-[#00FF85]/40 focus:bg-white/10 backdrop-blur-xl transition-all text-center placeholder:text-white/20 font-medium shadow-2xl"
+              className="w-full bg-white/5 border border-white/10 rounded-2xl py-5 px-6 text-[18px] outline-none focus:border-os-green/40 focus:bg-white/10 backdrop-blur-xl transition-all text-center placeholder:text-white/20 font-medium shadow-2xl"
             />
           </motion.div>
         </div>
@@ -97,7 +97,7 @@ export default function Nickname() {
             disabled={!nickname || isSaving}
             className={`w-full py-4 rounded-xl font-extrabold text-[14px] uppercase tracking-[0.2em] transition-all duration-300 ${
               nickname && !isSaving
-              ? "bg-[#00FF85] text-[#050A07] shadow-[0_0_25px_rgba(0,255,133,0.2)] active:scale-95" 
+              ? "bg-os-green text-[#050A07] shadow-[0_0_25px_rgba(0,242,149,0.2)] active:scale-95" 
               : "bg-white/5 text-white/10 cursor-not-allowed"
             }`}
           >

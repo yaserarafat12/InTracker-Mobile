@@ -1,5 +1,6 @@
 import { useRef, useEffect, useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useTranslation } from '../../i18n';
 
 export interface IntensityPickerProps {
   options: number[];
@@ -13,6 +14,7 @@ const ITEM_HEIGHT = 52;
 const VISIBLE_ITEMS = 5;
 
 const IntensityPicker = ({ options, unit, defaultValue, onConfirm, onCancel }: IntensityPickerProps) => {
+  const { t } = useTranslation();
   const scrollRef = useRef<HTMLDivElement>(null);
   const [selectedIndex, setSelectedIndex] = useState(() => {
     const idx = options.indexOf(defaultValue);
@@ -134,7 +136,7 @@ const IntensityPicker = ({ options, unit, defaultValue, onConfirm, onCancel }: I
           {/* Title */}
           <div className="text-center px-6 pb-4">
             <h3 className="text-[16px] font-bold font-['Outfit'] text-white/70 tracking-wide uppercase">
-              Pilih Intensitas
+              {t('habits.picker.title')}
             </h3>
           </div>
 
@@ -217,7 +219,7 @@ const IntensityPicker = ({ options, unit, defaultValue, onConfirm, onCancel }: I
               onClick={onCancel}
               className="flex-1 py-3.5 rounded-2xl border-[1.5px] border-white/15 bg-white/5 text-white/60 font-bold font-['Outfit'] text-[14px] tracking-wide uppercase transition-colors active:bg-white/10"
             >
-              Batal
+              {t('habits.picker.cancel')}
             </motion.button>
             <motion.button
               whileTap={{ scale: 0.95 }}
@@ -225,7 +227,7 @@ const IntensityPicker = ({ options, unit, defaultValue, onConfirm, onCancel }: I
               disabled={isConfirming}
               className="flex-1 py-3.5 rounded-2xl border-[1.5px] border-[#00FF85]/40 bg-[#00FF85] text-[#141518] font-black font-['Outfit'] text-[14px] tracking-wide uppercase shadow-[4px_4px_0px_rgba(0,0,0,1)] active:shadow-[2px_2px_0px_rgba(0,0,0,1)] active:translate-x-[2px] active:translate-y-[2px] transition-all disabled:opacity-50"
             >
-              Selesai
+              {t('habits.picker.confirm')}
             </motion.button>
           </div>
         </motion.div>

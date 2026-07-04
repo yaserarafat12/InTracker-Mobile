@@ -1,36 +1,37 @@
-import { useState, useRef, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { Icon } from '@iconify/react';
 import { motion } from 'framer-motion';
 
 const TRACK_URL = '/sound/lofi_main.mp3';
 
+// Module-level global Audio singleton
+let globalAudio: HTMLAudioElement | null = null;
+
+const getGlobalAudio = () => {
+  if (typeof window === 'undefined') return null;
+  if (!globalAudio) {
+    globalAudio = new Audio(TRACK_URL);
+    globalAudio.loop = true;
+    globalAudio.volume = 0.5;
+  }
+  return globalAudio;
+};
+
 export const AmbientPlayer = () => {
   const [isOn, setIsOn] = useState(false);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
 
-  // Lazy init audio element on first click (browser autoplay policy)
-  const getAudio = useCallback(() => {
-    if (!audioRef.current) {
-      audioRef.current = new Audio(TRACK_URL);
-      audioRef.current.loop = true;
-      audioRef.current.volume = 0.5;
-    }
-    return audioRef.current;
-  }, []);
-
-  // Cleanup on unmount — stop audio
+  // Sync state with global audio on mount
   useEffect(() => {
-    return () => {
-      if (audioRef.current) {
-        audioRef.current.pause();
-        audioRef.current.src = '';
-        audioRef.current = null;
-      }
-    };
+    const audio = getGlobalAudio();
+    if (audio) {
+      setIsOn(!audio.paused && audio.src !== '');
+    }
   }, []);
 
   const handleToggle = () => {
-    const audio = getAudio();
+    const audio = getGlobalAudio();
+    if (!audio) return;
+
     if (isOn) {
       audio.pause();
       audio.currentTime = 0;
@@ -47,7 +48,7 @@ export const AmbientPlayer = () => {
       <motion.button
         whileTap={{ x: 2, y: 2, boxShadow: '0px 0px 0px rgba(0,0,0,1)' }}
         onClick={handleToggle}
-        className="w-11 h-11 bg-[#00FF85] rounded-xl shadow-[4px_4px_0px_rgba(0,0,0,1)] flex items-center justify-center transition-all"
+        className="w-11 h-11 bg-os-green rounded-xl shadow-[4px_4px_0px_rgba(0,0,0,1)] flex items-center justify-center transition-all"
       >
         {isOn ? (
           <div className="flex items-end gap-[2px] h-5 px-1">

@@ -23,7 +23,7 @@ function SingleBar({ label, consumed, target, fillPercentage, isOver, color }: S
           {Math.round(consumed)}g / {Math.round(target)}g
         </span>
       </div>
-      <div className="h-2.5 bg-white/6 rounded-full overflow-hidden">
+      <div className="h-2.5 bg-white/[0.06] rounded-full overflow-hidden">
         <motion.div
           className="h-full rounded-full"
           style={{ backgroundColor: isOver ? '#FF4D00' : color, boxShadow: `0 0 8px ${isOver ? '#FF4D00' : color}80` }}

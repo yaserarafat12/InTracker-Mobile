@@ -4,7 +4,10 @@ import { Icon } from '@iconify/react';
 import { useFoodLogStore } from '../../store/useFoodLogStore';
 import { getMealTypeByTime } from '../../engines/foodLogEngine';
 import { searchUsda } from '../../lib/usdaApi';
+import { searchLocalDatabase, LOCAL_FOOD_DATABASE } from '../../lib/localFoodDatabase';
 import { supabase } from '../../lib/supabase';
+import { useTranslation } from '../../i18n';
+import { useUserStore } from '../../store/useUserStore';
 import type { MealType } from '../../engines/foodLogEngine';
 import type { UsdaSearchResult } from '../../lib/usdaApi';
 
@@ -29,12 +32,90 @@ interface FormErrors {
   calories?: string;
 }
 
+function localizeFoodName(foodName: string, lang: string): string {
+  const isIndonesian = lang === 'Bahasa Indonesia';
+  const match = LOCAL_FOOD_DATABASE.find(
+    (item) =>
+      item.name.toLowerCase() === foodName.toLowerCase() ||
+      item.nameEn.toLowerCase() === foodName.toLowerCase()
+  );
+  if (match) {
+    return isIndonesian ? match.name : match.nameEn;
+  }
+  return foodName;
+}
+
+// ─── Built-in Indonesian → English food translation dictionary ──────────────
+// Used as instant local fallback so searches work even without a Supabase
+// food_translations table or internet connection.
+const ID_TO_EN_FOOD_DICT: Record<string, string> = {
+  // Proteins
+  'ayam': 'chicken', 'daging': 'beef', 'ikan': 'fish', 'telur': 'egg',
+  'udang': 'shrimp', 'cumi': 'squid', 'kepiting': 'crab', 'tuna': 'tuna',
+  'salmon': 'salmon', 'sarden': 'sardine', 'daging sapi': 'beef',
+  'daging babi': 'pork', 'kambing': 'lamb', 'bebek': 'duck',
+  'tempe': 'tempeh', 'tahu': 'tofu', 'kacang': 'bean', 'kacang tanah': 'peanut',
+  'kacang merah': 'kidney bean', 'kacang kedelai': 'soybean',
+  // Grains & Carbs
+  'nasi': 'rice', 'nasi putih': 'white rice', 'nasi merah': 'brown rice',
+  'nasi goreng': 'fried rice', 'roti': 'bread', 'mie': 'noodle',
+  'pasta': 'pasta', 'kentang': 'potato', 'singkong': 'cassava',
+  'jagung': 'corn', 'ubi': 'sweet potato', 'oatmeal': 'oatmeal',
+  'gandum': 'wheat', 'quinoa': 'quinoa', 'sagu': 'sago',
+  // Vegetables
+  'bayam': 'spinach', 'kangkung': 'water spinach', 'brokoli': 'broccoli',
+  'wortel': 'carrot', 'tomat': 'tomato', 'timun': 'cucumber',
+  'terong': 'eggplant', 'buncis': 'green bean', 'kubis': 'cabbage',
+  'selada': 'lettuce', 'paprika': 'bell pepper', 'bawang': 'onion',
+  'bawang putih': 'garlic', 'bawang merah': 'shallot', 'jahe': 'ginger',
+  'kunyit': 'turmeric', 'labu': 'pumpkin', 'pare': 'bitter melon',
+  'kacang panjang': 'long bean', 'daun singkong': 'cassava leaf',
+  // Fruits
+  'pisang': 'banana', 'apel': 'apple', 'jeruk': 'orange', 'mangga': 'mango',
+  'nanas': 'pineapple', 'semangka': 'watermelon', 'pepaya': 'papaya',
+  'melon': 'melon', 'anggur': 'grape', 'stroberi': 'strawberry',
+  'alpukat': 'avocado', 'durian': 'durian', 'rambutan': 'rambutan',
+  'lemon': 'lemon', 'kelapa': 'coconut', 'kelapa muda': 'coconut water',
+  // Dairy & Eggs
+  'susu': 'milk', 'keju': 'cheese', 'yoghurt': 'yogurt', 'yogurt': 'yogurt',
+  'mentega': 'butter', 'krim': 'cream', 'es krim': 'ice cream',
+  // Oils & Fats
+  'minyak': 'oil', 'minyak goreng': 'cooking oil', 'minyak zaitun': 'olive oil',
+  'minyak kelapa': 'coconut oil', 'margarin': 'margarine',
+  // Snacks & Sweets
+  'coklat': 'chocolate', 'kue': 'cake', 'biskuit': 'biscuit', 'keripik': 'chips',
+  'permen': 'candy', 'madu': 'honey', 'gula': 'sugar', 'gula merah': 'brown sugar',
+  'selai': 'jam', 'selai kacang': 'peanut butter',
+  // Drinks
+  'kopi': 'coffee', 'teh': 'tea', 'jus': 'juice', 'air': 'water',
+  // Indonesian dishes
+  'rendang': 'rendang beef', 'soto': 'soto soup', 'gado-gado': 'gado gado',
+  'sate': 'satay', 'bakso': 'meatball soup', 'mie goreng': 'fried noodle',
+  'nasi uduk': 'coconut rice', 'opor': 'chicken opor', 'gulai': 'curry',
+  'pecel': 'pecel vegetable salad', 'rawon': 'rawon beef soup',
+  'tongseng': 'tongseng', 'semur': 'semur', 'capcay': 'cap cay',
+  'lumpia': 'spring roll', 'martabak': 'martabak', 'siomay': 'siomay',
+  'bubur': 'porridge', 'bubur ayam': 'chicken porridge',
+  'pempek': 'pempek fish cake', 'ketoprak': 'ketoprak tofu',
+  'lontong': 'rice cake', 'ketupat': 'rice cake',
+};
+
+/** Translates an Indonesian food query to English using local dict then Supabase. */
 async function translateQuery(query: string): Promise<string> {
+  const q = query.toLowerCase().trim();
+  // 1. Try exact match in local dict
+  if (ID_TO_EN_FOOD_DICT[q]) return ID_TO_EN_FOOD_DICT[q];
+  // 2. Try partial/prefix match in local dict (e.g. "ayam goreng" → key "ayam")
+  const partialKey = Object.keys(ID_TO_EN_FOOD_DICT).find(
+    (key) => q.startsWith(key) || key.startsWith(q)
+  );
+  if (partialKey) return ID_TO_EN_FOOD_DICT[partialKey];
+  // 3. Try Supabase food_translations table as extended lookup
   try {
-    const { data } = await supabase.from('food_translations').select('english_term').ilike('indonesian_term', query.toLowerCase().trim()).limit(1);
+    const { data } = await supabase.from('food_translations').select('english_term').ilike('indonesian_term', q).limit(1);
     if (data && data.length > 0) return data[0].english_term;
-    return query;
-  } catch { return query; }
+  } catch { /* ignore */ }
+  return query; // fallback: original query unchanged
 }
 
 async function searchLocalFoods(query: string): Promise<SearchResult[]> {
@@ -57,27 +138,84 @@ async function cacheUsdaResult(result: SearchResult): Promise<void> {
   try { await supabase.from('food_items').upsert({ food_name: result.name, category: 'Uncategorized', serving_description: result.serving, serving_weight_grams: parseFloat(result.serving) || 100, calories: result.calories, protein: result.protein, carbs: result.carbs, fat: result.fat, data_source: 'usda', usda_fdc_id: result.fdcId, search_terms: [result.name.toLowerCase()] }, { onConflict: 'usda_fdc_id' }); } catch {}
 }
 
-async function searchFoods(query: string): Promise<{ results: SearchResult[]; isOffline: boolean }> {
+async function searchFoods(query: string, lang: string): Promise<{ results: SearchResult[]; isOffline: boolean }> {
   const isOnline = navigator.onLine;
-  let translatedQuery = query;
-  if (isOnline) translatedQuery = await translateQuery(query);
-  const localResultsPromise = searchLocalFoods(query);
-  if (!isOnline) { const localResults = await localResultsPromise; return { results: localResults, isOffline: true }; }
-  const [localResults, usdaResults] = await Promise.all([localResultsPromise, searchUsdaFoods(translatedQuery)]);
-  const localNames = new Set(localResults.map((r) => r.name.toLowerCase()));
-  const filteredUsda = usdaResults.filter((r) => !localNames.has(r.name.toLowerCase()));
-  return { results: [...localResults, ...filteredUsda].slice(0, 20), isOffline: false };
+  const q = query.trim();
+
+  // --- 1. Search curated local database FIRST (highest priority, no network needed) ---
+  const curatedItems = searchLocalDatabase(q, lang);
+  const curatedResults: SearchResult[] = curatedItems.map((item) => ({
+    name: item.displayName,   // language-appropriate name
+    serving: item.serving,
+    calories: item.calories,
+    protein: item.protein,
+    carbs: item.carbs,
+    fat: item.fat,
+    source: 'local' as const,
+  }));
+
+  // Translate query (using local dict + optional Supabase)
+  const translatedQuery = isOnline ? await translateQuery(q) : q;
+  const isSameQuery = translatedQuery.toLowerCase() === q.toLowerCase();
+
+  // Local DB search — try both original and translated term
+  const localSearches = isSameQuery
+    ? [searchLocalFoods(q)]
+    : [searchLocalFoods(q), searchLocalFoods(translatedQuery)];
+
+  if (!isOnline) {
+    const allLocal = await Promise.all(localSearches);
+    const curatedNames = new Set(curatedResults.map((r) => r.name.toLowerCase()));
+    const extraLocal = dedupeByName(allLocal.flat()).filter((r) => !curatedNames.has(r.name.toLowerCase()));
+    return { results: dedupeByName([...curatedResults, ...extraLocal]).slice(0, 20), isOffline: true };
+  }
+
+  // Online: search Supabase local DB + USDA in parallel
+  const usdaSearches = isSameQuery
+    ? [searchUsdaFoods(translatedQuery)]
+    : [searchUsdaFoods(translatedQuery), searchUsdaFoods(q)];
+
+  const [allLocal, allUsda] = await Promise.all([
+    Promise.all(localSearches),
+    Promise.all(usdaSearches),
+  ]);
+
+  // Merge: curated first, then Supabase local, then USDA (deduplicated)
+  const curatedNames = new Set(curatedResults.map((r) => r.name.toLowerCase()));
+  const supabaseResults = dedupeByName(allLocal.flat()).filter((r) => !curatedNames.has(r.name.toLowerCase()));
+  const allKnownNames = new Set([...curatedResults, ...supabaseResults].map((r) => r.name.toLowerCase()));
+  const usdaResults = dedupeByName(allUsda.flat()).filter((r) => !allKnownNames.has(r.name.toLowerCase()));
+
+  return {
+    results: [...curatedResults, ...supabaseResults, ...usdaResults].slice(0, 20),
+    isOffline: false,
+  };
 }
 
-const MEAL_TYPES: { id: MealType; label: string }[] = [
-  { id: 'breakfast', label: 'Sarapan' },
-  { id: 'lunch', label: 'Makan Siang' },
-  { id: 'dinner', label: 'Makan Malam' },
-  { id: 'snack', label: 'Cemilan' },
-];
+/** Remove duplicate search results by name (case-insensitive, keep first occurrence). */
+function dedupeByName(results: SearchResult[]): SearchResult[] {
+  const seen = new Set<string>();
+  return results.filter((r) => {
+    const key = r.name.toLowerCase();
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
 
 export function QuickAddSheet({ isOpen, onClose }: QuickAddSheetProps) {
   const { addEntry, selectedDate } = useFoodLogStore();
+  const { t, language } = useTranslation();
+  const { settings } = useUserStore();
+  const isLight = !document.documentElement.classList.contains('dark');
+
+  const MEAL_TYPES: { id: MealType; label: string }[] = [
+    { id: 'breakfast', label: t('nutrition.breakfast') },
+    { id: 'lunch',     label: t('nutrition.lunch') },
+    { id: 'dinner',    label: t('nutrition.dinner') },
+    { id: 'snack',     label: t('nutrition.snack') },
+  ];
   const [mealType, setMealType] = useState<MealType>(() => getMealTypeByTime(new Date().getHours()));
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
@@ -100,11 +238,11 @@ export function QuickAddSheet({ isOpen, onClose }: QuickAddSheetProps) {
     if (searchQuery.length < 2) { setSearchResults([]); setIsSearching(false); setSearchError(false); setIsOffline(false); return; }
     setIsSearching(true); setSearchError(false);
     searchTimeoutRef.current = setTimeout(async () => {
-      try { const { results, isOffline: offline } = await searchFoods(searchQuery); setSearchResults(results.slice(0, 20)); setIsOffline(offline); setIsSearching(false); }
+      try { const { results, isOffline: offline } = await searchFoods(searchQuery, language); setSearchResults(results.slice(0, 20)); setIsOffline(offline); setIsSearching(false); }
       catch { setSearchError(true); setIsSearching(false); setSearchResults([]); }
     }, 400);
     return () => { if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current); };
-  }, [searchQuery]);
+  }, [searchQuery, language]);
 
   const handleApplyResult = useCallback((result: SearchResult) => {
     setFoodName(result.name); setCalories(String(result.calories)); setProtein(String(result.protein)); setCarbs(String(result.carbs)); setFat(String(result.fat));
@@ -135,14 +273,34 @@ export function QuickAddSheet({ isOpen, onClose }: QuickAddSheetProps) {
     onClose();
   }, [validate, addEntry, selectedDate, mealType, foodName, calories, protein, carbs, fat, appliedSource, onClose]);
 
+  // Most frequently used foods (top 5 by count)
+  const { entries: allEntries } = useFoodLogStore();
+  const [showAllFrequent, setShowAllFrequent] = useState(false);
+  const frequentFoods = (() => {
+    const countMap = new Map<string, { count: number; entry: typeof allEntries[0] }>();
+    allEntries.filter(e => !e.isDeleted && e.foodName).forEach(e => {
+      const existing = countMap.get(e.foodName);
+      if (existing) existing.count++;
+      else countMap.set(e.foodName, { count: 1, entry: e });
+    });
+    return [...countMap.values()].sort((a, b) => b.count - a.count).slice(0, 8).map(x => x.entry);
+  })();
+
   return (
     <AnimatePresence>
       {isOpen && (
-        <>
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-[#16181c] z-[200] flex flex-col">
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="nutrition-overlay fixed inset-0 bg-[#16181c] z-[200] flex flex-col">
             <div className="flex items-center justify-between px-6 pt-14 pb-3">
-              <motion.button whileTap={{ scale: 0.9 }} onClick={onClose} className="w-9 h-9 rounded-xl bg-[#2a2c32] border border-white/10 flex items-center justify-center">
-                <Icon icon="ph:arrow-left-bold" width={16} className="text-white/60" />
+              <motion.button 
+                whileTap={{ scale: 0.9 }} 
+                onClick={onClose} 
+                className={`w-9 h-9 rounded-xl border-[2px] flex items-center justify-center transition-all ${
+                  isLight
+                    ? 'bg-white border-black text-black shadow-[3px_3px_0px_rgba(0,0,0,0.65)]'
+                    : 'border-white/10 bg-[#2a2c32] text-white shadow-none'
+                }`}
+              >
+                <Icon icon="ph:arrow-left-bold" width={16} />
               </motion.button>
               <h2 className="text-[18px] font-black font-['Outfit'] text-white">Tambah Cepat</h2>
               <div className="w-9" />
@@ -174,7 +332,13 @@ export function QuickAddSheet({ isOpen, onClose }: QuickAddSheetProps) {
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2"><p className="text-[13px] font-bold font-['Outfit'] text-white truncate">{result.name}</p>{result.source === 'usda' && <span className="shrink-0 px-1.5 py-0.5 rounded bg-[#4A90D9]/20 border border-[#4A90D9]/30 text-[9px] font-bold text-[#4A90D9] uppercase">USDA</span>}</div>
                           <p className="text-[11px] text-white/30">{result.serving}</p>
-                          <p className="text-[10px] text-white/40 mt-0.5">P: {result.protein}g · C: {result.carbs}g · F: {result.fat}g</p>
+                          <p className="text-[10px] font-['Outfit'] font-semibold tracking-normal mt-0.5">
+                            <span className="text-[#00FF85]">P: {result.protein}g</span>
+                            <span className="text-white/20">  </span>
+                            <span className="text-[#FFB800]">C: {result.carbs}g</span>
+                            <span className="text-white/20">  </span>
+                            <span className="text-[#FF6B6B]">F: {result.fat}g</span>
+                          </p>
                         </div>
                         <motion.button whileTap={{ scale: 0.9 }} onClick={() => handleApplyResult(result)} className="px-3 py-1.5 rounded-lg bg-[#00FF85]/10 border border-[#00FF85]/30 text-[11px] font-bold text-[#00FF85] shrink-0">Pakai</motion.button>
                       </div>
@@ -182,32 +346,40 @@ export function QuickAddSheet({ isOpen, onClose }: QuickAddSheetProps) {
                   </div>
                 )}
                 {searchQuery.length >= 2 && !isSearching && !searchError && searchResults.length === 0 && <p className="text-[11px] text-white/30 mt-3 ml-1">Tidak ditemukan. Coba kata lain atau tambah manual.</p>}
-                {/* Recent foods - show when not searching */}
-                {searchQuery.length < 2 && (() => {
-                  const recentEntries = useFoodLogStore.getState().entries
-                    .filter(e => !e.isDeleted && e.foodName)
-                    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-                    .filter((e, i, arr) => arr.findIndex(x => x.foodName === e.foodName) === i)
-                    .slice(0, 5);
-                  if (recentEntries.length === 0) return null;
-                  return (
+                {/* Frequent foods - show when not searching */}
+                {searchQuery.length < 2 && frequentFoods.length > 0 && (
                     <div className="mt-3">
-                      <p className="text-[10px] font-black text-white/30 uppercase tracking-[0.15em] mb-2">Terakhir Ditambah</p>
+                      <p className="text-[10px] font-black text-white/30 uppercase tracking-[0.15em] mb-2">Sering Ditambah</p>
                       <div className="space-y-2">
-                        {recentEntries.map((entry, i) => (
-                          <motion.button key={`recent-${i}`} whileTap={{ scale: 0.98 }} onClick={() => handleApplyResult({ name: entry.foodName, serving: '', calories: entry.calories, protein: entry.protein, carbs: entry.carbs, fat: entry.fat, source: 'local' })}
-                            className="w-full flex items-center justify-between bg-[#2a2c32]/50 border border-white/5 rounded-xl px-4 py-3 text-left">
-                            <div>
-                              <p className="text-[13px] font-bold text-white font-['Outfit']">{entry.foodName}</p>
-                              <p className="text-[10px] text-white/30">{entry.calories} kcal · P:{Math.round(entry.protein)}g C:{Math.round(entry.carbs)}g F:{Math.round(entry.fat)}g</p>
-                            </div>
-                            <Icon icon="ph:plus-circle-bold" width={20} className="text-[#00FF85]/60" />
+                        {(showAllFrequent ? frequentFoods : frequentFoods.slice(0, 4)).map((entry, i) => {
+                          const displayName = localizeFoodName(entry.foodName, language);
+                          return (
+                            <motion.button key={`freq-${i}`} whileTap={{ scale: 0.98 }} onClick={() => handleApplyResult({ name: displayName, serving: '', calories: entry.calories, protein: entry.protein, carbs: entry.carbs, fat: entry.fat, source: 'local' })}
+                              className="w-full flex items-center justify-between bg-[#2a2c32]/50 border border-white/5 rounded-xl px-4 py-3 text-left">
+                              <div>
+                                <p className="text-[13px] font-bold text-white font-['Outfit']">{displayName}</p>
+                                <p className="text-[10px] font-['Outfit'] font-semibold tracking-normal mt-0.5">
+                                  <span className="text-white/50">{entry.calories} kcal</span>
+                                  <span className="text-white/20"> · </span>
+                                  <span className="text-[#00FF85]">P: {Math.round(entry.protein)}g</span>
+                                  <span className="text-white/20">  </span>
+                                  <span className="text-[#FFB800]">C: {Math.round(entry.carbs)}g</span>
+                                  <span className="text-white/20">  </span>
+                                  <span className="text-[#FF6B6B]">F: {Math.round(entry.fat)}g</span>
+                                </p>
+                              </div>
+                              <Icon icon="ph:plus-circle-bold" width={20} className="text-[#00FF85]/60" />
+                            </motion.button>
+                          );
+                        })}
+                        {!showAllFrequent && frequentFoods.length > 4 && (
+                          <motion.button whileTap={{ scale: 0.97 }} onClick={() => setShowAllFrequent(true)} className="w-full py-2.5 text-center text-[11px] font-bold text-[#00FF85]/70 font-['Outfit']">
+                            Lihat Selengkapnya ({frequentFoods.length - 4} lagi)
                           </motion.button>
-                        ))}
+                        )}
                       </div>
                     </div>
-                  );
-                })()}
+                )}
               </div>
               <div className="space-y-4">
                 <p className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em] ml-1">Detail Makanan</p>

@@ -243,7 +243,7 @@ export function FoodScanner({ isOpen, onClose }: FoodScannerProps) {
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.2 }}
-      className="fixed inset-0 bg-[#16181c] z-[110] flex flex-col"
+      className="nutrition-overlay fixed inset-0 bg-[#16181c] z-[110] flex flex-col"
     >
       {/* Header */}
       <div className="pt-14 pb-4 px-6 flex items-center justify-between">

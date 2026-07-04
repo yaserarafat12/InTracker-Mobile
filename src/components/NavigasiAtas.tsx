@@ -33,10 +33,9 @@ export const NavigasiAtas = ({ activeTab }: NavigasiAtasProps) => {
             <motion.button
               whileTap={{ x: 2, y: 2, boxShadow: "0px 0px 0px black" }}
               onClick={toggleSettings}
-              className={`w-11 h-11 rounded-xl shadow-[4px_4px_0px_rgba(0,0,0,1)] flex items-center justify-center transition-all ${
-                isSettingsOpen ? 'bg-[#00FF85]' : 'bg-[#1A1A1A]'
+              className={`w-11 h-11 rounded-xl shadow-[4px_4px_0px_rgba(0,0,0,1)] flex items-center justify-center transition-all border-[1.5px] ${
+                isSettingsOpen ? 'bg-[#00FF85] border-black' : 'bg-[#1A1A1A] border-white/10'
               }`}
-              style={{ border: isSettingsOpen ? '1.5px solid black' : '1.5px solid rgba(227, 218, 201, 0.2)' }}
             >
               <Icon icon="solar:settings-bold" width={22} className={isSettingsOpen ? 'text-black' : 'text-[#8E8E8E]'} />
             </motion.button>
@@ -62,10 +61,9 @@ export const NavigasiAtas = ({ activeTab }: NavigasiAtasProps) => {
             <motion.button
               whileTap={{ x: 2, y: 2, boxShadow: "0px 0px 0px black" }}
               onClick={toggleSettings}
-              className={`w-11 h-11 rounded-xl shadow-[4px_4px_0px_rgba(0,0,0,1)] flex items-center justify-center transition-all ${
-                isSettingsOpen ? 'bg-[#00FF85]' : 'bg-[#1A1A1A]'
+              className={`w-11 h-11 rounded-xl shadow-[4px_4px_0px_rgba(0,0,0,1)] flex items-center justify-center transition-all border-[1.5px] ${
+                isSettingsOpen ? 'bg-[#00FF85] border-black' : 'bg-[#1A1A1A] border-white/10'
               }`}
-              style={{ border: isSettingsOpen ? '1.5px solid black' : '1.5px solid rgba(227, 218, 201, 0.2)' }}
             >
               <Icon icon="solar:settings-bold" width={22} className={isSettingsOpen ? 'text-black' : 'text-[#8E8E8E]'} />
             </motion.button>

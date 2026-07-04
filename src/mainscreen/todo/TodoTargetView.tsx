@@ -15,98 +15,16 @@ import { AddTodoSheet } from './AddTodoSheet';
 import { getPrismStyle } from '../../utils/design';
 import LoadingScreen from '../../components/LoadingScreen';
 import { playNotifSfx } from '../../utils/sfx';
+import { useTranslation } from '../../i18n';
+import { useUserStore } from '../../store/useUserStore';
 
 // Golden Hour Star System — Animated Styles
-const StarSystemStyles = () => (
-  <style>{`
-    @keyframes starBorderRotate {
-      0% { --star-angle: 0deg; }
-      100% { --star-angle: 360deg; }
-    }
-    @keyframes starPulse {
-      0%, 100% { opacity: 0.4; transform: scale(1); }
-      50% { opacity: 1; transform: scale(1.15); }
-    }
-    @keyframes starParticleFloat1 {
-      0%, 100% { transform: translate(0, 0) scale(0.8); opacity: 0; }
-      10% { opacity: 1; }
-      50% { transform: translate(-12px, -18px) scale(1.2); opacity: 0.8; }
-      90% { opacity: 0; }
-    }
-    @keyframes starParticleFloat2 {
-      0%, 100% { transform: translate(0, 0) scale(0.6); opacity: 0; }
-      15% { opacity: 1; }
-      55% { transform: translate(14px, -22px) scale(1); opacity: 0.7; }
-      95% { opacity: 0; }
-    }
-    @keyframes starParticleFloat3 {
-      0%, 100% { transform: translate(0, 0) scale(0.5); opacity: 0; }
-      20% { opacity: 0.9; }
-      60% { transform: translate(-8px, -26px) scale(1.1); opacity: 0.6; }
-      100% { opacity: 0; }
-    }
-    @keyframes starGlowPulse {
-      0%, 100% { box-shadow: 0 0 15px rgba(0,255,133,0.15), 0 0 30px rgba(0,255,133,0.05), 7px 7px 0px rgba(0,0,0,1); }
-      50% { box-shadow: 0 0 25px rgba(0,255,133,0.25), 0 0 50px rgba(0,255,133,0.1), 7px 7px 0px rgba(0,0,0,1); }
-    }
-    .starred-card {
-      animation: starGlowPulse 3s ease-in-out infinite;
-      border-color: rgba(0,255,133,0.35) !important;
-    }
-    .starred-card::before {
-      content: '';
-      position: absolute;
-      inset: -1px;
-      border-radius: 14px;
-      padding: 1.5px;
-      background: conic-gradient(
-        from var(--star-angle, 0deg),
-        transparent 0%,
-        #00FF85 15%,
-        #00FF85 30%,
-        transparent 45%,
-        transparent 55%,
-        #00FF85 70%,
-        #00FF85 85%,
-        transparent 100%
-      );
-      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-      -webkit-mask-composite: xor;
-      mask-composite: exclude;
-      animation: starBorderRotate 4s linear infinite;
-      pointer-events: none;
-      z-index: 1;
-    }
-    @property --star-angle {
-      syntax: '<angle>';
-      initial-value: 0deg;
-      inherits: false;
-    }
-    .star-particle {
-      position: absolute;
-      width: 4px;
-      height: 4px;
-      border-radius: 50%;
-      background: #00FF85;
-      pointer-events: none;
-      z-index: 2;
-      will-change: transform, opacity;
-    }
-    .star-particle:nth-child(1) { top: 15%; right: 8%; animation: starParticleFloat1 2.8s ease-in-out infinite; }
-    .star-particle:nth-child(2) { top: 40%; right: 3%; animation: starParticleFloat2 3.4s ease-in-out infinite 0.5s; }
-    .star-particle:nth-child(3) { bottom: 20%; right: 12%; animation: starParticleFloat3 3s ease-in-out infinite 1s; }
-  `}</style>
-);
 
 export type TargetFilter = 'today' | 'upcoming' | 'someday' | 'delayed' | 'done';
 
-// Labels and Options moved to store or removed if unused
-
-
-// getTargetMeta and TargetProgressBar removed as they are unused in current UI
-
 const TargetCard = ({ target, index, onOpen }: { target: TargetItem; index: number; onOpen: (target: TargetItem) => void }) => {
   const { toggleStar, toggleComplete, deleteTarget, updateTargetWindow } = useTargetStore();
+  const { t } = useTranslation();
   const x = useMotionValue(0);
   const [justCompleted, setJustCompleted] = useState(false);
 
@@ -130,7 +48,7 @@ const TargetCard = ({ target, index, onOpen }: { target: TargetItem; index: numb
   const handleAction = (type: 'edit' | 'delete') => {
     if (navigator.vibrate) navigator.vibrate(10);
     if (type === 'delete') {
-      if (confirm(`Hapus target "${target.title}"?`)) {
+      if (confirm(t('todo.confirmDeleteWithTitle').replace('{title}', target.title))) {
         deleteTarget(target.id);
       }
     } else {
@@ -147,10 +65,10 @@ const TargetCard = ({ target, index, onOpen }: { target: TargetItem; index: numb
         <motion.button
           style={{ opacity: editOpacity, scale: scaleAction }}
           onClick={() => target.window === 'delayed' ? updateTargetWindow(target.id, 'today') : handleAction('edit')}
-          className={`w-16 h-[80%] rounded-xl border-[1.5px] border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] flex flex-col items-center justify-center gap-1 text-black active:scale-90 transition-all bg-[#E3DAC9]`}
+          className="w-16 h-[80%] rounded-xl border-[1.5px] border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] flex flex-col items-center justify-center gap-1 text-black active:scale-90 transition-all bg-[#E3DAC9]"
         >
           <Icon icon={target.window === 'delayed' ? "ph:arrows-counter-clockwise-bold" : "ph:pencil-simple-bold"} width={20} height={20} />
-          <span className="text-[8px] font-black font-['Outfit'] uppercase tracking-wider">{target.window === 'delayed' ? 'Pulihkan' : 'Edit'}</span>
+          <span className="text-[8px] font-black font-['Outfit'] uppercase tracking-wider">{target.window === 'delayed' ? t('todo.restore') : t('todo.edit')}</span>
         </motion.button>
 
         {/* Delete Action (Right) */}
@@ -160,264 +78,184 @@ const TargetCard = ({ target, index, onOpen }: { target: TargetItem; index: numb
           className="w-16 h-[80%] rounded-xl bg-[#EF4444] border-[1.5px] border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] flex flex-col items-center justify-center gap-1 text-white active:scale-90 transition-all"
         >
           <Icon icon="ph:trash-bold" width={20} height={20} />
-          <span className="text-[8px] font-black font-['Outfit'] uppercase tracking-wider">Hapus</span>
+          <span className="text-[8px] font-black font-['Outfit'] uppercase tracking-wider">{t('todo.delete')}</span>
         </motion.button>
       </div>
 
       {/* Main Card Content */}
       <motion.div
         whileTap={{ x: 2, y: 2, boxShadow: "0px 0px 0px black" }}
+        animate={justCompleted ? { scale: [1, 1.03, 0.95, 0], opacity: [1, 1, 0.5, 0] } : {}}
+        transition={justCompleted ? { duration: 0.8, times: [0, 0.25, 0.6, 1], ease: "easeInOut" } : {}}
         onClick={() => onOpen(target)}
-        style={{ x }}
+        style={{ x, backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden' }}
         drag="x"
         dragConstraints={{ left: -100, right: 100 }}
         dragElastic={0.1}
         onDragEnd={handleDragEnd}
-        className={`w-full rounded-[8px] border-[1.5px] border-[#E3DAC9]/20 relative cursor-pointer ${
-          target.starred ? 'starred-card z-30' : 'shadow-[4px_4px_0px_rgba(0,0,0,1)] z-10'
-        }`}
+        className={`
+          w-full rounded-[8px] flex flex-col justify-center transition-all relative overflow-hidden cursor-pointer prevent-blur
+          border-[2px] shadow-[4px_4px_0px_rgba(0,0,0,1)] bg-os-card-bg border-border-theme
+        `}
       >
-        {!target.completed && (
-          <>
-            {/* Base Surface with Subtle Gradient */}
-            <div 
-              className="absolute inset-0 z-[-4] rounded-[6.5px]" 
-              style={{
-                background: 'linear-gradient(145deg, #22252a 0%, #1a1c20 100%)'
-              }}
-            />
-            {/* NOISE TEXTURE LAYER - Adds organic depth to solid colors */}
-            <div 
-              className="absolute inset-0 z-[-3] rounded-[6.5px] opacity-[0.2] mix-blend-overlay pointer-events-none" 
-              style={{
-                backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`
-              }}
-            />
-            {/* Inner Highlight (Top Edge) for Physical Depth */}
-            <div className="absolute inset-[0.5px] z-[-2] rounded-[6px] border-t-[1.2px] border-white/[0.08] pointer-events-none" />
-            {/* Subtle Inner Glow (Left Side) */}
-            <div className="absolute inset-[0.5px] z-[-2] rounded-[6px] border-l-[1px] border-white/[0.03] pointer-events-none" />
-            {/* Soft Ambient Inner Glow */}
-            <div className="absolute inset-0 z-[-1] rounded-[6.5px] shadow-[inset_0_1px_2px_rgba(255,255,255,0.05),inset_0_-1px_1px_rgba(0,0,0,0.5)] pointer-events-none" />
-          </>
-        )}
-
-        {/* TEMPERED GLASS LAYER (BLUR & TINT) - Only for completed */}
-        <div className={`absolute inset-0 z-[-1] rounded-[6.5px] ${target.completed ? 'bg-black/70 backdrop-blur-[15px]' : ''}`} />
-
-        {/* GLASS REFLECTION SHINE */}
-        {/* Clean surface - removed reflection for solid charcoal look */}
-        {!target.completed && (
-          <div className="absolute inset-0 z-[-1] rounded-[6.5px] bg-transparent pointer-events-none" />
-        )}
-
-        <div className="p-2 relative">
-          {/* Delayed Overlay Visuals */}
-          {target.window === 'delayed' && !target.completed && (
-            <div className="absolute inset-0 z-[10] flex items-center justify-center rounded-[6.5px] overflow-hidden pointer-events-none">
-              <div className="absolute inset-0 bg-red-500/[0.02]" />
-              <div className="absolute top-2 right-10">
-                <span className="text-[7px] font-black text-[#EF4444] uppercase tracking-[0.2em] bg-black/60 px-1.5 py-0.5 rounded-full border border-[#EF4444]/20">Terlambat</span>
-              </div>
-            </div>
-          )}
-
-          {/* Golden particles for starred cards */}
-          {target.starred && (
-            <>
-              <span className="star-particle" />
-              <span className="star-particle" />
-              <span className="star-particle" />
-            </>
-          )}
-
-          <div className="flex items-center gap-3 py-0.5 relative z-[3]">
-            {/* Square Checklist with bounce animation */}
-            <motion.div
-              whileTap={{ scale: 0.85 }}
-              animate={justCompleted ? { scale: [1, 1.35, 0.9, 1.1, 1] } : {}}
-              transition={justCompleted ? { duration: 0.5, ease: 'easeOut' } : {}}
-              onClick={(e) => {
-                e.stopPropagation();
-                const wasCompleted = target.completed;
-                toggleComplete(target.id);
-                if (navigator.vibrate) navigator.vibrate(8);
-                if (!wasCompleted) {
-                  playNotifSfx();
-                  setJustCompleted(true);
-                  setTimeout(() => setJustCompleted(false), 800);
-                }
-              }}
-              className={`w-[35px] h-[35px] rounded-[7px] border-[1.5px] flex items-center justify-center transition-all shrink-0 ${
-                target.completed ? 'bg-[#00FF85] border-black shadow-[2px_2px_0px_rgba(0,0,0,0.3)]' : 'border-white/10 bg-white/5 shadow-[inset_0_1px_1px_rgba(255,255,255,0.05)]'
-              }`}
-            >
-              {target.completed && (
-                <motion.div
-                  initial={{ scale: 0, rotate: -45 }}
-                  animate={{ scale: 1, rotate: 0 }}
-                  transition={{ type: 'spring', stiffness: 500, damping: 15 }}
-                >
-                  <Icon icon="ph:check-bold" width={22} height={22} className="text-black" />
-                </motion.div>
-              )}
-            </motion.div>
-
-            <motion.button
-              whileTap={{ scale: 0.98 }}
-              onClick={() => {
-                if (navigator.vibrate) navigator.vibrate(6);
-                onOpen(target);
-              }}
-              className="flex-1 text-left min-w-0"
-            >
-              <h3
-                className={`text-[14px] font-black font-['Outfit'] leading-tight tracking-normal transition-all duration-300 ${
-                  target.completed ? 'text-white/20 line-through' : 'text-[#E3DAC9] drop-shadow-[0_2px_4px_rgba(0,0,0,0.4)]'
-                }`}
-                style={target.completed ? { textDecorationColor: 'rgba(0,255,133,0.5)' } : {}}
-              >
-                {target.title}
-              </h3>
-            </motion.button>
-
-            {/* Green flash overlay on completion */}
-            <AnimatePresence>
-              {justCompleted && (
-                <motion.div
-                  initial={{ opacity: 0.7, scale: 0.95 }}
-                  animate={{ opacity: 0, scale: 1.02 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.6, ease: 'easeOut' }}
-                  className="absolute inset-0 rounded-[6px] bg-[#00FF85]/20 pointer-events-none z-[5]"
-                />
-              )}
-            </AnimatePresence>
-          </div>
-        </div>
-
-        {/* Magical Star Cluster Toggle - MOVED OUTSIDE PADDING FOR PRECISION */}
-        <motion.button
-          whileTap={{ scale: 0.75 }}
-          onClick={(e) => {
-            e.stopPropagation();
-            toggleStar(target.id);
-            if (navigator.vibrate) navigator.vibrate(target.starred ? 4 : [6, 20, 6]);
+        {/* NOISE TEXTURE LAYER */}
+        <div 
+          className="absolute inset-0 z-0 opacity-[0.2] mix-blend-overlay pointer-events-none hidden dark:block" 
+          style={{
+            backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`
           }}
-          className={`absolute z-[40] flex items-center justify-center transition-all ${
-            target.starred 
-              ? 'top-[-20px] right-[-20px] w-14 h-14 translate-y-0' 
-              : 'top-1/2 right-2 w-10 h-10 -translate-y-1/2'
-          }`}
-        >
-          {target.starred ? (
-            <div className="relative w-full h-full flex items-center justify-center">
-              {/* Main Big Star */}
-              <motion.div
-                initial={{ scale: 0.5, rotate: 0 }}
-                animate={{ scale: 1.1, rotate: 0 }}
-                transition={{ type: 'spring', stiffness: 400, damping: 15 }}
-                className="z-[2]"
-              >
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="#00FF85" className="drop-shadow-[0_0_12px_rgba(0,255,133,0.8)]">
-                  <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                </svg>
-              </motion.div>
+        />
 
-              {/* Smaller Support Star 1 (Top Left) */}
+        {/* Card Content Row */}
+        <div className="px-4 py-4 relative z-10 flex items-center gap-3">
+          {/* Square Checklist with bounce animation */}
+          <motion.div
+            whileTap={{ scale: 0.85 }}
+            animate={justCompleted ? { scale: [1, 1.35, 0.9, 1.1, 1] } : {}}
+            transition={justCompleted ? { duration: 0.5, ease: 'easeOut' } : {}}
+            onClick={(e) => {
+              e.stopPropagation();
+              const wasCompleted = target.completed;
+              if (navigator.vibrate) navigator.vibrate(8);
+              
+              if (!wasCompleted) {
+                playNotifSfx();
+                setJustCompleted(true);
+                
+                // Delay store update so they see the full animation
+                setTimeout(() => {
+                  toggleComplete(target.id);
+                  setJustCompleted(false);
+                }, 800);
+              } else {
+                toggleComplete(target.id);
+              }
+            }}
+            className={`w-[35px] h-[35px] rounded-[7px] border-[2px] flex items-center justify-center transition-all shrink-0 ${
+              (target.completed || justCompleted) 
+                ? 'bg-os-green border-black shadow-[2px_2px_0px_rgba(0,0,0,0.3)]' 
+                : 'todo-checkbox'
+            }`}
+          >
+            {(target.completed || justCompleted) && (
               <motion.div
-                initial={{ scale: 0, x: 0, y: 0 }}
-                animate={{ scale: 1, x: -16, y: 10, rotate: 0 }}
-                transition={{ type: 'spring', stiffness: 300, damping: 20, delay: 0.05 }}
-                className="absolute z-[1]"
+                initial={{ scale: 0, rotate: -45 }}
+                animate={{ scale: 1, rotate: 0 }}
+                transition={{ type: 'spring', stiffness: 500, damping: 15 }}
               >
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="#00FF85">
-                  <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                </svg>
+                <Icon icon="ph:check-bold" width={22} height={22} className="todo-checkmark-icon text-black" />
               </motion.div>
+            )}
+          </motion.div>
 
-              {/* Smaller Support Star 2 (Bottom Left) */}
-              <motion.div
-                initial={{ scale: 0, x: 0, y: 0 }}
-                animate={{ scale: 1, x: -8, y: 24, rotate: 0 }}
-                transition={{ type: 'spring', stiffness: 350, damping: 22, delay: 0.1 }}
-                className="absolute z-[1]"
-              >
-                <svg width="10" height="10" viewBox="0 0 24 24" fill="#00FF85">
-                  <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                </svg>
-              </motion.div>
+          {/* Title Container */}
+          <div className="flex-1 text-left min-w-0 prevent-blur">
+            <h3
+              className={`text-[16px] font-semibold font-['Outfit'] leading-tight tracking-normal prevent-blur text-white ${
+                (target.completed || justCompleted) ? 'opacity-30 line-through' : ''
+              }`}
+              style={{
+                backfaceVisibility: 'hidden',
+                WebkitBackfaceVisibility: 'hidden',
+              }}
+            >
+              {target.title}
+            </h3>
+          </div>
 
-              {/* NEW: Star 3 (Far Left) */}
-              <motion.div
-                initial={{ scale: 0, x: 0, y: 0 }}
-                animate={{ scale: 0.8, x: -22, y: 2, rotate: 0 }}
-                transition={{ type: 'spring', stiffness: 250, damping: 18, delay: 0.15 }}
-                className="absolute z-[1]"
-              >
-                <svg width="8" height="8" viewBox="0 0 24 24" fill="#00FF85">
-                  <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                </svg>
-              </motion.div>
+          {/* Star Toggle */}
+          <motion.button
+            whileTap={{ scale: 0.75 }}
+            onClick={(e) => {
+              e.stopPropagation();
+              toggleStar(target.id);
+              if (navigator.vibrate) navigator.vibrate(target.starred ? 4 : [6, 20, 6]);
+            }}
+            className="w-8 h-8 flex items-center justify-center shrink-0"
+          >
+            {target.starred ? (
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="#F5A623">
+                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+              </svg>
+            ) : (
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="todo-star-icon">
+                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+              </svg>
+            )}
+          </motion.button>
 
-              {/* NEW: Star 4 (Bottom Right-ish) */}
+          {/* Green flash overlay on completion */}
+          <AnimatePresence>
+            {justCompleted && (
               <motion.div
-                initial={{ scale: 0, x: 0, y: 0 }}
-                animate={{ scale: 0.7, x: 2, y: 28, rotate: 0 }}
-                transition={{ type: 'spring', stiffness: 200, damping: 25, delay: 0.2 }}
-                className="absolute z-[1]"
-              >
-                <svg width="6" height="6" viewBox="0 0 24 24" fill="#80FFBB">
-                  <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                </svg>
-              </motion.div>
-            </div>
-          ) : (
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.3)" strokeWidth="2.5">
-              <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-            </svg>
-          )}
-        </motion.button>
+                initial={{ opacity: 0.7, scale: 0.95 }}
+                animate={{ opacity: 0, scale: 1.02 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.6, ease: 'easeOut' }}
+                className="absolute inset-0 rounded-[6px] bg-[#00FF85]/20 pointer-events-none z-[5]"
+              />
+            )}
+          </AnimatePresence>
+        </div>
       </motion.div>
+
+      {/* Warning Badge (Sticking out at top-right) */}
+      {target.window === 'delayed' && !target.completed && (
+        <motion.div 
+          style={{ x }}
+          className="absolute top-[-8px] right-[-5px] z-20 w-6 h-6 rounded-full bg-[#FF4D00] border-[1.5px] border-black flex items-center justify-center shadow-[2px_2px_0px_rgba(0,0,0,1)] pointer-events-none"
+        >
+          <Icon icon="solar:danger-bold" width={14} height={14} className="text-white" />
+        </motion.div>
+      )}
     </div>
   );
 };
 
-const EmptyTargetState = ({ onAdd }: { onAdd: () => void }) => (
-  <motion.button
-    initial={{ opacity: 0, scale: 0.97 }}
-    animate={{ opacity: 1, scale: 1 }}
-    whileTap={{ x: 3, y: 3, boxShadow: "0px 0px 0px rgba(0,0,0,1)" }}
-    onClick={onAdd}
-    className="w-full min-h-[160px] rounded-[14px] border-[2px] border-black bg-[#E3DAC9]/[0.03] flex flex-col items-center justify-center px-8 text-center shadow-[6px_6px_0px_rgba(0,0,0,1)]"
-  >
-    <div className="w-12 h-12 rounded-xl bg-[#E3DAC9] border-[1.5px] border-black flex items-center justify-center shadow-[4px_4px_0px_rgba(0,0,0,1)]">
-      <Icon icon="solar:add-circle-bold" width={24} height={24} className="text-black" />
-    </div>
-    <h3 className="mt-4 text-[20px] font-black text-white">Tambah Target Baru</h3>
-    <p className="mt-1 text-[11px] font-bold uppercase text-[#E3DAC9]/40 leading-relaxed">
-      Pecah objektif besar jadi langkah kecil yang bisa dieksekusi.
-    </p>
-  </motion.button>
-);
+const EmptyTargetState = ({ onAdd }: { onAdd: () => void }) => {
+  const { t } = useTranslation();
+  return (
+    <motion.button
+      initial={{ opacity: 0, scale: 0.97 }}
+      animate={{ opacity: 1, scale: 1 }}
+      whileTap={{ x: 3, y: 3, boxShadow: "0px 0px 0px rgba(0,0,0,1)" }}
+      onClick={onAdd}
+      className="w-full min-h-[160px] rounded-[14px] border-[2px] border-black bg-[#E3DAC9]/[0.03] flex flex-col items-center justify-center px-8 text-center shadow-[6px_6px_0px_rgba(0,0,0,1)]"
+    >
+      <div className="w-12 h-12 rounded-xl bg-[#E3DAC9] border-[1.5px] border-black flex items-center justify-center shadow-[4px_4px_0px_rgba(0,0,0,1)]">
+        <Icon icon="solar:add-circle-bold" width={24} height={24} className="text-black" />
+      </div>
+      <h3 className="mt-4 text-[20px] font-black text-white">{t('todo.empty.title')}</h3>
+      <p className="mt-1 text-[11px] font-bold uppercase text-[#E3DAC9]/40 leading-relaxed">
+        {t('todo.empty.subtitle')}
+      </p>
+    </motion.button>
+  );
+};
 
-const EmptyHistoryState = () => (
-  <motion.div
-    initial={{ opacity: 0, scale: 0.97 }}
-    animate={{ opacity: 1, scale: 1 }}
-    className="w-full min-h-[190px] rounded-[20px] border border-white/10 bg-[#22252a] flex flex-col items-center justify-center px-8 text-center shadow-[7px_7px_0px_rgba(0,0,0,1)]"
-  >
-    <h3 className="text-[23px] font-black text-white">Belum Ada Riwayat</h3>
-    <p className="mt-2 text-[12px] font-bold uppercase text-[#E3DAC9]/35 leading-relaxed">
-      Target selesai akan jadi arsip progres di sini.
-    </p>
-  </motion.div>
-);
+const EmptyHistoryState = () => {
+  const { t } = useTranslation();
+  return (
+    <motion.div
+      initial={{ opacity: 0, scale: 0.97 }}
+      animate={{ opacity: 1, scale: 1 }}
+      className="w-full min-h-[190px] rounded-[20px] border border-white/10 bg-[#22252a] flex flex-col items-center justify-center px-8 text-center shadow-[7px_7px_0px_rgba(0,0,0,1)]"
+    >
+      <h3 className="text-[23px] font-black text-white">{t('todo.emptyHistory.title')}</h3>
+      <p className="mt-2 text-[12px] font-bold uppercase text-[#E3DAC9]/40 leading-relaxed">
+        {t('todo.emptyHistory.subtitle')}
+      </p>
+    </motion.div>
+  );
+};
 
 
 
 const TargetDetailSheet = ({ target, onClose }: { target: TargetItem; onClose: () => void }) => {
   const { completeTarget, deleteTarget, toggleStep, updateNumberProgress, updateTargetWindow } = useTargetStore();
+  const { t } = useTranslation();
+  const { settings } = useUserStore();
+  const isLight = !document.documentElement.classList.contains('dark');
   const progress = getTargetProgress(target);
 
   return (
@@ -447,9 +285,13 @@ const TargetDetailSheet = ({ target, onClose }: { target: TargetItem; onClose: (
             <motion.button
               whileTap={{ x: 2, y: 2, boxShadow: "0px 0px 0px black" }}
               onClick={onClose}
-              className="w-10 h-10 rounded-2xl bg-[#222] border-[1.5px] border-black flex items-center justify-center transition-all shadow-[4px_4px_0px_rgba(0,0,0,1)]"
+              className={`w-10 h-10 rounded-2xl border-[2px] flex items-center justify-center transition-all ${
+                isLight
+                  ? 'bg-white border-black text-black shadow-[4px_4px_0px_rgba(0,0,0,1)]'
+                  : 'border-white/10 bg-[#2a2c32] text-white shadow-none'
+              }`}
             >
-              <Icon icon="ph:x-bold" width={17} height={17} className="text-[#E3DAC9]" />
+              <Icon icon="ph:x-bold" width={17} height={17} />
             </motion.button>
           </div>
 
@@ -485,7 +327,7 @@ const TargetDetailSheet = ({ target, onClose }: { target: TargetItem; onClose: (
             </div>
           ) : (
             <div className="rounded-[28px] bg-[#222] border border-white/10 p-5">
-              <p className="text-[10px] font-black font-['Outfit'] uppercase tracking-widest text-[#E3DAC9]">Update Angka</p>
+              <p className="text-[10px] font-black font-['Outfit'] uppercase tracking-widest text-[#E3DAC9]">{t('todo.updateNumber')}</p>
               <div className="mt-4 flex items-center gap-3">
                 <button
                   onClick={() => updateNumberProgress(target.id, target.currentValue - 1)}
@@ -515,17 +357,18 @@ const TargetDetailSheet = ({ target, onClose }: { target: TargetItem; onClose: (
               onClick={() => {
                 completeTarget(target.id);
                 if (navigator.vibrate) navigator.vibrate([10, 25, 10]);
+                playNotifSfx();
                 onClose();
               }}
-              className="w-full h-16 rounded-[22px] bg-[#00FF85] border-[2px] border-black text-black font-black uppercase shadow-[6px_6px_0px_rgba(0,0,0,1)] transition-all flex items-center justify-center gap-2"
+              className="w-full h-16 rounded-[22px] bg-os-green border-[2px] border-black text-black font-black uppercase shadow-[6px_6px_0px_rgba(0,0,0,1)] transition-all flex items-center justify-center gap-2"
             >
               <Icon icon="solar:check-circle-bold" width={22} height={22} />
-              Selesaikan
+              {t('todo.completeBtn')}
             </motion.button>
 
             {/* Pindahkan - 2 opsi */}
             <div className="space-y-2">
-              <span className="text-[9px] font-bold text-white/30 uppercase tracking-widest">Pindahkan</span>
+              <span className="text-[9px] font-bold text-white/30 uppercase tracking-widest">{t('todo.move')}</span>
               <div className="grid grid-cols-2 gap-3">
                 {target.window !== 'today' && (
                   <button
@@ -534,10 +377,10 @@ const TargetDetailSheet = ({ target, onClose }: { target: TargetItem; onClose: (
                       if (navigator.vibrate) navigator.vibrate(8);
                       onClose();
                     }}
-                    className="h-14 rounded-2xl bg-[#00FF85]/15 border-[1.5px] border-[#00FF85]/30 text-[#00FF85] font-black text-[11px] uppercase active:scale-95 transition-all flex flex-col items-center justify-center"
+                    className="h-14 rounded-2xl bg-os-green/15 border-[1.5px] border-os-green/30 text-os-green font-black text-[11px] uppercase active:scale-95 transition-all flex flex-col items-center justify-center"
                   >
                     <Icon icon="solar:calendar-bold" width={18} height={18} />
-                    <span>Hari Ini</span>
+                    <span>{t('todo.filters.today')}</span>
                   </button>
                 )}
                 {target.window !== 'upcoming' && (
@@ -550,7 +393,7 @@ const TargetDetailSheet = ({ target, onClose }: { target: TargetItem; onClose: (
                     className="h-14 rounded-2xl bg-[#22252a] border-[1.5px] border-white/15 text-white/60 font-black text-[11px] uppercase active:scale-95 transition-all flex flex-col items-center justify-center"
                   >
                     <Icon icon="solar:calendar-mark-bold" width={18} height={18} />
-                    <span>Mendatang</span>
+                    <span>{t('todo.filters.upcoming')}</span>
                   </button>
                 )}
                 {target.window !== 'someday' && (
@@ -563,7 +406,7 @@ const TargetDetailSheet = ({ target, onClose }: { target: TargetItem; onClose: (
                     className="h-14 rounded-2xl bg-[#22252a] border-[1.5px] border-white/15 text-white/60 font-black text-[11px] uppercase active:scale-95 transition-all flex flex-col items-center justify-center"
                   >
                     <Icon icon="solar:star-fall-bold" width={18} height={18} />
-                    <span>Suatu Hari</span>
+                    <span>{t('todo.filters.someday')}</span>
                   </button>
                 )}
               </div>
@@ -572,7 +415,7 @@ const TargetDetailSheet = ({ target, onClose }: { target: TargetItem; onClose: (
             {/* Hapus */}
             <button
               onClick={() => {
-                if (confirm('Hapus tugas ini?')) {
+                if (confirm(t('todo.confirmDelete'))) {
                   deleteTarget(target.id);
                   if (navigator.vibrate) navigator.vibrate(10);
                   onClose();
@@ -581,7 +424,7 @@ const TargetDetailSheet = ({ target, onClose }: { target: TargetItem; onClose: (
               className="w-full h-14 rounded-2xl bg-[#EF4444]/10 border-[1.5px] border-[#EF4444]/30 text-[#EF4444] font-black text-[12px] uppercase active:scale-[0.98] transition-all flex items-center justify-center gap-2"
             >
               <Icon icon="solar:trash-bin-trash-bold" width={18} height={18} />
-              <span>Hapus</span>
+              <span>{t('todo.delete')}</span>
             </button>
           </div>
         </div>
@@ -592,6 +435,7 @@ const TargetDetailSheet = ({ target, onClose }: { target: TargetItem; onClose: (
 
 const DelayedClarificationSheet = ({ target, onClose }: { target: TargetItem; onClose: () => void }) => {
   const { updateTargetWindow, deleteTarget } = useTargetStore();
+  const { t } = useTranslation();
 
   return (
     <>
@@ -615,9 +459,9 @@ const DelayedClarificationSheet = ({ target, onClose }: { target: TargetItem; on
               <Icon icon="solar:danger-bold" width={32} height={32} className="text-[#EF4444]" />
             </div>
             
-            <h2 className="text-[24px] font-black font-['Outfit'] text-white leading-tight tracking-normal">Tugas Tertunda</h2>
+            <h2 className="text-[24px] font-black font-['Outfit'] text-white leading-tight tracking-normal">{t('todo.delayedTitle')}</h2>
             <p className="mt-3 text-[14px] font-medium font-['Outfit'] text-[#E3DAC9]/40 max-w-[260px] leading-relaxed">
-              "<span className="text-[#E3DAC9] font-semibold">{target.title}</span>" belum diselesaikan. Pilih tindakan:
+              "<span className="text-[#E3DAC9] font-semibold">{target.title}</span>" {t('todo.delayedSubtitle')}
             </p>
           </div>
 
@@ -628,10 +472,10 @@ const DelayedClarificationSheet = ({ target, onClose }: { target: TargetItem; on
                 if (navigator.vibrate) navigator.vibrate([10, 30, 10]);
                 onClose();
               }}
-              className="w-full h-16 rounded-[22px] bg-[#00FF85] border-[2px] border-black text-black font-black uppercase shadow-[6px_6px_0px_rgba(0,0,0,1)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all flex items-center justify-center gap-3"
+              className="w-full h-16 rounded-[22px] bg-os-green border-[2px] border-black text-black font-black uppercase shadow-[6px_6px_0px_rgba(0,0,0,1)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all flex items-center justify-center gap-3"
             >
               <Icon icon="ph:arrows-counter-clockwise-bold" width={24} height={24} />
-              <span>Pulihkan ke Hari Ini</span>
+              <span>{t('todo.restoreToToday')}</span>
             </button>
 
             <button
@@ -643,12 +487,12 @@ const DelayedClarificationSheet = ({ target, onClose }: { target: TargetItem; on
               className="w-full h-16 rounded-[22px] bg-[#22252a] border-[2px] border-white/15 text-white font-black uppercase active:scale-[0.98] transition-all flex items-center justify-center gap-3"
             >
               <Icon icon="solar:calendar-bold" width={22} height={22} />
-              <span>Pindah ke Mendatang</span>
+              <span>{t('todo.moveToUpcoming')}</span>
             </button>
 
             <button
               onClick={() => {
-                if (confirm('Yakin hapus tugas ini?')) {
+                if (confirm(t('todo.confirmDelete'))) {
                   deleteTarget(target.id);
                   if (navigator.vibrate) navigator.vibrate(10);
                   onClose();
@@ -657,14 +501,14 @@ const DelayedClarificationSheet = ({ target, onClose }: { target: TargetItem; on
               className="w-full h-16 rounded-[22px] bg-[#EF4444]/10 border-[2px] border-[#EF4444]/30 text-[#EF4444] font-black uppercase active:scale-[0.98] transition-all flex items-center justify-center gap-3"
             >
               <Icon icon="ph:trash-bold" width={22} height={22} />
-              <span>Hapus</span>
+              <span>{t('todo.delete')}</span>
             </button>
 
             <button
               onClick={onClose}
               className="w-full h-14 text-[13px] font-black uppercase text-white/20 tracking-widest mt-2"
             >
-              Nanti Saja
+              {t('todo.later')}
             </button>
           </div>
         </div>
@@ -675,6 +519,7 @@ const DelayedClarificationSheet = ({ target, onClose }: { target: TargetItem; on
 
 export default function TodoTargetView({ initialFilter }: { initialFilter?: TargetFilter }) {
   const { targets, loading } = useTargetStore();
+  const { t } = useTranslation();
   const [activeFilter, setActiveFilter] = useState<TargetFilter>(initialFilter || 'today');
 
   // Sync with initialFilter if it changes externally
@@ -696,25 +541,6 @@ export default function TodoTargetView({ initialFilter }: { initialFilter?: Targ
   const [scrollProgress, setScrollProgress] = useState(40);
   const [scrollLeft, setScrollLeft] = useState(0);
   const [showScrollIndicator, setShowScrollIndicator] = useState(false);
-
-  if (loading) {
-    return <LoadingScreen message="Memuat target..." />;
-  }
-
-  const handleScroll = () => {
-    const el = scrollRef.current;
-    if (!el) return;
-    const maxScroll = el.scrollWidth - el.clientWidth;
-    if (maxScroll <= 0) {
-      setShowScrollIndicator(false);
-      return;
-    }
-    setShowScrollIndicator(true);
-    const thumbWidth = Math.max(30, (el.clientWidth / el.scrollWidth) * 100);
-    const leftPos = (el.scrollLeft / maxScroll) * (100 - thumbWidth);
-    setScrollProgress(thumbWidth);
-    setScrollLeft(leftPos);
-  };
 
   useEffect(() => {
     // Check on mount if scrollable
@@ -741,6 +567,25 @@ export default function TodoTargetView({ initialFilter }: { initialFilter?: Targ
       staleTargets.forEach(t => useTargetStore.getState().deleteTarget(t.id));
     }
   }, [targets]);
+
+  if (loading) {
+    return <LoadingScreen message={t('todo.loading')} />;
+  }
+
+  const handleScroll = () => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const maxScroll = el.scrollWidth - el.clientWidth;
+    if (maxScroll <= 0) {
+      setShowScrollIndicator(false);
+      return;
+    }
+    setShowScrollIndicator(true);
+    const thumbWidth = Math.max(30, (el.clientWidth / el.scrollWidth) * 100);
+    const leftPos = (el.scrollLeft / maxScroll) * (100 - thumbWidth);
+    setScrollProgress(thumbWidth);
+    setScrollLeft(leftPos);
+  };
 
   const handleOpenTarget = (target: TargetItem) => {
     if (target.window === 'delayed' && !target.completed) {
@@ -797,7 +642,6 @@ export default function TodoTargetView({ initialFilter }: { initialFilter?: Targ
 
   return (
     <div className="px-5 pt-8 pb-36 min-h-screen">
-      <StarSystemStyles />
       <div className="flex items-center justify-between gap-4">
         <div className="min-w-0" />
       </div>
@@ -813,11 +657,11 @@ export default function TodoTargetView({ initialFilter }: { initialFilter?: Targ
         >
           <div className="flex gap-2 min-w-max pb-4">
           {[
-            { id: 'today', label: 'Hari Ini', count: (targets || []).filter(t => !t.completed && t.window === 'today').length },
-            { id: 'upcoming', label: 'Besok', count: (targets || []).filter(t => !t.completed && t.window === 'upcoming').length },
-            { id: 'someday', label: 'Suatu Hari', count: (targets || []).filter(t => !t.completed && t.window === 'someday').length },
-            { id: 'delayed', label: 'Tertunda', count: (targets || []).filter(t => !t.completed && t.window === 'delayed').length },
-            { id: 'done', label: 'Selesai', count: (targets || []).filter(t => {
+            { id: 'today', count: (targets || []).filter(t => !t.completed && t.window === 'today').length },
+            { id: 'upcoming', count: (targets || []).filter(t => !t.completed && t.window === 'upcoming').length },
+            { id: 'someday', count: (targets || []).filter(t => !t.completed && t.window === 'someday').length },
+            { id: 'delayed', count: (targets || []).filter(t => !t.completed && t.window === 'delayed').length },
+            { id: 'done', count: (targets || []).filter(t => {
               if (!t.completed || !t.completedAt) return false;
               const todayStr = new Date().toLocaleDateString('en-CA');
               return new Date(t.completedAt).toLocaleDateString('en-CA') === todayStr;
@@ -831,16 +675,26 @@ export default function TodoTargetView({ initialFilter }: { initialFilter?: Targ
                 if (navigator.vibrate) navigator.vibrate(8);
               }}
               className={`
-                px-4 py-2.5 rounded-xl transition-all duration-300 flex items-start relative overflow-hidden
-                border-[2px] ${activeFilter === item.id 
-                  ? item.id === 'done' 
-                    ? 'bg-[#00FF85] border-black shadow-[4px_4px_0px_rgba(0,0,0,1)]'
-                    : item.id === 'delayed'
-                      ? 'bg-[#EF4444] border-black shadow-[4px_4px_0px_rgba(0,0,0,1)]'
-                      : 'bg-[#E3DAC9] border-black shadow-[4px_4px_0px_rgba(0,0,0,1)]' 
-                  : 'bg-[#22252a] border-white/15 shadow-[4px_4px_0px_rgba(0,0,0,1)]'}
+                px-4 py-2.5 rounded-xl flex items-start relative overflow-hidden z-10
+                border-[2px] shadow-[4px_4px_0px_rgba(0,0,0,1)]
+                ${activeFilter === item.id ? 'border-black font-black' : 'border-border-theme bg-os-card-bg'}
               `}
             >
+              {/* SLIDING HIGHLIGHT CAPSULE */}
+              {activeFilter === item.id && (
+                <motion.div
+                  layoutId="todoActivePill"
+                  className={`absolute inset-0 z-0 ${
+                    item.id === 'done'
+                      ? 'bg-os-green'
+                      : item.id === 'delayed'
+                        ? 'bg-[#EF4444]'
+                        : 'bg-[#E3DAC9]'
+                  }`}
+                  transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                />
+              )}
+
               {activeFilter !== item.id && (
                 <div 
                   className="absolute inset-0 z-0 opacity-[0.15] mix-blend-overlay pointer-events-none" 
@@ -849,10 +703,18 @@ export default function TodoTargetView({ initialFilter }: { initialFilter?: Targ
                   }}
                 />
               )}
-              <span className={`text-[13px] font-black font-['Outfit'] tracking-normal ${activeFilter === item.id ? (item.id === 'delayed' || item.id === 'done' ? 'text-white' : 'text-black') : 'text-white/40'}`}>
-                {item.label}
+              <span className={`text-[13px] font-black font-['Outfit'] tracking-normal relative z-10 transition-colors duration-300 ${
+                activeFilter === item.id 
+                  ? (item.id === 'delayed' || item.id === 'done' ? 'text-force-white' : 'text-black') 
+                  : 'text-white/40'
+              }`}>
+                {t('todo.filters.' + item.id)}
               </span>
-              <span className={`text-[9px] font-black font-['Outfit'] ml-0.5 mt-[-2px] ${activeFilter === item.id ? (item.id === 'delayed' || item.id === 'done' ? 'text-white/60' : 'text-black/40') : 'text-white/20'}`}>
+              <span className={`text-[9px] font-black font-['Outfit'] ml-0.5 mt-[-2px] relative z-10 transition-colors duration-300 ${
+                activeFilter === item.id 
+                  ? (item.id === 'delayed' || item.id === 'done' ? 'text-force-white-muted' : 'text-black/40') 
+                  : 'text-white/20'
+              }`}>
                 {item.count}
               </span>
             </motion.button>
@@ -871,172 +733,156 @@ export default function TodoTargetView({ initialFilter }: { initialFilter?: Targ
         )}
       </div>
 
-      <div className="mt-14 space-y-5">
+      {/* QUICK ADD BAR - PREMIUM & CONSISTENT */}
+      {activeFilter !== 'done' && (
+        <div className="mt-8">
+          <motion.div
+            animate={{
+              borderColor: isAdding || inputValue ? 'rgba(255,255,255,0.4)' : 'rgba(255,255,255,0.15)',
+            }}
+            className={`
+              w-full rounded-[8px] flex items-center gap-3 px-4 py-4 transition-all relative overflow-hidden
+              border-[2px] shadow-[4px_4px_0px_rgba(0,0,0,1)] bg-os-card-bg border-border-theme
+            `}
+            onClick={() => {
+              if (!isAdding) {
+                setIsAdding(true);
+                quickAddRef.current?.focus();
+              }
+            }}
+          >
+            {/* NOISE TEXTURE LAYER */}
+            <div 
+              className="absolute inset-0 z-[1] opacity-[0.2] mix-blend-overlay pointer-events-none" 
+              style={{
+                backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`
+              }}
+            />
+            {/* PLUS ICON - no glow */}
+            <div className="relative flex items-center justify-center shrink-0">
+              <Icon 
+                icon="ph:plus-bold" 
+                width={22} 
+                height={22} 
+                className={`relative z-10 transition-colors ${isAdding || inputValue ? 'text-white' : 'text-white/30'}`} 
+              />
+            </div>
+            
+            <input
+              ref={quickAddRef}
+              type="text"
+              value={inputValue}
+              onChange={(e) => setInputValue(e.target.value)}
+              placeholder={t('todo.inputPlaceholder')}
+              onFocus={() => setIsAdding(true)}
+              onBlur={() => {
+                if (!inputValue) setIsAdding(false);
+              }}
+              className={`
+                flex-1 bg-transparent border-none outline-none text-[16px] font-semibold font-['Outfit'] 
+                text-white placeholder:text-neutral-400 dark:placeholder:text-white/20 tracking-normal relative z-10
+              `}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') handleQuickAdd();
+                if (e.key === 'Escape') {
+                  setIsAdding(false);
+                  quickAddRef.current?.blur();
+                }
+              }}
+            />
+
+            {/* DYNAMIC CHECKMARK SUBMIT */}
+            <AnimatePresence>
+              {inputValue.trim().length > 0 && (
+                <motion.button
+                  initial={{ opacity: 0, scale: 0.5, x: 20 }}
+                  animate={{ opacity: 1, scale: 1, x: 0 }}
+                  exit={{ opacity: 0, scale: 0.5, x: 20 }}
+                  whileTap={{ scale: 0.85 }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleQuickAdd();
+                  }}
+                  className="w-10 h-10 rounded-xl bg-os-green border border-black flex items-center justify-center shadow-[3px_3px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-x-[1px] active:translate-y-[1px] relative z-10"
+                >
+                  <Icon icon="ph:check-bold" width={18} height={18} className="text-black" />
+                </motion.button>
+              )}
+            </AnimatePresence>
+          </motion.div>
+        </div>
+      )}
+
+      {/* Tasks List or Empty State */}
+      <div className={`${activeFilter === 'done' ? 'mt-14' : 'mt-8'} space-y-5`}>
         {activeFilter === 'done' ? (
           targets.filter(t => t.completed).length > 0 ? (
             (['today', 'upcoming', 'someday', 'delayed'] as const).map((windowId) => {
               const windowTargets = targets.filter(t => t.completed && t.window === windowId);
               if (windowTargets.length === 0) return null;
               
-              const label = windowId === 'today' ? 'Hari Ini' : windowId === 'upcoming' ? 'Besok' : windowId === 'delayed' ? 'Ditunda' : 'Suatu Hari';
-              const isCollapsed = collapsedGroups.has(windowId);
+              const label = windowId === 'today' 
+                ? t('todo.filters.today') 
+                : windowId === 'upcoming' 
+                  ? t('todo.filters.upcoming') 
+                  : windowId === 'delayed' 
+                    ? t('todo.filters.delayed') 
+                    : t('todo.filters.someday');
               
               return (
-                <div key={windowId} className="space-y-4 pt-2 first:pt-0">
-                  <button
-                    type="button"
-                    className="flex items-center justify-between w-full px-1"
-                    onClick={() => {
-                      setCollapsedGroups(prev => {
-                        const next = new Set(prev);
-                        if (next.has(windowId)) {
-                          next.delete(windowId);
-                        } else {
-                          next.add(windowId);
-                        }
-                        return next;
-                      });
-                      if (navigator.vibrate) navigator.vibrate(5);
-                    }}
-                  >
-                    <div className="flex items-center gap-3 flex-1">
-                      <div className="h-[1.5px] flex-1 bg-[#E3DAC9]/10" />
-                      <span className="text-[10px] font-black text-[#E3DAC9] tracking-[0.2em]">{label}</span>
-                      <span className="text-[9px] font-bold text-[#E3DAC9]/40">{windowTargets.length}</span>
-                    </div>
-                    <Icon
-                      icon="ph:caret-down-bold"
-                      width={14}
-                      height={14}
-                      className={`text-[#E3DAC9]/50 transition-transform duration-200 ml-2 ${isCollapsed ? '-rotate-90' : 'rotate-0'}`}
-                    />
-                  </button>
-                  <AnimatePresence initial={false}>
-                    {!isCollapsed && (
-                      <motion.div
-                        initial={{ height: 0, opacity: 0 }}
-                        animate={{ height: 'auto', opacity: 1 }}
-                        exit={{ height: 0, opacity: 0 }}
-                        transition={{ duration: 0.2, ease: 'easeInOut' }}
-                        className="overflow-hidden"
-                      >
-                        <div className="space-y-4">
-                          {windowTargets.map((target, index) => (
-                            <TargetCard key={target.id} target={target} index={index} onOpen={handleOpenTarget} />
-                          ))}
-                        </div>
+                <div key={windowId} className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] font-black font-['Outfit'] text-white/30 uppercase tracking-[0.15em]">
+                      {label}
+                    </span>
+                    <span className="text-[10px] font-bold font-['Outfit'] text-white/20">
+                      {windowTargets.length} {t('todo.doneLabel')}
+                    </span>
+                  </div>
+                  <motion.div layout className="space-y-3">
+                    {windowTargets.map((target, idx) => (
+                      <motion.div layout key={target.id}>
+                        <TargetCard target={target} index={idx} onOpen={handleOpenTarget} />
                       </motion.div>
-                    )}
-                  </AnimatePresence>
+                    ))}
+                  </motion.div>
                 </div>
               );
             })
           ) : (
-            <EmptyHistoryState />
+            <div className="flex flex-col items-center justify-center py-20">
+              <div className="w-16 h-16 rounded-[22px] bg-os-card-bg border-[1.5px] border-border-theme flex items-center justify-center mb-6">
+                <Icon icon="solar:check-circle-bold" width={28} className="text-[#E3DAC9]/20" />
+              </div>
+              <h3 className="font-black text-[15px] tracking-[0.1em] text-[#E3DAC9]/60 uppercase font-['Outfit'] text-center">
+                {t('todo.emptyDone')}
+              </h3>
+            </div>
           )
         ) : (
-          visibleTargets.length > 0 ? (
-              <div className="space-y-5">
-                <AnimatePresence mode="popLayout">
-                {visibleTargets.map((target, index) => (
-                  <motion.div
-                    key={target.id}
-                    layout
-                    initial={{ opacity: 0, y: 12 }}
-                    animate={{ opacity: 1, y: 0, x: 0 }}
-                    exit={{ opacity: 0, x: 120, scale: 0.9, transition: { duration: 0.3, ease: 'easeIn' } }}
-                    transition={{ duration: 0.25, delay: index * 0.05, ease: 'easeOut' }}
-                  >
+          targets.filter(t => !t.completed && t.window === activeFilter).length > 0 ? (
+            <motion.div layout className="space-y-3">
+              {targets
+                .filter(t => !t.completed && t.window === activeFilter)
+                .map((target, index) => (
+                  <motion.div layout key={target.id}>
                     <TargetCard target={target} index={index} onOpen={handleOpenTarget} />
                   </motion.div>
                 ))}
-                </AnimatePresence>
-              </div>
-          ) : null
-        )}
-
-        {/* QUICK ADD BAR - PREMIUM & CONSISTENT */}
-        {activeFilter !== 'done' && (
-          <div className="pt-4">
-            <motion.div
-              initial={{ backgroundColor: '#22252a' }}
-              animate={{
-                borderColor: isAdding || inputValue ? 'rgba(255,255,255,0.4)' : 'rgba(255,255,255,0.15)',
-              }}
-              className={`
-                w-full rounded-[8px] flex items-center gap-3 px-4 py-4 transition-all relative overflow-hidden
-                border-[2px] shadow-[4px_4px_0px_rgba(0,0,0,1)]
-              `}
-              onClick={() => {
-                if (!isAdding) {
-                  setIsAdding(true);
-                  quickAddRef.current?.focus();
-                }
-              }}
-            >
-              {/* NOISE TEXTURE LAYER */}
-              <div 
-                className="absolute inset-0 z-[1] opacity-[0.2] mix-blend-overlay pointer-events-none" 
-                style={{
-                  backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`
-                }}
-              />
-              {/* Clean Deep Charcoal Background */}
-              <div className="absolute inset-0 bg-[#1a1c20] z-0 pointer-events-none" />
-              <div className="absolute inset-0 bg-white/[0.01] z-0 pointer-events-none" />
-              {/* PLUS ICON - no glow */}
-              <div className="relative flex items-center justify-center shrink-0">
-                <Icon 
-                  icon="ph:plus-bold" 
-                  width={22} 
-                  height={22} 
-                  className={`relative z-10 transition-colors ${isAdding || inputValue ? 'text-white' : 'text-white/30'}`} 
-                />
-              </div>
-              
-              <input
-                ref={quickAddRef}
-                type="text"
-                value={inputValue}
-                onChange={(e) => setInputValue(e.target.value)}
-                placeholder="Tulis tugas anda..."
-                onFocus={() => setIsAdding(true)}
-                onBlur={() => {
-                  if (!inputValue) setIsAdding(false);
-                }}
-                className={`
-                  flex-1 bg-transparent border-none outline-none text-[16px] font-semibold font-['Outfit'] 
-                  text-[#E3DAC9] placeholder:text-[#E3DAC9]/20 tracking-normal relative z-10
-                `}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') handleQuickAdd();
-                  if (e.key === 'Escape') {
-                    setIsAdding(false);
-                    quickAddRef.current?.blur();
-                  }
-                }}
-              />
-
-              {/* DYNAMIC CHECKMARK SUBMIT */}
-              <AnimatePresence>
-                {inputValue.trim().length > 0 && (
-                  <motion.button
-                    initial={{ opacity: 0, scale: 0.5, x: 20 }}
-                    animate={{ opacity: 1, scale: 1, x: 0 }}
-                    exit={{ opacity: 0, scale: 0.5, x: 20 }}
-                    whileTap={{ scale: 0.85 }}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleQuickAdd();
-                    }}
-                    className="w-10 h-10 rounded-xl bg-[#00FF85] border border-black flex items-center justify-center shadow-[3px_3px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-x-[1px] active:translate-y-[1px] relative z-10"
-                  >
-                    <Icon icon="ph:check-bold" width={18} height={18} className="text-black" />
-                  </motion.button>
-                )}
-              </AnimatePresence>
             </motion.div>
-          </div>
+          ) : (
+            <div className="flex flex-col items-center justify-center py-20">
+              <div className="w-16 h-16 rounded-[22px] bg-os-card-bg border-[1.5px] border-border-theme flex items-center justify-center mb-6">
+                <Icon icon="solar:clipboard-list-bold" width={28} className="text-[#E3DAC9]/20" />
+              </div>
+              <h3 className="font-black text-[15px] tracking-[0.1em] text-[#E3DAC9]/60 uppercase font-['Outfit'] text-center">
+                {activeFilter === 'today' && t('todo.emptyToday')}
+                {activeFilter === 'upcoming' && t('todo.emptyUpcoming')}
+                {activeFilter === 'someday' && t('todo.emptySomeday')}
+                {activeFilter === 'delayed' && t('todo.emptyDelayed')}
+              </h3>
+            </div>
+          )
         )}
 
         {/* Floating Add Button - Consistent with Habits */}
@@ -1048,7 +894,7 @@ export default function TodoTargetView({ initialFilter }: { initialFilter?: Targ
             if (navigator.vibrate) navigator.vibrate(20);
             setIsAddOpen(true);
           }}
-          className="fixed bottom-24 right-6 w-[60px] h-[60px] bg-[#00FF85] border-[2px] border-black rounded-2xl shadow-[5px_5px_0px_rgba(0,0,0,1)] flex items-center justify-center z-[60]"
+          className="fixed bottom-24 right-6 w-[60px] h-[60px] bg-os-green border-[2px] border-black rounded-2xl shadow-[5px_5px_0px_rgba(0,0,0,1)] flex items-center justify-center z-[60]"
         >
           <svg width="30" height="30" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M12 5V19M5 12H19" stroke="black" strokeWidth="5" strokeLinecap="square" />

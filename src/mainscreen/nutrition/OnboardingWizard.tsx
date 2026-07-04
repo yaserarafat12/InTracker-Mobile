@@ -351,7 +351,7 @@ export const OnboardingWizard = ({ onExit }: OnboardingWizardProps) => {
   // --- Render ---
 
   return (
-    <div className="fixed inset-0 bg-[#16181c] z-[100] flex flex-col">
+    <div className="nutrition-overlay fixed inset-0 bg-[#16181c] z-[100] flex flex-col">
       {/* Header */}
       <div className="pt-14 pb-4 px-6">
         <div className="flex items-center justify-center relative mb-6">

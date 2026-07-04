@@ -2,26 +2,40 @@ import { useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { Icon } from '@iconify/react';
 import { useFoodLogStore } from '../../../store/useFoodLogStore';
+import { useTranslation } from '../../../i18n';
 
 // --- Helpers ---
 
-function formatDisplayDate(dateStr: string): string {
+const LOCALE_MAP: Record<string, string> = {
+  'English': 'en-US',
+  'Bahasa Indonesia': 'id-ID',
+  'Español': 'es-ES',
+  'Chinese': 'zh-CN',
+  'Hindi': 'hi-IN',
+  'Arabic': 'ar-SA',
+  'Portuguese': 'pt-PT',
+  'Français': 'fr-FR',
+  'Japanese': 'ja-JP',
+  'Deutsch': 'de-DE'
+};
+
+function formatDisplayDate(dateStr: string, t: any, language: string): string {
   const date = new Date(dateStr + 'T00:00:00');
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
   const todayStr = today.toLocaleDateString('en-CA');
-  if (dateStr === todayStr) return 'Today';
+  if (dateStr === todayStr) return t('journey.date.today');
 
   const yesterday = new Date(today);
   yesterday.setDate(yesterday.getDate() - 1);
-  if (dateStr === yesterday.toLocaleDateString('en-CA')) return 'Yesterday';
+  if (dateStr === yesterday.toLocaleDateString('en-CA')) return t('journey.date.yesterday');
 
   const tomorrow = new Date(today);
   tomorrow.setDate(tomorrow.getDate() + 1);
-  if (dateStr === tomorrow.toLocaleDateString('en-CA')) return 'Tomorrow';
+  if (dateStr === tomorrow.toLocaleDateString('en-CA')) return t('journey.date.tomorrow');
 
-  return date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+  return date.toLocaleDateString(LOCALE_MAP[language] || 'en-US', { weekday: 'short', month: 'short', day: 'numeric' });
 }
 
 function addDays(dateStr: string, days: number): string {
@@ -34,6 +48,7 @@ function addDays(dateStr: string, days: number): string {
 
 export function DateNavigator() {
   const { selectedDate, setSelectedDate } = useFoodLogStore();
+  const { t, language } = useTranslation();
 
   const { canGoBack, canGoForward } = useMemo(() => {
     const today = new Date();
@@ -66,7 +81,7 @@ export function DateNavigator() {
       </motion.button>
 
       <span className="text-[14px] font-bold font-['Outfit'] text-[#E3DAC9]">
-        {formatDisplayDate(selectedDate)}
+        {formatDisplayDate(selectedDate, t, language)}
       </span>
 
       <motion.button
