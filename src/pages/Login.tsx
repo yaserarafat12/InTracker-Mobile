@@ -124,9 +124,14 @@ export default function Login() {
               className="w-full"
             >
               <div className="text-center mb-[2.5vh]">
-                <h1 className="text-[24px] font-medium leading-[1.3] tracking-normal text-white/95 font-['Outfit']">
+                <h1 
+                  className="text-[24px] font-medium leading-[1.3] tracking-normal text-white font-['Outfit']"
+                  style={{
+                    textShadow: '0 2px 4px rgba(0,0,0,0.6), -0.5px -0.5px 0 rgba(0,0,0,0.8), 0.5px -0.5px 0 rgba(0,0,0,0.8), -0.5px 0.5px 0 rgba(0,0,0,0.8), 0.5px 0.5px 0 rgba(0,0,0,0.8)'
+                  }}
+                >
                   Mulailah perjalananmu<br />
-                  dengan <span className="text-[#10B981] font-semibold">semua usahamu.</span>
+                  dengan <span className="font-semibold text-white">semua usahamu.</span>
                 </h1>
               </div>
 
@@ -176,7 +181,7 @@ export default function Login() {
             >
               <button 
                 onClick={() => setView('initial')}
-                className="flex items-center gap-2 text-white/40 mb-6 hover:text-[#10B981] transition-colors"
+                className="flex items-center gap-2 text-white/40 mb-6 hover:text-white transition-colors"
               >
                 <Icon icon="solar:alt-arrow-left-bold" width={20} height={20} />
                 <span className="text-[14px] font-medium">Kembali</span>
@@ -194,7 +199,7 @@ export default function Login() {
                   placeholder="Contoh: yaser@gmail.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full bg-[#1A1A1A] border border-[#E3DAC9]/20 rounded-xl py-4 px-6 text-[15px] outline-none focus:border-[#10B981] transition-all placeholder:text-white/40 font-['Outfit'] font-bold tracking-wide"
+                  className="w-full bg-[#1A1A1A] border border-[#E3DAC9]/20 rounded-xl py-4 px-6 text-[15px] outline-none focus:border-white transition-all placeholder:text-white/40 font-['Outfit'] font-bold tracking-wide"
                 />
                 <button
                   type="submit"
@@ -202,7 +207,7 @@ export default function Login() {
                   className={`w-full flex items-center justify-center gap-3 h-[50px] rounded-xl font-black text-[14px] tracking-[0.1em] transition-all uppercase ${
                     loading || !email 
                     ? 'bg-white/5 text-white/20 cursor-not-allowed' 
-                    : 'bg-[#10B981] text-black border-[2px] border-black shadow-[3px_3px_0px_rgba(0,0,0,1)] active:scale-[0.97] active:shadow-none'
+                    : 'bg-white text-black border-[2px] border-black shadow-[3px_3px_0px_rgba(0,0,0,1)] active:scale-[0.97] active:shadow-none'
                   }`}
                 >
                   {loading ? 'Mengirim...' : 'Kirim Link Login'}
