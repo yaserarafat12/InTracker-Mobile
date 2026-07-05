@@ -2218,7 +2218,14 @@ export default function Questions() {
     // Save to Zustand
     updateSettings(profileData);
 
-    const finalOptions = Array.isArray(overrideOptions) ? overrideOptions : selectedOptions;
+    let finalOptions = Array.isArray(overrideOptions) ? overrideOptions : selectedOptions;
+    if (currentStep === 1) finalOptions = [`${firstName} ${lastName}`.trim()];
+    else if (currentStep === 2) finalOptions = [nickname];
+    else if (currentStep === 3) finalOptions = [username];
+    else if (currentStep === 4) finalOptions = [gender];
+    else if (currentStep === 5) finalOptions = [dob];
+    else if (currentStep === 6) finalOptions = [weight && height ? `${weight}kg / ${height}cm` : ''];
+
     const updatedAnswers = { ...allAnswers, [currentStep]: finalOptions };
     setAllAnswers(updatedAnswers);
 

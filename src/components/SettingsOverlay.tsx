@@ -47,31 +47,77 @@ const getGMTOffset = (timeZone: string) => {
 };
 
 const timeZoneList = [
-  { city: 'Abidjan', zone: 'Africa/Abidjan' },
-  { city: 'Accra', zone: 'Africa/Accra' },
-  { city: 'Addis Ababa', zone: 'Africa/Addis_Ababa' },
-  { city: 'Algiers', zone: 'Africa/Algiers' },
-  { city: 'Asmara', zone: 'Africa/Asmara' },
-  { city: 'Bamako', zone: 'Africa/Bamako' },
-  { city: 'Bangui', zone: 'Africa/Bangui' },
-  { city: 'Banjul', zone: 'Africa/Banjul' },
-  { city: 'Jakarta', zone: 'Asia/Jakarta' },
-  { city: 'Jayapura', zone: 'Asia/Jayapura' },
-  { city: 'Makassar', zone: 'Asia/Makassar' },
+  // Indonesia (WIB, WITA, WIT)
+  { city: 'Jakarta (WIB)', zone: 'Asia/Jakarta' },
+  { city: 'Surabaya (WIB)', zone: 'Asia/Jakarta' },
+  { city: 'Medan (WIB)', zone: 'Asia/Jakarta' },
+  { city: 'Makassar (WITA)', zone: 'Asia/Makassar' },
+  { city: 'Bali / Denpasar (WITA)', zone: 'Asia/Makassar' },
+  { city: 'Jayapura (WIT)', zone: 'Asia/Jayapura' },
+  { city: 'Ambon (WIT)', zone: 'Asia/Jayapura' },
+  
+  // Southeast Asia & East Asia
   { city: 'Singapore', zone: 'Asia/Singapore' },
+  { city: 'Kuala Lumpur', zone: 'Asia/Kuala_Lumpur' },
+  { city: 'Bangkok', zone: 'Asia/Bangkok' },
+  { city: 'Hanoi / Ho Chi Minh', zone: 'Asia/Ho_Chi_Minh' },
+  { city: 'Manila', zone: 'Asia/Manila' },
   { city: 'Tokyo', zone: 'Asia/Tokyo' },
   { city: 'Seoul', zone: 'Asia/Seoul' },
-  { city: 'Bangkok', zone: 'Asia/Bangkok' },
-  { city: 'Manila', zone: 'Asia/Manila' },
-  { city: 'Sydney', zone: 'Australia/Sydney' },
+  { city: 'Hong Kong', zone: 'Asia/Hong_Kong' },
+  { city: 'Taipei', zone: 'Asia/Taipei' },
+  
+  // South Asia, Middle East & Central Asia
+  { city: 'Kolkata / Mumbai (India)', zone: 'Asia/Kolkata' },
+  { city: 'Kathmandu (Nepal)', zone: 'Asia/Katmandu' },
+  { city: 'Dhaka', zone: 'Asia/Dhaka' },
+  { city: 'Karachi', zone: 'Asia/Karachi' },
+  { city: 'Tashkent', zone: 'Asia/Tashkent' },
+  { city: 'Kabul', zone: 'Asia/Kabul' },
+  { city: 'Dubai', zone: 'Asia/Dubai' },
+  { city: 'Riyadh', zone: 'Asia/Riyadh' },
+  { city: 'Tehran', zone: 'Asia/Tehran' },
+  
+  // Europe
   { city: 'London', zone: 'Europe/London' },
+  { city: 'Dublin', zone: 'Europe/Dublin' },
   { city: 'Paris', zone: 'Europe/Paris' },
   { city: 'Berlin', zone: 'Europe/Berlin' },
-  { city: 'New York', zone: 'America/New_York' },
-  { city: 'Los Angeles', zone: 'America/Los_Angeles' },
-  { city: 'Dubai', zone: 'Asia/Dubai' },
-  { city: 'Mumbai', zone: 'Asia/Kolkata' },
+  { city: 'Rome', zone: 'Europe/Rome' },
+  { city: 'Madrid', zone: 'Europe/Madrid' },
+  { city: 'Amsterdam', zone: 'Europe/Amsterdam' },
   { city: 'Moscow', zone: 'Europe/Moscow' },
+  { city: 'Istanbul', zone: 'Europe/Istanbul' },
+  { city: 'Athens', zone: 'Europe/Athens' },
+
+  // Americas
+  { city: 'New York / Toronto', zone: 'America/New_York' },
+  { city: 'Los Angeles / Vancouver', zone: 'America/Los_Angeles' },
+  { city: 'Chicago', zone: 'America/Chicago' },
+  { city: 'Denver', zone: 'America/Denver' },
+  { city: 'Phoenix', zone: 'America/Phoenix' },
+  { city: 'Anchorage (Alaska)', zone: 'America/Anchorage' },
+  { city: 'Honolulu (Hawaii)', zone: 'Pacific/Honolulu' },
+  { city: 'Mexico City', zone: 'America/Mexico_City' },
+  { city: 'Sao Paulo', zone: 'America/Sao_Paulo' },
+  { city: 'Buenos Aires', zone: 'America/Argentina/Buenos_Aires' },
+  { city: 'Santiago', zone: 'America/Santiago' },
+
+  // Africa
+  { city: 'Cairo', zone: 'Africa/Cairo' },
+  { city: 'Johannesburg', zone: 'Africa/Johannesburg' },
+  { city: 'Nairobi', zone: 'Africa/Nairobi' },
+  { city: 'Lagos', zone: 'Africa/Lagos' },
+  { city: 'Algiers', zone: 'Africa/Algiers' },
+  { city: 'Casablanca', zone: 'Africa/Casablanca' },
+
+  // Australia & Pacific
+  { city: 'Sydney', zone: 'Australia/Sydney' },
+  { city: 'Melbourne', zone: 'Australia/Melbourne' },
+  { city: 'Brisbane', zone: 'Australia/Brisbane' },
+  { city: 'Perth', zone: 'Australia/Perth' },
+  { city: 'Auckland', zone: 'Pacific/Auckland' },
+  { city: 'Fiji', zone: 'Pacific/Fiji' }
 ];
 
 const MONTH_NAMES = {
@@ -95,12 +141,30 @@ export const SettingsOverlay = () => {
     addDailyPass, 
     addStreakFreeze,
     subscriptionPlan,
-    setSubscriptionPlan
+    setSubscriptionPlan,
+    fetchProfile
   } = useUserStore();
   const { t, language } = useTranslation();
   const navigate = useNavigate();
   const isPro = isProActive();
-  const isLight = settings.theme === 'Light';
+  
+  const isLight = settings.theme === 'Light' || (settings.theme === 'System' && !window.matchMedia('(prefers-color-scheme: dark)').matches);
+  const isWeb = !(window as any).Capacitor || (window as any).Capacitor?.getPlatform() === 'web';
+
+  const inputClass = isLight
+    ? "w-full bg-white border-2 border-black text-black placeholder:text-black/40 focus:outline-none rounded-xl px-4 py-3 text-xs font-bold shadow-[3px_3px_0px_rgba(0,0,0,1)] focus:translate-x-[1px] focus:translate-y-[1px] focus:shadow-[2px_2px_0px_rgba(0,0,0,1)] transition-all"
+    : "w-full bg-[#1c1c1e] border-2 border-black text-white placeholder:text-white/30 focus:outline-none rounded-xl px-4 py-3 text-xs font-bold shadow-[3px_3px_0px_rgba(0,0,0,1)] focus:translate-x-[1px] focus:translate-y-[1px] focus:shadow-[2px_2px_0px_rgba(0,0,0,1)] transition-all";
+
+  const labelClass = `text-[10px] font-black uppercase tracking-wider ${isLight ? 'text-black/60' : 'text-white/50'}`;
+
+  const boxClass = isLight
+    ? "bg-white border-2 border-black rounded-2xl px-3 overflow-hidden shadow-[4px_4px_0px_rgba(0,0,0,1)] text-black"
+    : "bg-[#1c1c1e] border-2 border-black rounded-2xl px-3 overflow-hidden shadow-[4px_4px_0px_rgba(0,0,0,1)] text-white";
+
+  const cardClass = isLight
+    ? "bg-white border-2 border-black rounded-2xl p-5 shadow-[4px_4px_0px_rgba(0,0,0,1)] text-black"
+    : "bg-[#1c1c1e] border-2 border-black rounded-2xl p-5 shadow-[4px_4px_0px_rgba(0,0,0,1)] text-white";
+
 
   const [currentView, setCurrentView] = useState<SettingsView>('menu');
   const [successToast, setSuccessToast] = useState<string | null>(null);
@@ -158,6 +222,23 @@ export const SettingsOverlay = () => {
   const monthScrollRef = useRef<HTMLDivElement>(null);
   const yearScrollRef = useRef<HTMLDivElement>(null);
   const scrollTimeoutRef = useRef<any>(null);
+  const pollingIntervalRef = useRef<any>(null);
+
+  // Clean up polling interval on unmount or when modal is closed
+  useEffect(() => {
+    if (!isCheckoutOpen && pollingIntervalRef.current) {
+      clearInterval(pollingIntervalRef.current);
+      pollingIntervalRef.current = null;
+    }
+  }, [isCheckoutOpen]);
+
+  useEffect(() => {
+    return () => {
+      if (pollingIntervalRef.current) {
+        clearInterval(pollingIntervalRef.current);
+      }
+    };
+  }, []);
 
   // Sync scroll positions when Picker opens and wheel mode is active
   useEffect(() => {
@@ -517,28 +598,142 @@ export const SettingsOverlay = () => {
     setCurrentView('menu');
   };
 
-  const handleConfirmPayment = () => {
+  const getPlanAmount = (plan: string | null): number => {
+    switch (plan) {
+      case 'weekly': return 5000;
+      case 'monthly': return 20000;
+      case 'annual': return 200000;
+      default: return 0;
+    }
+  };
+
+  const handleConfirmPayment = async () => {
+    if (!checkoutPlan || checkoutPlan === 'free') return;
     if (navigator.vibrate) navigator.vibrate(10);
     setIsProcessingPayment(true);
-    
-    // Simulate payment processing for 1.8 seconds
-    setTimeout(() => {
-      setIsProcessingPayment(false);
-      setPaymentSuccess(true);
-      if (navigator.vibrate) navigator.vibrate([20, 50, 20]);
-      
-      // Grant subscription plan after success animation
+
+    if (localStorage.getItem('guest_mode') === 'true') {
+      // Simulate guest mode checkout
       setTimeout(() => {
-        if (checkoutPlan) {
+        setIsProcessingPayment(false);
+        setPaymentSuccess(true);
+        if (navigator.vibrate) navigator.vibrate([20, 50, 20]);
+        setTimeout(() => {
           setSubscriptionPlan(checkoutPlan as any);
           const planLabel = t(`settings.plan${checkoutPlan.charAt(0).toUpperCase() + checkoutPlan.slice(1)}Label`);
           triggerToast(t('settings.planSubscribedSuccess').replace('{plan}', planLabel));
+          setIsCheckoutOpen(false);
+          setPaymentSuccess(false);
+          setSelectedPlan(null);
+        }, 2000);
+      }, 1800);
+      return;
+    }
+
+    try {
+      const { supabase } = await import('../lib/supabase');
+      const { Browser } = await import('@capacitor/browser');
+      const { data: { user } } = await supabase.auth.getUser();
+
+      if (!user) {
+        triggerToast('Error: User not authenticated');
+        setIsProcessingPayment(false);
+        return;
+      }
+
+      const amount = getPlanAmount(checkoutPlan);
+      const invoiceNumber = `INV_${user.id}_${checkoutPlan}_${Date.now()}`;
+      
+      const { data, error } = await supabase.functions.invoke('doku-checkout', {
+        body: {
+          amount,
+          invoiceNumber,
+          customerName: nickname || profile?.full_name || 'InTracker User',
+          customerEmail: email || user.email || 'user@intracker.co',
+          items: [
+            {
+              name: `InRising Premium - ${checkoutPlan}`,
+              price: amount,
+              quantity: 1
+            }
+          ],
+          callbackUrl: `${window.location.origin}/payment-success`
         }
-        setIsCheckoutOpen(false);
-        setPaymentSuccess(false);
-        setSelectedPlan(null);
-      }, 2000);
-    }, 1800);
+      });
+
+      if (error || !data?.response?.payment?.url) {
+        console.warn("Doku invocation failed:", error || data);
+        triggerToast(language === 'Bahasa Indonesia' ? 'Gagal memproses pembayaran dengan DOKU.' : 'Failed to process payment with DOKU.');
+        setIsProcessingPayment(false);
+        return;
+      }
+
+      const paymentUrl = data.response.payment.url;
+      console.log("[Doku Payment URL]:", paymentUrl);
+
+      // Open in-app browser using Capacitor Browser plugin
+      await Browser.open({ url: paymentUrl });
+
+      const isWeb = !(window as any).Capacitor || (window as any).Capacitor?.getPlatform() === 'web';
+      if (isWeb) {
+        // Polling database for profile is_pro update on web
+        let pollCount = 0;
+        const maxPolls = 60; // Poll for 2 minutes max (every 2 seconds)
+        const intervalId = setInterval(async () => {
+          pollCount++;
+          console.log(`[Doku Web Polling] Checking payment status (${pollCount}/${maxPolls})...`);
+          
+          const { data: latestProfile, error: fetchErr } = await supabase
+            .from('profiles')
+            .select('is_pro, pro_until')
+            .eq('id', user.id)
+            .single();
+
+          if (!fetchErr && latestProfile) {
+            const isPro = latestProfile.is_pro || (latestProfile.pro_until && new Date(latestProfile.pro_until) > new Date());
+            if (isPro) {
+              console.log("[Doku Web Polling] Payment success detected!");
+              clearInterval(intervalId);
+              pollingIntervalRef.current = null;
+              await fetchProfile(); // Sync store profile state
+              setPaymentSuccess(true);
+              setIsProcessingPayment(false);
+              if (navigator.vibrate) navigator.vibrate([20, 50, 20]);
+              setTimeout(() => {
+                setIsCheckoutOpen(false);
+                setPaymentSuccess(false);
+                setSelectedPlan(null);
+              }, 2500);
+              return;
+            }
+          }
+
+          if (pollCount >= maxPolls) {
+            console.log("[Doku Web Polling] Timeout reached.");
+            clearInterval(intervalId);
+            pollingIntervalRef.current = null;
+            setIsProcessingPayment(false);
+            triggerToast(language === 'Bahasa Indonesia' ? 'Batas waktu verifikasi habis. Silakan periksa kembali nanti.' : 'Verification timeout. Please check again later.');
+          }
+        }, 2000);
+        pollingIntervalRef.current = intervalId;
+      } else {
+        // Listen for browser close event to refresh profile subscription status (Mobile App only)
+        const browserFinishedListener = await Browser.addListener('browserFinished', async () => {
+          console.log("[Doku In-App Browser Closed] Refreshing profile...");
+          await fetchProfile();
+          browserFinishedListener.remove();
+          setIsCheckoutOpen(false);
+          setIsProcessingPayment(false);
+          setSelectedPlan(null);
+        });
+      }
+
+    } catch (err: any) {
+      console.error("[Doku checkout integration crash]:", err);
+      triggerToast(err.message || 'Error occurred during checkout');
+      setIsProcessingPayment(false);
+    }
   };
 
   const menuSections = [
@@ -569,47 +764,51 @@ export const SettingsOverlay = () => {
           animate={{ opacity: 1, x: 0 }}
           exit={{ opacity: 0, x: '100%' }}
           transition={{ type: 'spring', stiffness: 380, damping: 35 }}
-          className={`fixed inset-0 z-[100] flex flex-col overflow-hidden font-['Outfit'] select-none transition-colors duration-300 ${
-            isLight
-              ? 'bg-[#F2F2F7] text-black'
-              : 'bg-gradient-to-b from-[#181513] via-[#141210] to-[#0f0e0d] text-white'
-          }`}
+          className={`fixed inset-0 z-[100] flex flex-col overflow-hidden font-['Outfit'] select-none transition-colors duration-300 ${isLight ? 'bg-[#F8F9FA] text-black' : 'bg-black text-white'}`}
         >
           {/* TOAST NOTIFICATION */}
           <AnimatePresence>
-            {successToast && (
-              <motion.div
-                initial={{ opacity: 0, y: -20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                className="absolute top-6 left-1/2 -translate-x-1/2 z-[110] px-4 py-3 bg-[#7BE495] text-black border border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] rounded-xl flex items-center gap-2 text-xs font-bold whitespace-nowrap"
-              >
-                <Icon icon="ph:check-bold" width={14} />
-                <span>{successToast}</span>
-              </motion.div>
-            )}
+            {successToast && (() => {
+              const isError = 
+                successToast.toLowerCase().includes('gagal') || 
+                successToast.toLowerCase().includes('failed') || 
+                successToast.toLowerCase().includes('error') || 
+                successToast.toLowerCase().includes('not match');
+              return (
+                <motion.div
+                  initial={{ opacity: 0, y: -20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  className={`absolute top-6 left-1/2 -translate-x-1/2 z-[110] px-4 py-3 border-2 border-black shadow-[3px_3px_0px_rgba(0,0,0,1)] rounded-xl flex items-center gap-2 text-xs font-black whitespace-nowrap transition-colors ${
+                    isError ? 'bg-[#EF4444] text-white' : 'bg-[#10B981] text-black'
+                  }`}
+                >
+                  {isError && <Icon icon="ph:warning-circle-bold" width={15} />}
+                  <span>{successToast}</span>
+                </motion.div>
+              );
+            })()}
           </AnimatePresence>
 
           {/* HEADER */}
-          <div className={`px-6 py-5 flex items-center justify-between border-b relative z-20 h-20 ${
-            isLight ? 'border-[#e0e0e0]' : 'border-[#222]'
-          }`}>
+          <div className={`px-6 py-5 flex items-center justify-between border-b-2 border-black relative z-20 h-20 ${isLight ? 'bg-white text-black' : 'bg-[#0d0f12] text-white'}`}>
             {/* Left Button Slot */}
             <div className="w-10 flex items-center justify-start">
               {currentView !== 'menu' && (
-                <button
+                <motion.button
+                  whileTap={{ scale: 0.9 }}
                   onClick={() => {
                     if (navigator.vibrate) navigator.vibrate(10);
                     setCurrentView('menu');
                   }}
-                  className={`w-9 h-9 rounded-xl border-2 flex items-center justify-center transition-all active:translate-x-[2px] active:translate-y-[2px] active:shadow-none ${
-                    settings.theme === 'Light'
-                      ? 'bg-white border-black text-black shadow-[3px_3px_0px_rgba(0,0,0,1)]'
-                      : 'bg-black border-white text-white shadow-[3px_3px_0px_rgba(255,255,255,1)]'
+                  className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all ${
+                    isLight
+                      ? 'border-2 border-black bg-white text-black shadow-[3px_3px_0px_rgba(0,0,0,1)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none'
+                      : 'border border-white/10 bg-[#2a2c32] text-white shadow-none'
                   }`}
                 >
                   <Icon icon="ph:arrow-left-bold" width={18} height={18} />
-                </button>
+                </motion.button>
               )}
             </div>
 
@@ -630,20 +829,21 @@ export const SettingsOverlay = () => {
 
             {/* Right Button Slot */}
             <div className="w-10 flex items-center justify-end">
-              <button
+              <motion.button
+                whileTap={{ scale: 0.9 }}
                 onClick={() => {
                   if (navigator.vibrate) navigator.vibrate(10);
                   setCurrentView('menu');
                   setSettingsOpen(false);
                 }}
-                className={`w-9 h-9 rounded-xl border-2 flex items-center justify-center transition-all active:translate-x-[2px] active:translate-y-[2px] active:shadow-none ${
-                  settings.theme === 'Light'
-                    ? 'bg-white border-black text-black shadow-[3px_3px_0px_rgba(0,0,0,1)]'
-                    : 'bg-black border-white text-white shadow-[3px_3px_0px_rgba(255,255,255,1)]'
+                className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all ${
+                  isLight
+                    ? 'border-2 border-black bg-white text-black shadow-[3px_3px_0px_rgba(0,0,0,1)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none'
+                    : 'border border-white/10 bg-[#2a2c32] text-white shadow-none'
                 }`}
               >
                 <Icon icon="ph:x-bold" width={16} height={16} />
-              </button>
+              </motion.button>
             </div>
           </div>
 
@@ -662,7 +862,7 @@ export const SettingsOverlay = () => {
                      }}
                      className="flex items-center gap-3 cursor-pointer group"
                    >
-                     <div className="w-12 h-12 rounded-full border border-black shadow-[2px_2px_0px_rgba(0,0,0,1)] flex-shrink-0 overflow-hidden bg-[#7BE495] flex items-center justify-center relative group-hover:scale-105 transition-transform">
+                     <div className="w-12 h-12 rounded-full border border-black shadow-[2px_2px_0px_rgba(0,0,0,1)] flex-shrink-0 overflow-hidden bg-[#10B981] flex items-center justify-center relative group-hover:scale-105 transition-transform">
                        {avatarUrl ? (
                          <img src={avatarUrl} alt="avatar" className="w-full h-full object-cover" />
                        ) : (
@@ -684,7 +884,7 @@ export const SettingsOverlay = () => {
                     onClick={() => setCurrentView('premium')}
                     className={`px-3 py-1.5 rounded-lg text-[10px] font-black border tracking-wider ${
                       isPro
-                        ? 'bg-[#7BE495] text-black border-black shadow-[2px_2px_0px_rgba(0,0,0,1)]'
+                        ? 'bg-[#10B981] text-black border-black shadow-[2px_2px_0px_rgba(0,0,0,1)]'
                         : isLight ? 'bg-[#e8e8e8] text-black/50 border-[#ccc]' : 'bg-[#111] text-white/40 border-white/10 hover:border-white/20'
                     }`}
                   >
@@ -706,7 +906,7 @@ export const SettingsOverlay = () => {
                     >
                       <div className="flex items-center gap-3">
                         <div className={`w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0 ${danger ? 'bg-red-950/30' : isLight ? 'bg-[#f0f0f0] border border-[#ddd]' : 'bg-[#141414] border border-[#222]'}`}>
-                          <Icon icon={icon} className={danger ? 'text-red-500/70' : 'text-[#7BE495]'} width={15} />
+                          <Icon icon={icon} className={danger ? 'text-red-500/70' : 'text-[#10B981]'} width={15} />
                         </div>
                         <div>
                           <span className={`text-xs font-bold leading-none ${danger ? 'text-red-500/70' : isLight ? 'text-black' : 'text-white'}`}>{label}</span>
@@ -720,7 +920,7 @@ export const SettingsOverlay = () => {
                   return (
                     <div className="space-y-6 pt-2">
                       {/* Navigations Card */}
-                      <div className="bg-[#0b0b0b] border border-[#1c1c1c] rounded-2xl px-3 overflow-hidden">
+                      <div className={boxClass}>
                         <RowItem 
                           icon="solar:user-bold" 
                           label={t('settings.menu.profile')} 
@@ -772,7 +972,7 @@ export const SettingsOverlay = () => {
                       </div>
 
                       {/* Journey Actions Card */}
-                      <div className="bg-[#0b0b0b] border border-[#1c1c1c] rounded-2xl px-3 overflow-hidden">
+                      <div className={boxClass}>
                         <RowItem 
                           icon="solar:play-bold" 
                           label={t('settings.menu.startNew')} 
@@ -799,7 +999,7 @@ export const SettingsOverlay = () => {
                 {/* PROFILE PICTURE SELECTOR */}
                 <div className="flex flex-col items-center justify-center py-2 relative">
                   <div className="relative group cursor-pointer" onClick={() => document.getElementById('profile-avatar-input')?.click()}>
-                    <div className="w-24 h-24 rounded-full border-3 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] overflow-hidden bg-[#7BE495] flex items-center justify-center relative">
+                    <div className="w-24 h-24 rounded-full border-3 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] overflow-hidden bg-[#10B981] flex items-center justify-center relative">
                       {avatarUrl ? (
                         <img src={avatarUrl} alt="profile" className="w-full h-full object-cover" />
                       ) : (
@@ -847,62 +1047,62 @@ export const SettingsOverlay = () => {
                 <div className="space-y-4">
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-1.5">
-                      <label className="text-[10px] font-black text-white/40 uppercase tracking-wider">{t('settings.firstName')}</label>
+                      <label className={labelClass}>{t('settings.firstName')}</label>
                       <input
                         type="text"
                         value={firstName}
                         onChange={(e) => setFirstName(e.target.value)}
                         placeholder="John"
-                        className="w-full bg-[#0c0c0c] border border-[#222] rounded-xl px-4 py-3 text-xs font-semibold focus:outline-none focus:border-[#7BE495]/40"
+                        className={inputClass}
                       />
                     </div>
                     <div className="space-y-1.5">
-                      <label className="text-[10px] font-black text-white/40 uppercase tracking-wider">{t('settings.lastName')}</label>
+                      <label className={labelClass}>{t('settings.lastName')}</label>
                       <input
                         type="text"
                         value={lastName}
                         onChange={(e) => setLastName(e.target.value)}
                         placeholder="Doe"
-                        className="w-full bg-[#0c0c0c] border border-[#222] rounded-xl px-4 py-3 text-xs font-semibold focus:outline-none focus:border-[#7BE495]/40"
+                        className={inputClass}
                       />
                     </div>
                   </div>
 
                   <div className="space-y-1.5">
-                    <label className="text-[10px] font-black text-white/40 uppercase tracking-wider">{t('settings.username')}</label>
+                    <label className={labelClass}>{t('settings.username')}</label>
                     <input
                       type="text"
                       value={username}
                       onChange={(e) => setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ''))}
                       placeholder="username"
-                      className="w-full bg-[#0c0c0c] border border-[#222] rounded-xl px-4 py-3 text-xs font-semibold focus:outline-none focus:border-[#7BE495]/40 text-[#7BE495]"
+                      className={inputClass + " text-[#10B981]"}
                     />
                   </div>
 
                   <div className="space-y-1.5">
-                    <label className="text-[10px] font-black text-white/40 uppercase tracking-wider">{t('settings.nickname')}</label>
+                    <label className={labelClass}>{t('settings.nickname')}</label>
                     <input
                       type="text"
                       value={nickname}
                       onChange={(e) => setNickname(e.target.value)}
                       placeholder="Nama Panggilan"
-                      className="w-full bg-[#0c0c0c] border border-[#222] rounded-xl px-4 py-3 text-xs font-semibold focus:outline-none focus:border-[#7BE495]/40"
+                      className={inputClass}
                     />
                   </div>
 
                   <div className="space-y-1.5">
-                    <label className="text-[10px] font-black text-white/40 uppercase tracking-wider">{t('settings.emailAddress')}</label>
+                    <label className={labelClass}>{t('settings.emailAddress')}</label>
                     <input
                       type="email"
                       value={email}
                       readOnly
                       placeholder="name@email.com"
-                      className="w-full bg-[#0c0c0c]/50 border border-[#222] text-white/40 cursor-not-allowed rounded-xl px-4 py-3 text-xs font-semibold focus:outline-none"
+                      className={isLight ? "w-full bg-neutral-100 border border-neutral-200 text-black/45 cursor-not-allowed rounded-xl px-4 py-3 text-xs font-semibold focus:outline-none" : "w-full bg-[#0c0c0c]/50 border border-[#222] text-white/40 cursor-not-allowed rounded-xl px-4 py-3 text-xs font-semibold focus:outline-none"}
                     />
                   </div>
 
                   <div className="space-y-1.5">
-                    <label className="text-[10px] font-black text-white/40 uppercase tracking-wider">{t('settings.gender')}</label>
+                    <label className={labelClass}>{t('settings.gender')}</label>
                     <div className="grid grid-cols-3 gap-2">
                       {(['Male', 'Female', 'Other'] as const).map((g) => (
                         <button
@@ -910,7 +1110,7 @@ export const SettingsOverlay = () => {
                           onClick={() => setGender(g)}
                           className={`py-3 rounded-xl border text-xs font-bold transition-all ${
                             gender === g 
-                              ? 'bg-[#7BE495] text-black border-black shadow-[2px_2px_0px_rgba(0,0,0,1)]' 
+                              ? 'bg-[#10B981] text-black border-black shadow-[2px_2px_0px_rgba(0,0,0,1)]' 
                               : 'bg-[#0c0c0c] border-[#222] text-white/60 hover:border-[#333]'
                           }`}
                         >
@@ -921,7 +1121,7 @@ export const SettingsOverlay = () => {
                   </div>
 
                   <div className="space-y-1.5">
-                    <label className="text-[10px] font-black text-white/40 uppercase tracking-wider">{t('settings.dob')}{getAgeFromDOB(dob)}</label>
+                    <label className={labelClass}>{t('settings.dob')}{getAgeFromDOB(dob)}</label>
                     <button
                       type="button"
                       onClick={() => {
@@ -935,7 +1135,7 @@ export const SettingsOverlay = () => {
                       </span>
                       <Icon 
                         icon={showDobPicker ? "solar:alt-arrow-up-bold-duotone" : "solar:alt-arrow-down-bold-duotone"} 
-                        className="text-[#7BE495]" 
+                        className="text-[#10B981]" 
                         width={18} 
                       />
                     </button>
@@ -1007,12 +1207,12 @@ export const SettingsOverlay = () => {
                                     if (navigator.vibrate) navigator.vibrate(10);
                                     setShowWheelMode(!showWheelMode);
                                   }}
-                                  className="flex items-center gap-1.5 text-xs font-black font-['Outfit'] text-white hover:text-[#7BE495] transition-colors"
+                                  className="flex items-center gap-1.5 text-xs font-black font-['Outfit'] text-white hover:text-[#10B981] transition-colors"
                                 >
                                   <span>{activeMonths[selMonth - 1]} {selYear}</span>
                                   <Icon 
                                     icon={showWheelMode ? "solar:alt-arrow-up-bold" : "solar:alt-arrow-right-bold"} 
-                                    className="text-[#7BE495]" 
+                                    className="text-[#10B981]" 
                                     width={14} 
                                   />
                                 </button>
@@ -1075,7 +1275,7 @@ export const SettingsOverlay = () => {
                                           <div 
                                             key={i} 
                                             className={`snap-center h-11 flex items-center justify-center text-xs font-black transition-colors duration-200 ${
-                                              isSelected ? 'text-[#7BE495]' : 'text-white/30'
+                                              isSelected ? 'text-[#10B981]' : 'text-white/30'
                                             }`}
                                           >
                                             {name}
@@ -1099,7 +1299,7 @@ export const SettingsOverlay = () => {
                                           <div 
                                             key={i} 
                                             className={`snap-center h-11 flex items-center justify-center text-[15px] font-black transition-colors duration-200 ${
-                                              isSelected ? 'text-[#7BE495]' : 'text-white/30'
+                                              isSelected ? 'text-[#10B981]' : 'text-white/30'
                                             }`}
                                           >
                                             {val}
@@ -1139,7 +1339,7 @@ export const SettingsOverlay = () => {
                                             }}
                                             className={`w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-black transition-all ${
                                               isSelected 
-                                                ? 'bg-[#7BE495] text-black border border-black shadow-[1.5px_1.5px_0px_rgba(0,0,0,1)]' 
+                                                ? 'bg-[#10B981] text-black border border-black shadow-[1.5px_1.5px_0px_rgba(0,0,0,1)]' 
                                                 : 'text-white/80 hover:bg-white/5 active:scale-90'
                                             }`}
                                           >
@@ -1160,7 +1360,7 @@ export const SettingsOverlay = () => {
 
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-1.5">
-                      <label className="text-[10px] font-black text-white/40 uppercase tracking-wider">
+                      <label className={labelClass}>
                         {t('settings.weight')} ({settings.weightUnit === 'Metric' ? 'kg' : 'lbs'})
                       </label>
                       <input
@@ -1168,11 +1368,11 @@ export const SettingsOverlay = () => {
                         value={weight}
                         onChange={(e) => setWeight(e.target.value)}
                         placeholder="70"
-                        className="w-full bg-[#0c0c0c] border border-[#222] rounded-xl px-4 py-3 text-xs font-semibold focus:outline-none focus:border-[#7BE495]/40"
+                        className={inputClass}
                       />
                     </div>
                     <div className="space-y-1.5">
-                      <label className="text-[10px] font-black text-white/40 uppercase tracking-wider">
+                      <label className={labelClass}>
                         {t('settings.height')} ({settings.heightUnit === 'Metric' ? 'cm' : 'inches'})
                       </label>
                       <input
@@ -1180,19 +1380,19 @@ export const SettingsOverlay = () => {
                         value={height}
                         onChange={(e) => setHeight(e.target.value)}
                         placeholder="175"
-                        className="w-full bg-[#0c0c0c] border border-[#222] rounded-xl px-4 py-3 text-xs font-semibold focus:outline-none focus:border-[#7BE495]/40"
+                        className={inputClass}
                       />
                     </div>
                   </div>
 
                   <div className="space-y-1.5">
-                    <label className="text-[10px] font-black text-white/40 uppercase tracking-wider">{t('settings.country')}</label>
+                    <label className={labelClass}>{t('settings.country')}</label>
                     <input
                       type="text"
                       value={country}
                       onChange={(e) => setCountry(e.target.value)}
                       placeholder="Indonesia"
-                      className="w-full bg-[#0c0c0c] border border-[#222] rounded-xl px-4 py-3 text-xs font-semibold focus:outline-none focus:border-[#7BE495]/40"
+                      className={inputClass}
                     />
                   </div>
                 </div>
@@ -1226,27 +1426,27 @@ export const SettingsOverlay = () => {
                   badge: null,
                   name: t('settings.planWeeklyName'),
                   sub: t('settings.planWeeklySub'),
-                  price: 'Rp10.000',
+                  price: 'Rp5.000',
                   originalPrice: 'Rp20.000',
-                  discount: '50% OFF',
+                  discount: '75%',
                 },
                 {
                   id: 'monthly',
                   badge: null,
                   name: t('settings.planMonthlyName'),
                   sub: t('settings.planMonthlySub'),
-                  price: 'Rp30.000',
-                  originalPrice: 'Rp60.000',
-                  discount: '50% OFF',
+                  price: 'Rp20.000',
+                  originalPrice: 'Rp80.000',
+                  discount: '75%',
                 },
                 {
                   id: 'annual',
                   badge: t('settings.planBestBadge'),
                   name: t('settings.planAnnualName'),
                   sub: t('settings.planAnnualSub'),
-                  price: 'Rp300.000',
-                  originalPrice: 'Rp600.000',
-                  discount: '50% OFF',
+                  price: 'Rp200.000',
+                  originalPrice: 'Rp800.000',
+                  discount: '75%',
                 },
               ];
               return (
@@ -1260,11 +1460,11 @@ export const SettingsOverlay = () => {
                     .price-shimmer {
                       background: linear-gradient(
                         90deg,
-                        #7BE495 0%,
+                        #10B981 0%,
                         #b8f5cc 35%,
                         #ffffff 50%,
                         #b8f5cc 65%,
-                        #7BE495 100%
+                        #10B981 100%
                       );
                       background-size: 200% auto;
                       -webkit-background-clip: text;
@@ -1273,7 +1473,7 @@ export const SettingsOverlay = () => {
                       animation: price-shimmer 2.4s linear infinite;
                     }
                     .price-shimmer-static {
-                      background: linear-gradient(90deg, #7BE495 0%, #b8f5cc 50%, #7BE495 100%);
+                      background: linear-gradient(90deg, #10B981 0%, #b8f5cc 50%, #10B981 100%);
                       -webkit-background-clip: text;
                       background-clip: text;
                       -webkit-text-fill-color: transparent;
@@ -1309,70 +1509,71 @@ export const SettingsOverlay = () => {
                     :root:not(.dark) .light-theme-plan-badge {
                       color: #047857 !important;
                     }
+                    @keyframes selected-glow-pulse {
+                      0%, 100% {
+                        box-shadow: 0 0 4px rgba(16, 185, 129, 0.2), inset 0 0 2px rgba(16, 185, 129, 0.1);
+                        border-color: rgba(16, 185, 129, 0.4);
+                      }
+                      50% {
+                        box-shadow: 0 0 12px rgba(16, 185, 129, 0.5), inset 0 0 6px rgba(16, 185, 129, 0.2);
+                        border-color: rgba(16, 185, 129, 0.8);
+                      }
+                    }
+                    .selected-plan-glow {
+                      animation: selected-glow-pulse 2s infinite ease-in-out;
+                    }
                   `}</style>
  
-                  <div className="space-y-3">
+                  <div className="space-y-4">
                     <h4 className={`text-[10px] font-black uppercase tracking-wider px-1 ${isLight ? 'text-black/40' : 'text-white/40'}`}>{t('settings.menu.planDescFree')}</h4>
  
-                    <div className="space-y-3">
+                    <div className="space-y-5">
                       {plans.map((plan) => {
                         const isSelected = selectedPlan === plan.id;
                         const isCurrent = plan.id === currentPlan;
                         const isDowngrade = PLAN_LEVELS[plan.id] < PLAN_LEVELS[currentPlan];
                         return (
-                          <div key={plan.id}>
+                          <div key={plan.id} className="relative">
                             {/* CARD */}
                             <button
                               onClick={() => setSelectedPlan(plan.id)}
-                              disabled={isCurrent || isDowngrade}
-                              className={`w-full text-left rounded-2xl p-4 flex items-center justify-between transition-all duration-200 ${
+                              disabled={isCurrent}
+                              className={`w-full text-left rounded-2xl p-4.5 flex items-center justify-between transition-all duration-200 ${
                                 isCurrent
                                   ? isLight
-                                    ? 'bg-[#e8f5ee] border border-[#7BE495]/60'
-                                    : 'bg-[#0a2012]/30 border border-[#7BE495]/40 shadow-[inset_0_0_12px_rgba(123,228,149,0.05)]'
+                                    ? 'bg-[#e8f5ee] border border-[#10B981] text-black'
+                                    : 'bg-[#0a2012]/30 border border-[#10B981]/50 text-white'
                                   : isSelected
                                   ? isLight
-                                    ? 'bg-[#f0fbf4] border border-[#7BE495] shadow-[0_0_20px_rgba(123,228,149,0.2)]'
-                                    : 'bg-[#0a1a0d] border border-[#7BE495] shadow-[0_0_20px_rgba(123,228,149,0.2)]'
+                                    ? 'bg-[#f0fbf4] border-2 border-[#10B981] selected-plan-glow text-black'
+                                    : 'bg-[#0a1a0d] border-2 border-[#10B981] selected-plan-glow text-white'
                                   : isDowngrade
                                   ? isLight
-                                    ? 'bg-[#f5f5f5] border border-[#ddd] opacity-50 cursor-not-allowed'
-                                    : 'bg-[#0b0b0b] border border-[#222] opacity-50 cursor-not-allowed'
+                                    ? 'bg-[#f9f9f9] border border-neutral-200 opacity-60 text-black/60'
+                                    : 'bg-[#141416] border border-white/5 opacity-50 text-white/50'
                                   : isLight
-                                    ? 'bg-white border border-[#e0e0e0] hover:border-[#ccc]'
-                                    : 'bg-[#0b0b0b] border border-[#222] hover:border-[#333]'
+                                    ? 'bg-white border border-neutral-200 text-black hover:border-neutral-300 shadow-[0_2px_8px_rgba(0,0,0,0.02)]'
+                                    : 'bg-[#1c1c1e] border border-white/5 text-white hover:border-white/10 shadow-[0_4px_15px_rgba(0,0,0,0.15)]'
                               }`}
                             >
                               {/* LEFT: plan info */}
                               <div className="flex flex-col gap-0.5">
                                 {plan.badge && (
-                                  <span className="text-[10px] font-black text-[#7BE495] uppercase tracking-wider light-theme-plan-badge">{plan.badge}</span>
+                                  <span className="text-[10px] font-black text-[#10B981] uppercase tracking-wider light-theme-plan-badge">{plan.badge}</span>
                                 )}
                                 <span className={`text-sm font-black ${isCurrent || isSelected ? (isLight ? 'text-black' : 'text-white') : (isLight ? 'text-black/80' : 'text-white/80')}`}>{plan.name}</span>
                                 <span className={`text-[10px] max-w-[160px] leading-relaxed ${isLight ? 'text-black/50' : 'text-white/40'}`}>{plan.sub}</span>
                               </div>
-
-                              {/* RIGHT: discount badge (if any) + price or status */}
+ 
+                              {/* RIGHT: price or status */}
                               <div className="flex flex-col items-end gap-1 flex-shrink-0">
-                                {/* Discount badge — in the right column, above the price */}
-                                {!isCurrent && plan.discount && (
-                                  <div
-                                    className={`px-2 py-0.5 rounded-md transition-opacity duration-200 ${isDowngrade ? 'opacity-50' : ''}`}
-                                    style={{ background: 'linear-gradient(135deg, #065f46 0%, #047857 60%, #059669 100%)' }}
-                                  >
-                                    <span className="text-[9px] font-black leading-none tracking-wide" style={{ color: '#ecfdf5' }}>
-                                      {plan.discount.replace(' OFF', '')}
-                                    </span>
-                                  </div>
-                                )}
-
                                 {isCurrent ? (
-                                  <span className="text-xs font-black text-[#7BE495] bg-[#7BE495]/10 px-2.5 py-1.5 rounded-lg border border-[#7BE495]/30 uppercase tracking-wider light-theme-active-badge">
+                                  <span className="text-xs font-black text-[#10B981] bg-[#10B981]/10 px-2.5 py-1.5 rounded-lg border border-[#10B981]/30 uppercase tracking-wider light-theme-active-badge">
                                     {t('settings.planCurrent')}
                                   </span>
                                 ) : (
                                   <>
-                                    <span className={`text-base font-black ${isSelected ? 'price-shimmer' : 'price-shimmer-static'}`}>
+                                    <span className={`text-[18px] font-black ${isSelected ? 'price-shimmer' : 'price-shimmer-static'}`}>
                                       {plan.price}
                                     </span>
                                     {plan.id !== 'free' && (
@@ -1384,13 +1585,24 @@ export const SettingsOverlay = () => {
                                 )}
                               </div>
                             </button>
+ 
+                            {/* Floating Discount Badge */}
+                            {!isCurrent && plan.discount && (
+                              <div
+                                className={`absolute -top-2 -right-1 px-2.5 py-0.5 bg-[#FF6B00] text-white text-[9px] font-black rounded-full shadow-md z-10 select-none transition-all uppercase tracking-wider ${
+                                  isDowngrade ? 'opacity-60 scale-95' : ''
+                                }`}
+                              >
+                                {plan.discount} OFF
+                              </div>
+                            )}
                           </div>
                         );
                       })}
                     </div>
                   </div>
-
-                  <div className={`border rounded-[24px] p-5 space-y-3 mt-6 ${isLight ? 'bg-white border-[#e0e0e0]' : 'bg-[#0b0b0b] border-[#222]'}`}>
+ 
+                  <div className={cardClass + " space-y-3 mt-6"}>
                     <h4 className={`text-[10px] font-black uppercase tracking-wider ${isLight ? 'text-black/40' : 'text-white/40'}`}>{t('settings.promoCode')}</h4>
                     <div className="flex gap-2">
                       <input
@@ -1398,15 +1610,11 @@ export const SettingsOverlay = () => {
                         value={promoCode}
                         onChange={(e) => setPromoCode(e.target.value)}
                         placeholder={t('settings.enterCode')}
-                        className={`flex-1 border rounded-xl px-4 py-3 text-xs font-bold focus:outline-none focus:border-[#7BE495]/40 ${
-                          isLight
-                            ? 'bg-[#f5f5f5] border-[#e0e0e0] text-[#047857] placeholder:text-black/20'
-                            : 'bg-[#0c0c0c] border-[#222] text-[#7BE495] placeholder:text-white/20'
-                        }`}
+                        className={inputClass + " flex-1"}
                       />
                       <button
                         onClick={handleRedeemPromo}
-                        className="px-5 bg-[#7BE495] text-black font-black text-xs rounded-xl border border-black shadow-[2px_2px_0px_rgba(0,0,0,1)] hover:bg-[#6dd685]"
+                        className="px-5 bg-[#10B981] text-black font-black text-xs rounded-xl border border-black shadow-[2px_2px_0px_rgba(0,0,0,1)] hover:bg-[#6dd685]"
                       >
                         {t('settings.redeemBtn')}
                       </button>
@@ -1426,7 +1634,7 @@ export const SettingsOverlay = () => {
                   <h4 className="text-[10px] font-black text-white/40 uppercase tracking-wider px-1">{t('settings.faqTitle')}</h4>
                   <div className="space-y-2">
                     {faqs.map((faq, index) => (
-                      <div key={index} className="bg-[#0b0b0b] border border-[#222] rounded-xl overflow-hidden">
+                      <div key={index} className={isLight ? 'bg-white border border-neutral-200 rounded-xl overflow-hidden' : 'bg-[#141414] border border-white/5 rounded-xl overflow-hidden'}>
                         <button
                           onClick={() => setActiveFaq(activeFaq === index ? null : index)}
                           className="w-full flex items-center justify-between p-4 text-left"
@@ -1458,26 +1666,26 @@ export const SettingsOverlay = () => {
                 </div>
 
                 {/* CONTACT FORM */}
-                <div className="bg-[#0b0b0b] border border-[#222] rounded-[24px] p-5 space-y-4">
-                  <h4 className="text-[10px] font-black text-white/40 uppercase tracking-wider">{t('settings.contactSupportTitle')}</h4>
+                <div className={cardClass + " space-y-4"}>
+                  <h4 className={labelClass}>{t('settings.contactSupportTitle')}</h4>
                   <div className="space-y-3">
                     <input
                       type="text"
                       value={supportSubject}
                       onChange={(e) => setSupportSubject(e.target.value)}
                       placeholder={t('settings.subjectPlaceholder')}
-                      className="w-full bg-[#0c0c0c] border border-[#222] rounded-xl px-4 py-3 text-xs font-semibold focus:outline-none focus:border-[#7BE495]/40"
+                      className={inputClass}
                     />
                     <textarea
                       value={supportMessage}
                       onChange={(e) => setSupportMessage(e.target.value)}
                       placeholder={t('settings.messagePlaceholder')}
                       rows={3}
-                      className="w-full bg-[#0c0c0c] border border-[#222] rounded-xl px-4 py-3 text-xs font-semibold focus:outline-none focus:border-[#7BE495]/40 resize-none"
+                      className="w-full bg-[#0c0c0c] border border-[#222] rounded-xl px-4 py-3 text-xs font-semibold focus:outline-none focus:border-[#10B981]/40 resize-none"
                     />
                     <button
                       onClick={handleSendSupport}
-                      className="w-full py-3 bg-[#111] hover:bg-[#161616] text-[#7BE495] border border-[#222] rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-colors"
+                      className="w-full py-3 bg-[#111] hover:bg-[#161616] text-[#10B981] border border-[#222] rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-colors"
                     >
                       <Icon icon="solar:plain-bold" width={14} />
                       <span>{t('settings.sendMessageBtn')}</span>
@@ -1486,8 +1694,8 @@ export const SettingsOverlay = () => {
                 </div>
 
                 {/* USER FEEDBACK */}
-                <div className="bg-[#0b0b0b] border border-[#222] rounded-[24px] p-5 space-y-4">
-                  <h4 className="text-[10px] font-black text-white/40 uppercase tracking-wider">{t('settings.rateAppTitle')}</h4>
+                <div className={cardClass + " space-y-4"}>
+                  <h4 className={labelClass}>{t('settings.rateAppTitle')}</h4>
                   <div className="flex gap-2 justify-center">
                     {[1, 2, 3, 4, 5].map((star) => (
                       <button
@@ -1497,7 +1705,7 @@ export const SettingsOverlay = () => {
                       >
                         <Icon 
                           icon="solar:star-bold" 
-                          className={star <= feedbackRating ? 'text-[#7BE495]' : 'text-neutral-700'} 
+                          className={star <= feedbackRating ? 'text-[#10B981]' : 'text-neutral-700'} 
                           width={28} 
                         />
                       </button>
@@ -1514,11 +1722,11 @@ export const SettingsOverlay = () => {
                         onChange={(e) => setFeedbackText(e.target.value)}
                         placeholder={t('settings.feedbackPlaceholder')}
                         rows={2}
-                        className="w-full bg-[#0c0c0c] border border-[#222] rounded-xl px-4 py-3 text-xs font-semibold focus:outline-none focus:border-[#7BE495]/40 resize-none"
+                        className="w-full bg-[#0c0c0c] border border-[#222] rounded-xl px-4 py-3 text-xs font-semibold focus:outline-none focus:border-[#10B981]/40 resize-none"
                       />
                       <button
                         onClick={handleSendFeedback}
-                        className="w-full py-3 bg-[#7BE495] text-black font-black text-xs rounded-xl border border-black shadow-[2px_2px_0px_rgba(0,0,0,1)] flex items-center justify-center gap-2"
+                        className="w-full py-3 bg-[#10B981] text-black font-black text-xs rounded-xl border border-black shadow-[2px_2px_0px_rgba(0,0,0,1)] flex items-center justify-center gap-2"
                       >
                         {t('settings.submitFeedbackBtn')}
                       </button>
@@ -1527,16 +1735,18 @@ export const SettingsOverlay = () => {
                 </div>
 
                 {/* APP SYSTEM & LEGAL INFO */}
-                <div className="bg-[#0b0b0b] border border-[#222] rounded-[24px] p-5 space-y-3">
+                <div className={cardClass + " space-y-3"}>
                   <div className="flex items-center gap-3 mb-2">
-                    <div className="w-10 h-10 rounded-xl bg-black border border-[#222] flex items-center justify-center shadow-[2px_2px_0px_rgba(0,0,0,1)]">
-                      <Icon icon="solar:settings-bold" className="text-[#7BE495]" width={20} />
+                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center border shadow-[2px_2px_0px_rgba(0,0,0,1)] ${
+                      isLight ? 'bg-neutral-100 border-neutral-200' : 'bg-black border-[#222]'
+                    }`}>
+                      <Icon icon="solar:settings-bold" className="text-[#10B981]" width={20} />
                     </div>
                     <div>
-                      <h4 className="text-xs font-black text-white leading-tight">InTracker Mobile</h4>
+                      <h4 className={`text-xs font-black leading-tight ${isLight ? 'text-black' : 'text-white'}`}>InTracker Mobile</h4>
                     </div>
                   </div>
-                  <p className="text-xs text-white/50 leading-relaxed">
+                  <p className={`text-xs leading-relaxed ${isLight ? 'text-black/60' : 'text-white/50'}`}>
                     {t('settings.aboutDesc')}
                   </p>
                 </div>
@@ -1545,19 +1755,27 @@ export const SettingsOverlay = () => {
                   <a
                     href="#"
                     onClick={(e) => { e.preventDefault(); triggerToast('Opening Privacy Policy...'); }}
-                    className="w-full flex items-center justify-between p-4 bg-[#0c0c0c] border border-[#1c1c1c] rounded-2xl hover:border-[#333] transition-colors"
+                    className={`w-full flex items-center justify-between p-4 rounded-2xl border transition-colors ${
+                      isLight 
+                        ? 'bg-white border-neutral-200 hover:border-neutral-300 shadow-[0_2px_8px_rgba(0,0,0,0.02)]' 
+                        : 'bg-[#141414] border-white/5 hover:border-white/10 shadow-[0_4px_15px_rgba(0,0,0,0.15)]'
+                    }`}
                   >
-                    <span className="text-xs font-bold text-white">{t('settings.privacyPolicy')}</span>
-                    <Icon icon="solar:alt-arrow-right-bold" className="text-white/20" width={16} />
+                    <span className={`text-xs font-bold ${isLight ? 'text-black' : 'text-white'}`}>{t('settings.privacyPolicy')}</span>
+                    <Icon icon="solar:alt-arrow-right-bold" className={isLight ? 'text-black/30' : 'text-white/20'} width={16} />
                   </a>
 
                   <a
                     href="#"
                     onClick={(e) => { e.preventDefault(); triggerToast('Opening Terms of Service...'); }}
-                    className="w-full flex items-center justify-between p-4 bg-[#0c0c0c] border border-[#1c1c1c] rounded-2xl hover:border-[#333] transition-colors"
+                    className={`w-full flex items-center justify-between p-4 rounded-2xl border transition-colors ${
+                      isLight 
+                        ? 'bg-white border-neutral-200 hover:border-neutral-300 shadow-[0_2px_8px_rgba(0,0,0,0.02)]' 
+                        : 'bg-[#141414] border-white/5 hover:border-white/10 shadow-[0_4px_15px_rgba(0,0,0,0.15)]'
+                    }`}
                   >
-                    <span className="text-xs font-bold text-white">{t('settings.termsOfService')}</span>
-                    <Icon icon="solar:alt-arrow-right-bold" className="text-white/20" width={16} />
+                    <span className={`text-xs font-bold ${isLight ? 'text-black' : 'text-white'}`}>{t('settings.termsOfService')}</span>
+                    <Icon icon="solar:alt-arrow-right-bold" className={isLight ? 'text-black/30' : 'text-white/20'} width={16} />
                   </a>
                 </div>
               </section>
@@ -1568,24 +1786,32 @@ export const SettingsOverlay = () => {
               <div className="space-y-6 flex flex-col h-full text-left">
                 {/* CURRENT SECTION */}
                 <div>
-                  <span className="text-[10px] font-black text-white/30 uppercase tracking-[0.15em]">{t('settings.timezoneCurrent')}</span>
-                  <p className="text-[11px] text-white/40 mt-1 mb-3">{t('settings.timezoneCurrentDesc')}</p>
+                  <span className={`text-[10px] font-black uppercase tracking-[0.15em] ${isLight ? 'text-black/40' : 'text-white/30'}`}>{t('settings.timezoneCurrent')}</span>
+                  <p className={`text-[11px] mt-1 mb-3 ${isLight ? 'text-black/50' : 'text-white/40'}`}>{t('settings.timezoneCurrentDesc')}</p>
                   
-                  <div className="bg-[#0b0b0b] border border-[#1c1c1c] rounded-2xl p-4 flex items-center justify-between">
+                  <div className={isLight ? 'bg-white border border-neutral-200 rounded-2xl p-4 flex items-center justify-between shadow-[0_2px_10px_rgba(0,0,0,0.02)]' : 'bg-[#141414] border border-white/5 rounded-2xl p-4 flex items-center justify-between shadow-[0_4px_20px_rgba(0,0,0,0.2)]'}>
                     <div>
-                      <span className="text-base font-black text-white block">
+                      <span className={`text-base font-black block ${isLight ? 'text-black' : 'text-white'}`}>
                         {(selectedTz || 'Asia/Jakarta').split('/').pop()?.replace(/_/g, ' ') || 'Unknown City'}
                       </span>
-                      <span className="text-xs text-white/40 block mt-1">{selectedTz || 'Asia/Jakarta'}</span>
+                      <span className={`text-xs block mt-1 ${isLight ? 'text-black/40' : 'text-white/40'}`}>{selectedTz || 'Asia/Jakarta'}</span>
                     </div>
                     <div className="flex items-center gap-3">
-                      <span className="px-3 py-1 bg-[#1a1a1a] border border-white/10 text-white/80 font-black text-[10px] uppercase tracking-wider rounded-lg">
+                      <span className={`px-3 py-1 font-black text-[10px] uppercase tracking-wider rounded-lg border ${
+                        isLight 
+                          ? 'bg-neutral-100 border-neutral-200 text-black/70' 
+                          : 'bg-[#1a1a1a] border-white/10 text-white/80'
+                      }`}>
                         {getGMTOffset(selectedTz || 'Asia/Jakarta')}
                       </span>
                       <button
                         onClick={handleSyncLocation}
                         disabled={isSyncingLocation}
-                        className="w-9 h-9 rounded-xl bg-[#141414] border border-[#222] flex items-center justify-center text-[#7BE495] hover:bg-[#1a1a1a] transition-all"
+                        className={`w-9 h-9 rounded-xl flex items-center justify-center text-[#10B981] transition-all border ${
+                          isLight 
+                            ? 'bg-white border-neutral-200 hover:bg-neutral-50 shadow-[0_1px_3px_rgba(0,0,0,0.02)]' 
+                            : 'bg-[#141414] border-white/5 hover:bg-[#1a1a1a]'
+                        }`}
                         title="Sync using Location"
                       >
                         {isSyncingLocation ? (
@@ -1610,7 +1836,7 @@ export const SettingsOverlay = () => {
                       value={tzSearch}
                       onChange={(e) => setTzSearch(e.target.value)}
                       placeholder={t('settings.timezoneSearchPlaceholder')}
-                      className="w-full bg-[#0b0b0b] border border-[#1c1c1c] rounded-2xl pl-11 pr-4 py-3.5 text-xs font-semibold text-white placeholder:text-white/20 focus:outline-none focus:border-[#7BE495]/40 transition-colors"
+                      className={isLight ? 'w-full bg-white border-2 border-black rounded-2xl pl-11 pr-4 py-3.5 text-xs font-bold text-black placeholder:text-black/40 focus:outline-none shadow-[2px_2px_0px_rgba(0,0,0,1)] transition-all' : 'w-full bg-[#1c1c1e] border-2 border-black rounded-2xl pl-11 pr-4 py-3.5 text-xs font-bold text-white placeholder:text-white/30 focus:outline-none shadow-[2px_2px_0px_rgba(0,0,0,1)] transition-all'}
                     />
                   </div>
 
@@ -1629,15 +1855,19 @@ export const SettingsOverlay = () => {
                             onClick={() => setSelectedTz(item.zone)}
                             className={`w-full flex items-center justify-between p-4 rounded-2xl border text-left transition-all ${
                               isSelected
-                                ? 'bg-[#0a1a0d] border-[#7BE495] text-white shadow-[0_0_15px_rgba(123,228,149,0.15)]'
-                                : 'bg-[#0b0b0b] border-[#1c1c1c] text-white/70 hover:border-[#2b2b2b]'
+                                ? isLight
+                                  ? 'bg-[#e6f7ec] border-[#10B981] text-black shadow-[0_2px_10px_rgba(16,185,129,0.1)]'
+                                  : 'bg-[#0a1a0d] border-[#10B981] text-white shadow-[0_0_15px_rgba(16,185,129,0.15)]'
+                                : isLight
+                                  ? 'bg-white border-neutral-200 text-black hover:border-neutral-300'
+                                  : 'bg-[#141414] border-white/5 text-white/70 hover:border-white/10'
                             }`}
                           >
                             <div>
                               <span className="text-xs font-black block">{item.city}</span>
                               <span className="text-[10px] text-white/30 block mt-0.5">{item.zone}</span>
                             </div>
-                            <span className={`text-[10px] font-bold ${isSelected ? 'text-[#7BE495]' : 'text-white/30'}`}>
+                            <span className={`text-[10px] font-bold ${isSelected ? 'text-[#10B981]' : 'text-white/30'}`}>
                               {getGMTOffset(item.zone)}
                             </span>
                           </button>
@@ -1685,7 +1915,7 @@ export const SettingsOverlay = () => {
                           }}
                           className={`py-5 rounded-2xl border text-xs font-black transition-all flex flex-col items-center justify-center gap-2.5 ${
                             isActive
-                              ? 'bg-[#7BE495] text-black border-black shadow-[4px_4px_0px_rgba(0,0,0,1)]'
+                              ? 'bg-[#10B981] text-black border-black shadow-[4px_4px_0px_rgba(0,0,0,1)]'
                               : 'bg-[#0c0c0c] border-[#222] text-white/60 hover:border-[#333]'
                           }`}
                         >
@@ -1736,14 +1966,18 @@ export const SettingsOverlay = () => {
                             }}
                             className={`w-full flex items-center justify-between p-4 rounded-2xl border text-left transition-all ${
                               isActive
-                                ? 'bg-[#0a1a0d] border-[#7BE495] text-white shadow-[0_0_15px_rgba(123,228,149,0.15)]'
-                                : 'bg-[#0b0b0b] border-[#1c1c1c] text-white/70 hover:border-[#2b2b2b]'
+                                ? isLight
+                                  ? 'bg-[#e6f7ec] border-[#10B981] text-black shadow-[0_2px_10px_rgba(16,185,129,0.1)]'
+                                  : 'bg-[#0a1a0d] border-[#10B981] text-white shadow-[0_0_15px_rgba(16,185,129,0.15)]'
+                                : isLight
+                                  ? 'bg-white border-neutral-200 text-black hover:border-neutral-300'
+                                  : 'bg-[#141414] border-white/5 text-white/70 hover:border-white/10'
                             }`}
                           >
                             <span className="text-xs font-black">{lang.label}</span>
                             <div className="flex items-center gap-3">
                               <span className="text-[10px] text-white/30">{lang.native}</span>
-                              {isActive && <Icon icon="ph:check-bold" width={14} className="text-[#7BE495]" />}
+                              {isActive && <Icon icon="ph:check-bold" width={14} className="text-[#10B981]" />}
                             </div>
                           </button>
                         );
@@ -1761,7 +1995,7 @@ export const SettingsOverlay = () => {
                   <span className="text-[10px] font-black text-white/30 uppercase tracking-[0.15em]">{t('settings.sleepTitle').toUpperCase()}</span>
                   <p className="text-[11px] text-white/40 mt-1 mb-4">{t('settings.sleepDesc')}</p>
                   
-                  <div className="bg-[#0b0b0b] border border-[#1c1c1c] rounded-2xl p-5 flex items-center justify-between">
+                  <div className={isLight ? 'bg-white border border-neutral-200 rounded-2xl p-5 flex items-center justify-between shadow-[0_2px_10px_rgba(0,0,0,0.02)]' : 'bg-[#141414] border border-white/5 rounded-2xl p-5 flex items-center justify-between shadow-[0_4px_20px_rgba(0,0,0,0.2)]'}>
                     <div className="flex flex-col text-left pr-4">
                       <span className="text-sm font-black text-white">{t('settings.sleepPauseLabel')}</span>
                       <span className="text-[10px] text-white/40 mt-1.5 leading-relaxed">
@@ -1791,7 +2025,7 @@ export const SettingsOverlay = () => {
                         );
                       }}
                       className={`w-14 h-7 rounded-full p-1 transition-colors duration-200 focus:outline-none flex-shrink-0 ${
-                        settings.programPaused ? 'bg-[#7BE495]' : 'bg-[#222]'
+                        settings.programPaused ? 'bg-[#10B981]' : 'bg-[#222]'
                       }`}
                     >
                       <div
@@ -1812,7 +2046,7 @@ export const SettingsOverlay = () => {
                   <span className="text-[10px] font-black text-white/30 uppercase tracking-[0.15em]">{t('settings.remindersTitle').toUpperCase()}</span>
                   <p className="text-[11px] text-white/40 mt-1 mb-4">{t('settings.remindersDesc')}</p>
                   
-                  <div className="bg-[#0b0b0b] border border-[#1c1c1c] rounded-2xl p-5 space-y-5">
+                  <div className={isLight ? 'bg-white border border-neutral-200 rounded-2xl p-5 space-y-5 shadow-[0_2px_10px_rgba(0,0,0,0.02)]' : 'bg-[#141414] border border-white/5 rounded-2xl p-5 space-y-5 shadow-[0_4px_20px_rgba(0,0,0,0.2)]'}>
                     {/* Item 1: Daily Reminder */}
                     <div className="flex items-center justify-between py-1">
                       <div className="flex flex-col text-left pr-4">
@@ -1822,7 +2056,7 @@ export const SettingsOverlay = () => {
                       <button
                         onClick={() => handleToggle('dailyReminder')}
                         className={`w-12 h-6 rounded-full p-0.5 transition-colors duration-200 focus:outline-none flex-shrink-0 ${
-                          settings.dailyReminder ? 'bg-[#7BE495]' : 'bg-[#222]'
+                          settings.dailyReminder ? 'bg-[#10B981]' : 'bg-[#222]'
                         }`}
                       >
                         <div
@@ -1848,7 +2082,7 @@ export const SettingsOverlay = () => {
                             const val = e.target.value;
                             updateSettings({ dailyReminderTime: val });
                           }}
-                          className="bg-black border border-[#222] rounded-lg px-2.5 py-1.5 text-xs text-[#7BE495] font-black focus:outline-none"
+                          className="bg-black border border-[#222] rounded-lg px-2.5 py-1.5 text-xs text-[#10B981] font-black focus:outline-none"
                         />
                       </motion.div>
                     )}
@@ -1862,7 +2096,7 @@ export const SettingsOverlay = () => {
                       <button
                         onClick={() => handleToggle('weeklySummary')}
                         className={`w-12 h-6 rounded-full p-0.5 transition-colors duration-200 focus:outline-none flex-shrink-0 ${
-                          settings.weeklySummary ? 'bg-[#7BE495]' : 'bg-[#222]'
+                          settings.weeklySummary ? 'bg-[#10B981]' : 'bg-[#222]'
                         }`}
                       >
                         <div
@@ -1882,7 +2116,7 @@ export const SettingsOverlay = () => {
                       <button
                         onClick={() => handleToggle('newFeatures')}
                         className={`w-12 h-6 rounded-full p-0.5 transition-colors duration-200 focus:outline-none flex-shrink-0 ${
-                          settings.newFeatures ? 'bg-[#7BE495]' : 'bg-[#222]'
+                          settings.newFeatures ? 'bg-[#10B981]' : 'bg-[#222]'
                         }`}
                       >
                         <div
@@ -1929,11 +2163,11 @@ export const SettingsOverlay = () => {
 
           {/* STICKY FOOTER FOR PROFILE, PREMIUM PLAN, TIMEZONE & OTHER SUBVIEWS */}
           {['profile', 'premium', 'timezone', 'theme', 'language', 'sleep', 'reminders'].includes(currentView) && (
-            <div className="border-t border-[#1c1c1c] bg-[#070707]/90 backdrop-blur-xl px-6 py-4 flex-shrink-0 z-20 pb-[calc(16px+env(safe-area-inset-bottom,0px))]">
+            <div className={isLight ? "border-t-2 border-black bg-white/95 px-6 py-4 flex-shrink-0 z-20 pb-[calc(16px+env(safe-area-inset-bottom,0px))]" : "border-t-2 border-black bg-black/90 backdrop-blur-xl px-6 py-4 flex-shrink-0 z-20 pb-[calc(16px+env(safe-area-inset-bottom,0px))]"}>
               {currentView === 'profile' && (
                 <button
                   onClick={handleSaveProfile}
-                  className="w-full py-4 bg-[#7BE495] text-black font-black text-sm rounded-xl border border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] flex items-center justify-center gap-2 hover:brightness-95 active:scale-[0.98] transition-all"
+                  className="w-full py-4 bg-[#10B981] text-black font-black text-sm rounded-xl border border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] flex items-center justify-center gap-2 hover:brightness-95 active:scale-[0.98] transition-all"
                 >
                   <Icon icon="solar:diskette-bold" width={18} />
                   <span>{t('settings.saveProfile')}</span>
@@ -1943,6 +2177,27 @@ export const SettingsOverlay = () => {
                 <button
                   onClick={() => {
                     if (!selectedPlan) { triggerToast(t('settings.planSelectFirst')); return; }
+                    
+                    const currentPlan = subscriptionPlan || 'free';
+                    const PLAN_LEVELS: Record<string, number> = {
+                      free: 0,
+                      weekly: 1,
+                      monthly: 2,
+                      annual: 3,
+                    };
+                    const isDowngrade = PLAN_LEVELS[selectedPlan] < PLAN_LEVELS[currentPlan];
+
+                    if (isDowngrade) {
+                      const planLabel = selectedPlan === 'free' ? 'Free Plan' : selectedPlan === 'weekly' ? 'Mingguan' : selectedPlan === 'monthly' ? 'Bulanan' : 'Tahunan';
+                      const currentPlanLabel = currentPlan === 'free' ? 'Free Plan' : currentPlan === 'weekly' ? 'Mingguan' : currentPlan === 'monthly' ? 'Bulanan' : 'Tahunan';
+                      const confirm = window.confirm(
+                        language === 'Bahasa Indonesia'
+                          ? `Bos yakin ingin downgrade dari paket ${currentPlanLabel} ke paket ${planLabel}? Beberapa kelebihan fitur premium RPG dan XP harian Bos mungkin akan dibatasi.`
+                          : `Are you sure you want to downgrade from ${currentPlanLabel} to ${planLabel}? Some premium RPG features and daily XP caps might be restricted.`
+                      );
+                      if (!confirm) return;
+                    }
+
                     if (selectedPlan === 'free') {
                       setSubscriptionPlan('free');
                       setSelectedPlan(null);
@@ -1955,7 +2210,7 @@ export const SettingsOverlay = () => {
                     setPaymentSuccess(false);
                     setIsProcessingPayment(false);
                   }}
-                  className="w-full py-4 bg-[#7BE495] text-black font-black text-sm rounded-xl border border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] flex items-center justify-center gap-2 hover:brightness-95 active:scale-[0.98] transition-all"
+                  className="w-full py-4 bg-[#10B981] text-black font-black text-sm rounded-xl border border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] flex items-center justify-center gap-2 hover:brightness-95 active:scale-[0.98] transition-all"
                 >
                   <Icon icon="solar:wallet-money-bold" width={18} />
                   <span>
@@ -1972,7 +2227,7 @@ export const SettingsOverlay = () => {
               {currentView === 'timezone' && (
                 <button
                   onClick={handleSaveTimezone}
-                  className="w-full py-4 bg-[#7BE495] text-black font-black text-sm rounded-xl border border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] flex items-center justify-center gap-2 hover:brightness-95 active:scale-[0.98] transition-all"
+                  className="w-full py-4 bg-[#10B981] text-black font-black text-sm rounded-xl border border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] flex items-center justify-center gap-2 hover:brightness-95 active:scale-[0.98] transition-all"
                 >
                   <Icon icon="solar:diskette-bold" width={18} />
                   <span>{t('settings.saveProfile')}</span>
@@ -1984,7 +2239,7 @@ export const SettingsOverlay = () => {
                     if (navigator.vibrate) navigator.vibrate(10);
                     setCurrentView('menu');
                   }}
-                  className="w-full py-4 bg-[#7BE495] text-black font-black text-sm rounded-xl border border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] flex items-center justify-center gap-2 hover:brightness-95 active:scale-[0.98] transition-all"
+                  className="w-full py-4 bg-[#10B981] text-black font-black text-sm rounded-xl border border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] flex items-center justify-center gap-2 hover:brightness-95 active:scale-[0.98] transition-all"
                 >
                   <span>{t('settings.backBtn')}</span>
                 </button>
@@ -2081,19 +2336,23 @@ export const SettingsOverlay = () => {
                   animate={{ y: 0 }}
                   exit={{ y: "100%" }}
                   transition={{ type: "spring", damping: 25, stiffness: 200 }}
-                  className="relative w-full max-w-md bg-[#16181c] border-[2px] border-black rounded-[32px] p-6 pb-10 shadow-[0_-20px_50px_rgba(0,0,0,0.5)] z-30"
+                  className={`relative w-full max-w-md border-[2px] rounded-[32px] p-6 pb-10 z-30 transition-all ${
+                    isLight 
+                      ? 'bg-white border-neutral-200 shadow-[0_-15px_30px_rgba(0,0,0,0.08)]' 
+                      : 'bg-[#16181c] border-black shadow-[0_-20px_50px_rgba(0,0,0,0.5)]'
+                  }`}
                 >
-                  <div className="w-10 h-1 bg-white/10 rounded-full mx-auto mb-5" />
+                  <div className={`w-10 h-1 rounded-full mx-auto mb-5 ${isLight ? 'bg-black/10' : 'bg-white/10'}`} />
                   
                   {paymentSuccess ? (
                     <div className="flex flex-col items-center justify-center py-8 text-center">
-                      <div className="w-20 h-20 rounded-full bg-[#00FF85]/10 border-[1.5px] border-[#00FF85]/30 flex items-center justify-center mb-6 shadow-xl animate-pulse">
-                        <Icon icon="solar:check-circle-bold" className="text-[#00FF85]" width={48} height={48} />
+                      <div className="w-20 h-20 rounded-full bg-[#10B981]/10 border-[1.5px] border-[#10B981]/30 flex items-center justify-center mb-6 shadow-xl animate-pulse">
+                        <Icon icon="solar:check-circle-bold" className="text-[#10B981]" width={48} height={48} />
                       </div>
-                      <h4 className="text-xl font-black font-['Outfit'] text-white uppercase tracking-wider mb-2">
+                      <h4 className={`text-xl font-black font-['Outfit'] uppercase tracking-wider mb-2 ${isLight ? 'text-black' : 'text-white'}`}>
                         {language === 'Bahasa Indonesia' ? 'PEMBAYARAN BERHASIL!' : 'PAYMENT SUCCESSFUL!'}
                       </h4>
-                      <p className="text-xs text-white/40 leading-relaxed px-6">
+                      <p className={`text-xs leading-relaxed px-6 ${isLight ? 'text-black/50' : 'text-white/40'}`}>
                         {language === 'Bahasa Indonesia' 
                           ? 'Terima kasih! Akun Anda kini aktif sebagai anggota premium.' 
                           : 'Thank you! Your account is now active as a premium member.'}
@@ -2102,28 +2361,36 @@ export const SettingsOverlay = () => {
                   ) : (
                     <div className="space-y-6">
                       <div className="text-center">
-                        <h4 className="text-[16px] font-black font-['Outfit'] text-[#7BE495] uppercase tracking-wider mb-1">
+                        <h4 className="text-[16px] font-black font-['Outfit'] text-[#10B981] uppercase tracking-wider mb-1">
                           {language === 'Bahasa Indonesia' ? 'Konfirmasi Pembayaran' : 'Checkout Premium'}
                         </h4>
-                        <p className="text-[11px] text-white/40">{language === 'Bahasa Indonesia' ? 'Selesaikan langganan Anda' : 'Complete your subscription'}</p>
+                        <p className={`text-[11px] ${isLight ? 'text-black/40' : 'text-white/40'}`}>
+                          {language === 'Bahasa Indonesia' ? 'Selesaikan langganan Anda' : 'Complete your subscription'}
+                        </p>
                       </div>
-
+ 
                       {/* Plan detail card */}
-                      <div className="bg-black/30 border border-white/5 rounded-2xl p-4 flex items-center justify-between">
+                      <div className={`border rounded-2xl p-4 flex items-center justify-between transition-all ${
+                        isLight 
+                          ? 'bg-neutral-50 border-neutral-200' 
+                          : 'bg-black/30 border-white/5'
+                      }`}>
                         <div className="flex flex-col gap-0.5">
-                          <span className="text-xs text-white/40 font-bold uppercase tracking-wider">{language === 'Bahasa Indonesia' ? 'PAKET PILIHAN' : 'SELECTED PLAN'}</span>
-                          <span className="text-sm font-black text-white uppercase tracking-tight">
-                            InTracker {checkoutPlan === 'weekly' ? 'Weekly' : checkoutPlan === 'monthly' ? 'Monthly' : 'Annual'}
+                          <span className={`text-[10px] font-bold uppercase tracking-wider ${isLight ? 'text-black/45' : 'text-white/40'}`}>
+                            {language === 'Bahasa Indonesia' ? 'PAKET PILIHAN' : 'SELECTED PLAN'}
+                          </span>
+                          <span className={`text-sm font-black uppercase tracking-tight ${isLight ? 'text-black' : 'text-white'}`}>
+                            InRising {checkoutPlan === 'weekly' ? 'Weekly' : checkoutPlan === 'monthly' ? 'Monthly' : 'Annual'}
                           </span>
                         </div>
-                        <span className="text-lg font-black text-[#7BE495]">
-                          {checkoutPlan === 'weekly' ? 'Rp10.000' : checkoutPlan === 'monthly' ? 'Rp30.000' : 'Rp300.000'}
+                        <span className="text-lg font-black text-[#10B981]">
+                          {checkoutPlan === 'weekly' ? 'Rp5.000' : checkoutPlan === 'monthly' ? 'Rp20.000' : 'Rp200.000'}
                         </span>
                       </div>
-
+ 
                       {/* Payment Methods */}
                       <div className="space-y-2">
-                        <span className="text-[10px] font-black text-white/30 uppercase tracking-widest px-1">
+                        <span className={`text-[10px] font-black uppercase tracking-widest px-1 ${isLight ? 'text-black/40' : 'text-white/30'}`}>
                           {language === 'Bahasa Indonesia' ? 'PILIH METODE PEMBAYARAN' : 'SELECT PAYMENT METHOD'}
                         </span>
                         
@@ -2140,7 +2407,9 @@ export const SettingsOverlay = () => {
                               }}
                               className={`p-3 rounded-2xl border flex flex-col items-center justify-center gap-1.5 transition-all text-center ${
                                 selectedPaymentMethod === method.id
-                                  ? 'bg-[#7BE495]/10 border-[#7BE495] text-[#7BE495]'
+                                  ? 'bg-[#10B981]/10 border-[#10B981] text-[#10B981]'
+                                  : isLight
+                                  ? 'bg-neutral-50 border-neutral-200 text-neutral-500 hover:bg-neutral-100 hover:text-neutral-700'
                                   : 'bg-[#0b0b0b] border-[#222] text-white/45 hover:text-white/60'
                               }`}
                             >
@@ -2150,12 +2419,12 @@ export const SettingsOverlay = () => {
                           ))}
                         </div>
                       </div>
-
+ 
                       {/* Action Button */}
                       <button
                         onClick={handleConfirmPayment}
                         disabled={isProcessingPayment}
-                        className="w-full py-4 bg-[#7BE495] hover:bg-[#6dd685] disabled:opacity-50 text-black font-black text-sm rounded-xl border border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] flex items-center justify-center gap-2 hover:brightness-95 active:scale-[0.98] transition-all mt-4"
+                        className="w-full py-4 bg-[#10B981] hover:brightness-105 active:scale-[0.98] disabled:opacity-50 text-black font-black text-sm rounded-xl shadow-md flex items-center justify-center gap-2 transition-all mt-4"
                       >
                         {isProcessingPayment ? (
                           <div className="w-5 h-5 border-2 border-black/20 border-t-black rounded-full animate-spin" />
@@ -2166,12 +2435,21 @@ export const SettingsOverlay = () => {
                           </>
                         )}
                       </button>
-
+ 
                       {/* Cancel */}
-                      {!isProcessingPayment && (
+                      {(!isProcessingPayment || isWeb) && (
                         <button
-                          onClick={() => setIsCheckoutOpen(false)}
-                          className="w-full text-center text-[#E3DAC9]/40 text-[11px] font-bold font-['Outfit'] uppercase tracking-wider pt-2"
+                          onClick={() => {
+                            setIsCheckoutOpen(false);
+                            setIsProcessingPayment(false);
+                            if (pollingIntervalRef.current) {
+                              clearInterval(pollingIntervalRef.current);
+                              pollingIntervalRef.current = null;
+                            }
+                          }}
+                          className={`w-full text-center text-[11px] font-bold font-['Outfit'] uppercase tracking-wider pt-2 ${
+                            isLight ? 'text-black/40 hover:text-black/60' : 'text-[#E3DAC9]/40 hover:text-white/60'
+                          }`}
                         >
                           {language === 'Bahasa Indonesia' ? 'BATALKAN' : 'CANCEL'}
                         </button>

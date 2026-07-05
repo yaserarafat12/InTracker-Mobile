@@ -19,7 +19,7 @@ export const NavigasiAtas = ({ activeTab }: NavigasiAtasProps) => {
   const isLight = settings?.theme === 'Light';
 
   return (
-    <div className={`fixed top-0 left-0 right-0 z-[100] px-6 flex justify-between items-center h-[80px] transition-colors duration-300 border-b ${
+    <div className={`relative w-full z-[100] px-6 flex justify-between items-center h-[80px] transition-colors duration-300 border-b ${
       isLight 
         ? 'bg-white border-neutral-200 text-black shadow-[0_2px_15px_rgba(0,0,0,0.05)]' 
         : 'bg-[#0d0f12] border-white/[0.08] text-white shadow-[0_4px_30px_rgba(0,0,0,0.3)]'

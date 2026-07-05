@@ -24,6 +24,7 @@ interface ProfileItem {
   is_pro: boolean;
   onboarding_data?: any;
   created_at: string;
+  updated_at?: string;
 }
 
 export function AdminDashboard({ activeTab }: { activeTab: string }) {
@@ -32,6 +33,7 @@ export function AdminDashboard({ activeTab }: { activeTab: string }) {
   const [completedToday, setCompletedToday] = useState(0);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
+  const [hourlyActivity, setHourlyActivity] = useState<number[]>(new Array(24).fill(0));
 
   const fetchAdminData = async () => {
     setLoading(true);
@@ -111,6 +113,28 @@ export function AdminDashboard({ activeTab }: { activeTab: string }) {
         .eq('date', todayStr);
 
       setCompletedToday(count || 0);
+
+      // 4. Fetch Habit Logs from the last 24 hours for real active users chart
+      const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+      const { data: recentLogs } = await supabase
+        .from('habit_logs')
+        .select('created_at')
+        .gte('created_at', twentyFourHoursAgo);
+
+      const hourlyData = new Array(24).fill(0);
+      if (recentLogs) {
+        recentLogs.forEach(log => {
+          if (log.created_at) {
+            const logDate = new Date(log.created_at);
+            const hourDiff = Math.floor((Date.now() - logDate.getTime()) / (60 * 60 * 1000));
+            if (hourDiff >= 0 && hourDiff < 24) {
+              hourlyData[23 - hourDiff]++;
+            }
+          }
+        });
+      }
+      setHourlyActivity(hourlyData);
+
     } catch (e) {
       console.error("Error fetching admin dashboard data:", e);
     } finally {
@@ -135,23 +159,74 @@ export function AdminDashboard({ activeTab }: { activeTab: string }) {
   // Calculate Subscription counts
   const freeUsers = profiles.filter(p => !p.is_pro).length;
   const proUsers = profiles.filter(p => p.is_pro).length;
-  // Let's breakdown pro users based on onboarding or simulate realistic proportions
   const weeklyPro = Math.round(proUsers * 0.25);
   const monthlyPro = Math.round(proUsers * 0.45);
   const annualPro = proUsers - weeklyPro - monthlyPro;
+
+  // Calculate real MAU (active last 30 days) and DAU (active last 24 hours) based on updated_at
+  const mau = profiles.filter(p => {
+    const lastActive = p.created_at || p.updated_at;
+    return lastActive ? (new Date(lastActive).getTime() > Date.now() - 30 * 24 * 60 * 60 * 1000) : false;
+  }).length;
+
+  const dau = profiles.filter(p => {
+    const lastActive = p.created_at || p.updated_at;
+    return lastActive ? (new Date(lastActive).getTime() > Date.now() - 24 * 60 * 60 * 1000) : false;
+  }).length;
 
   // Questionnaire aggregates
   const totalSurveyed = profiles.filter(p => p.onboarding_data).length;
   const getSurveyCounts = (questionId: number) => {
     const counts: Record<string, number> = {};
     profiles.forEach(p => {
-      const ans = p.onboarding_data?.[questionId];
-      if (ans && Array.isArray(ans)) {
-        ans.forEach(val => {
-          counts[val] = (counts[val] || 0) + 1;
-        });
-      } else if (ans && typeof ans === 'string') {
-        counts[ans] = (counts[ans] || 0) + 1;
+      let val: string | string[] | null = null;
+      
+      if (questionId === 1) {
+        val = p.full_name ? 'Filled' : 'Not Filled';
+      } else if (questionId === 2) {
+        val = p.nickname ? 'Filled' : 'Not Filled';
+      } else if (questionId === 3) {
+        val = p.nickname ? 'Filled' : 'Not Filled';
+      } else if (questionId === 4) {
+        // Gender
+        const genderVal = (p.onboarding_data?.['4']?.[0]) || (p.onboarding_data?.gender) || null;
+        val = genderVal ? (genderVal === 'Male' ? 'Laki-laki / Male' : genderVal === 'Female' ? 'Perempuan / Female' : 'Lainnya / Other') : 'Not Set';
+      } else if (questionId === 5) {
+        // DOB -> Age Group
+        const dobVal = (p.onboarding_data?.['5']?.[0]) || (p.onboarding_data?.dob) || null;
+        if (dobVal && dobVal !== '') {
+          const birthYear = new Date(dobVal).getFullYear();
+          if (!isNaN(birthYear)) {
+            const age = new Date().getFullYear() - birthYear;
+            if (age < 18) val = 'Di bawah 18 / Under 18';
+            else if (age <= 25) val = '18 - 25';
+            else if (age <= 35) val = '26 - 35';
+            else val = 'Di atas 35 / 36+';
+          } else {
+            val = 'Not Set';
+          }
+        } else {
+          val = 'Not Set';
+        }
+      } else if (questionId === 6) {
+        // Weight/Height
+        const whVal = (p.onboarding_data?.['6']?.[0]) || (p.onboarding_data?.weight ? `${p.onboarding_data.weight}kg / ${p.onboarding_data.height}cm` : null);
+        val = whVal && whVal !== '0kg / 0cm' ? 'Filled' : 'Not Filled (Skipped)';
+      } else {
+        // Q7 to Q14
+        const ans = p.onboarding_data?.[questionId] || p.onboarding_data?.[String(questionId)];
+        if (ans && Array.isArray(ans)) {
+          ans.forEach(v => {
+            counts[v] = (counts[v] || 0) + 1;
+          });
+          return;
+        } else if (ans && typeof ans === 'string') {
+          val = ans;
+        }
+      }
+
+      if (val) {
+        counts[val] = (counts[val] || 0) + 1;
       }
     });
     return counts;
@@ -195,9 +270,9 @@ export function AdminDashboard({ activeTab }: { activeTab: string }) {
               <span className="text-[9px] text-white/30 mt-1">supabase profiles count</span>
             </div>
             <div className="bg-[#111] border border-white/5 p-4 rounded-2xl flex flex-col shadow-[4px_4px_0px_rgba(0,0,0,1)]">
-              <span className="text-[10px] font-black text-white/40 uppercase tracking-widest">Active Installs</span>
-              <span className="text-3xl font-black text-[#00FF85] mt-2">{profiles.length + 42}</span>
-              <span className="text-[9px] text-white/30 mt-1">simulated total downloads</span>
+              <span className="text-[10px] font-black text-white/40 uppercase tracking-widest">Active Users (MAU)</span>
+              <span className="text-3xl font-black text-[#00FF85] mt-2">{mau}</span>
+              <span className="text-[9px] text-white/30 mt-1">active in last 30 days</span>
             </div>
             <div className="bg-[#111] border border-white/5 p-4 rounded-2xl flex flex-col shadow-[4px_4px_0px_rgba(0,0,0,1)]">
               <span className="text-[10px] font-black text-white/40 uppercase tracking-widest">Habits Completed Today</span>
@@ -239,10 +314,11 @@ export function AdminDashboard({ activeTab }: { activeTab: string }) {
 
           {/* REAL TIME TELEMETRY SIMULATION CHART */}
           <div className="bg-[#111] border border-white/5 p-5 rounded-3xl shadow-[4px_4px_0px_rgba(0,0,0,1)] space-y-4">
-            <h3 className="text-xs font-black uppercase text-white tracking-wider">Active Users (Last 24 Hours)</h3>
+            <h3 className="text-xs font-black uppercase text-white tracking-wider">Habits Completed (Last 24 Hours)</h3>
             <div className="h-28 flex items-end gap-1.5 pt-2">
-              {[25, 40, 18, 30, 48, 62, 50, 42, 68, 75, 58, 60, 85, 98, 110, 95, 80, 120, 115, 140, 135, 128, 142, 160].map((val, idx) => {
-                const heightPercent = Math.min(100, Math.round((val / 180) * 100));
+              {hourlyActivity.map((val, idx) => {
+                const maxAct = Math.max(1, ...hourlyActivity);
+                const heightPercent = Math.min(100, Math.round((val / maxAct) * 100));
                 return (
                   <div key={idx} className="flex-1 flex flex-col items-center gap-1 group relative">
                     <span className="absolute -top-6 bg-black border border-white/10 px-1 rounded text-[8px] text-[#00FF85] font-black opacity-0 group-hover:opacity-100 transition-opacity">
@@ -287,7 +363,7 @@ export function AdminDashboard({ activeTab }: { activeTab: string }) {
                     <div>
                       <h4 className="text-xs font-black text-white">{p.full_name || 'Anonymous User'}</h4>
                       <p className="text-[10px] text-white/30 mt-0.5">@{p.nickname || 'guest'} · ID: {p.id.substring(0, 8)}</p>
-                      <p className="text-[9px] text-white/20 mt-0.5">Joined: {new Date(p.created_at).toLocaleDateString()}</p>
+                      <p className="text-[9px] text-white/20 mt-0.5">Joined: {new Date(p.created_at || p.updated_at || '2026-06-25').toLocaleDateString()}</p>
                     </div>
                     <span className={`px-2 py-1 rounded text-[9px] font-black uppercase border ${
                       p.is_pro 
@@ -317,6 +393,12 @@ export function AdminDashboard({ activeTab }: { activeTab: string }) {
 
           {/* QUESTIONS LIST */}
           {[
+            { id: 1, title: 'Nama Lengkap / Full Name' },
+            { id: 2, title: 'Nama Panggilan / Nickname' },
+            { id: 3, title: 'Username' },
+            { id: 4, title: 'Jenis Kelamin / Gender' },
+            { id: 5, title: 'Kelompok Umur / Age Groups' },
+            { id: 6, title: 'Berat & Tinggi / Weight & Height' },
             { id: 7, title: 'Domisili / Location' },
             { id: 8, title: 'Pekerjaan / Occupation' },
             { id: 9, title: 'Kondisi Hidup Saat Ini / Life Condition' },

@@ -171,6 +171,17 @@ function Beranda({ activeTab: initialTab = 'habits' }: { activeTab?: string }) {
     initDashboard();
   }, []);
 
+  // Trigger daily reset check when app gains focus (e.g. phone unlocks or user returns to tab)
+  useEffect(() => {
+    const handleFocus = () => {
+      console.log("[InTracker] App focused, running timezone-aware daily reset check...");
+      _checkAndResetDaily();
+      fetchHabits();
+    };
+    window.addEventListener('focus', handleFocus);
+    return () => window.removeEventListener('focus', handleFocus);
+  }, [_checkAndResetDaily, fetchHabits]);
+
   if (loading) return (
     <div className="min-h-screen bg-black flex flex-col items-center justify-center p-6">
       <motion.div 
@@ -213,7 +224,6 @@ function Beranda({ activeTab: initialTab = 'habits' }: { activeTab?: string }) {
   return (
     <div className="min-h-screen w-full bg-black text-white font-['Outfit'] flex flex-col overflow-hidden selection:bg-[#00FF85] selection:text-black">
       
-      <NavigasiAtas activeTab={activeTab} />
 
       <div className="fixed top-0 left-1/2 -translate-x-1/2 w-full h-[70vh] bg-[#00FF85]/2 blur-[150px] rounded-full pointer-events-none z-0" />
 
@@ -254,8 +264,9 @@ function Beranda({ activeTab: initialTab = 'habits' }: { activeTab?: string }) {
 
       <main 
         ref={mainContentRef}
-        className="relative flex-1 overflow-y-auto overflow-x-hidden scroll-smooth pt-[80px]"
+        className="relative flex-1 overflow-y-auto overflow-x-hidden scroll-smooth"
       >
+        <NavigasiAtas activeTab={activeTab} />
         {isAdmin ? (
           <AdminDashboard activeTab={activeTab} />
         ) : (
