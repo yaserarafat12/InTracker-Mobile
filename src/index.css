@@ -442,6 +442,7 @@ body::after {
   div[style*="antigravitybg"] {
     opacity: 0.06 !important;
     filter: grayscale(0.5) brightness(1.3) contrast(0.9) !important;
+    transform: translateX(6px) !important;
   }
   
   /* SVG & icon styling overrides */
@@ -1038,4 +1039,14 @@ body::after {
 }
 .suggestion-card-lime p {
   color: #000000 !important;
+}
+
+/* Custom transparent overlay for moleskine notebook journal */
+textarea.bg-journal-transparent,
+:root textarea.bg-journal-transparent,
+:root:not(.dark) textarea.bg-journal-transparent,
+:root:not(.dark) .nutrition-overlay textarea.bg-journal-transparent {
+  background-color: transparent !important;
+  background-image: none !important;
+  border-color: transparent !important;
 }

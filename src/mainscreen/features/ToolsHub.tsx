@@ -187,7 +187,7 @@ export function ToolsHub() {
             </div>
 
             {/* 2-column grid */}
-            <div className="grid grid-cols-2 gap-4">
+            <div id="features-hub-grid" className="grid grid-cols-2 gap-4">
               {TOOL_CARDS.map((card) => (
                 <ToolCard
                   key={card.id}

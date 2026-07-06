@@ -245,7 +245,7 @@ export const StreakRecoveryModal = () => {
 
                 <motion.button
                   whileTap={{ x: 4, y: 4, boxShadow: "0px 0px 0px rgba(0,0,0,1)" }}
-                  onClick={() => { setScreen('options'); if (navigator.vibrate) navigator.vibrate(10); }}
+                  onClick={() => { setScreen('game-select'); if (navigator.vibrate) navigator.vibrate(10); }}
                   className="w-full py-4 bg-[#00FF85] text-black text-[13px] font-black font-['Outfit'] rounded-[14px] uppercase tracking-wider flex items-center justify-center border-[2px] border-black shadow-[4px_4px_0px_rgba(0,0,0,1),0_4px_20px_rgba(0,255,133,0.2)] transition-all"
                 >
                   Selamatkan Streak
@@ -262,74 +262,6 @@ export const StreakRecoveryModal = () => {
               </motion.div>
             )}
 
-            {/* SCREEN: OPTIONS (Quiz or Freeze) */}
-            {screen === 'options' && (
-              <motion.div
-                key="options"
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-                transition={{ duration: 0.25 }}
-              >
-                <div className="flex flex-col items-center text-center mb-6">
-                  <h3 className="text-[18px] font-black font-['Outfit'] text-white leading-tight tracking-tight">
-                    Pilih cara rescue
-                  </h3>
-                  <p className="text-[11px] font-medium font-['Outfit'] text-[#E3DAC9]/40 mt-1.5">
-                    Selesaikan tantangan atau gunakan item
-                  </p>
-                </div>
-
-                <motion.button
-                  whileTap={{ scale: 0.97 }}
-                  onClick={() => setScreen('game-select')}
-                  className="w-full p-4 bg-[#00CC6A] border border-[#00CC6A] rounded-[16px] mb-3 flex items-center gap-4 text-left group"
-                >
-                  <div className="w-12 h-12 rounded-[12px] bg-black/20 border border-black/20 flex items-center justify-center flex-shrink-0">
-                    <Icon icon="solar:gamepad-bold" className="text-black" width={24} />
-                  </div>
-                  <div className="flex flex-col min-w-0">
-                    <span className="text-[13px] font-black font-['Outfit'] text-black">Main Quiz</span>
-                    <span className="text-[10px] font-bold font-['Outfit'] text-black/50">Selesaikan tantangan singkat untuk rescue</span>
-                  </div>
-                  <Icon icon="solar:alt-arrow-right-bold" className="text-black/40 ml-auto flex-shrink-0" width={16} />
-                </motion.button>
-
-                <motion.button
-                  whileTap={{ scale: 0.97 }}
-                  onClick={handleRescueWithFreeze}
-                  disabled={!hasFreeze}
-                  className={`w-full p-4 rounded-[16px] mb-6 flex items-center gap-4 text-left group ${
-                    hasFreeze 
-                      ? 'bg-[#00D1FF] border border-[#00D1FF]' 
-                      : 'bg-[#00D1FF]/20 border border-[#00D1FF]/30 opacity-50 cursor-not-allowed'
-                  }`}
-                >
-                  <div className={`w-12 h-12 rounded-[12px] border flex items-center justify-center flex-shrink-0 ${
-                    hasFreeze ? 'bg-black/20 border-black/20' : 'bg-white/5 border-white/10'
-                  }`}>
-                    <Icon icon="solar:snowflake-bold" className={hasFreeze ? 'text-black' : 'text-white/30'} width={24} />
-                  </div>
-                  <div className="flex flex-col min-w-0">
-                    <span className={`text-[13px] font-black font-['Outfit'] ${hasFreeze ? 'text-black' : 'text-white/60'}`}>
-                      Pakai Freeze {hasFreeze && <span className="text-black/60">({profile.streak_freeze_count})</span>}
-                    </span>
-                    <span className={`text-[10px] font-bold font-['Outfit'] ${hasFreeze ? 'text-black/50' : 'text-white/30'}`}>
-                      {hasFreeze ? 'Langsung rescue tanpa tantangan' : 'Kamu tidak punya Streak Freeze'}
-                    </span>
-                  </div>
-                  {hasFreeze && <Icon icon="solar:alt-arrow-right-bold" className="text-black/40 ml-auto flex-shrink-0" width={16} />}
-                </motion.button>
-
-                <button
-                  onClick={() => setScreen('main')}
-                  className="w-full py-3 text-[#E3DAC9]/50 text-[11px] font-bold font-['Outfit'] uppercase tracking-wider hover:text-[#E3DAC9]/70 transition-colors flex items-center justify-center gap-2"
-                >
-                  <Icon icon="solar:alt-arrow-left-bold" width={14} />
-                  Kembali
-                </button>
-              </motion.div>
-            )}
 
             {/* SCREEN: GAME SELECT */}
             {screen === 'game-select' && (
@@ -382,7 +314,7 @@ export const StreakRecoveryModal = () => {
                 </motion.button>
 
                 <button
-                  onClick={() => setScreen('options')}
+                  onClick={() => setScreen('main')}
                   className="w-full py-3 text-[#E3DAC9]/50 text-[11px] font-bold font-['Outfit'] uppercase tracking-wider hover:text-[#E3DAC9]/70 transition-colors flex items-center justify-center gap-2"
                 >
                   <Icon icon="solar:alt-arrow-left-bold" width={14} />

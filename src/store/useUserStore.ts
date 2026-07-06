@@ -13,6 +13,8 @@ interface UserProfile {
   streak_count: number;
   last_login_date: string | null;
   created_at: string;
+  onboarding_data?: any;
+  location?: any;
 }
 
 export interface UserSettings {
@@ -106,13 +108,26 @@ export const useUserStore = create<UserStore>()(
           },
         }));
       },
-      setSubscriptionPlan: (plan) => {
+      setSubscriptionPlan: async (plan) => {
         set({ subscriptionPlan: plan });
         const isPro = plan !== 'free';
         const profile = get().profile;
         if (profile) {
-          set({ profile: { ...profile, is_pro: isPro } });
-          void supabase.from('profiles').update({ is_pro: isPro }).eq('id', profile.id);
+          const updatedOnboardingData = {
+            ...(profile.onboarding_data || {}),
+            subscription_plan: plan
+          };
+          set({ 
+            profile: { 
+              ...profile, 
+              is_pro: isPro, 
+              onboarding_data: updatedOnboardingData 
+            } 
+          });
+          void supabase.from('profiles').update({ 
+            is_pro: isPro,
+            onboarding_data: updatedOnboardingData
+          }).eq('id', profile.id);
         }
       },
 
@@ -221,8 +236,9 @@ export const useUserStore = create<UserStore>()(
           const isPro = data.is_pro || (data.pro_until && new Date(data.pro_until) > new Date());
           if (!isPro) {
             set({ subscriptionPlan: 'free' });
-          } else if (get().subscriptionPlan === 'free') {
-            set({ subscriptionPlan: 'monthly' });
+          } else {
+            const dbPlan = data.onboarding_data?.subscription_plan || data.onboarding_data?.subscriptionPlan || 'monthly';
+            set({ subscriptionPlan: dbPlan });
           }
 
           // Sync database values to settings (database nickname -> username, database full_name -> nickname)
@@ -263,14 +279,15 @@ export const useUserStore = create<UserStore>()(
           .from('profiles')
           .update({ 
             pro_until: sevenDaysLater.toISOString(),
-            streak_freeze_count: 3 // Bonus 3 freeze for trial
+            streak_freeze_count: 0 // No freeze bonus
           })
           .eq('id', user.id)
           .select()
           .single();
 
         if (!error && data) {
-          set({ profile: data as UserProfile });
+          const cleanCreatedAt = data.created_at || get().profile?.created_at;
+          set({ profile: { ...data, created_at: cleanCreatedAt } as UserProfile });
         }
       },
 
@@ -294,42 +311,18 @@ export const useUserStore = create<UserStore>()(
           .single();
 
         if (!error && data) {
-          set({ profile: data as UserProfile });
+          const cleanCreatedAt = data.created_at || get().profile?.created_at;
+          set({ profile: { ...data, created_at: cleanCreatedAt } as UserProfile });
         }
       },
 
       useStreakFreeze: async () => {
-        const { profile } = get();
-        if (!profile || profile.streak_freeze_count <= 0) return false;
-
-        const { data, error } = await supabase
-          .from('profiles')
-          .update({ streak_freeze_count: profile.streak_freeze_count - 1 })
-          .eq('id', profile.id)
-          .select()
-          .single();
-
-        if (!error && data) {
-          set({ profile: data as UserProfile });
-          return true;
-        }
+        // Deactivated Streak Freeze
         return false;
       },
 
       addStreakFreeze: async (count: number) => {
-        const { profile } = get();
-        if (!profile) return;
-
-        const { data, error } = await supabase
-          .from('profiles')
-          .update({ streak_freeze_count: (profile.streak_freeze_count || 0) + count })
-          .eq('id', profile.id)
-          .select()
-          .single();
-
-        if (!error && data) {
-          set({ profile: data as UserProfile });
-        }
+        // Deactivated Streak Freeze
       },
 
       updateDailyStreak: async () => {
@@ -374,7 +367,8 @@ export const useUserStore = create<UserStore>()(
           .single();
 
         if (!error && data) {
-          set({ profile: data as UserProfile });
+          const cleanCreatedAt = data.created_at || get().profile?.created_at;
+          set({ profile: { ...data, created_at: cleanCreatedAt } as UserProfile });
           console.log(`[InTracker] Daily Login Streak Updated: ${newStreak} days! 🔥`);
         }
       }

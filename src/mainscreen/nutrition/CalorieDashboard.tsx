@@ -33,6 +33,7 @@ export function CalorieDashboard({ onBack }: CalorieDashboardProps) {
   const { selectedDate, getEntriesForDate, setSelectedDate, entries: allEntries } = useFoodLogStore();
   const [activeView, setActiveView] = useState<DashboardView>('dashboard');
   const { t } = useTranslation();
+  const { settings } = useUserStore();
 
   // Reset to today when dashboard opens
   useEffect(() => {
@@ -93,7 +94,6 @@ export function CalorieDashboard({ onBack }: CalorieDashboardProps) {
     );
   }
 
-  const { settings } = useUserStore();
   const isLight = !document.documentElement.classList.contains('dark');
 
   // --- Dashboard View ---

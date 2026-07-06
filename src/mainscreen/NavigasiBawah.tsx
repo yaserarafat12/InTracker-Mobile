@@ -47,6 +47,7 @@ export const NavigasiBawah: React.FC<NavigasiBawahProps> = ({ activeTab, setActi
         {navItems.map((item) => (
           <motion.button
             key={item.id}
+            id={`nav-${item.id}`}
             whileTap={{ y: 4, transition: { duration: 0.1 } }}
             onClick={() => {
               if (navigator.vibrate) navigator.vibrate(8);

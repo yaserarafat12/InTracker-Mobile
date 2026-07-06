@@ -287,7 +287,7 @@ const JourneyItem: React.FC<JourneyItemProps> = ({ date, isCurrent, isLast, isCo
       </div>
 
       {/* --- CONTENT AREA (MODULAR 4-GRID) --- */}
-      <div className="flex-1 mt-0">
+      <div id={isCurrent ? "journey-today-card" : undefined} className="flex-1 mt-0">
         <div className={`
           relative bg-transparent rounded-[32px] pb-4
           group transition-all duration-300
@@ -311,7 +311,7 @@ const JourneyItem: React.FC<JourneyItemProps> = ({ date, isCurrent, isLast, isCo
             <div className="grid grid-cols-2 gap-2">
               
               {/* BOX 1: MOOD (FULL WIDTH - TOP) */}
-              <div className={`col-span-2 bg-white dark:bg-[#2e3240] journey-card border-[2px] border-black dark:border-white/40 rounded-[28px] p-4 shadow-[4px_4px_0px_rgba(0,0,0,1)] group/mood transition-all duration-300 ${isMoodDisabled ? 'opacity-30 grayscale blur-[0.8px] cursor-default pointer-events-none' : ''}`}>
+              <div id={isCurrent ? "journey-mood-box" : undefined} className={`col-span-2 bg-white dark:bg-[#2e3240] journey-card border-[2px] border-black dark:border-white/40 rounded-[28px] p-4 shadow-[4px_4px_0px_rgba(0,0,0,1)] group/mood transition-all duration-300 ${isMoodDisabled ? 'opacity-30 grayscale blur-[0.8px] cursor-default pointer-events-none' : ''}`}>
                 <span className="text-[11px] font-black font-['Outfit'] text-black dark:text-white/80 tracking-normal text-center block mb-3">
                   {isEditable ? t('journey.whatFelt') : t('journey.moodToday')}
                 </span>
@@ -346,6 +346,7 @@ const JourneyItem: React.FC<JourneyItemProps> = ({ date, isCurrent, isLast, isCo
               {/* BOX 2: JOURNAL (LEFT SQUARE) */}
               <motion.button 
                 whileTap={isEditable ? { x: 4, y: 4, boxShadow: "0px 0px 0px rgba(0,0,0,1)" } : {}}
+                id={isCurrent ? "journey-write-btn" : undefined}
                 onClick={() => { if (isEditable || entry?.journal_text) { setIsJournalOpen(true); handleVibrate(); } }}
                 className={`aspect-square bg-white dark:bg-[#2e3240] journey-card border-[2px] border-black dark:border-white/40 rounded-[28px] flex flex-col items-center justify-between p-4 shadow-[4px_4px_0px_rgba(0,0,0,1)] group/journal transition-all duration-300 ${isJournalDisabled ? 'opacity-30 grayscale blur-[0.8px] cursor-default pointer-events-none' : ''}`}
               >
@@ -363,6 +364,7 @@ const JourneyItem: React.FC<JourneyItemProps> = ({ date, isCurrent, isLast, isCo
 
               {/* BOX 3: MEDIA (RIGHT SQUARE) */}
               <motion.button 
+                id={isCurrent ? "journey-media-btn" : undefined}
                 whileTap={isEditable || currentMedia.length > 0 ? { x: 4, y: 4, boxShadow: "0px 0px 0px rgba(0,0,0,1)" } : {}}
                 onClick={() => { if (isEditable || currentMedia.length > 0) { setIsMediaOpen(true); handleVibrate(); } }}
                 className={`aspect-square bg-white dark:bg-[#2e3240] journey-card border-[2px] border-black dark:border-white/40 rounded-[28px] flex flex-col items-center justify-between p-4 shadow-[4px_4px_0px_rgba(0,0,0,1)] group/media transition-all duration-300 ${isMediaDisabled ? 'opacity-30 grayscale blur-[0.8px] cursor-default pointer-events-none' : ''}`}
@@ -486,54 +488,92 @@ const JourneyItem: React.FC<JourneyItemProps> = ({ date, isCurrent, isLast, isCo
           </div>
         )}
 
-        {/* JOURNAL MODAL (FULL SCREEN IMMERSIVE) */}
+        {/* JOURNAL MODAL (FULL SCREEN IMMERSIVE & PREMIUM PAPERS) */}
         {isJournalOpen && (
-          <div className="fixed inset-0 z-[100] bg-[#212121] flex flex-col">
+          <div className={`fixed inset-0 z-[100] flex flex-col transition-colors duration-300 ${!document.documentElement.classList.contains('dark') ? 'bg-[#fbf9f6]' : 'bg-[#12131a]'}`}>
             <motion.div 
               initial={{ y: 50, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               exit={{ y: 50, opacity: 0 }}
-              className="flex-1 flex flex-col p-6 pt-14 max-w-2xl mx-auto w-full"
+              className="flex-1 flex flex-col p-6 pt-14 max-w-2xl mx-auto w-full h-full justify-between"
             >
               {/* Header */}
-              <div className="flex justify-between items-start mb-10">
+              <div className="flex justify-between items-start mb-6">
                 <div className="flex flex-col">
-                   <p className="text-[10px] font-black font-['Outfit'] text-[#00FF85] uppercase tracking-widest mb-1">{dayOfMonth} {monthName}</p>
-                   <h3 className="text-[28px] font-black font-['Outfit'] text-white tracking-tight leading-none">{getProgramDayLabel(day, language)}</h3>
+                   <p className={`text-[10px] font-black font-['Outfit'] uppercase tracking-widest mb-1 ${!document.documentElement.classList.contains('dark') ? 'text-[#00B570]' : 'text-[#00FF85]'}`}>{dayOfMonth} {monthName}</p>
+                   <h3 className={`text-[28px] font-black font-['Outfit'] tracking-tight leading-none ${!document.documentElement.classList.contains('dark') ? 'text-black' : 'text-white'}`}>{getProgramDayLabel(day, language)}</h3>
                 </div>
                 <motion.button 
                   whileTap={{ scale: 0.9 }}
-                  onClick={() => setIsJournalOpen(false)}
-                  className="w-10 h-10 bg-[#1c1e22] border-[2px] border-white/15 rounded-xl flex items-center justify-center"
+                  onClick={async () => {
+                    if (localJournal !== (entry?.journal_text || '')) {
+                      await handleJournalSave();
+                    } else {
+                      setIsJournalOpen(false);
+                    }
+                  }}
+                  className={`w-10 h-10 rounded-xl flex items-center justify-center border-2 border-black shadow-[2px_2px_0px_rgba(0,0,0,1)] transition-all ${
+                    !document.documentElement.classList.contains('dark') ? 'bg-white text-black' : 'bg-[#1c1e22] text-[#E3DAC9]'
+                  }`}
                 >
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M18 6L6 18M6 6L18 18" stroke="#E3DAC9" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" strokeWidth="4.5" strokeLinecap="round" strokeLinejoin="round"/>
                   </svg>
                 </motion.button>
               </div>
 
-              {/* Textarea */}
-              <div className="h-[1px] bg-[#E3DAC9]/10 mb-4" />
-              <textarea 
-                autoFocus={isEditable}
-                value={localJournal}
-                onChange={(e) => setLocalJournal(e.target.value)}
-                readOnly={!isEditable}
-                placeholder={isEditable ? t('journey.textareaPlaceholder') : t('journey.noNotesForToday')}
-                className={`flex-1 bg-transparent text-xl font-medium font-['Outfit'] focus:outline-none resize-none leading-relaxed ${
-                  isEditable ? 'text-[#E3DAC9] placeholder:text-white/5' : 'text-[#E3DAC9]/50 placeholder:text-white/10 cursor-default'
-                }`}
-              />
-              <div className="h-[1px] bg-[#E3DAC9]/10 mt-4" />
+              {/* Notebook Paper Canvas */}
+              <div 
+                style={
+                  !document.documentElement.classList.contains('dark')
+                    ? {
+                        backgroundColor: '#faf8f4',
+                        backgroundImage: `
+                          linear-gradient(rgba(0, 0, 0, 0.08) 1px, transparent 1px),
+                          url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.025'/%3E%3C/svg%3E")
+                        `,
+                        backgroundSize: '100% 32px, 120px 120px',
+                      }
+                    : {
+                        backgroundColor: '#161720',
+                        backgroundImage: `
+                          linear-gradient(rgba(255, 255, 255, 0.08) 1px, transparent 1px),
+                          url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.015'/%3E%3C/svg%3E")
+                        `,
+                        backgroundSize: '100% 32px, 120px 120px',
+                      }
+                }
+                className={`flex-1 rounded-[24px] border-2 border-black p-6 shadow-[4px_4px_0px_rgba(0,0,0,1)] flex flex-col relative overflow-hidden`}
+              >
+                {/* Red margin line to simulate notebook paper */}
+                <div className={`absolute top-0 bottom-0 left-[36px] w-[1px] ${!document.documentElement.classList.contains('dark') ? 'bg-[#e86c6c]/40' : 'bg-red-500/25'}`} />
 
-              {/* Bottom */}
+                <textarea 
+                  autoFocus={isEditable}
+                  value={localJournal}
+                  onChange={(e) => setLocalJournal(e.target.value)}
+                  readOnly={!isEditable}
+                  placeholder={isEditable ? t('journey.textareaPlaceholder') : t('journey.noNotesForToday')}
+                  className={`flex-1 bg-transparent bg-journal-transparent text-[15px] font-semibold font-['Outfit'] focus:outline-none resize-none leading-[32px] pt-[8px] pl-8 z-10 ${
+                    !document.documentElement.classList.contains('dark') 
+                      ? 'text-black/85 placeholder:text-black/25' 
+                      : 'text-[#E3DAC9]/95 placeholder:text-[#E3DAC9]/20'
+                  }`}
+                  style={{ backgroundColor: 'transparent' }}
+                />
+              </div>
+
+              {/* Bottom Info & Action Bar */}
               <div className="pt-4 pb-10 flex flex-col items-center gap-3">
-                <span className="text-[11px] font-black font-['Outfit'] text-[#E3DAC9]/30">{localJournal.length} {t('journey.characters')}</span>
+                <span className={`text-[11px] font-black font-['Outfit'] tracking-wider uppercase ${!document.documentElement.classList.contains('dark') ? 'text-black/35' : 'text-[#E3DAC9]/30'}`}>
+                  {localJournal.length} {t('journey.characters')}
+                </span>
                 {isEditable && (
                   <motion.button 
                     whileTap={{ x: 4, y: 4, boxShadow: "0px 0px 0px rgba(0,0,0,1)" }}
+                    id="journey-save-btn"
                     onClick={handleJournalSave}
-                    className="w-full bg-[#00FF85] text-black py-4 rounded-[16px] font-black font-['Outfit'] uppercase tracking-wider text-[13px] border-[2px] border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] transition-all"
+                    className="w-full bg-[#00FF85] text-black py-4 rounded-[16px] font-black font-['Outfit'] uppercase tracking-wider text-[13px] border-2 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] transition-all"
                   >
                     {t('journey.saveJournal')}
                   </motion.button>

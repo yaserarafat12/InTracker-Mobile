@@ -249,7 +249,7 @@ export function WorkoutCounter({ onBack }: WorkoutCounterProps) {
       )}
 
       {/* All content above overlay */}
-      <div className="relative z-10 flex flex-col flex-1 overflow-hidden">
+      <div className="relative z-10 flex flex-col flex-1 overflow-y-auto scrollbar-hide">
         {/* Back button */}
         <motion.button
           whileTap={{ scale: 0.9 }}

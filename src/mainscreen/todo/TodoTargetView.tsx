@@ -131,6 +131,7 @@ const TargetCard = ({ target, index, onOpen }: { target: TargetItem; index: numb
                 toggleComplete(target.id);
               }
             }}
+            id={index === 0 ? "todo-checkbox-item" : undefined}
             className={`w-[35px] h-[35px] rounded-[7px] border-[2px] flex items-center justify-center transition-all shrink-0 ${
               (target.completed || justCompleted) 
                 ? 'bg-os-green border-black shadow-[2px_2px_0px_rgba(0,0,0,0.3)]' 
@@ -669,6 +670,7 @@ export default function TodoTargetView({ initialFilter }: { initialFilter?: Targ
           ].map((item) => (
             <motion.button
               key={item.id}
+              id={`todo-tab-${item.id}`}
               whileTap={{ x: 2, y: 2, boxShadow: "0px 0px 0px rgba(0,0,0,1)" }}
               onClick={() => {
                 setActiveFilter(item.id as TargetFilter);
@@ -737,6 +739,7 @@ export default function TodoTargetView({ initialFilter }: { initialFilter?: Targ
       {activeFilter !== 'done' && (
         <div className="mt-8">
           <motion.div
+            id="todo-quick-add"
             animate={{
               borderColor: isAdding || inputValue ? 'rgba(255,255,255,0.4)' : 'rgba(255,255,255,0.15)',
             }}
@@ -795,6 +798,7 @@ export default function TodoTargetView({ initialFilter }: { initialFilter?: Targ
             <AnimatePresence>
               {inputValue.trim().length > 0 && (
                 <motion.button
+                  id="todo-quick-add-submit-btn"
                   initial={{ opacity: 0, scale: 0.5, x: 20 }}
                   animate={{ opacity: 1, scale: 1, x: 0 }}
                   exit={{ opacity: 0, scale: 0.5, x: 20 }}
@@ -887,6 +891,7 @@ export default function TodoTargetView({ initialFilter }: { initialFilter?: Targ
 
         {/* Floating Add Button - Consistent with Habits */}
         <motion.button
+          id="todo-add-fab"
           initial={{ scale: 0, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           whileTap={{ scale: 0.9, x: 4, y: 4, boxShadow: '0px 0px 0px rgba(0,0,0,1)' }}

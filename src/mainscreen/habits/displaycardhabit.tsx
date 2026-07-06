@@ -226,7 +226,7 @@ const KartuTugas = ({ habit, index, activeFilter, onDoubleTap, onEdit, isDraggab
   };
 
   return (
-    <div className="relative w-full">
+    <div className="relative w-full habit-card-item" id={index === 0 ? 'first-habit-card' : undefined}>
       {/* BACKGROUND ACTIONS */}
       <div className="absolute inset-0 overflow-hidden">
         <motion.div 
@@ -416,6 +416,7 @@ const KartuTugas = ({ habit, index, activeFilter, onDoubleTap, onEdit, isDraggab
           
           {/* Info Button */}
           <button
+            id={index === 0 ? "habit-info-btn" : undefined}
             onClick={(e) => {
               e.stopPropagation();
               setShowInfoModal(true);

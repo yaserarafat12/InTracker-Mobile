@@ -46,14 +46,16 @@ export const TambahHabitModal = ({
   onAddHabit,
   onUpdateHabit,
   habitToEdit = null,
-  currentHabits = [] 
+  currentHabits = [],
+  tutorialStep
 }: { 
   isOpen: boolean, 
   onClose: () => void, 
   onAddHabit?: (habit: any) => void,
   onUpdateHabit?: (id: string, updates: any) => void,
   habitToEdit?: any | null,
-  currentHabits?: any[]
+  currentHabits?: any[],
+  tutorialStep?: number
 }) => {
   const [selectedHabitForConfig, setSelectedHabitForConfig] = useState<any>(null);
   const { t, language } = useTranslation();
@@ -70,9 +72,15 @@ export const TambahHabitModal = ({
 
   // Group habits by category
   const groupedHabits = useMemo(() => {
+    const isTutorialActive = localStorage.getItem('interactive_tutorial_active') === 'true';
     return categories.map(cat => ({
       category: cat,
-      habits: HABIT_OPTIONS.filter(h => h.category === cat)
+      habits: HABIT_OPTIONS.filter(h => {
+        if (h.name === 'Hidrasi Harian') {
+          return isTutorialActive;
+        }
+        return true;
+      }).filter(h => h.category === cat)
     })).filter(g => g.habits.length > 0);
   }, []);
 
@@ -114,6 +122,39 @@ export const TambahHabitModal = ({
       return () => clearTimeout(timer);
     }
   }, [toastMessage]);
+
+  // Synchronize modal sub-states with tutorial step
+  useEffect(() => {
+    const isTutorialActive = localStorage.getItem('interactive_tutorial_active') === 'true';
+    if (!isTutorialActive || tutorialStep === undefined) return;
+
+    if (tutorialStep === 3) {
+      // Step 3: Choose Preset. The preset list must be open (selectedHabitForConfig = null)
+      setSelectedHabitForConfig(null);
+      setShowIntensityPicker(false);
+    } else if (tutorialStep === 4) {
+      // Step 4: Open Intensity Picker. Preset must be selected, intensity picker modal closed.
+      const preset = HABIT_OPTIONS.find(h => h.name === 'Hidrasi Harian');
+      if (preset && (!selectedHabitForConfig || selectedHabitForConfig.name !== 'Hidrasi Harian')) {
+        setSelectedHabitForConfig(preset);
+      }
+      setShowIntensityPicker(false);
+    } else if (tutorialStep === 5) {
+      // Step 5: Done in Intensity Picker. Intensity picker modal must be open.
+      const preset = HABIT_OPTIONS.find(h => h.name === 'Hidrasi Harian');
+      if (preset && (!selectedHabitForConfig || selectedHabitForConfig.name !== 'Hidrasi Harian')) {
+        setSelectedHabitForConfig(preset);
+      }
+      setShowIntensityPicker(true);
+    } else if (tutorialStep === 6) {
+      // Step 6: Save Habit (ADD). Config sheet open, intensity picker closed.
+      const preset = HABIT_OPTIONS.find(h => h.name === 'Hidrasi Harian');
+      if (preset && (!selectedHabitForConfig || selectedHabitForConfig.name !== 'Hidrasi Harian')) {
+        setSelectedHabitForConfig(preset);
+      }
+      setShowIntensityPicker(false);
+    }
+  }, [tutorialStep]);
 
   const handleChipClick = (habit: any) => {
     const isDuplicate = currentHabits.some(h => h.name.toLowerCase() === habit.name.toLowerCase());
@@ -244,6 +285,7 @@ export const TambahHabitModal = ({
                       return (
                         <motion.button
                           key={habit.name}
+                          id={habit.name === 'Hidrasi Harian' ? 'habit-pick-drink-water' : undefined}
                           whileTap={{ scale: 0.95 }}
                           onClick={() => handleChipClick(habit)}
                           className={`flex items-center gap-1.5 px-3 py-2 rounded-lg border transition-all ${
@@ -297,6 +339,7 @@ export const TambahHabitModal = ({
             className="fixed inset-0 bg-black/95 z-[210]"
           />
           <motion.div 
+            id="habit-config-modal"
             initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }}
             transition={{ type: 'spring', damping: 25, stiffness: 200 }}
             className="fixed bottom-0 left-0 right-0 bg-[#16181c] z-[220] rounded-t-[32px] border-t border-white/5 p-6 pb-10 shadow-[0_-20px_50px_rgba(0,0,0,0.8)] flex flex-col h-[55vh]"
@@ -337,6 +380,7 @@ export const TambahHabitModal = ({
               <p className="text-[10px] font-bold text-white/30 uppercase tracking-[0.2em] mb-3 ml-1">{t('addHabit.selectIntensity')}</p>
               {selectedHabitForConfig.intensity?.type === 'numeric' ? (
                 <button
+                  id="habit-config-intensity-btn"
                   onClick={() => { if (navigator.vibrate) navigator.vibrate(3); setShowIntensityPicker(true); }}
                   className={`w-full h-[46px] rounded-xl border flex items-center justify-between px-4 active:scale-[0.98] transition-all ${
                     isLight
@@ -461,6 +505,7 @@ export const TambahHabitModal = ({
               </motion.button>
               <motion.button 
                 whileTap={{ scale: 0.95 }}
+                id="habit-config-save-btn"
                 onClick={() => handleActionClick(selectedHabitForConfig, intensityValue)}
                 className={`flex-[1.5] h-[48px] rounded-xl font-black font-['Outfit'] uppercase tracking-[0.15em] text-[12px] border transition-all flex items-center justify-center gap-2 ${
                   isLight
@@ -486,6 +531,7 @@ export const TambahHabitModal = ({
             className="fixed inset-0 bg-black/80 z-[230]"
           />
           <motion.div 
+            id="habit-config-intensity-modal"
             initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }}
             transition={{ type: 'spring', damping: 28, stiffness: 220 }}
             className="fixed bottom-0 left-0 right-0 bg-[#16181c] z-[240] rounded-t-[32px] border-t border-white/5 p-6 pb-10 flex flex-col h-[55vh]"
@@ -522,6 +568,7 @@ export const TambahHabitModal = ({
                 {t('addHabit.cancel')}
               </motion.button>
               <motion.button 
+                id="habit-config-intensity-done-btn"
                 whileTap={{ scale: 0.95 }}
                 onClick={() => { if (navigator.vibrate) navigator.vibrate(5); setShowIntensityPicker(false); }}
                 className={`flex-[1.5] h-[48px] rounded-xl font-black font-['Outfit'] uppercase tracking-[0.15em] text-[12px] border transition-all flex items-center justify-center ${

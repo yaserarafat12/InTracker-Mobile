@@ -32,8 +32,22 @@ interface FeedCardProps {
   onDelete?: (id: string) => void;
 }
 
+const getFlagEmoji = (regionCode?: string) => {
+  if (!regionCode) return '';
+  const codePoints = regionCode
+    .toUpperCase()
+    .split('')
+    .map(char => 127397 + char.charCodeAt(0));
+  try {
+    return String.fromCodePoint(...codePoints);
+  } catch (e) {
+    return '🏳️';
+  }
+};
+
 const FeedCard: React.FC<FeedCardProps> = ({ id, user, type, content, metadata, created_at, initialReactions, onProfileClick, onDelete }) => {
   const { profile } = useUserStore();
+  const [showReportDialog, setShowReportDialog] = useState(false);
   // Normalize reactions to new format
   const normalizeReactions = (r: Record<string, number> | undefined) => {
     const defaults = { '❤️': 0, '🔥': 0, '👏': 0, '😱': 0, '💪': 0, '🫡': 0, '🥶': 0 };
@@ -172,9 +186,10 @@ const FeedCard: React.FC<FeedCardProps> = ({ id, user, type, content, metadata, 
             <div className="flex flex-col gap-0.5">
               <h4 
                 onClick={onProfileClick}
-                className="font-black text-[#E3DAC9] text-[14px] tracking-normal cursor-pointer hover:text-[#00FF85] transition-colors leading-tight"
+                className="font-black text-[#E3DAC9] text-[14px] tracking-normal cursor-pointer hover:text-[#00FF85] transition-colors leading-tight flex items-center gap-1.5"
               >
-                {user.nickname}
+                <span>{user.nickname}</span>
+                <span className="text-[14px]">{getFlagEmoji(user.region)}</span>
               </h4>
               <span className="text-[10px] text-[#E3DAC9]/40 font-bold leading-none">{timeAgo(created_at)}</span>
             </div>
@@ -206,9 +221,18 @@ const FeedCard: React.FC<FeedCardProps> = ({ id, user, type, content, metadata, 
               <motion.div
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
-                className="absolute right-0 top-8 bg-[#1c1e22] border border-white/10 rounded-xl p-2 z-50 shadow-lg"
+                className="absolute right-0 top-8 bg-[#1c1e22] border border-white/10 rounded-xl p-1 z-50 shadow-lg min-w-[120px]"
               >
-                <span className="text-[10px] text-white/30 px-2">Tidak ada opsi</span>
+                <button
+                  onClick={() => {
+                    setShowMenu(false);
+                    setShowReportDialog(true);
+                  }}
+                  className="flex items-center gap-2 px-3 py-2 rounded-lg text-[#FF4D00] hover:bg-white/5 transition-colors w-full text-left"
+                >
+                  <Icon icon="solar:danger-bold" width={14} />
+                  <span className="text-[11px] font-bold">Laporkan</span>
+                </button>
               </motion.div>
             )}
           </div>
@@ -346,6 +370,40 @@ const FeedCard: React.FC<FeedCardProps> = ({ id, user, type, content, metadata, 
                   {isCommenting ? <Loader2 className="animate-spin text-black" size={14} /> : <Send size={14} strokeWidth={3} className="text-black" />}
                 </motion.button>
               </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {showReportDialog && (
+          <div className="fixed inset-0 z-[500] flex items-center justify-center px-6">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setShowReportDialog(false)}
+              className="absolute inset-0 bg-black/80 backdrop-blur-xs"
+            />
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              className="relative w-full max-w-[320px] bg-[#1E2028] border-[2px] border-[#FF4D00] rounded-2xl p-5 shadow-[4px_4px_0px_rgba(0,0,0,1)] text-center text-white"
+            >
+              <div className="w-12 h-12 rounded-full bg-[#FF4D00]/10 border border-[#FF4D00]/30 flex items-center justify-center mx-auto mb-4">
+                <Icon icon="solar:danger-bold" className="text-[#FF4D00]" width={24} />
+              </div>
+              <h4 className="text-[15px] font-black uppercase tracking-wider mb-2">Laporan Diterima</h4>
+              <p className="text-[11px] text-white/60 leading-relaxed font-bold mb-5">
+                Terima kasih atas laporan Anda. Laporan akan ditinjau dalam 24 jam. Gambar yang tidak layak atau senonoh akan segera kami hapus secara permanen.
+              </p>
+              <button
+                onClick={() => setShowReportDialog(false)}
+                className="w-full py-2.5 bg-[#FF4D00] text-white font-black text-xs rounded-lg border border-black shadow-[2px_2px_0px_rgba(0,0,0,1)] uppercase tracking-wider active:translate-x-[1px] active:translate-y-[1px] active:shadow-none transition-all"
+              >
+                Tutup
+              </button>
             </motion.div>
           </div>
         )}

@@ -27,6 +27,7 @@ export const NavigasiAtas = ({ activeTab }: NavigasiAtasProps) => {
       {activeTab === 'habits' ? (
         <>
           <motion.div 
+            id="streak-counter-widget"
             whileTap={{ x: 2, y: 2, boxShadow: "0px 0px 0px black" }}
             className="flex items-center justify-center gap-[6px] bg-[#FF4D00] w-[75px] h-11 rounded-xl border-[2px] border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] transition-all"
           >
@@ -34,10 +35,11 @@ export const NavigasiAtas = ({ activeTab }: NavigasiAtasProps) => {
             <span className="text-[20px] font-black font-['Outfit'] text-white tracking-normal leading-none">{totalStreak || profile?.streak_count || 0}</span>
           </motion.div>
  
-          <div className="flex items-center gap-3">
+          <div id="focus-tools-row" className="flex items-center gap-3">
             <AmbientPlayer />
             <motion.button
               whileTap={{ x: 2, y: 2, boxShadow: "0px 0px 0px black" }}
+              id="settings-toggle-btn"
               onClick={toggleSettings}
               className={`w-11 h-11 rounded-xl shadow-[4px_4px_0px_rgba(0,0,0,1)] flex items-center justify-center transition-all border-[1.5px] ${
                 isSettingsOpen 

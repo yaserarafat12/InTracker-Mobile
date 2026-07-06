@@ -532,7 +532,7 @@ export const SettingsOverlay = () => {
         await supabase.from('user_stats').delete().eq('user_id', user.id);
         await supabase.from('profiles').update({
           streak_count: 0,
-          streak_freeze_count: 3,
+          streak_freeze_count: 0,
           onboarding_completed: false
         }).eq('id', user.id);
       }
@@ -741,7 +741,7 @@ export const SettingsOverlay = () => {
     { id: 'devices', label: 'Device integration', icon: 'solar:devices-bold', desc: 'Sync health & fitness trackers' },
     { id: 'notifications', label: 'Notifications', icon: 'solar:bell-bold', desc: 'Manage alerts & daily reminder' },
     { id: 'security', label: 'Security & login', icon: 'solar:lock-keyhole-bold', desc: 'Password & biometric options' },
-    { id: 'premium', label: 'Manage plan', icon: 'solar:ticket-bold', desc: 'Subscriptions & supply freeze' },
+    { id: 'premium', label: 'Manage plan', icon: 'solar:ticket-bold', desc: 'Subscriptions & billing details' },
     { id: 'preferences', label: 'App preferences', icon: 'solar:settings-bold', desc: 'Language, theme & units' },
     { id: 'support', label: 'Help & support', icon: 'solar:chat-round-line-bold', desc: 'FAQs, contact team & feedback' },
     { id: 'about', label: 'About InTracker', icon: 'solar:info-circle-bold', desc: 'Legal, terms & system info' },
@@ -749,7 +749,7 @@ export const SettingsOverlay = () => {
 
   const faqs = [
     { q: 'Gimana cara mulai tracking habit?', a: 'Buka tab Habits, tekan tombol + di pojok kanan atas untuk tambah habit baru. Pilih kategori, atur frekuensi, lalu selesaikan setiap hari untuk jaga streak-mu.' },
-    { q: 'Apa itu Streak dan gimana cara jaganya?', a: 'Streak adalah jumlah hari berturut-turut kamu menyelesaikan habit. Kamu harus menyelesaikan habit setiap hari agar streak tidak reset. Tersedia Streak Freeze di supply untuk proteksi 1 hari.' },
+    { q: 'Apa itu Streak dan gimana cara jaganya?', a: 'Streak adalah jumlah hari berturut-turut kamu menyelesaikan habit. Kamu harus menyelesaikan habit setiap hari agar streak tidak reset. Jika streak pecah, kamu bisa memulihkannya dengan menyelesaikan tantangan mini-game.' },
     { q: 'Apa fungsi fitur Journey?', a: 'Journey adalah mood log harian. Kamu bisa catat perasaan, energi, dan refleksi singkat setiap hari. Data ini terakumulasi di Analytics untuk melihat tren emosimu dari waktu ke waktu.' },
     { q: 'Apa itu XP dan level di InTracker?', a: 'XP (Experience Points) didapat dari menyelesaikan habit, todo, dan aktivitas lainnya. Semakin banyak XP, semakin tinggi levelmu. Level mencerminkan konsistensi dan progressmu secara keseluruhan.' },
     { q: 'Gimana cara pakai fitur Todo / Target?', a: 'Buka tab Todo dari beranda. Tambah task baru dengan tombol +, atur deadline dan prioritas. Task yang selesai akan otomatis diarsipkan setelah 24 jam untuk menjaga tampilan tetap bersih.' },

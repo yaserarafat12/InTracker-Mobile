@@ -210,12 +210,12 @@ export function MathRacing({ onBack }: MathRacingProps) {
 
       <AnimatePresence mode="wait">
         {gameState === 'menu' && (
-          <motion.div key="menu" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="h-full relative z-10">
+          <motion.div key="menu" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="h-full relative z-10 overflow-y-auto scrollbar-hide">
             <MenuView onBack={onBack} onStart={startGame} isLight={isLight} />
           </motion.div>
         )}
         {gameState === 'playing' && question && (
-          <motion.div key="playing" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="h-full relative z-10">
+          <motion.div key="playing" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="h-full relative z-10 overflow-y-auto scrollbar-hide">
             <PlayView
               mode={mode}
               question={question}
@@ -232,7 +232,7 @@ export function MathRacing({ onBack }: MathRacingProps) {
           </motion.div>
         )}
         {gameState === 'gameover' && (
-          <motion.div key="gameover" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="h-full relative z-10">
+          <motion.div key="gameover" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="h-full relative z-10 overflow-y-auto scrollbar-hide">
             <ResultView score={score} wrongCount={wrongCount} totalQuestions={totalQuestions} bestStreak={bestStreak} onRestart={() => startGame(mode)} onBack={onBack} isLight={isLight} />
           </motion.div>
         )}
@@ -248,7 +248,7 @@ function MenuView({ onBack, onStart, isLight }: { onBack: () => void; onStart: (
   const timerOptions = [60, 120, 180, 240, 300, 360];
 
   return (
-    <div className="h-full flex flex-col px-6 pt-14 pb-8 relative z-10">
+    <div className="min-h-full flex flex-col px-6 pt-14 pb-8 relative z-10">
       {/* Back */}
       <motion.button whileTap={{ scale: 0.9 }} onClick={onBack}
         className={`w-10 h-10 rounded-xl border-[2px] flex items-center justify-center mb-10 active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all ${
@@ -356,7 +356,7 @@ function PlayView({ mode, question, score, wrongCount, streak, timeLeft, feedbac
   const { t } = useTranslation();
 
   return (
-    <div className="h-full flex flex-col px-6 pt-8 pb-8 relative overflow-hidden">
+    <div className="min-h-full flex flex-col px-6 pt-8 pb-8 relative overflow-hidden">
       {/* Background image for dark mode */}
       {!isLight && (
         <>
@@ -507,7 +507,7 @@ function ResultView({ score, wrongCount, totalQuestions, bestStreak, onRestart, 
   const percentage = totalQuestions > 0 ? Math.round((score / totalQuestions) * 100) : 0;
 
   return (
-    <div className="h-full flex flex-col px-6 pt-10 pb-10 relative overflow-hidden">
+    <div className="min-h-full flex flex-col px-6 pt-10 pb-10 relative overflow-hidden">
       {/* Background for dark mode */}
       {!isLight && (
         <>

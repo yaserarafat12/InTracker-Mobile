@@ -46,8 +46,8 @@ export const AddGlobalPost = ({ isOpen, onClose, onPosted }: AddGlobalPostProps)
   const fileInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
 
-  // Only habits with streak >= 1 can be shared
-  const eligibleHabits = habits.filter(h => (h.streak || 0) >= 1);
+  // All habits can be shared to ensure visibility and prevent disabled share states
+  const eligibleHabits = habits;
   const selectedHabitData = habits.find(h => h.id === selectedHabit);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -157,6 +157,7 @@ export const AddGlobalPost = ({ isOpen, onClose, onPosted }: AddGlobalPostProps)
                 {t('feed.addPost.title')}
               </h3>
               <motion.button
+                id="post-close-btn"
                 whileTap={{ scale: 0.9 }}
                 onClick={() => { onClose(); resetState(); }}
                 className={`w-10 h-10 rounded-xl border flex items-center justify-center transition-all ${
@@ -170,9 +171,9 @@ export const AddGlobalPost = ({ isOpen, onClose, onPosted }: AddGlobalPostProps)
                 </svg>
               </motion.button>
             </div>
-
+ 
             {/* Media Area */}
-            <div className={`w-full aspect-[9/7] rounded-[24px] mb-6 flex items-center justify-center overflow-hidden relative border transition-all ${
+            <div id="post-media-area" className={`w-full aspect-[9/7] rounded-[24px] mb-6 flex items-center justify-center overflow-hidden relative border transition-all ${
               isLight
                 ? 'bg-white border-black/10 shadow-[3px_3px_0px_rgba(0,0,0,0.1)]'
                 : 'bg-[#1a1a1a] border-[#E3DAC9]/20'
@@ -206,78 +207,81 @@ export const AddGlobalPost = ({ isOpen, onClose, onPosted }: AddGlobalPostProps)
                 </div>
               )}
             </div>
-
-            {/* Habit Picker Button */}
-            <motion.button
-              whileTap={{ scale: 0.97 }}
-              onClick={() => setShowHabitPicker(!showHabitPicker)}
-              className={`w-full p-4 border-[2px] rounded-[16px] mb-4 flex items-center justify-between transition-all ${
-                isLight
-                  ? 'bg-white border-black text-black shadow-[3px_3px_0px_rgba(0,0,0,0.65)]'
-                  : 'bg-[#2a2c32] border-white/10 text-[#E3DAC9] shadow-none'
-              }`}
-            >
-              <span className={`text-[12px] font-bold font-['Outfit'] ${isLight ? 'text-black' : 'text-[#E3DAC9]'}`}>
-                {selectedHabitData 
-                  ? <span>{(t(`presets.${selectedHabitData.name}`) === `presets.${selectedHabitData.name}` ? selectedHabitData.name : t(`presets.${selectedHabitData.name}`))} • {selectedHabitData.streak} {t('feed.addPost.daysUnit')}</span>
-                  : t('feed.addPost.placeholderHabit')
-                }
-              </span>
-              <Icon icon="solar:alt-arrow-down-bold" className={isLight ? 'text-black/40' : 'text-[#E3DAC9]/50'} width={16} />
-            </motion.button>
-
-            {/* Habit Picker Dropdown */}
-            <AnimatePresence>
-              {showHabitPicker && (
-                <motion.div
-                  initial={{ height: 0, opacity: 0 }}
-                  animate={{ height: 'auto', opacity: 1 }}
-                  exit={{ height: 0, opacity: 0 }}
-                  className="overflow-hidden mb-4"
-                >
-                  {eligibleHabits.length > 0 ? (
-                    <div className={`space-y-2 p-3 border rounded-[16px] ${
-                      isLight ? 'bg-white border-black/10' : 'bg-[#212121] border-[#E3DAC9]/10'
-                    }`}>
-                      {eligibleHabits.map(h => (
-                        <motion.button
-                          key={h.id}
-                          whileTap={{ scale: 0.97 }}
-                          onClick={() => { setSelectedHabit(h.id); setShowHabitPicker(false); if (navigator.vibrate) navigator.vibrate(5); }}
-                          className={`w-full p-3 rounded-[12px] flex items-center justify-between border transition-all ${
-                            selectedHabit === h.id 
-                              ? 'bg-[#00FF85]/10 border-[#00FF85]/30' 
-                              : isLight 
-                                ? 'bg-white border-black/5 hover:bg-slate-50 text-black' 
-                                : 'bg-[#1a1a1a] border-transparent text-[#E3DAC9]'
-                          }`}
-                        >
-                          <div className="flex items-center gap-3">
-                            <Icon icon={HABIT_ICONS[h.iconName || ''] || 'ph:circle-bold'} style={{ color: HABIT_COLORS[h.iconName || ''] || '#00FF85' }} width={16} />
-                            <span className={`text-[12px] font-black font-['Outfit'] ${isLight ? 'text-black' : 'text-[#E3DAC9]'}`}>{(t(`presets.${h.name}`) === `presets.${h.name}` ? h.name : t(`presets.${h.name}`))}</span>
-                          </div>
-                          <span className="text-[10px] font-black font-['Outfit'] text-[#00FF85]">{h.streak} {t('feed.addPost.daysUnit')}</span>
-                        </motion.button>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className={`p-4 border rounded-[16px] text-center ${
-                      isLight ? 'bg-white border-black/10' : 'bg-[#212121] border-[#E3DAC9]/10'
-                    }`}>
-                      <p className={`text-[11px] font-bold font-['Outfit'] ${isLight ? 'text-black/40' : 'text-[#E3DAC9]/40'}`}>
-                        {t('feed.addPost.noStreakActive')}
-                      </p>
-                      <p className={`text-[10px] font-medium font-['Outfit'] mt-1 ${isLight ? 'text-black/25' : 'text-[#E3DAC9]/25'}`}>
-                        {t('feed.addPost.solveHabitHint')}
-                      </p>
-                    </div>
-                  )}
-                </motion.div>
-              )}
-            </AnimatePresence>
-
+            {/* Habit Picker Section */}
+            <div id="post-habit-picker-container" className="w-full">
+              {/* Habit Picker Button */}
+              <motion.button
+                id="post-habit-picker-btn"
+                whileTap={{ scale: 0.97 }}
+                onClick={() => setShowHabitPicker(!showHabitPicker)}
+                className={`w-full p-4 border-[2px] rounded-[16px] mb-4 flex items-center justify-between transition-all ${
+                  isLight
+                    ? 'bg-white border-black text-black shadow-[3px_3px_0px_rgba(0,0,0,0.65)]'
+                    : 'bg-[#2a2c32] border-white/10 text-[#E3DAC9] shadow-none'
+                }`}
+              >
+                <span className={`text-[12px] font-bold font-['Outfit'] ${isLight ? 'text-black' : 'text-[#E3DAC9]'}`}>
+                  {selectedHabitData 
+                    ? <span>{(t(`presets.${selectedHabitData.name}`) === `presets.${selectedHabitData.name}` ? selectedHabitData.name : t(`presets.${selectedHabitData.name}`))} • {selectedHabitData.streak} {t('feed.addPost.daysUnit')}</span>
+                    : t('feed.addPost.placeholderHabit')
+                  }
+                </span>
+                <Icon icon="solar:alt-arrow-down-bold" className={isLight ? 'text-black/40' : 'text-[#E3DAC9]/50'} width={16} />
+              </motion.button>
+   
+              {/* Habit Picker Dropdown */}
+              <AnimatePresence>
+                {showHabitPicker && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: 'auto', opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    className="overflow-hidden mb-4"
+                  >
+                    {eligibleHabits.length > 0 ? (
+                      <div className={`space-y-2 p-3 border rounded-[16px] ${
+                        isLight ? 'bg-white border-black/10' : 'bg-[#212121] border-[#E3DAC9]/10'
+                      }`}>
+                        {eligibleHabits.map(h => (
+                          <motion.button
+                            key={h.id}
+                            whileTap={{ scale: 0.97 }}
+                            onClick={() => { setSelectedHabit(h.id); setShowHabitPicker(false); if (navigator.vibrate) navigator.vibrate(5); }}
+                            className={`post-habit-option-btn w-full p-3 rounded-[12px] flex items-center justify-between border transition-all ${
+                              selectedHabit === h.id 
+                                ? 'bg-[#00FF85]/10 border-[#00FF85]/30' 
+                                : isLight 
+                                  ? 'bg-white border-black/5 hover:bg-slate-50 text-black' 
+                                  : 'bg-[#1a1a1a] border-transparent text-[#E3DAC9]'
+                            }`}
+                          >
+                            <div className="flex items-center gap-3">
+                              <Icon icon={HABIT_ICONS[h.iconName || ''] || 'ph:circle-bold'} style={{ color: HABIT_COLORS[h.iconName || ''] || '#00FF85' }} width={16} />
+                              <span className={`text-[12px] font-black font-['Outfit'] ${isLight ? 'text-black' : 'text-[#E3DAC9]'}`}>{(t(`presets.${h.name}`) === `presets.${h.name}` ? h.name : t(`presets.${h.name}`))}</span>
+                            </div>
+                            <span className="text-[10px] font-black font-['Outfit'] text-[#00FF85]">{h.streak} {t('feed.addPost.daysUnit')}</span>
+                          </motion.button>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className={`p-4 border rounded-[16px] text-center ${
+                        isLight ? 'bg-white border-black/10' : 'bg-[#212121] border-[#E3DAC9]/10'
+                      }`}>
+                        <p className={`text-[11px] font-bold font-['Outfit'] ${isLight ? 'text-black/40' : 'text-[#E3DAC9]/40'}`}>
+                          {t('feed.addPost.noStreakActive')}
+                        </p>
+                        <p className={`text-[10px] font-medium font-['Outfit'] mt-1 ${isLight ? 'text-black/25' : 'text-[#E3DAC9]/25'}`}>
+                          {t('feed.addPost.solveHabitHint')}
+                        </p>
+                      </div>
+                    )}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+ 
             {/* Caption Input */}
-            <div className={`w-full p-4 rounded-[16px] mb-8 border transition-all ${
+            <div id="post-caption-input" className={`w-full p-4 rounded-[16px] mb-8 border transition-all ${
               isLight 
                 ? 'bg-white border-black text-black shadow-[3px_3px_0px_rgba(0,0,0,1)]' 
                 : 'bg-[#1a1a1a] border-white/10 text-white shadow-none'
@@ -292,9 +296,10 @@ export const AddGlobalPost = ({ isOpen, onClose, onPosted }: AddGlobalPostProps)
                 }`}
               />
             </div>
-
+ 
             {/* Share Button */}
             <motion.button
+              id="post-share-btn"
               whileTap={selectedHabit ? { scale: 0.96 } : {}}
               onClick={handlePost}
               disabled={!selectedHabit || isPosting}

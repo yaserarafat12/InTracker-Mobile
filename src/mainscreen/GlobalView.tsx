@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import FeedCard from '../components/FeedCard';
 import { Plus, Loader2, Send } from 'lucide-react';
@@ -30,6 +30,12 @@ const GlobalView: React.FC = () => {
 
   const tabs: TabType[] = ['Publik', 'Teman', 'Personal'];
   const [showFriendsSheet, setShowFriendsSheet] = useState(false);
+
+  // Pull-to-refresh states
+  const [pullDistance, setPullDistance] = useState(0);
+  const [isPulling, setIsPulling] = useState(false);
+  const startYRef = useRef(0);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   const fetchPosts = async () => {
     setLoading(true);
@@ -62,7 +68,17 @@ const GlobalView: React.FC = () => {
       const { data, error } = await query.limit(20);
 
       if (error) throw error;
-      setPosts(data || []);
+      let finalPosts = data || [];
+      
+      // Implicitly and automatically filter the Public tab by the user's country region!
+      if (activeTab === 'Publik' && profile) {
+        const userRegion = profile.location?.region || 'ID';
+        finalPosts = finalPosts.filter(p => {
+          const postRegion = p.user?.location?.region || 'ID';
+          return postRegion.toLowerCase() === userRegion.toLowerCase();
+        });
+      }
+      setPosts(finalPosts);
     } catch (err) {
       console.error('Error fetching feeds:', err);
     } finally {
@@ -78,6 +94,34 @@ const GlobalView: React.FC = () => {
   useEffect(() => {
     fetchPosts();
   }, [activeTab, profile, friends]);
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    if (containerRef.current && containerRef.current.scrollTop === 0) {
+      startYRef.current = e.touches[0].clientY;
+      setIsPulling(true);
+    }
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (!isPulling) return;
+    const currentY = e.touches[0].clientY;
+    const diff = currentY - startYRef.current;
+    if (diff > 0) {
+      // Add tension resistance
+      const distance = Math.min(diff * 0.4, 70);
+      setPullDistance(distance);
+    }
+  };
+
+  const handleTouchEnd = () => {
+    if (!isPulling) return;
+    setIsPulling(false);
+    if (pullDistance >= 50) {
+      if (navigator.vibrate) navigator.vibrate(15);
+      fetchPosts();
+    }
+    setPullDistance(0);
+  };
 
   const handleSearch = async () => {
     if (!searchQuery.trim()) return;
@@ -157,7 +201,32 @@ const GlobalView: React.FC = () => {
       <div className="h-[140px]" />
 
       {/* Feed Content */}
-      <div className="flex-1 overflow-y-auto py-4 no-scrollbar">
+      <div 
+        ref={containerRef}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+        className="flex-1 overflow-y-auto py-4 no-scrollbar"
+      >
+        {/* Pull-to-refresh spinner */}
+        <AnimatePresence>
+          {pullDistance > 10 && (
+            <motion.div 
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: pullDistance, opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              className="flex items-center justify-center overflow-hidden w-full text-white/40 mb-2"
+            >
+              <Icon 
+                icon="solar:restart-bold" 
+                className={`animate-spin-slow transition-all ${pullDistance >= 50 ? 'text-[#00FF85] scale-110' : ''}`} 
+                style={{ transform: `rotate(${pullDistance * 4}deg)` }}
+                width={18} 
+              />
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         <AnimatePresence mode="wait">
           {loading ? (
             <LoadingScreen message={t('global.loading')} />
@@ -206,6 +275,7 @@ const GlobalView: React.FC = () => {
       {/* Floating Add Button */}
       <div className="fixed bottom-24 right-6 z-[60]">
         <motion.button
+          id="global-fab"
           whileTap={{ scale: 0.9, x: 4, y: 4, boxShadow: '0px 0px 0px rgba(0,0,0,1)' }}
           onClick={() => {
             if (navigator.vibrate) navigator.vibrate(20);

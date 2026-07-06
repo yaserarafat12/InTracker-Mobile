@@ -17,6 +17,8 @@ import type { Quote } from '../../data/quotes';
 import { JourneyView } from '../journey/JourneyView';
 import GlobalView from '../GlobalView';
 import { AnalyticsView } from '../analytics/AnalyticsView';
+import { useUIStore } from '../../store/useUIStore';
+import { InteractiveTutorial } from '../../components/InteractiveTutorial';
 import WeeklySummaryRecap from '../analytics/WeeklySummaryRecap';
 
 // Modularized Views & Components
@@ -34,6 +36,7 @@ const Journey = () => <JourneyView />;
 function Beranda({ activeTab: initialTab = 'habits' }: { activeTab?: string }) {
   const [activeTab, setActiveTab] = useState(initialTab);
   const [todoFilter, setTodoFilter] = useState<TargetFilter | undefined>(undefined);
+  const { isSettingsOpen, toggleSettings } = useUIStore();
 
   const handleTabChange = (tab: string, filter?: any) => {
     setActiveTab(tab);
@@ -68,6 +71,7 @@ function Beranda({ activeTab: initialTab = 'habits' }: { activeTab?: string }) {
   const [statsTab, setStatsTab] = useState<'berjalan' | 'selesai' | 'dilewati'>('berjalan');
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [editingHabit, setEditingHabit] = useState<any>(null);
+  const [tutorialStep, setTutorialStep] = useState(0);
   const mainContentRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -87,6 +91,19 @@ function Beranda({ activeTab: initialTab = 'habits' }: { activeTab?: string }) {
       }
     }
   }, [settings.programPaused, settings.pausedDays, updateSettings]);
+
+  // Sync modal & settings states with interactive tutorial step
+  useEffect(() => {
+    const isTutorialActive = localStorage.getItem('interactive_tutorial_active') === 'true';
+    if (!isTutorialActive) return;
+
+    // Steps 3, 4, 5, 6 require TambahHabitModal to be open
+    if (tutorialStep >= 3 && tutorialStep <= 6) {
+      setIsAddModalOpen(true);
+    } else {
+      setIsAddModalOpen(false);
+    }
+  }, [tutorialStep]);
 
   useEffect(() => {
     if (mainContentRef.current) {
@@ -294,6 +311,7 @@ function Beranda({ activeTab: initialTab = 'habits' }: { activeTab?: string }) {
                     activeFilter={statsTab} 
                     selectedDate={selectedDate} 
                     habits={habits}
+                    tutorialStep={tutorialStep}
                     onComplete={triggerCompletionAnimation}
                     onAddHabit={() => {
                       setEditingHabit(null);
@@ -306,7 +324,7 @@ function Beranda({ activeTab: initialTab = 'habits' }: { activeTab?: string }) {
                   />
                 )}
                 {activeTab === 'todo' && <TodoList filter={todoFilter} />}
-                {activeTab === 'analytics' && <AnalyticsView />}
+                {activeTab === 'analytics' && <AnalyticsView tutorialStep={tutorialStep} />}
                 {activeTab === 'journey' && <Journey />}
                 {activeTab === 'global' && <Global />}
                 {activeTab === 'features' && <ToolsHub />}
@@ -321,10 +339,19 @@ function Beranda({ activeTab: initialTab = 'habits' }: { activeTab?: string }) {
       <SettingsOverlay />
       <StreakRecoveryModal />
 
+      <InteractiveTutorial 
+        activeTab={activeTab} 
+        setActiveTab={setActiveTab}
+        isSettingsOpen={isSettingsOpen}
+        toggleSettings={toggleSettings}
+        onStepChange={setTutorialStep}
+      />
+
       <AnimatePresence>
         {isAddModalOpen && (
           <TambahHabitModal 
             isOpen={isAddModalOpen} 
+            tutorialStep={tutorialStep}
             onClose={() => {
               setIsAddModalOpen(false);
               setEditingHabit(null);
@@ -344,6 +371,7 @@ function Beranda({ activeTab: initialTab = 'habits' }: { activeTab?: string }) {
           />
         )}
       </AnimatePresence>
+
     </div>
   );
 }

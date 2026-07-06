@@ -50,6 +50,7 @@ const DaftarHabit = ({
   onEdit,
   onComplete,
   onAddHabit,
+  tutorialStep,
 }: {
   activeFilter?: string;
   selectedDate: Date;
@@ -57,6 +58,7 @@ const DaftarHabit = ({
   onEdit?: (habit: any) => void;
   onComplete?: () => void;
   onAddHabit?: () => void;
+  tutorialStep?: number;
 }) => {
   const [lastTap, setLastTap] = useState(0);
   const { toggleHabit, reorderHabits } = useHabitStore();
@@ -89,6 +91,14 @@ const DaftarHabit = ({
   };
 
   const handleDoubleTap = (id: string) => {
+    if (id === 'tutorial-dummy-habit') {
+      localStorage.setItem('tutorial_dummy_completed', 'true');
+      // Trigger a store update to notify the tutorial subscriber
+      useHabitStore.setState((state) => ({ habits: [...state.habits] }));
+      if (onComplete) onComplete();
+      if (navigator.vibrate) navigator.vibrate([10, 30, 10]);
+      return;
+    }
     toggleHabit(id, 'completed');
     if (onComplete) onComplete();
     if (navigator.vibrate) navigator.vibrate([10, 30, 10]);
@@ -231,11 +241,46 @@ const DaftarHabit = ({
   }
 
   // Today's view (existing logic)
-  const todoHabits = filterHabitsByDay(
+  const isTutorialActive = localStorage.getItem('interactive_tutorial_active') === 'true';
+  const rawTodoHabits = filterHabitsByDay(
     habits.filter((h) => !h.completed && !h.skipped),
     todayDay
   );
-  const completedHabits = habits.filter((h) => h.completed);
+  
+  // Define dummy habit to guarantee active habit card is present during step 1 (Double click card)
+  const dummyTutorialHabit = {
+    id: 'tutorial-dummy-habit',
+    name: 'Mulai Hari Ini',
+    category: 'Rutinitas',
+    completed: false,
+    intensity: { type: 'numeric', unit: 'Kali' },
+    target_intensity: 1,
+    current_intensity: 0,
+    created_at: new Date().toISOString()
+  };
+
+  let todoHabits = rawTodoHabits;
+  if (isTutorialActive) {
+    if (tutorialStep === 1) {
+      todoHabits = [dummyTutorialHabit, ...rawTodoHabits];
+    } else {
+      todoHabits = [...rawTodoHabits].sort((a, b) => {
+        if (a.name === 'Hidrasi Harian') return -1;
+        if (b.name === 'Hidrasi Harian') return 1;
+        return 0;
+      });
+    }
+  }
+
+  const rawCompletedHabits = habits.filter((h) => h.completed);
+  const completedHabits = isTutorialActive
+    ? [...rawCompletedHabits].sort((a, b) => {
+        if (a.name === 'Hidrasi Harian') return -1;
+        if (b.name === 'Hidrasi Harian') return 1;
+        return 0;
+      })
+    : rawCompletedHabits;
+
   const skippedHabits = habits.filter((h) => h.skipped);
 
   // Determine empty state for "berjalan" tab
@@ -403,6 +448,7 @@ const DaftarHabit = ({
       {/* FAB - Tambah Habit (pojok kanan bawah) */}
       {onAddHabit && (
         <motion.button
+          id="add-habit-fab"
           initial={{ scale: 0, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           whileTap={{ scale: 0.9, x: 4, y: 4, boxShadow: '0px 0px 0px rgba(0,0,0,1)' }}

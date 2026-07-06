@@ -105,11 +105,26 @@ serve(async (req) => {
         const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
         const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
+        const { data: profileData, error: fetchError } = await supabase
+          .from("profiles")
+          .select("onboarding_data")
+          .eq("id", userId)
+          .single();
+
+        let updatedOnboardingData = { subscription_plan: planType };
+        if (!fetchError && profileData?.onboarding_data) {
+          updatedOnboardingData = {
+            ...profileData.onboarding_data,
+            subscription_plan: planType
+          };
+        }
+
         const { error } = await supabase
           .from("profiles")
           .update({
             is_pro: true,
-            pro_until: proUntil
+            pro_until: proUntil,
+            onboarding_data: updatedOnboardingData
           })
           .eq("id", userId);
 

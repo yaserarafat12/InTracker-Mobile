@@ -228,9 +228,9 @@ export function PomodoroTimer({ onBack }: PomodoroTimerProps) {
             className="relative"
           >
             {/* Glow ring */}
-            {!isLight && (
-              <div className={`absolute inset-0 rounded-full blur-[60px] opacity-20 ${
-                pomodoroState === 'break' ? 'bg-blue-400' : 'bg-[#00FF85]'
+            {!isLight && pomodoroState !== 'idle' && (
+              <div className={`absolute inset-0 rounded-full blur-[60px] opacity-15 ${
+                pomodoroState === 'break' ? 'bg-blue-400' : 'bg-white'
               }`} />
             )}
   

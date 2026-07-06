@@ -130,7 +130,7 @@ function buildDayStatuses(range: TimeRange, activeDates: Set<string>, programDur
 const DAY_LABELS = ['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min'];
 
 // --- Main Component ---
-export const AnalyticsView = () => {
+export const AnalyticsView = ({ tutorialStep }: { tutorialStep?: number }) => {
   const { t } = useTranslation();
   const { habits, fetchHabits } = useHabitStore();
   const { profile, settings } = useUserStore();
@@ -235,6 +235,7 @@ export const AnalyticsView = () => {
         {mainTabs.map((tab) => (
           <motion.button
             key={tab.id}
+            id={`analytics-tab-${tab.id}`}
             whileTap={{ x: 2, y: 2, boxShadow: "0px 0px 0px rgba(0,0,0,1)" }}
             onClick={() => setMainTab(tab.id)}
             className={`flex-1 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all border-[2px] ${
@@ -286,6 +287,7 @@ export const AnalyticsView = () => {
               timeRange={patternRange}
               setTimeRange={setPatternRange}
               timeRanges={timeRanges}
+              tutorialStep={tutorialStep}
             />
           </motion.div>
         )}
@@ -479,7 +481,7 @@ function ActivityRecap({ habits, habitLogs, targets, journeyEntries, timeRange, 
   }, [journeyEntries, startDate, endDate]);
 
   return (
-    <div className="space-y-4">
+    <div id="analytics-activity-recap-container" className="space-y-4">
       {/* Time Range Toggle - compact */}
       <div className={`border-[2px] rounded-[10px] px-2 py-2 flex items-center gap-3 w-fit transition-all ${
         isLight ? 'bg-white border-black shadow-[2px_2px_0px_rgba(0,0,0,1)]' : 'bg-[#1c1e22] border-white/15'
@@ -538,18 +540,32 @@ function ActivityRecap({ habits, habitLogs, targets, journeyEntries, timeRange, 
 // ============================================
 // SECTION B: HABIT PATTERN (REAL DATA)
 // ============================================
-function HabitPattern({ habits, habitLogs, timeRange, setTimeRange, timeRanges }: {
+function HabitPattern({ habits, habitLogs, timeRange, setTimeRange, timeRanges, tutorialStep }: {
   habits: any[];
   habitLogs: HabitLog[];
   timeRange: TimeRange;
   setTimeRange: (r: TimeRange) => void;
   timeRanges: { id: TimeRange; label: string }[];
+  tutorialStep?: number;
 }) {
   const { t } = useTranslation();
   const { settings } = useUserStore();
   const isLight = !document.documentElement.classList.contains('dark');
   const [selectedCategory, setSelectedCategory] = useState('Semua');
   const [expandedHabit, setExpandedHabit] = useState<string | null>(null);
+
+  // Sync expanded habit card with tutorial steps 11, 12, 13
+  useEffect(() => {
+    const isTutorialActive = localStorage.getItem('interactive_tutorial_active') === 'true';
+    if (!isTutorialActive || tutorialStep === undefined) return;
+
+    if (tutorialStep === 11 || tutorialStep === 12 || tutorialStep === 13) {
+      const hidrasi = habits.find((h: any) => h.name === 'Hidrasi Harian');
+      if (hidrasi) {
+        setExpandedHabit(hidrasi.id);
+      }
+    }
+  }, [tutorialStep, habits]);
 
   // Scroll indicator for category tabs
   const catScrollRef = useRef<HTMLDivElement>(null);
@@ -599,7 +615,7 @@ function HabitPattern({ habits, habitLogs, timeRange, setTimeRange, timeRanges }
 
   // Per-habit analytics (all time)
   const habitAnalytics = useMemo(() => {
-    return filteredHabits.map((habit: any) => {
+    const mapped = filteredHabits.map((habit: any) => {
       const habitCompletedLogs = habitLogs.filter(
         log => log.habit_id === habit.id && log.status === 'completed'
       );
@@ -622,6 +638,12 @@ function HabitPattern({ habits, habitLogs, timeRange, setTimeRange, timeRanges }
         totalCompleted: habitCompletedLogs.length,
         hasIntensity: shouldShowIntensityPicker(habit.name) || (habit.targetIntensity || habit.target_intensity || 0) > 0,
       };
+    });
+
+    return [...mapped].sort((a, b) => {
+      if (a.name === 'Hidrasi Harian') return -1;
+      if (b.name === 'Hidrasi Harian') return 1;
+      return 0;
     });
   }, [filteredHabits, habitLogs]);
 
@@ -678,6 +700,7 @@ function HabitPattern({ habits, habitLogs, timeRange, setTimeRange, timeRanges }
               <div key={h.id}>
                 {/* Card - persis kayak habits display */}
                 <motion.button
+                  id={h.name === 'Hidrasi Harian' ? 'analytics-drink-water-card' : undefined}
                   whileTap={{ scale: 0.97 }}
                   onClick={() => setExpandedHabit(isExpanded ? null : h.id)}
                   className={`w-full relative overflow-visible border-[3px] text-left h-[120px] habit-analytics-card transition-all ${
@@ -880,7 +903,7 @@ function HabitInlineDetail({ habit, habitLogs }: { habit: any; habitLogs: HabitL
     } habit-analytics-detail`}>
 
       {/* Weekly Section */}
-      <div>
+      <div id="habit-analytics-weekly-chart">
         <div className="flex items-center justify-between mb-6">
           <span className={`text-[10px] font-bold uppercase tracking-widest ${isLight ? 'text-black/50' : 'text-white/40'}`}>
             {t('analytics.weekNum')} {currentWeek}
@@ -995,7 +1018,7 @@ function HabitInlineDetail({ habit, habitLogs }: { habit: any; habitLogs: HabitL
       </div>
 
       {/* Monthly Record */}
-      <div className={`rounded-2xl p-4 border transition-all ${
+      <div id="habit-analytics-monthly-record" className={`rounded-2xl p-4 border transition-all ${
         isLight
           ? 'bg-white border-black shadow-[3px_3px_0px_rgba(0,0,0,0.65)]'
           : 'bg-[#1c1e22]/40 border-white/5'
@@ -1377,7 +1400,7 @@ function StatsRPG({ profile, habits, habitLogs }: {
   ];
 
   return (
-    <div className="relative space-y-6">
+    <div id="analytics-rpg-stats-container" className="relative space-y-6">
       {/* Background image - RPG themed */}
       <div className="fixed inset-0 z-0 pointer-events-none">
         <img src="/all_images/statistik_bg.png" alt="" className="w-full h-full object-cover opacity-[0.25]" />
