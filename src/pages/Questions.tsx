@@ -2856,23 +2856,37 @@ export default function Questions() {
 
         {/* MIDDLE CONTENT: Theme Cards Selector */}
         <div className="relative z-10 w-full max-w-[400px] flex flex-col gap-4 my-auto">
-          <div className="grid grid-cols-2 gap-3 w-full">
+          <div className="grid grid-cols-2 gap-3.5 w-full">
             {/* Light Mode Button */}
             <motion.button
               whileTap={{ scale: 0.98 }}
+              whileHover={{ scale: 1.01 }}
               onClick={() => updateSettings({ theme: 'Light' })}
-              className={`relative py-5 px-4 rounded-xl border flex flex-col items-center justify-center gap-2 transition-all duration-200 shadow-[4px_4px_0px_rgba(0,0,0,1)] ${
+              className={`relative py-7 px-4 rounded-2xl border flex flex-col items-center justify-center gap-3.5 transition-all duration-300 ${
                 activeTheme === 'Light'
-                  ? 'bg-[#E3DAC9] border-black text-black'
-                  : 'bg-[#111]/85 border-white/[0.08] text-white/60 hover:border-white/20'
+                  ? 'bg-neutral-100 border-black text-black shadow-[6px_6px_0px_rgba(0,0,0,1)]'
+                  : isLight
+                    ? 'bg-neutral-50 border-black/10 text-black/50 hover:bg-neutral-100 hover:border-black/30'
+                    : 'bg-white/[0.02] border-white/[0.08] text-white/50 hover:bg-white/[0.05] hover:border-white/20'
               }`}
             >
-              <Icon icon="ph:sun-bold" width={28} height={28} className={activeTheme === 'Light' ? 'text-amber-500 font-bold' : ''} />
-              <span className="text-[12px] font-black font-['Outfit'] uppercase tracking-wider">
+              <Icon 
+                icon="ph:sun-bold" 
+                width={32} 
+                height={32} 
+                className={`transition-all duration-300 ${
+                  activeTheme === 'Light' 
+                    ? 'text-amber-500 drop-shadow-[0_0_10px_rgba(245,158,11,0.6)] scale-110' 
+                    : 'text-neutral-400'
+                }`} 
+              />
+              <span className="text-[13px] font-black font-['Outfit'] uppercase tracking-wider">
                 {trans.lightMode}
               </span>
-              <span className={`absolute -top-2.5 px-2 py-0.5 rounded-full text-[8px] font-black uppercase tracking-wider border border-black shadow-[1px_1px_0px_rgba(0,0,0,1)] ${
-                activeTheme === 'Light' ? 'bg-[#10B981] text-black' : 'bg-neutral-800 text-white/40 border-white/10'
+              <span className={`absolute -top-3 px-3 py-0.5 rounded-full text-[8px] font-black uppercase tracking-wider border transition-all duration-300 ${
+                activeTheme === 'Light' 
+                  ? 'bg-black text-white border-black shadow-[2px_2px_0px_rgba(0,0,0,1)]' 
+                  : 'bg-neutral-800 text-white/30 border-white/10'
               }`}>
                 {trans.recommended}
               </span>
@@ -2881,15 +2895,29 @@ export default function Questions() {
             {/* Dark Mode Button */}
             <motion.button
               whileTap={{ scale: 0.98 }}
+              whileHover={{ scale: 1.01 }}
               onClick={() => updateSettings({ theme: 'Dark' })}
-              className={`py-5 px-4 rounded-xl border flex flex-col items-center justify-center gap-2 transition-all duration-200 shadow-[4px_4px_0px_rgba(0,0,0,1)] ${
+              className={`relative py-7 px-4 rounded-2xl border flex flex-col items-center justify-center gap-3.5 transition-all duration-300 ${
                 activeTheme === 'Dark'
-                  ? 'bg-[#1a1a1a] border-[#10B981] text-white'
-                  : 'bg-[#111]/85 border-white/[0.08] text-white/60 hover:border-white/20'
+                  ? isLight
+                    ? 'bg-neutral-900 border-black text-white shadow-[6px_6px_0px_rgba(0,0,0,1)]'
+                    : 'bg-white/[0.08] border-white text-white shadow-[6px_6px_0px_rgba(255,255,255,0.15)]'
+                  : isLight
+                    ? 'bg-neutral-50 border-black/10 text-black/50 hover:bg-neutral-100 hover:border-black/30'
+                    : 'bg-white/[0.02] border-white/[0.08] text-white/50 hover:bg-white/[0.05] hover:border-white/20'
               }`}
             >
-              <Icon icon="ph:moon-bold" width={28} height={28} className={activeTheme === 'Dark' ? 'text-indigo-400' : ''} />
-              <span className="text-[12px] font-black font-['Outfit'] uppercase tracking-wider">
+              <Icon 
+                icon="ph:moon-bold" 
+                width={32} 
+                height={32} 
+                className={`transition-all duration-300 ${
+                  activeTheme === 'Dark' 
+                    ? 'text-indigo-400 drop-shadow-[0_0_10px_rgba(129,140,248,0.6)] scale-110' 
+                    : 'text-neutral-400'
+                }`} 
+              />
+              <span className="text-[13px] font-black font-['Outfit'] uppercase tracking-wider">
                 {trans.darkMode}
               </span>
             </motion.button>
