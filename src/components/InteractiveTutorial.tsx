@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { createPortal } from 'react-dom';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Icon } from '@iconify/react';
 import { useUserStore } from '../store/useUserStore';
 import { useHabitStore } from '../store/useHabitStore';
@@ -732,29 +732,10 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
     }
   }
 
-  // Arrow positioning
-  const arrowConfig = useMemo(() => {
+  // Arrow positioning path
+  const arrowPath = useMemo(() => {
     if (!sr || !hasValidSpace) return null;
-    const targetCenterX = sr.left + sr.width / 2;
-    if (dialogueInTop) {
-      // Dialogue is above target, so arrow should be below dialogue, pointing DOWN at target
-      return {
-        style: {
-          top: `${sr.top - 40}px`,
-          left: `${targetCenterX - 12}px`,
-        },
-        path: "M12 4v24M6 20l6 8 6-8" // points down, taller
-      };
-    } else {
-      // Dialogue is below target, so arrow should be above dialogue, pointing UP at target
-      return {
-        style: {
-          top: `${sr.bottom + 8}px`,
-          left: `${targetCenterX - 12}px`,
-        },
-        path: "M12 28V4M6 12l6-8 6 8" // points up, taller
-      };
-    }
+    return dialogueInTop ? "M12 4v24M6 20l6 8 6-8" : "M12 28V4M6 12l6-8 6 8";
   }, [sr, dialogueInTop, hasValidSpace]);
 
   if (completed) return null;
@@ -762,63 +743,95 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
   return createPortal(
     <div className="fixed inset-0 z-[999999] pointer-events-none select-none">
       {/* Animated Arrow pointing at spotlight target */}
-      {arrowConfig && (
+      {arrowPath && sr && (
         <motion.div 
-          style={arrowConfig.style}
+          initial={false}
+          animate={{
+            y: dialogueInTop ? sr.top - 40 : sr.bottom + 8,
+            x: sr.left + sr.width / 2 - 12,
+          }}
+          transition={{ type: 'spring', stiffness: 220, damping: 26 }}
           className={`absolute z-[1000000] pointer-events-none ${isLight ? 'text-[#00b577]' : 'text-[#00f295]'} drop-shadow-[0_2px_8px_rgba(0,255,133,0.3)]`}
-          animate={{ y: [0, -6, 0] }}
-          transition={{ duration: 1.2, repeat: Infinity, ease: "easeInOut" }}
         >
-          <svg width="24" height="32" viewBox="0 0 24 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d={arrowConfig.path} stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
-          </svg>
+          <motion.svg 
+            width="24" 
+            height="32" 
+            viewBox="0 0 24 32" 
+            fill="none" 
+            xmlns="http://www.w3.org/2000/svg"
+            animate={{ y: [0, -6, 0] }}
+            transition={{ duration: 1.2, repeat: Infinity, ease: "easeInOut" }}
+          >
+            <path d={arrowPath} stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
+          </motion.svg>
         </motion.div>
       )}
 
-      {/* 4-Panel Dynamic Masking */}
+      {/* SVG Path Masking */}
       {sr ? (
         <>
-          {/* Top Panel */}
-          <div 
-            className={`absolute left-0 top-0 right-0 ${isLight ? 'bg-black/65' : 'bg-black/70'} pointer-events-auto transition-all duration-300`}
-            style={{ height: `${sr.top}px` }}
-          />
-          {/* Bottom Panel */}
-          <div 
-            className={`absolute left-0 right-0 bottom-0 ${isLight ? 'bg-black/65' : 'bg-black/70'} pointer-events-auto transition-all duration-300`}
-            style={{ top: `${sr.bottom}px` }}
-          />
-          {/* Left Panel */}
-          <div 
-            className={`absolute left-0 ${isLight ? 'bg-black/65' : 'bg-black/70'} pointer-events-auto transition-all duration-300`}
-            style={{ 
-              top: `${sr.top}px`, 
-              height: `${sr.height}px`,
-              width: `${sr.left}px`
+          <svg className="absolute inset-0 w-full h-full pointer-events-none">
+            <defs>
+              <mask id="spotlight-mask">
+                {/* White cover (keeps backdrop visible) */}
+                <rect x="0" y="0" width="100%" height="100%" fill="white" />
+                {/* Black animated rounded rect cutout (creates transparent hole) */}
+                <motion.rect
+                  initial={false}
+                  animate={{
+                    x: sr.left,
+                    y: sr.top,
+                    width: sr.width,
+                    height: sr.height,
+                  }}
+                  transition={{ type: 'spring', stiffness: 220, damping: 26 }}
+                  rx="16"
+                  fill="black"
+                />
+              </mask>
+            </defs>
+            {/* The backdrop overlay itself */}
+            <rect
+              x="0"
+              y="0"
+              width="100%"
+              height="100%"
+              fill={isLight ? 'rgba(0, 0, 0, 0.62)' : 'rgba(0, 0, 0, 0.72)'}
+              mask="url(#spotlight-mask)"
+              className="pointer-events-auto cursor-default"
+            />
+          </svg>
+
+          {/* Spotlight Border Glow & Pulse ring */}
+          <motion.div
+            className={`absolute rounded-2xl border-2 pointer-events-none`}
+            initial={false}
+            animate={{
+              top: sr.top,
+              left: sr.left,
+              width: sr.width,
+              height: sr.height,
             }}
-          />
-          {/* Right Panel */}
-          <div 
-            className={`absolute right-0 ${isLight ? 'bg-black/65' : 'bg-black/70'} pointer-events-auto transition-all duration-300`}
-            style={{ 
-              top: `${sr.top}px`, 
-              height: `${sr.height}px`,
-              left: `${sr.right}px`
+            transition={{ type: 'spring', stiffness: 220, damping: 26 }}
+            style={{
+              borderColor: isLight ? '#00b577' : '#00f295',
+              boxShadow: isLight 
+                ? '0 0 15px rgba(0, 181, 119, 0.35)' 
+                : '0 0 15px rgba(0, 242, 149, 0.35)',
             }}
-          />
-          {/* Spotlight Border Glow */}
-          <div 
-            className={`absolute rounded-2xl border-[1.5px] pointer-events-none transition-all duration-300 ${
-              isLight 
-                ? 'border-[#00b577]/50 shadow-[0_0_15px_rgba(0,181,119,0.15)]' 
-                : 'border-[#00f295]/50 shadow-[0_0_15px_rgba(0,242,149,0.15)]'
-            }`}
-            style={{ top: sr.top, left: sr.left, width: sr.width, height: sr.height }}
-          />
+          >
+            {/* Animated Pulsing Inner Ring */}
+            <motion.div 
+              className="absolute -inset-[3px] rounded-[19px] border-[2px] opacity-40"
+              style={{ borderColor: isLight ? '#00b577' : '#00f295' }}
+              animate={{ scale: [0.98, 1.03, 0.98], opacity: [0.4, 0.15, 0.4] }}
+              transition={{ duration: 2.2, repeat: Infinity, ease: "easeInOut" }}
+            />
+          </motion.div>
         </>
       ) : (
-        /* Full Backdrop (e.g. for center welcome steps) */
-        <div className={`absolute inset-0 ${isLight ? 'bg-black/60' : 'bg-black/70'} pointer-events-auto`} />
+        /* Full Backdrop for center welcome steps */
+        <div className={`absolute inset-0 ${isLight ? 'bg-black/60' : 'bg-black/72'} pointer-events-auto`} />
       )}
 
       {/* Main Dialogue Box */}
@@ -829,109 +842,138 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
           bottom: dialogueBottom,
         }}
       >
-        <motion.div 
-          key={currentStep}
-          initial={{ scale: 0.95, opacity: 0, y: 15 }}
-          animate={{ scale: 1, opacity: 1, y: 0 }}
-          className={`max-w-[580px] w-full mx-auto border rounded-[24px] shadow-[0_20px_50px_rgba(0,0,0,0.35)] flex flex-col relative select-text overflow-hidden transition-all duration-300 ${
-            isLight 
-              ? 'bg-[#ffffff] border-black/5' 
-              : 'bg-[#252830] border-white/[0.08]'
-          }`}
-        >
-          {/* Dialogue Content */}
-          <div className="pt-7 pb-8 px-8 flex flex-col relative">
-            {/* Step Counter Badge */}
-            <div className={`absolute top-7 right-8 px-3 py-0.5 rounded-full text-[10px] font-black font-['Outfit'] tracking-wide transition-all duration-300 ${
+        <AnimatePresence mode="wait">
+          <motion.div 
+            key={currentStep}
+            initial={{ scale: 0.95, opacity: 0, y: 15 }}
+            animate={{ scale: 1, opacity: 1, y: 0 }}
+            exit={{ scale: 0.95, opacity: 0, y: -15 }}
+            transition={{ type: 'spring', stiffness: 240, damping: 24 }}
+            className={`max-w-[580px] w-full mx-auto border rounded-[24px] shadow-[0_20px_50px_rgba(0,0,0,0.35)] flex flex-col relative select-text overflow-hidden transition-all duration-300 ${
               isLight 
-                ? 'bg-black/5 text-black/45' 
-                : 'bg-white/10 text-white/50'
-            }`}>
-              {currentStep + 1} / {steps.length}
+                ? 'bg-[#ffffff] border-black/5' 
+                : 'bg-[#252830] border-white/[0.08]'
+            }`}
+          >
+            {/* Top Slim Progress Bar */}
+            <div className="absolute top-0 left-0 right-0 h-[3px] bg-black/5 dark:bg-white/5 overflow-hidden">
+              <motion.div
+                className={`h-full ${isLight ? 'bg-[#00b577]' : 'bg-[#00f295]'}`}
+                initial={{ width: 0 }}
+                animate={{ width: `${((currentStep + 1) / steps.length) * 100}%` }}
+                transition={{ duration: 0.3 }}
+              />
             </div>
 
-            {/* Step Title */}
-            <h4 
-              style={{ color: isLight ? '#000000' : '#ffffff' }}
-              className="text-[18px] font-black font-['Outfit'] mt-0 mb-4 tracking-tight"
-            >
-              {currentStepData.title}
-            </h4>
+            {/* Dialogue Content */}
+            <div className="pt-7 pb-8 px-8 flex flex-col relative">
+              {/* Skip Tour Button ("Lewati") */}
+              <button
+                onClick={() => {
+                  if (navigator.vibrate) navigator.vibrate(10);
+                  localStorage.setItem('interactive_tutorial_completed', 'true');
+                  localStorage.removeItem('interactive_tutorial_active');
+                  setCompleted(true);
+                }}
+                className={`absolute top-6 left-8 text-[11px] font-black font-['Outfit'] uppercase tracking-wider transition-all hover:opacity-100 ${
+                  isLight ? 'text-black/40 hover:text-black/70' : 'text-white/40 hover:text-white/70'
+                }`}
+              >
+                {language === 'Bahasa Indonesia' ? 'Lewati' : 'Skip'}
+              </button>
 
-            {/* Step Description */}
-            <p 
-              style={{ color: isLight ? 'rgba(0, 0, 0, 0.65)' : 'rgba(255, 255, 255, 0.7)' }}
-              className="text-[14.5px] font-normal leading-relaxed mb-8 font-['Outfit'] whitespace-pre-line"
-            >
-              {currentStepData.desc}
-            </p>
-
-            {/* Action buttons */}
-            {currentStep === 0 ? (
-              <div className="flex justify-center mt-2">
-                <motion.button 
-                  whileTap={{ scale: 0.95 }}
-                  onClick={handleNext}
-                  className={`px-8 py-3 rounded-xl border font-black uppercase text-[11px] tracking-widest transition-all font-['Outfit'] ${
-                    isLight 
-                      ? 'bg-[#00b577] border-black text-white shadow-[3px_3px_0px_rgba(0,0,0,1)] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none' 
-                      : 'bg-[#00f295] border-transparent text-black'
-                  }`}
-                >
-                  {currentStepData.actionText}
-                </motion.button>
+              {/* Step Counter Badge */}
+              <div className={`absolute top-6 right-8 px-3 py-0.5 rounded-full text-[10px] font-black font-['Outfit'] tracking-wide transition-all duration-300 ${
+                isLight 
+                  ? 'bg-black/5 text-black/45' 
+                  : 'bg-white/10 text-white/50'
+              }`}>
+                {currentStep + 1} / {steps.length}
               </div>
-            ) : (
-              <div className="flex items-center justify-between">
-                {/* Back Button */}
-                {currentStep > 0 ? (
-                  <button 
-                    onClick={handleBack}
-                    className={`w-9 h-9 rounded-xl border flex items-center justify-center transition-all ${
+
+              {/* Step Title */}
+              <h4 
+                style={{ color: isLight ? '#000000' : '#ffffff' }}
+                className="text-[18px] font-black font-['Outfit'] mt-6 mb-4 tracking-tight"
+              >
+                {currentStepData.title}
+              </h4>
+
+              {/* Step Description */}
+              <p 
+                style={{ color: isLight ? 'rgba(0, 0, 0, 0.65)' : 'rgba(255, 255, 255, 0.7)' }}
+                className="text-[14.5px] font-normal leading-relaxed mb-8 font-['Outfit'] whitespace-pre-line"
+              >
+                {currentStepData.desc}
+              </p>
+
+              {/* Action buttons */}
+              {currentStep === 0 ? (
+                <div className="flex justify-center mt-2">
+                  <motion.button 
+                    whileTap={{ scale: 0.95 }}
+                    onClick={handleNext}
+                    className={`px-8 py-3 rounded-xl border font-black uppercase text-[11px] tracking-widest transition-all font-['Outfit'] ${
                       isLight 
-                        ? 'bg-white border-black text-black shadow-[3px_3px_0px_rgba(0,0,0,1)] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none' 
-                        : 'bg-[#2a2c32] border-white/10 text-white active:scale-95'
+                        ? 'bg-[#00b577] border-black text-white shadow-[3px_3px_0px_rgba(0,0,0,1)] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none' 
+                        : 'bg-[#00f295] border-transparent text-black'
                     }`}
                   >
-                    <Icon icon="ph:caret-left-bold" width={16} />
-                  </button>
-                ) : (
-                  <div />
-                )}
-
-                {/* Lanjut / Next Button */}
-                {(currentStepData.actionText || currentStep < maxStep) && (
-                  currentStepData.actionText && currentStepData.actionText !== 'Lanjut' ? (
-                    <motion.button 
-                      whileTap={{ scale: 0.95 }}
-                      onClick={handleNext}
-                      className={`px-5 py-2.5 rounded-xl border font-black uppercase text-[11px] tracking-wider transition-all flex items-center gap-1.5 font-['Outfit'] ${
-                        isLight 
-                          ? 'bg-[#00b577] border-black text-white shadow-[3px_3px_0px_rgba(0,0,0,1)] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none' 
-                          : 'bg-[#00f295] border-transparent text-black'
-                      }`}
-                    >
-                      <span>{currentStepData.actionText}</span>
-                      <Icon icon="ph:caret-right-bold" width={13} />
-                    </motion.button>
-                  ) : (
-                    <motion.button 
-                      whileTap={{ scale: 0.95 }}
-                      onClick={handleNext}
+                    {currentStepData.actionText}
+                  </motion.button>
+                </div>
+              ) : (
+                <div className="flex items-center justify-between">
+                  {/* Back Button */}
+                  {currentStep > 0 ? (
+                    <button 
+                      onClick={handleBack}
                       className={`w-9 h-9 rounded-xl border flex items-center justify-center transition-all ${
                         isLight 
-                          ? 'bg-[#00b577] border-black text-white shadow-[3px_3px_0px_rgba(0,0,0,1)] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none' 
-                          : 'bg-[#00f295] border-transparent text-black'
+                          ? 'bg-white border-black text-black shadow-[3px_3px_0px_rgba(0,0,0,1)] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none' 
+                          : 'bg-[#2a2c32] border-white/10 text-white active:scale-95'
                       }`}
                     >
-                      <Icon icon="ph:caret-right-bold" width={16} />
-                    </motion.button>
-                  )
-                )}
-              </div>
-            )}
-          </div>
-        </motion.div>
+                      <Icon icon="ph:caret-left-bold" width={16} />
+                    </button>
+                  ) : (
+                    <div />
+                  )}
+
+                  {/* Lanjut / Next Button */}
+                  {(currentStepData.actionText || currentStep < maxStep) && (
+                    currentStepData.actionText && currentStepData.actionText !== 'Lanjut' ? (
+                      <motion.button 
+                        whileTap={{ scale: 0.95 }}
+                        onClick={handleNext}
+                        className={`px-5 py-2.5 rounded-xl border font-black uppercase text-[11px] tracking-wider transition-all flex items-center gap-1.5 font-['Outfit'] ${
+                          isLight 
+                            ? 'bg-[#00b577] border-black text-white shadow-[3px_3px_0px_rgba(0,0,0,1)] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none' 
+                            : 'bg-[#00f295] border-transparent text-black'
+                        }`}
+                      >
+                        <span>{currentStepData.actionText}</span>
+                        <Icon icon="ph:caret-right-bold" width={13} />
+                      </motion.button>
+                    ) : (
+                      <motion.button 
+                        whileTap={{ scale: 0.95 }}
+                        onClick={handleNext}
+                        className={`w-9 h-9 rounded-xl border flex items-center justify-center transition-all ${
+                          isLight 
+                            ? 'bg-[#00b577] border-black text-white shadow-[3px_3px_0px_rgba(0,0,0,1)] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none' 
+                            : 'bg-[#00f295] border-transparent text-black'
+                        }`}
+                      >
+                        <Icon icon="ph:caret-right-bold" width={16} />
+                      </motion.button>
+                    )
+                  )}
+                </div>
+              )}
+            </div>
+          </motion.div>
+        </AnimatePresence>
       </div>
     </div>,
     document.body
