@@ -866,12 +866,16 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
             </div>
 
             {/* Dialogue Content */}
-            <div className="pt-5 pb-5 px-6 flex flex-col relative">
+            <div className={`flex flex-col relative transition-all duration-300 ${
+              currentStep === 0 ? 'pt-8 pb-8 px-8' : 'pt-5 pb-5 px-6'
+            }`}>
 
               {/* Step Title */}
               <h4 
                 style={{ color: isLight ? '#000000' : '#ffffff' }}
-                className="text-[16px] font-black font-['Outfit'] mb-2.5 tracking-tight"
+                className={`text-[16px] font-black font-['Outfit'] tracking-tight transition-all duration-300 ${
+                  currentStep === 0 ? 'mb-6' : 'mb-2.5'
+                }`}
               >
                 {currentStepData.title}
               </h4>
@@ -879,7 +883,9 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
               {/* Step Description */}
               <p 
                 style={{ color: isLight ? 'rgba(0, 0, 0, 0.65)' : 'rgba(255, 255, 255, 0.7)' }}
-                className="text-[13.5px] font-normal leading-relaxed mb-5 font-['Outfit'] whitespace-pre-line"
+                className={`font-normal leading-relaxed font-['Outfit'] whitespace-pre-line transition-all duration-300 ${
+                  currentStep === 0 ? 'text-[15.5px] mb-9' : 'text-[13.5px] mb-5'
+                }`}
               >
                 {currentStepData.desc}
               </p>
@@ -890,7 +896,7 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
                   <motion.button 
                     whileTap={{ scale: 0.95 }}
                     onClick={handleNext}
-                    className={`px-8 py-2.5 rounded-xl border font-black uppercase text-[11px] tracking-widest transition-all font-['Outfit'] ${
+                    className={`px-10 py-3.5 rounded-xl border font-black uppercase text-[11px] tracking-widest transition-all font-['Outfit'] ${
                       isLight 
                         ? 'bg-[#00b577] border-black text-white shadow-[3px_3px_0px_rgba(0,0,0,1)] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none' 
                         : 'bg-[#00f295] border-transparent text-black'
