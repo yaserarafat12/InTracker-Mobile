@@ -836,7 +836,7 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
 
       {/* Main Dialogue Box */}
       <div 
-        className="absolute w-full px-5 pointer-events-auto"
+        className="absolute w-full px-6 pointer-events-auto"
         style={{
           top: dialogueTop,
           bottom: dialogueBottom,
@@ -845,96 +845,41 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
         <AnimatePresence mode="wait">
           <motion.div 
             key={currentStep}
-            initial={{ scale: 0.94, opacity: 0, y: 20 }}
+            initial={{ scale: 0.95, opacity: 0, y: 15 }}
             animate={{ scale: 1, opacity: 1, y: 0 }}
-            exit={{ scale: 0.96, opacity: 0, y: -12 }}
-            transition={{ type: 'spring', stiffness: 260, damping: 26 }}
-            className="max-w-[580px] w-full mx-auto flex flex-col relative select-text overflow-hidden"
-            style={{
-              borderRadius: '28px',
-              border: isLight
-                ? '1px solid rgba(0,0,0,0.07)'
-                : '1px solid rgba(0, 242, 149, 0.18)',
-              background: isLight
-                ? 'rgba(255, 255, 255, 0.88)'
-                : 'rgba(22, 24, 30, 0.82)',
-              backdropFilter: 'blur(24px)',
-              WebkitBackdropFilter: 'blur(24px)',
-              boxShadow: isLight
-                ? '0 8px 40px rgba(0,0,0,0.14), 0 2px 8px rgba(0,0,0,0.06)'
-                : '0 8px 40px rgba(0,0,0,0.55), 0 0 0 1px rgba(0,242,149,0.08), 0 0 40px rgba(0,242,149,0.07)',
-            }}
+            exit={{ scale: 0.95, opacity: 0, y: -15 }}
+            transition={{ type: 'spring', stiffness: 240, damping: 24 }}
+            className={`max-w-[580px] w-full mx-auto border rounded-[24px] shadow-[0_20px_50px_rgba(0,0,0,0.35)] flex flex-col relative select-text overflow-hidden transition-all duration-300 ${
+              isLight 
+                ? 'bg-[#ffffff] border-black/5' 
+                : 'bg-[#252830] border-white/[0.08]'
+            }`}
           >
             {/* Top Slim Progress Bar */}
-            <div className="absolute top-0 left-0 right-0 h-[3px] overflow-hidden" style={{ borderRadius: '28px 28px 0 0' }}>
-              <div className={`h-full w-full ${isLight ? 'bg-black/[0.05]' : 'bg-white/[0.05]'}`} />
+            <div className="absolute top-0 left-0 right-0 h-[3px] bg-black/5 dark:bg-white/5 overflow-hidden">
               <motion.div
-                className={`absolute top-0 left-0 h-full`}
-                style={{ background: isLight ? '#00b577' : 'linear-gradient(90deg, #00f295, #00d4ff)' }}
+                className={`h-full ${isLight ? 'bg-[#00b577]' : 'bg-[#00f295]'}`}
                 initial={{ width: 0 }}
                 animate={{ width: `${((currentStep + 1) / steps.length) * 100}%` }}
-                transition={{ duration: 0.45, ease: 'easeOut' }}
+                transition={{ duration: 0.3 }}
               />
             </div>
 
             {/* Dialogue Content */}
-            <div className="pt-7 pb-7 px-7 flex flex-col relative">
-              {/* Top row: Skip button + Step dots */}
-              <div className="flex items-center justify-between mb-1">
-                {/* Skip Tour Button */}
-                <button
-                  onClick={() => {
-                    if (navigator.vibrate) navigator.vibrate(10);
-                    localStorage.setItem('interactive_tutorial_completed', 'true');
-                    localStorage.removeItem('interactive_tutorial_active');
-                    setCompleted(true);
-                  }}
-                  className={`text-[10.5px] font-bold font-['Outfit'] uppercase tracking-widest transition-all px-2.5 py-1 rounded-lg ${
-                    isLight 
-                      ? 'text-black/35 hover:text-black/60 hover:bg-black/5' 
-                      : 'text-white/30 hover:text-white/60 hover:bg-white/5'
-                  }`}
-                >
-                  {language === 'Bahasa Indonesia' ? 'Lewati' : 'Skip'}
-                </button>
-
-                {/* Minimalist Step Dots */}
-                <div className="flex items-center gap-1">
-                  {steps.slice(0, Math.min(steps.length, 8)).map((_, i) => (
-                    <div
-                      key={i}
-                      className="rounded-full transition-all duration-300"
-                      style={{
-                        width: i === currentStep ? '14px' : '5px',
-                        height: '5px',
-                        background: i === currentStep
-                          ? (isLight ? '#00b577' : '#00f295')
-                          : i < currentStep
-                            ? (isLight ? 'rgba(0,0,0,0.25)' : 'rgba(255,255,255,0.25)')
-                            : (isLight ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.1)'),
-                      }}
-                    />
-                  ))}
-                  {steps.length > 8 && (
-                    <span className={`text-[9px] font-bold ml-1 ${isLight ? 'text-black/30' : 'text-white/30'}`}>
-                      +{steps.length - 8}
-                    </span>
-                  )}
-                </div>
-              </div>
+            <div className="pt-5 pb-5 px-6 flex flex-col relative">
 
               {/* Step Title */}
               <h4 
-                style={{ color: isLight ? '#0a0a0a' : '#ffffff' }}
-                className="text-[17px] font-black font-['Outfit'] mt-4 mb-3 tracking-tight leading-snug"
+                style={{ color: isLight ? '#000000' : '#ffffff' }}
+                className="text-[16px] font-black font-['Outfit'] mb-2.5 tracking-tight"
               >
                 {currentStepData.title}
               </h4>
 
               {/* Step Description */}
               <p 
-                style={{ color: isLight ? 'rgba(0, 0, 0, 0.6)' : 'rgba(255, 255, 255, 0.65)' }}
-                className="text-[14px] font-normal leading-relaxed mb-6 font-['Outfit'] whitespace-pre-line"
+                style={{ color: isLight ? 'rgba(0, 0, 0, 0.65)' : 'rgba(255, 255, 255, 0.7)' }}
+                className="text-[13.5px] font-normal leading-relaxed mb-5 font-['Outfit'] whitespace-pre-line"
               >
                 {currentStepData.desc}
               </p>
@@ -943,17 +888,13 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
               {currentStep === 0 ? (
                 <div className="flex justify-center">
                   <motion.button 
-                    whileTap={{ scale: 0.96 }}
-                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.95 }}
                     onClick={handleNext}
-                    className="px-8 py-3 rounded-2xl font-black uppercase text-[11px] tracking-widest font-['Outfit'] transition-all"
-                    style={{
-                      background: isLight ? '#00b577' : 'linear-gradient(135deg, #00f295, #00d4ff)',
-                      color: isLight ? '#ffffff' : '#000000',
-                      boxShadow: isLight
-                        ? '0 4px 20px rgba(0,181,119,0.35), 3px 3px 0px rgba(0,0,0,1)'
-                        : '0 4px 20px rgba(0,242,149,0.3)',
-                    }}
+                    className={`px-8 py-2.5 rounded-xl border font-black uppercase text-[11px] tracking-widest transition-all font-['Outfit'] ${
+                      isLight 
+                        ? 'bg-[#00b577] border-black text-white shadow-[3px_3px_0px_rgba(0,0,0,1)] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none' 
+                        : 'bg-[#00f295] border-transparent text-black'
+                    }`}
                   >
                     {currentStepData.actionText}
                   </motion.button>
@@ -962,36 +903,31 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
                 <div className="flex items-center justify-between">
                   {/* Back Button */}
                   {currentStep > 0 ? (
-                    <motion.button 
+                    <button 
                       onClick={handleBack}
-                      whileTap={{ scale: 0.95 }}
-                      className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all ${
+                      className={`w-9 h-9 rounded-xl border flex items-center justify-center transition-all ${
                         isLight 
-                          ? 'bg-black/5 hover:bg-black/10 text-black/60' 
-                          : 'bg-white/[0.07] hover:bg-white/[0.12] text-white/60'
+                          ? 'bg-white border-black text-black shadow-[3px_3px_0px_rgba(0,0,0,1)] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none' 
+                          : 'bg-[#2a2c32] border-white/10 text-white active:scale-95'
                       }`}
                     >
-                      <Icon icon="ph:caret-left-bold" width={15} />
-                    </motion.button>
+                      <Icon icon="ph:caret-left-bold" width={16} />
+                    </button>
                   ) : (
                     <div />
                   )}
 
-                  {/* Next / Action Button */}
+                  {/* Lanjut / Next Button */}
                   {(currentStepData.actionText || currentStep < maxStep) && (
                     currentStepData.actionText && currentStepData.actionText !== 'Lanjut' ? (
                       <motion.button 
-                        whileTap={{ scale: 0.96 }}
-                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.95 }}
                         onClick={handleNext}
-                        className="px-5 py-2.5 rounded-xl font-black uppercase text-[11px] tracking-wider flex items-center gap-1.5 font-['Outfit'] transition-all"
-                        style={{
-                          background: isLight ? '#00b577' : 'linear-gradient(135deg, #00f295, #00d4ff)',
-                          color: isLight ? '#ffffff' : '#000000',
-                          boxShadow: isLight
-                            ? '0 4px 14px rgba(0,181,119,0.3), 3px 3px 0px rgba(0,0,0,1)'
-                            : '0 4px 14px rgba(0,242,149,0.25)',
-                        }}
+                        className={`px-5 py-2.5 rounded-xl border font-black uppercase text-[11px] tracking-wider transition-all flex items-center gap-1.5 font-['Outfit'] ${
+                          isLight 
+                            ? 'bg-[#00b577] border-black text-white shadow-[3px_3px_0px_rgba(0,0,0,1)] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none' 
+                            : 'bg-[#00f295] border-transparent text-black'
+                        }`}
                       >
                         <span>{currentStepData.actionText}</span>
                         <Icon icon="ph:caret-right-bold" width={13} />
@@ -999,16 +935,12 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
                     ) : (
                       <motion.button 
                         whileTap={{ scale: 0.95 }}
-                        whileHover={{ scale: 1.05 }}
                         onClick={handleNext}
-                        className="w-10 h-10 rounded-2xl flex items-center justify-center transition-all"
-                        style={{
-                          background: isLight ? '#00b577' : 'linear-gradient(135deg, #00f295, #00d4ff)',
-                          color: isLight ? '#ffffff' : '#000000',
-                          boxShadow: isLight
-                            ? '0 4px 14px rgba(0,181,119,0.3), 2px 2px 0px rgba(0,0,0,1)'
-                            : '0 4px 14px rgba(0,242,149,0.25)',
-                        }}
+                        className={`w-9 h-9 rounded-xl border flex items-center justify-center transition-all ${
+                          isLight 
+                            ? 'bg-[#00b577] border-black text-white shadow-[3px_3px_0px_rgba(0,0,0,1)] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none' 
+                            : 'bg-[#00f295] border-transparent text-black'
+                        }`}
                       >
                         <Icon icon="ph:caret-right-bold" width={16} />
                       </motion.button>
