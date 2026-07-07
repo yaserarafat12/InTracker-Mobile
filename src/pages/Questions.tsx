@@ -25,15 +25,16 @@ const CinematicButton = ({ onClick, children, className = "", disabled = false }
     <motion.button
       disabled={disabled}
       onClick={onClick}
+      whileHover={disabled ? undefined : { scale: 1.01 }}
       whileTap={disabled ? undefined : { scale: 0.98, x: 2, y: 2, boxShadow: "0px 0px 0px rgba(0,0,0,1)" }}
-      className={`group relative overflow-hidden rounded-xl py-3 px-8 border-[2px] border-black transition-all ${
+      className={`group relative overflow-hidden rounded-xl py-3.5 px-8 border-[2px] border-black transition-all ${
         disabled 
-        ? 'bg-neutral-800 border-neutral-700 text-neutral-500 cursor-not-allowed' 
-        : 'bg-[#10B981] shadow-[5px_5px_0px_rgba(0,0,0,1)] active:scale-[0.98] active:shadow-none'
+        ? 'bg-neutral-200 border-neutral-300 text-neutral-400 cursor-not-allowed' 
+        : 'bg-white shadow-[5px_5px_0px_rgba(0,0,0,1)] active:scale-[0.98] active:shadow-none'
       } ${className}`}
     >
-      <div className={`absolute inset-0 bg-[#0F1110]/10 ${disabled ? '' : 'group-hover:bg-transparent'} transition-colors`} />
-      <span className={`relative z-10 font-['Outfit'] text-[15px] font-black tracking-wide ${disabled ? 'text-neutral-500' : 'text-[#050A07]'}`}>
+      <div className={`absolute inset-0 bg-black/[0.03] ${disabled ? '' : 'group-hover:bg-transparent'} transition-colors`} />
+      <span className={`relative z-10 font-['Outfit'] text-[15px] font-black tracking-widest uppercase ${disabled ? 'text-neutral-400' : 'text-black'}`}>
         {children}
       </span>
     </motion.button>
@@ -2755,38 +2756,39 @@ export default function Questions() {
 
         {/* MIDDLE CONTENT: 1 Column Scrollable List (Max 5 items visible) */}
         <div className="relative z-10 w-full max-w-[400px] flex flex-col gap-4 my-auto">
-          <div className="flex flex-col gap-2 w-full max-h-[295px] overflow-y-auto pr-1 custom-scrollbar">
+          <div className="flex flex-col gap-2 w-full max-h-[320px] overflow-y-auto pr-1 custom-scrollbar">
             {LANGUAGES_MAP.map((lang) => {
               const isSelected = (settings.language || 'English') === lang.name;
               return (
                 <motion.button
                   key={lang.name}
                   whileTap={{ scale: 0.98 }}
+                  whileHover={{ scale: isSelected ? 1 : 1.005 }}
                   onClick={() => {
                     updateSettings({ language: lang.name as any });
                   }}
-                  className={`flex items-center justify-between py-3 px-4 rounded-xl border-2 text-left transition-all duration-200 backdrop-blur-md shadow-[3px_3px_0px_rgba(0,0,0,1)] ${
+                  className={`flex items-center justify-between py-3.5 px-4 rounded-xl border-2 text-left transition-all duration-200 ${
                     isSelected 
                       ? isLight 
-                        ? 'bg-black/5 border-black text-black' 
-                        : 'bg-white/10 border-white text-white' 
+                        ? 'bg-white border-black text-black shadow-[3px_3px_0px_rgba(0,0,0,1)]' 
+                        : 'bg-white/10 border-white text-white shadow-[3px_3px_0px_rgba(255,255,255,0.15)]' 
                       : isLight 
-                        ? 'bg-white border-black text-black hover:bg-neutral-50' 
-                        : 'bg-[#111]/85 border-white/[0.08] text-white/70 hover:border-white/20'
+                        ? 'bg-white border-black/15 text-black hover:border-black/40 shadow-[2px_2px_0px_rgba(0,0,0,0.06)]' 
+                        : 'bg-[#111]/85 border-white/[0.06] text-white/70 hover:border-white/20 shadow-none'
                   }`}
                 >
                   <div className="flex items-center gap-3.5">
-                    <Icon icon={lang.flagIcon} width={24} height={24} className="shrink-0" />
+                    <Icon icon={lang.flagIcon} width={26} height={26} className="shrink-0" />
                     <div className="flex flex-col min-w-0">
-                      <span className={`text-[13px] font-black font-['Outfit'] truncate leading-tight ${isLight ? 'text-black' : 'text-white'}`}>
+                      <span className={`text-[13.5px] font-black font-['Outfit'] truncate leading-tight ${isLight ? 'text-black' : 'text-white'}`}>
                         {lang.name}
                       </span>
-                      <span className={`text-[9px] font-semibold truncate leading-none mt-0.5 ${isLight ? 'text-black/45' : 'text-white/40'}`}>
+                      <span className={`text-[9.5px] font-semibold truncate leading-none mt-0.5 ${isLight ? 'text-black/40' : 'text-white/40'}`}>
                         {lang.sub}
                       </span>
                     </div>
                   </div>
-                  <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${
+                  <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all shrink-0 ${
                     isSelected 
                       ? isLight ? 'bg-black border-black' : 'bg-white border-white' 
                       : isLight ? 'bg-transparent border-black/20' : 'bg-transparent border-white/20'
