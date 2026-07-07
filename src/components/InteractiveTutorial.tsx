@@ -862,7 +862,7 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
             y: dialogueInTop ? sr.top - 40 : sr.bottom + 8,
             x: sr.left + sr.width / 2 - 12,
           }}
-          transition={{ type: 'spring', stiffness: 220, damping: 26 }}
+          transition={{ type: 'spring', stiffness: 80, damping: 22 }}
           className={`absolute z-[1000000] pointer-events-none ${isLight ? 'text-[#00b577]' : 'text-[#00f295]'} drop-shadow-[0_2px_8px_rgba(0,255,133,0.3)]`}
         >
           <motion.svg 
@@ -902,7 +902,7 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
                     width: sr.width,
                     height: sr.height,
                   }}
-                  transition={{ type: 'spring', stiffness: 220, damping: 26 }}
+                  transition={{ type: 'spring', stiffness: 80, damping: 22 }}
                   rx="16"
                   fill="black"
                 />
@@ -936,7 +936,7 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
                 width: sr.width,
                 height: sr.height,
               }}
-              transition={{ type: 'spring', stiffness: 220, damping: 26 }}
+              transition={{ type: 'spring', stiffness: 80, damping: 22 }}
               rx="16"
               stroke={isLight ? '#00b577' : '#00f295'}
               strokeWidth="2.5"
@@ -955,10 +955,10 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
                 opacity: [0.35, 0.1, 0.35],
               }}
               transition={{
-                x: { type: 'spring', stiffness: 220, damping: 26 },
-                y: { type: 'spring', stiffness: 220, damping: 26 },
-                width: { type: 'spring', stiffness: 220, damping: 26 },
-                height: { type: 'spring', stiffness: 220, damping: 26 },
+                x: { type: 'spring', stiffness: 80, damping: 22 },
+                y: { type: 'spring', stiffness: 80, damping: 22 },
+                width: { type: 'spring', stiffness: 80, damping: 22 },
+                height: { type: 'spring', stiffness: 80, damping: 22 },
                 opacity: { duration: 2.2, repeat: Infinity, ease: "easeInOut" }
               }}
               rx="19"
