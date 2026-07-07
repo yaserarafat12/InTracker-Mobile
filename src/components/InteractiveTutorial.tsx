@@ -854,7 +854,7 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
                 )}
 
                 {/* Lanjut / Next Button */}
-                {(currentStepData.actionText || currentStep < steps.length - 1) && (
+                {(currentStepData.actionText || currentStep < maxStep) && (
                   currentStepData.actionText && currentStepData.actionText !== 'Lanjut' ? (
                     <motion.button 
                       whileTap={{ scale: 0.95 }}
