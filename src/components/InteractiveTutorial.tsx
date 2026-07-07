@@ -773,8 +773,8 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
     const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
     const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
 
-    const insideX = clientX >= sr.left - 6 && clientX <= sr.right + 6;
-    const insideY = clientY >= sr.top - 6 && clientY <= sr.bottom + 6;
+    const insideX = clientX >= sr.left - 15 && clientX <= sr.right + 15;
+    const insideY = clientY >= sr.top - 15 && clientY <= sr.bottom + 15;
 
     if (insideX && insideY) {
       const svg = e.currentTarget as HTMLElement;
@@ -802,8 +802,8 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
     const clientX = e.clientX;
     const clientY = e.clientY;
 
-    const insideX = clientX >= sr.left - 6 && clientX <= sr.right + 6;
-    const insideY = clientY >= sr.top - 6 && clientY <= sr.bottom + 6;
+    const insideX = clientX >= sr.left - 15 && clientX <= sr.right + 15;
+    const insideY = clientY >= sr.top - 15 && clientY <= sr.bottom + 15;
 
     if (insideX && insideY) {
       // Temporarily disable pointer-events on the SVG to find the element underneath
