@@ -609,34 +609,6 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
         handleNext();
         return;
       }
-
-      // 2. If we are on Step 3 (index 3: "Select Drink Water preset" / '#habit-pick-drink-water')
-      // and the config modal is open (which has #habit-config-intensity-btn)
-      if (currentStep === 3 && document.getElementById('habit-config-intensity-btn')) {
-        handleNext();
-        return;
-      }
-
-      // 3. If we are on Step 4 (index 4: "Open Intensity Picker" / '#habit-config-intensity-btn')
-      // and the intensity picker is open (which has #habit-config-intensity-modal)
-      if (currentStep === 4 && document.getElementById('habit-config-intensity-modal')) {
-        handleNext();
-        return;
-      }
-
-      // 4. If we are on Step 5 (index 5: "Done in Intensity Picker")
-      // and the intensity picker is closed (meaning #habit-config-intensity-modal is gone, but we are still in config modal #habit-config-save-btn)
-      if (currentStep === 5 && !document.getElementById('habit-config-intensity-modal') && document.getElementById('habit-config-save-btn')) {
-        handleNext();
-        return;
-      }
-
-      // 5. If we are on Step 6 (index 6: "Save Habit")
-      // and the config modal is closed (meaning #habit-config-modal is gone)
-      if (currentStep === 6 && !document.getElementById('habit-config-modal')) {
-        handleNext();
-        return;
-      }
     };
 
     checkStateAndAdvance();
