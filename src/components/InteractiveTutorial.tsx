@@ -770,8 +770,19 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
   const handleBackdropPress = (e: React.MouseEvent | React.TouchEvent) => {
     if (!sr) return;
 
-    const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
-    const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
+    // Get touch/mouse coordinates safely
+    let clientX = 0;
+    let clientY = 0;
+
+    if ('touches' in e && e.touches.length > 0) {
+      clientX = e.touches[0].clientX;
+      clientY = e.touches[0].clientY;
+    } else if ('clientX' in e) {
+      clientX = e.clientX;
+      clientY = e.clientY;
+    } else {
+      return;
+    }
 
     const insideX = clientX >= sr.left - 15 && clientX <= sr.right + 15;
     const insideY = clientY >= sr.top - 15 && clientY <= sr.bottom + 15;
@@ -780,14 +791,10 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
       const svg = e.currentTarget as HTMLElement;
       svg.style.pointerEvents = 'none';
 
-      // Restore pointer events after tap completes
-      const restore = () => {
+      // Restore pointer events after 350ms to cover the entire touch-to-click duration
+      setTimeout(() => {
         svg.style.pointerEvents = 'auto';
-        window.removeEventListener('mouseup', restore);
-        window.removeEventListener('touchend', restore);
-      };
-      window.addEventListener('mouseup', restore);
-      window.addEventListener('touchend', restore);
+      }, 350);
     } else {
       // Outside spotlight: prevent defaults to block interaction
       e.preventDefault();
