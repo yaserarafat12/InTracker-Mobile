@@ -173,6 +173,9 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
       // ── Step 30 ─────────────────────────────────────────────────────────────
       s30_title: pick({ 'English': 'Share Post', 'Bahasa Indonesia': 'Bagikan Postingan', 'Español': 'Compartir publicación', 'Chinese': '分享帖子', 'Hindi': 'पोस्ट साझा करें', 'Arabic': 'مشاركة المنشور', 'Portuguese': 'Compartilhar publicação', 'Français': 'Partager la publication', 'Japanese': '投稿を共有する', 'Deutsch': 'Beitrag teilen' }),
       s30_desc: pick({ 'English': 'Tap the SHARE button to publish your progress to the community Global Feed.', 'Bahasa Indonesia': 'Ketuk tombol SHARE ini untuk memposting progresmu ke Global Feed komunitas.', 'Español': 'Toca el botón COMPARTIR para publicar tu progreso en el feed global de la comunidad.', 'Chinese': '点击SHARE按钮将您的进度发布到社区全球动态。', 'Hindi': 'अपनी प्रगति को Community Global Feed पर प्रकाशित करने के लिए SHARE बटन पर टैप करें।', 'Arabic': 'انقر على زر SHARE لنشر تقدمك في الموجز العالمي للمجتمع.', 'Portuguese': 'Toque no botão COMPARTILHAR para publicar seu progresso no feed global da comunidade.', 'Français': 'Appuyez sur le bouton PARTAGER pour publier votre progression dans le fil global de la communauté.', 'Japanese': 'SHAREボタンをタップして進捗をコミュニティのグローバルフィードに公開しましょう。', 'Deutsch': 'Tippe auf den TEILEN-Knopf, um deinen Fortschritt im globalen Community-Feed zu veröffentlichen.' }),
+      // ── Step 30a ─────────────────────────────────────────────────────────────
+      s30a_title: pick({ 'English': 'Post Published Successfully!', 'Bahasa Indonesia': 'Postingan Berhasil Dibagikan!', 'Español': '¡Publicación compartida con éxito!', 'Chinese': '帖子发布成功！', 'Hindi': 'पोस्ट सफलतापूर्वक साझा की गई!', 'Arabic': 'تم نشر المنشور بنجاح!', 'Portuguese': 'Publicação compartilhada com sucesso!', 'Français': 'Publication partagée avec succès !', 'Japanese': '投稿が正常に共有されました！', 'Deutsch': 'Beitrag erfolgreich geteilt!' }),
+      s30a_desc: pick({ 'English': 'Here it is! Your progress post will appear here in the Global Feed. Everyone in the community can see your path and get inspired by your discipline!', 'Bahasa Indonesia': 'Nah, ini dia! Postingan progresmu akan muncul di sini di Global Feed. Semua orang di komunitas bisa melihat perjuanganmu dan terinspirasi oleh perjalanan disiplinmu!', 'Español': '¡Aquí está! Tu publicación de progreso aparecerá aquí en el feed global. ¡Todos en la comunidad pueden ver tu camino e inspirarse con tu disciplina!', 'Chinese': '就在这里！你的进度帖子将出现在全球动态中。社区中的每个人都能看到你的历程，并被你的纪律所启发！', 'Hindi': 'यह यहाँ है! आपकी प्रगति पोस्ट यहाँ Global Feed में दिखाई देगी। समुदाय का हर कोई आपका मार्ग देख सकता है और आपके अनुशासन से प्रेरित हो सकता है!', 'Arabic': 'ها هو ذا! سيظهر منشور تقدمك هنا في الموجز العالمي. يمكن للجميع في المجتمع رؤية مسارك والاستلهام من انضباطك!', 'Portuguese': 'Aqui está! Sua publicação de progresso aparecerá aqui no Feed Global. Todos na comunidade podem ver seu caminho e se inspirar em sua disciplina!', 'Français': 'Le voilà ! Votre publication de progression apparaîtra ici dans le fil global. Tout le monde dans la communauté peut voir votre parcours et s\'y inspirer !', 'Japanese': 'これです！あなたの進捗投稿はここにグローバルフィードに表示されます。コミュニティの誰もがあなたの歩みを見て、あなたの規律にインスパイアされることができます！', 'Deutsch': 'Hier ist es! Dein Fortschrittsbeitrag wird hier im globalen Feed angezeigt. Jeder in der Community kann deinen Weg sehen und sich von deiner Disziplin inspirieren lassen!' }),
       // ── Step 31 ─────────────────────────────────────────────────────────────
       s31_title: pick({ 'English': 'Support Tools', 'Bahasa Indonesia': 'Alat Pendukung', 'Español': 'Herramientas de apoyo', 'Chinese': '支持工具', 'Hindi': 'सहायता उपकरण', 'Arabic': 'أدوات الدعم', 'Portuguese': 'Ferramentas de suporte', 'Français': 'Outils de soutien', 'Japanese': 'サポートツール', 'Deutsch': 'Support-Tools' }),
       s31_desc: pick({ 'English': 'Tap the Features tab in the bottom navigation bar.', 'Bahasa Indonesia': 'Ketuk tab Features di navigasi bawah.', 'Español': 'Toca la pestaña Features en la barra de navegación inferior.', 'Chinese': '点击底部导航栏中的功能选项卡。', 'Hindi': 'नीचे नेविगेशन बार में Features टैब पर टैप करें।', 'Arabic': 'انقر على علامة تبويب المميزات في شريط التنقل السفلي.', 'Portuguese': 'Toque na aba Features na barra de navegação inferior.', 'Français': 'Appuyez sur l\'onglet Features dans la barre de navigation inférieure.', 'Japanese': '下部ナビゲーションバーのFeaturesタブをタップしましょう。', 'Deutsch': 'Tippe auf den Features-Tab in der unteren Navigationsleiste.' }),
@@ -467,6 +470,15 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
       title: L.s30_title,
       desc: L.s30_desc,
       expression: 'success',
+      tab: 'global',
+    },
+    // 18a. Post Published Confirmation Spotlight on Feed list
+    {
+      selector: '.flex-1.overflow-y-auto.py-4.no-scrollbar',
+      title: L.s30a_title,
+      desc: L.s30a_desc,
+      expression: 'welcome',
+      actionText: L.next,
       tab: 'global',
     },
     // 19. Navigate to Features tab
