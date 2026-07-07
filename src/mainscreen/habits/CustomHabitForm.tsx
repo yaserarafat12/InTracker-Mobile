@@ -86,7 +86,7 @@ export const CustomHabitForm = ({ isOpen, category, onClose, onSubmit, currentHa
   const categoryKeys: Record<string, string> = {
     'Rutinitas': 'habits.categories.routine',
     'Ketenangan Diri': 'habits.categories.mindfulness',
-    'Evolusi Diri': 'habits.categories.evolution',
+    'Perkembangan Diri': 'habits.categories.evolution',
     'Latihan Fisik': 'habits.categories.exercise'
   };
 

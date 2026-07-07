@@ -59,7 +59,7 @@ export const CATEGORY_ICONS: Record<string, string> = {
   'Semua': 'solar:widget-5-bold',
   'Rutinitas': 'solar:shield-star-bold',
   'Ketenangan Diri': 'solar:wind-bold',
-  'Evolusi Diri': 'solar:star-fall-2-bold',
+  'Perkembangan Diri': 'solar:star-fall-2-bold',
   'Latihan Fisik': 'solar:dumbbells-bold'
 };
 
@@ -67,7 +67,7 @@ export const CATEGORY_COLORS: Record<string, string> = {
   'Semua': '#FFFFFF',
   'Rutinitas': '#00FF85',
   'Ketenangan Diri': '#60A5FA',
-  'Evolusi Diri': '#FACC15',
+  'Perkembangan Diri': '#FACC15',
   'Latihan Fisik': '#EF4444'
 };
 
@@ -159,12 +159,12 @@ export const HABIT_OPTIONS: HabitOption[] = [
   { name: 'Latihan Napas', iconName: 'Breathe', category: 'Ketenangan Diri', imageUrl: '/all_images/display_images/nafasdalam.png', imagePosition: 'object-right', frequency: 'harian', difficulty: 1, intensity: { type: 'numeric', unit: 'Menit', options: [5, 10, 15, 20], defaultValue: 10 } },
   { name: 'Latihan Musik', iconName: 'Guitar', category: 'Ketenangan Diri', imageUrl: '/all_images/display_images/belajarmusik.png', imagePosition: 'object-right', frequency: 'harian', difficulty: 2, intensity: { type: 'numeric', unit: 'Menit', options: [15, 30, 45, 60], defaultValue: 30 } },
 
-  // Evolusi Diri
-  { name: 'Deep Work', iconName: 'Deep Work', category: 'Evolusi Diri', imageUrl: '/all_images/display_images/deepworking.png', imagePosition: 'object-right', frequency: 'harian', difficulty: 3, intensity: { type: 'numeric', unit: 'Jam', options: [1, 2, 3, 4, 5, 6], defaultValue: 2 } },
+  // Perkembangan Diri
+  { name: 'Deep Work', iconName: 'Deep Work', category: 'Perkembangan Diri', imageUrl: '/all_images/display_images/deepworking.png', imagePosition: 'object-right', frequency: 'harian', difficulty: 3, intensity: { type: 'numeric', unit: 'Jam', options: [1, 2, 3, 4, 5, 6], defaultValue: 2 } },
   { 
     name: 'Membaca Buku', 
     iconName: 'solar:book-2-bold', 
-    category: 'Evolusi Diri', 
+    category: 'Perkembangan Diri', 
     imageUrl: '/all_images/display_images/membacabuku.png',
     frequency: 'harian',
     difficulty: 1,
@@ -173,7 +173,7 @@ export const HABIT_OPTIONS: HabitOption[] = [
   { 
     name: 'Membaca Berita', 
     iconName: 'solar:tv-bold', 
-    category: 'Evolusi Diri', 
+    category: 'Perkembangan Diri', 
     imageUrl: '/all_images/display_images/baca_berita.png',
     frequency: 'harian',
     difficulty: 1,
@@ -182,15 +182,15 @@ export const HABIT_OPTIONS: HabitOption[] = [
   { 
     name: 'Deep Learning', 
     iconName: 'solar:lightbulb-bold', 
-    category: 'Evolusi Diri', 
+    category: 'Perkembangan Diri', 
     imageUrl: '/all_images/display_images/deeplearning.png',
     frequency: 'harian',
     difficulty: 2,
     intensity: { type: 'numeric', unit: 'Sesi', options: [1, 2, 3], defaultValue: 1 }
   },
-  { name: 'Journaling', iconName: 'Journaling', category: 'Evolusi Diri', imageUrl: '/all_images/display_images/jurnal.png', imagePosition: 'object-right', frequency: 'harian', difficulty: 1, intensity: { type: 'none' } },
-  { name: 'Belajar Bahasa', iconName: 'Language Learning', category: 'Evolusi Diri', imageUrl: '/all_images/display_images/belajarbahasa.png', imagePosition: 'object-top', frequency: 'harian', difficulty: 2, intensity: { type: 'numeric', unit: 'Menit', options: [10, 20, 30, 45, 60], defaultValue: 20 } },
-  { name: 'Perawatan Kulit', iconName: 'Skin Care', category: 'Evolusi Diri', imageUrl: '/all_images/display_images/skincare.png', imagePosition: 'object-right', frequency: 'harian', difficulty: 1, intensity: { type: 'none' } },
+  { name: 'Journaling', iconName: 'Journaling', category: 'Perkembangan Diri', imageUrl: '/all_images/display_images/jurnal.png', imagePosition: 'object-right', frequency: 'harian', difficulty: 1, intensity: { type: 'none' } },
+  { name: 'Belajar Bahasa', iconName: 'Language Learning', category: 'Perkembangan Diri', imageUrl: '/all_images/display_images/belajarbahasa.png', imagePosition: 'object-top', frequency: 'harian', difficulty: 2, intensity: { type: 'numeric', unit: 'Menit', options: [10, 20, 30, 45, 60], defaultValue: 20 } },
+  { name: 'Perawatan Kulit', iconName: 'Skin Care', category: 'Perkembangan Diri', imageUrl: '/all_images/display_images/skincare.png', imagePosition: 'object-right', frequency: 'harian', difficulty: 1, intensity: { type: 'none' } },
 
   // Latihan Fisik
   { name: 'Latihan Beban', iconName: 'Weight', category: 'Latihan Fisik', imageUrl: '/all_images/display_images/workout.png', imagePosition: 'object-right', frequency: 'harian', difficulty: 3, intensity: { type: 'numeric', unit: 'Menit', options: [15, 30, 45, 60, 90, 120], defaultValue: 30 } },
@@ -214,7 +214,7 @@ export const HABIT_OPTIONS: HabitOption[] = [
   { 
     name: 'Rencana Esok Hari', 
     iconName: 'ph:calendar-blank-bold', 
-    category: 'Evolusi Diri', 
+    category: 'Perkembangan Diri', 
     imageUrl: '/all_images/display_images/perencanaanbesok.png', 
     frequency: 'harian', 
     difficulty: 1, 
@@ -232,7 +232,7 @@ export const HABIT_OPTIONS: HabitOption[] = [
   { 
     name: 'Koneksi Sosial', 
     iconName: 'Users', 
-    category: 'Evolusi Diri', 
+    category: 'Perkembangan Diri', 
     imageUrl: '/all_images/display_images/koneksisosial.png', 
     frequency: 'harian', 
     difficulty: 1, 
@@ -260,10 +260,10 @@ export const HABIT_OPTIONS: HabitOption[] = [
   { name: 'Bersyukur', iconName: 'Gratitude', category: 'Ketenangan Diri', imageUrl: '/all_images/display_images/thankful.png', frequency: 'harian', difficulty: 1, intensity: { type: 'none' } },
   { name: 'Jalan Santai', iconName: 'Walking', category: 'Ketenangan Diri', imageUrl: '/all_images/display_images/walkingchild.png', frequency: 'harian', difficulty: 1, intensity: { type: 'numeric', unit: 'Menit', options: [10, 15, 20, 30, 45], defaultValue: 20 } },
 
-  // Evolusi Diri (new)
-  { name: 'Belajar Coding', iconName: 'Coding', category: 'Evolusi Diri', imageUrl: '/all_images/display_images/coding.png', frequency: 'harian', difficulty: 2, intensity: { type: 'numeric', unit: 'Menit', options: [15, 30, 45, 60, 90, 120], defaultValue: 30 } },
-  { name: 'Menggambar', iconName: 'Drawing', category: 'Evolusi Diri', imageUrl: '/all_images/display_images/drawing.png', frequency: 'harian', difficulty: 1, intensity: { type: 'numeric', unit: 'Menit', options: [15, 30, 45, 60], defaultValue: 30 } },
-  { name: 'Podcast', iconName: 'Podcast', category: 'Evolusi Diri', imageUrl: '/all_images/display_images/podcast.png', frequency: 'harian', difficulty: 1, intensity: { type: 'none' } },
+  // Perkembangan Diri (new)
+  { name: 'Belajar Coding', iconName: 'Coding', category: 'Perkembangan Diri', imageUrl: '/all_images/display_images/coding.png', frequency: 'harian', difficulty: 2, intensity: { type: 'numeric', unit: 'Menit', options: [15, 30, 45, 60, 90, 120], defaultValue: 30 } },
+  { name: 'Menggambar', iconName: 'Drawing', category: 'Perkembangan Diri', imageUrl: '/all_images/display_images/drawing.png', frequency: 'harian', difficulty: 1, intensity: { type: 'numeric', unit: 'Menit', options: [15, 30, 45, 60], defaultValue: 30 } },
+  { name: 'Podcast', iconName: 'Podcast', category: 'Perkembangan Diri', imageUrl: '/all_images/display_images/podcast.png', frequency: 'harian', difficulty: 1, intensity: { type: 'none' } },
 
   // Latihan Fisik (new)
   { name: 'Yoga', iconName: 'Yoga', category: 'Latihan Fisik', imageUrl: '/all_images/display_images/yoga.png', frequency: 'harian', difficulty: 2, intensity: { type: 'numeric', unit: 'Menit', options: [15, 20, 30, 45, 60], defaultValue: 20 } },

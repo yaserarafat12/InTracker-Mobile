@@ -291,14 +291,14 @@ const DaftarHabit = ({
   const CAT_PRIORITY: Record<string, number> = {
     Rutinitas: 1,
     'Ketenangan Diri': 2,
-    'Evolusi Diri': 3,
+    'Perkembangan Diri': 3,
     'Latihan Fisik': 4,
   };
 
   const CATEGORY_ICONS: Record<string, string> = {
     Rutinitas: 'solar:target-bold',
     'Ketenangan Diri': 'solar:ghost-bold',
-    'Evolusi Diri': 'solar:library-bold',
+    'Perkembangan Diri': 'solar:library-bold',
     'Latihan Fisik': 'solar:dumbell-bold',
   };
 

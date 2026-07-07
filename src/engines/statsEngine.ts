@@ -18,7 +18,7 @@ import {
  * Mapping:
  *   Latihan Fisik:   kekuatan+1, disiplin+1 (diff3: +fokus+1)
  *   Ketenangan Diri: kebijaksanaan+1, fokus+1 (diff3: +kepercayaanDiri+1)
- *   Evolusi Diri:    fokus+1, kepercayaanDiri+1 (diff3: +kebijaksanaan+1)
+ *   Perkembangan Diri:    fokus+1, kepercayaanDiri+1 (diff3: +kebijaksanaan+1)
  *   Rutinitas:       disiplin+1, kepercayaanDiri+1 (diff3: +kekuatan+1)
  *
  * Returns empty map for unknown categories.
@@ -53,7 +53,7 @@ export function getDefaultHabitStatsMap(habitCategory: string, difficulty: numbe
       return base;
     }
 
-    case 'Evolusi Diri': {
+    case 'Perkembangan Diri': {
       const base: HabitStatsMap = {
         categories: [
           { category: 'fokus', points: 1 },

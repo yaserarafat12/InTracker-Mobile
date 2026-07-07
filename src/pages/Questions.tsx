@@ -207,7 +207,7 @@ const QUESTION_TRANSLATIONS: Record<string, Record<number, { question: string; i
     11: { question: "Apa tantangan terbesar Anda saat ini?", instruction: "(Bisa pilih semua yang sesuai)", options: ["Sering Menunda", "Kurang Motivasi", "Bingung Mulai dari Mana", "Masalah Biaya / Modal", "Lingkungan Tidak Mendukung"] },
     12: { question: "Dari mana Anda tahu tentang InRising?", instruction: "", options: ["TikTok", "Instagram / Facebook", "Iklan Digital", "Rekomendasi Teman", "Lainnya"] },
     13: { question: "Berapa lama program yang ingin Anda jalankan?", instruction: "", options: ["30 Hari", "60 Hari", "90 Hari"] },
-    14: { question: "Di area mana Anda ingin bertumbuh?", instruction: "(Anda dapat memilih semua kategori fokus Anda)", options: ["Rutinitas Harian", "Ketenangan Diri", "Evolusi Diri", "Latihan Fisik"] },
+    14: { question: "Di area mana Anda ingin bertumbuh?", instruction: "(Anda dapat memilih semua kategori fokus Anda)", options: ["Rutinitas Harian", "Ketenangan Diri", "Perkembangan Diri", "Latihan Fisik"] },
   },
   'Japanese': {
     1: { question: "あなたのフルネームは何ですか？", instruction: "" },
@@ -545,11 +545,11 @@ const HABIT_REC_POOL = [
   { name: 'Jalan Santai', iconName: 'ph:sneaker-move-bold', category: 'Ketenangan Diri', imageUrl: '/all_images/display_images/walkingchild.png', difficulty: 1, color: '#3B82F6', frequency: 'harian', imagePosition: 'object-center' },
   { name: 'Mendengar Musik', iconName: 'ph:music-notes-bold', category: 'Ketenangan Diri', imageUrl: '/all_images/display_images/dengarmusik.png', difficulty: 1, color: '#FF4D00', frequency: 'harian', imagePosition: 'object-center' },
 
-  // Evolusi Diri (Self Evolution)
-  { name: 'Deep Work', iconName: 'ph:crosshair-bold', category: 'Evolusi Diri', imageUrl: '/all_images/display_images/deepworking.png', difficulty: 3, color: '#FF4D00', frequency: 'harian', imagePosition: 'object-center' },
-  { name: 'Deep Learning', iconName: 'ph:book-open-bold', category: 'Evolusi Diri', imageUrl: '/all_images/display_images/deeplearning.png', difficulty: 2, color: '#10B981', frequency: 'harian', imagePosition: 'object-center' },
-  { name: 'Rencana Esok Hari', iconName: 'ph:calendar-blank-bold', category: 'Evolusi Diri', imageUrl: '/all_images/display_images/perencanaanbesok.png', difficulty: 1, color: '#3B82F6', frequency: 'harian', imagePosition: 'object-center' },
-  { name: 'Journaling', iconName: 'ph:notebook-bold', category: 'Evolusi Diri', imageUrl: '/all_images/display_images/jurnal.png', difficulty: 1, color: '#F59E0B', frequency: 'harian', imagePosition: 'object-right' },
+  // Perkembangan Diri (Self Evolution)
+  { name: 'Deep Work', iconName: 'ph:crosshair-bold', category: 'Perkembangan Diri', imageUrl: '/all_images/display_images/deepworking.png', difficulty: 3, color: '#FF4D00', frequency: 'harian', imagePosition: 'object-center' },
+  { name: 'Deep Learning', iconName: 'ph:book-open-bold', category: 'Perkembangan Diri', imageUrl: '/all_images/display_images/deeplearning.png', difficulty: 2, color: '#10B981', frequency: 'harian', imagePosition: 'object-center' },
+  { name: 'Rencana Esok Hari', iconName: 'ph:calendar-blank-bold', category: 'Perkembangan Diri', imageUrl: '/all_images/display_images/perencanaanbesok.png', difficulty: 1, color: '#3B82F6', frequency: 'harian', imagePosition: 'object-center' },
+  { name: 'Journaling', iconName: 'ph:notebook-bold', category: 'Perkembangan Diri', imageUrl: '/all_images/display_images/jurnal.png', difficulty: 1, color: '#F59E0B', frequency: 'harian', imagePosition: 'object-right' },
 
   // Latihan Fisik (Physical Exercise)
   { name: 'Push-Up', iconName: 'ph:lightning-bold', category: 'Latihan Fisik', imageUrl: '/all_images/display_images/pushup.png', difficulty: 2, color: '#FF4D00', frequency: 'harian', imagePosition: 'object-center' },
@@ -1374,7 +1374,7 @@ const RadarChartScreen = ({ acceptedHabits, answers, onNext, onBack, language }:
     // Weight per habit in that category
     const rutinitas = catCount('Rutinitas');
     const ketDiri = catCount('Ketenangan Diri');
-    const evolusi = catCount('Evolusi Diri');
+    const evolusi = catCount('Perkembangan Diri');
     const fisik = catCount('Latihan Fisik');
 
     const disiplin = Math.min(45, base + rutinitas * 5 + evolusi * 2 + fisik * 2);
@@ -1389,7 +1389,7 @@ const RadarChartScreen = ({ acceptedHabits, answers, onNext, onBack, language }:
   const potentialStats = useMemo(() => {
     const rutinitas = catCount('Rutinitas');
     const ketDiri = catCount('Ketenangan Diri');
-    const evolusi = catCount('Evolusi Diri');
+    const evolusi = catCount('Perkembangan Diri');
     const fisik = catCount('Latihan Fisik');
 
     // Base potential growth multiplier depending on days
@@ -1645,11 +1645,11 @@ const SwipeDeckScreen = ({ answers, onComplete, onBack }: { answers: Record<numb
   const categoryMapping: Record<string, string> = {
     "Daily Routines": "Rutinitas",
     "Mindfulness": "Ketenangan Diri",
-    "Self Evolution": "Evolusi Diri",
+    "Self Evolution": "Perkembangan Diri",
     "Physical Exercise": "Latihan Fisik",
     "Rutinitas Harian": "Rutinitas",
     "Ketenangan Diri": "Ketenangan Diri",
-    "Evolusi Diri": "Evolusi Diri",
+    "Perkembangan Diri": "Perkembangan Diri",
     "Latihan Fisik": "Latihan Fisik"
   };
 

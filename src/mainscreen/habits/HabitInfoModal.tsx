@@ -34,7 +34,7 @@ const getCategoryTranslation = (cat: string, t: any) => {
   const map: Record<string, string> = {
     'Rutinitas': 'habits.categories.routine',
     'Ketenangan Diri': 'habits.categories.mindfulness',
-    'Evolusi Diri': 'habits.categories.evolution',
+    'Perkembangan Diri': 'habits.categories.evolution',
     'Latihan Fisik': 'habits.categories.exercise',
   };
   const key = map[cat];

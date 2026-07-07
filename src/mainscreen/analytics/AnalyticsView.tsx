@@ -594,14 +594,14 @@ function HabitPattern({ habits, habitLogs, timeRange, setTimeRange, timeRanges, 
   }, []);
 
   // Fixed categories matching addhabit modal
-  const categories = ['Semua', 'Rutinitas', 'Ketenangan Diri', 'Evolusi Diri', 'Latihan Fisik'];
+  const categories = ['Semua', 'Rutinitas', 'Ketenangan Diri', 'Perkembangan Diri', 'Latihan Fisik'];
 
   const getCategoryLabel = (cat: string) => {
     switch (cat) {
       case 'Semua': return t('habits.categories.all');
       case 'Rutinitas': return t('habits.categories.routine');
       case 'Ketenangan Diri': return t('habits.categories.mindfulness');
-      case 'Evolusi Diri': return t('habits.categories.evolution');
+      case 'Perkembangan Diri': return t('habits.categories.evolution');
       case 'Latihan Fisik': return t('habits.categories.exercise');
       default: return cat;
     }

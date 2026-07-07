@@ -571,7 +571,7 @@ export const HABIT_BENEFITS_FULL: Record<string, HabitBenefitData> = {
   },
 
   // ═══════════════════════════════════════════════════════════
-  // KATEGORI 3 — EVOLUSI DIRI
+  // KATEGORI 3 — PERKEMBANGAN DIRI
   // ═══════════════════════════════════════════════════════════
 
   'Deep Work': {

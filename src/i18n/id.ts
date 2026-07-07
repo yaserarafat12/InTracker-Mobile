@@ -54,7 +54,7 @@ export const id = {
       all: 'Semua',
       routine: 'Rutinitas',
       mindfulness: 'Ketenangan Diri',
-      evolution: 'Evolusi Diri',
+      evolution: 'Perkembangan Diri',
       exercise: 'Latihan Fisik',
       other: 'Lainnya'
     },

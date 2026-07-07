@@ -7,11 +7,11 @@ import { CustomIcon } from './displaycardhabit';
 import { CustomHabitForm } from './CustomHabitForm';
 import { useTranslation } from '../../i18n';
 
-const categories = ['Rutinitas', 'Ketenangan Diri', 'Evolusi Diri', 'Latihan Fisik'];
+const categories = ['Rutinitas', 'Ketenangan Diri', 'Perkembangan Diri', 'Latihan Fisik'];
 const categoryKeys: Record<string, string> = {
   'Rutinitas': 'habits.categories.routine',
   'Ketenangan Diri': 'habits.categories.mindfulness',
-  'Evolusi Diri': 'habits.categories.evolution',
+  'Perkembangan Diri': 'habits.categories.evolution',
   'Latihan Fisik': 'habits.categories.exercise'
 };
 
