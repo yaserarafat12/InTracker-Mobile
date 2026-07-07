@@ -569,17 +569,23 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
   useEffect(() => {
     if (currentStep !== 1) return;
 
+    let active = true;
     const unsubscribe = useHabitStore.subscribe((state) => {
       // Check if any habit is completed
       const hasCompleted = state.habits.some(h => h.completed);
-      if (hasCompleted) {
+      if (hasCompleted && active) {
+        active = false;
+        unsubscribe();
         setTimeout(() => {
           handleNext();
         }, 300);
       }
     });
 
-    return () => unsubscribe();
+    return () => {
+      active = false;
+      unsubscribe();
+    };
   }, [currentStep]);
 
   // Auto-advance if the DOM state reflects that the user has already navigated to the next phase
