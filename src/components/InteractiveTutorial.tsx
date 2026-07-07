@@ -765,17 +765,45 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
     return dialogueInTop ? "M12 4v24M6 20l6 8 6-8" : "M12 28V4M6 12l6-8 6 8";
   }, [sr, dialogueInTop, hasValidSpace]);
 
-  // Intercept backdrop clicks and pass them through only if inside the spotlight hole
+  // Pre-emptively disable pointer-events on mousedown/touchstart inside the spotlight
+  // so the browser sends native touch/click events directly to the target element.
+  const handleBackdropPress = (e: React.MouseEvent | React.TouchEvent) => {
+    if (!sr) return;
+
+    const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
+    const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
+
+    const insideX = clientX >= sr.left - 6 && clientX <= sr.right + 6;
+    const insideY = clientY >= sr.top - 6 && clientY <= sr.bottom + 6;
+
+    if (insideX && insideY) {
+      const svg = e.currentTarget as HTMLElement;
+      svg.style.pointerEvents = 'none';
+
+      // Restore pointer events after tap completes
+      const restore = () => {
+        svg.style.pointerEvents = 'auto';
+        window.removeEventListener('mouseup', restore);
+        window.removeEventListener('touchend', restore);
+      };
+      window.addEventListener('mouseup', restore);
+      window.addEventListener('touchend', restore);
+    } else {
+      // Outside spotlight: prevent defaults to block interaction
+      e.preventDefault();
+      e.stopPropagation();
+    }
+  };
+
+  // Intercept backdrop clicks and pass them through only if inside the spotlight hole (as a fallback)
   const handleBackdropClick = (e: React.MouseEvent) => {
     if (!sr) return;
 
     const clientX = e.clientX;
     const clientY = e.clientY;
 
-    // Check if coordinates are inside the spotlight hole `sr`
-    // We add a tiny buffer (4px) to make tapping easier
-    const insideX = clientX >= sr.left - 4 && clientX <= sr.right + 4;
-    const insideY = clientY >= sr.top - 4 && clientY <= sr.bottom + 4;
+    const insideX = clientX >= sr.left - 6 && clientX <= sr.right + 6;
+    const insideY = clientY >= sr.top - 6 && clientY <= sr.bottom + 6;
 
     if (insideX && insideY) {
       // Temporarily disable pointer-events on the SVG to find the element underneath
@@ -787,10 +815,25 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
       svg.style.pointerEvents = prevPointerEvents;
 
       if (underlyingElement) {
-        // Trigger click & focus on the underlying element
-        underlyingElement.click();
-        if (typeof underlyingElement.focus === 'function') {
-          underlyingElement.focus();
+        // Find nearest interactive ancestor (BUTTON, A, role="button", or cursor-pointer)
+        let clickTarget: HTMLElement | null = underlyingElement;
+        while (clickTarget && clickTarget !== document.body) {
+          if (
+            clickTarget.tagName === 'BUTTON' || 
+            clickTarget.tagName === 'A' || 
+            clickTarget.onclick || 
+            clickTarget.getAttribute('role') === 'button' ||
+            clickTarget.classList.contains('cursor-pointer')
+          ) {
+            break;
+          }
+          clickTarget = clickTarget.parentElement;
+        }
+
+        const finalTarget = clickTarget || underlyingElement;
+        finalTarget.click();
+        if (typeof finalTarget.focus === 'function') {
+          finalTarget.focus();
         }
       }
     } else {
@@ -835,6 +878,8 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
           <svg 
             className="absolute inset-0 w-full h-full cursor-default pointer-events-none"
             onClick={handleBackdropClick}
+            onMouseDown={handleBackdropPress}
+            onTouchStart={handleBackdropPress}
             style={{ pointerEvents: 'auto' }}
           >
             <defs>
