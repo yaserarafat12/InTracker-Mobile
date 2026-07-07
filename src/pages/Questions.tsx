@@ -1732,12 +1732,19 @@ const SwipeDeckScreen = ({ answers, onComplete, onBack }: { answers: Record<numb
               : 'bg-[#121316] border-white/5 shadow-[0_10px_40px_rgba(0,0,0,0.5)]'
           }`}
         >
-          <p className={`text-[13px] leading-relaxed font-bold tracking-wide ${isLight ? 'text-neutral-700' : 'text-white/80'}`}>
-            {language === 'Bahasa Indonesia' 
-              ? 'Berikut adalah beberapa rekomendasi kebiasaan yang dirancang khusus untuk Anda. Geser (swipe) ke kanan jika Anda ingin melakukannya, atau geser ke kiri untuk melewatinya.' 
-              : 'Here are curated habit recommendations designed for you. Swipe right to choose the habits you want to perform, or swipe left to skip.'
-            }
-          </p>
+          <div className={`text-[13px] leading-relaxed font-bold tracking-wide ${isLight ? 'text-neutral-700' : 'text-white/80'} space-y-3`}>
+            {language === 'Bahasa Indonesia' ? (
+              <>
+                <p>Berikut adalah beberapa rekomendasi kebiasaan yang dirancang khusus untuk Anda.</p>
+                <p>Swipe ke kanan jika Anda ingin melakukannya, atau swipe ke kiri untuk melewatinya.</p>
+              </>
+            ) : (
+              <>
+                <p>Here are curated habit recommendations designed for you.</p>
+                <p>Swipe right to choose the habits you want to perform, or swipe left to skip.</p>
+              </>
+            )}
+          </div>
 
           <button
             onClick={() => {
