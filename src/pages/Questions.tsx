@@ -25,16 +25,24 @@ const CinematicButton = ({ onClick, children, className = "", disabled = false }
     <motion.button
       disabled={disabled}
       onClick={onClick}
-      whileHover={disabled ? undefined : { scale: 1.01 }}
-      whileTap={disabled ? undefined : { scale: 0.98, x: 2, y: 2, boxShadow: "0px 0px 0px rgba(0,0,0,1)" }}
-      className={`group relative overflow-hidden rounded-xl py-3.5 px-8 border-[2px] border-black transition-all ${
+      whileHover={disabled ? undefined : { scale: 1.015 }}
+      whileTap={disabled ? undefined : { scale: 0.97 }}
+      className={`group relative overflow-hidden rounded-2xl py-4 px-8 transition-all ${
         disabled 
-        ? 'bg-neutral-200 border-neutral-300 text-neutral-400 cursor-not-allowed' 
-        : 'bg-white shadow-[5px_5px_0px_rgba(0,0,0,1)] active:scale-[0.98] active:shadow-none'
+        ? 'bg-neutral-200 border-2 border-neutral-300 text-neutral-400 cursor-not-allowed' 
+        : ''
       } ${className}`}
+      style={disabled ? {} : {
+        background: 'linear-gradient(135deg, #10B981 0%, #059669 100%)',
+        boxShadow: '0 4px 24px rgba(16,185,129,0.4), 0 2px 8px rgba(0,0,0,0.15)',
+      }}
     >
-      <div className={`absolute inset-0 bg-black/[0.03] ${disabled ? '' : 'group-hover:bg-transparent'} transition-colors`} />
-      <span className={`relative z-10 font-['Outfit'] text-[15px] font-black tracking-widest uppercase ${disabled ? 'text-neutral-400' : 'text-black'}`}>
+      {!disabled && (
+        <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+          style={{ background: 'linear-gradient(135deg, #34D399 0%, #10B981 100%)' }}
+        />
+      )}
+      <span className={`relative z-10 font-['Outfit'] text-[15px] font-black tracking-widest uppercase ${disabled ? 'text-neutral-400' : 'text-white'}`}>
         {children}
       </span>
     </motion.button>
@@ -2773,8 +2781,8 @@ export default function Questions() {
                         ? 'bg-white border-black text-black shadow-[3px_3px_0px_rgba(0,0,0,1)]' 
                         : 'bg-white/10 border-white text-white shadow-[3px_3px_0px_rgba(255,255,255,0.15)]' 
                       : isLight 
-                        ? 'bg-white border-black/15 text-black hover:border-black/40 shadow-[2px_2px_0px_rgba(0,0,0,0.06)]' 
-                        : 'bg-[#111]/85 border-white/[0.06] text-white/70 hover:border-white/20 shadow-none'
+                        ? 'bg-white border-black/[0.12] text-black hover:border-black/30' 
+                        : 'bg-white/[0.04] border-white/[0.08] text-white/70 hover:border-white/20'
                   }`}
                 >
                   <div className="flex items-center gap-3.5">
