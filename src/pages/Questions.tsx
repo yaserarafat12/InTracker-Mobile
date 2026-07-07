@@ -2768,8 +2768,8 @@ export default function Questions() {
                   className={`flex items-center justify-between py-3 px-4 rounded-xl border-2 text-left transition-all duration-200 backdrop-blur-md shadow-[3px_3px_0px_rgba(0,0,0,1)] ${
                     isSelected 
                       ? isLight 
-                        ? 'bg-[#10B981]/20 border-black text-black' 
-                        : 'bg-[#10B981]/10 border-[#10B981] text-white' 
+                        ? 'bg-black/5 border-black text-black' 
+                        : 'bg-white/10 border-white text-white' 
                       : isLight 
                         ? 'bg-white border-black text-black hover:bg-neutral-50' 
                         : 'bg-[#111]/85 border-white/[0.08] text-white/70 hover:border-white/20'
@@ -2788,10 +2788,10 @@ export default function Questions() {
                   </div>
                   <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${
                     isSelected 
-                      ? isLight ? 'bg-[#10B981] border-black' : 'bg-[#10B981] border-[#10B981]' 
+                      ? isLight ? 'bg-black border-black' : 'bg-white border-white' 
                       : isLight ? 'bg-transparent border-black/20' : 'bg-transparent border-white/20'
                   }`}>
-                    {isSelected && <Icon icon="ph:check-bold" className="text-black font-bold text-[10px]" />}
+                    {isSelected && <Icon icon="ph:check-bold" className={`${isLight ? 'text-white' : 'text-black'} font-bold text-[10px]`} />}
                   </div>
                 </motion.button>
               );
@@ -3539,7 +3539,9 @@ export default function Questions() {
                     }}
                     className={`w-full px-3 py-2.5 text-left text-[11px] font-black font-['Outfit'] transition-colors ${
                       language === lang.name 
-                        ? 'text-[#10B981] bg-[#10B981]/10' 
+                        ? isLight 
+                          ? 'text-black bg-black/5' 
+                          : 'text-white bg-white/10'
                         : isLight 
                           ? 'text-black/60 hover:text-black hover:bg-black/5' 
                           : 'text-white/60 hover:text-white hover:bg-white/5'
