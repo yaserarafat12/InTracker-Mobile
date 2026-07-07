@@ -546,9 +546,29 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
   useEffect(() => {
     if (currentStep < maxStep) return;
     if (currentStepData?.expectedTab === activeTab) {
-      setTimeout(() => {
+      const nextStep = steps[currentStep + 1];
+      const targetSelector = nextStep?.selector;
+
+      if (targetSelector) {
+        const checkInterval = setInterval(() => {
+          if (document.querySelector(targetSelector)) {
+            clearInterval(checkInterval);
+            handleNext();
+          }
+        }, 20);
+
+        const fallbackTimeout = setTimeout(() => {
+          clearInterval(checkInterval);
+          handleNext();
+        }, 600);
+
+        return () => {
+          clearInterval(checkInterval);
+          clearTimeout(fallbackTimeout);
+        };
+      } else {
         handleNext();
-      }, 100);
+      }
     }
   }, [activeTab, currentStep, maxStep]);
 
