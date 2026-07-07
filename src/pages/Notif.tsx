@@ -34,7 +34,7 @@ const IndustrialToggle = ({ active, onToggle }: { active: boolean, onToggle: () 
         e.stopPropagation();
         onToggle();
       }} 
-      className={`relative w-[52px] h-[28px] rounded-full border-[2px] border-black transition-colors duration-300 ${
+      className={`relative w-[44px] h-[24px] rounded-full border-[2px] border-black transition-colors duration-300 shrink-0 ${
         isLight
           ? active
             ? 'bg-[#10B981]'
@@ -45,9 +45,9 @@ const IndustrialToggle = ({ active, onToggle }: { active: boolean, onToggle: () 
       }`}
     >
       <motion.div
-        animate={{ x: active ? 24 : 2 }}
+        animate={{ x: active ? 20 : 0 }}
         transition={{ type: "spring", stiffness: 500, damping: 30 }}
-        className={`absolute top-[2px] w-[20px] h-[20px] rounded-full border border-black shadow-[1px_1px_0px_rgba(0,0,0,1)] transition-all ${
+        className={`absolute top-[2px] left-[2px] w-[16px] h-[16px] rounded-full border border-black shadow-[1px_1px_0px_rgba(0,0,0,1)] ${
           isLight
             ? 'bg-white'
             : active
