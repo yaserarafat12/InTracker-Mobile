@@ -52,8 +52,14 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
     onStepChange?.(currentStep);
   }, [currentStep, onStepChange]);
   const [targetRect, setTargetRect] = useState<DOMRect | null>(null);
+  // spotlightVisible gates whether the spotlight SVG is rendered.
+  // We set it to false on every step change so the spotlight fades out
+  // before jumping to a new position, then fades back in once the
+  // new target element has been measured.
+  const [spotlightVisible, setSpotlightVisible] = useState<boolean>(false);
   const [completed, setCompleted] = useState<boolean>(false);
   const updateTimerRef = useRef<number | null>(null);
+  const prevStepRef = useRef<number>(-1);
 
   const { settings } = useUserStore();
   const programDuration = settings?.programDuration || 90;
@@ -578,59 +584,78 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
 
   const currentStepData = steps[currentStep];
 
-  // Update bounding rect coordinates of targeted element
-  const updateBoundingRect = () => {
+  // Recalculate spotlight rect on step/tab change.
+  // On each step change we hide the spotlight first (to avoid a flash at the
+  // old position), wait 250 ms for page transitions to settle, then find the
+  // target element and fade the spotlight back in.
+  useEffect(() => {
+    const isNewStep = prevStepRef.current !== currentStep;
+    if (isNewStep) {
+      prevStepRef.current = currentStep;
+      // Hide spotlight immediately so it doesn't flash at wrong position
+      setSpotlightVisible(false);
+      setTargetRect(null);
+    }
+
     if (!currentStepData?.selector) {
       setTargetRect(null);
+      setSpotlightVisible(false);
       return;
     }
-    const element = document.querySelector(currentStepData.selector);
-    if (element) {
-      const rect = element.getBoundingClientRect();
-      console.log(`[InteractiveTutorial Debug] Step ${currentStep} (${currentStepData.title}): selector="${currentStepData.selector}" found! rect=`, {
-        top: rect.top,
-        bottom: rect.bottom,
-        left: rect.left,
-        right: rect.right,
-        width: rect.width,
-        height: rect.height
-      });
-      setTargetRect(rect);
-    } else {
-      console.log(`[InteractiveTutorial Debug] Step ${currentStep} (${currentStepData.title}): selector="${currentStepData.selector}" NOT FOUND YET`);
-      // Do NOT set targetRect to null immediately if we are transitioning to a step that expects a selector.
-      // This preserves the spotlight geometry so Framer Motion can morph it smoothly
-      // instead of snapping it from 0/hidden state.
-    }
-  };
 
-  // Recalculate layout size on step change, resize, or scroll
-  useEffect(() => {
-    // Run immediately on step change
-    updateBoundingRect();
+    // How long to wait before we first try to find the target element
+    const revealDelay = isNewStep ? 250 : 0;
 
-    // Staggered checks during transitions to capture elements mounting instantly
-    const t1 = setTimeout(updateBoundingRect, 50);
-    const t2 = setTimeout(updateBoundingRect, 100);
-    const t3 = setTimeout(updateBoundingRect, 200);
-    const t4 = setTimeout(updateBoundingRect, 400);
+    let retryTimer: ReturnType<typeof setTimeout>;
+
+    const findAndReveal = () => {
+      const el = document.querySelector(currentStepData.selector!);
+      if (el) {
+        setTargetRect(el.getBoundingClientRect());
+        setSpotlightVisible(true);
+      } else {
+        // Element not in DOM yet — retry shortly
+        retryTimer = setTimeout(findAndReveal, 80);
+      }
+    };
+
+    const initialTimer = setTimeout(findAndReveal, revealDelay);
 
     const handleResize = () => {
       if (updateTimerRef.current) cancelAnimationFrame(updateTimerRef.current);
-      updateTimerRef.current = requestAnimationFrame(updateBoundingRect);
+      updateTimerRef.current = requestAnimationFrame(() => {
+        const el = document.querySelector(currentStepData.selector!);
+        if (el) setTargetRect(el.getBoundingClientRect());
+      });
     };
 
-    // Fast polling to ensure responsive positioning on scroll/dynamic layout updates
-    const pollInterval = setInterval(updateBoundingRect, 150);
+    // Slow poll (400 ms) to stay in sync with keyboard/scroll layout shifts.
+    // We guard against no-op state updates by comparing positions.
+    const pollInterval = setInterval(() => {
+      const el = document.querySelector(currentStepData.selector!);
+      if (el) {
+        const r = el.getBoundingClientRect();
+        setTargetRect(prev => {
+          if (
+            !prev ||
+            Math.abs(prev.top - r.top) > 1 ||
+            Math.abs(prev.left - r.left) > 1 ||
+            Math.abs(prev.width - r.width) > 1 ||
+            Math.abs(prev.height - r.height) > 1
+          ) {
+            return r;
+          }
+          return prev;
+        });
+      }
+    }, 400);
 
     window.addEventListener('resize', handleResize);
     window.addEventListener('scroll', handleResize, true);
 
     return () => {
-      clearTimeout(t1);
-      clearTimeout(t2);
-      clearTimeout(t3);
-      clearTimeout(t4);
+      clearTimeout(initialTimer);
+      clearTimeout(retryTimer);
       clearInterval(pollInterval);
       window.removeEventListener('resize', handleResize);
       window.removeEventListener('scroll', handleResize, true);
@@ -788,9 +813,11 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
     }
   }, [currentStep, currentStepData]);
 
-  // Spotlight padding for breathing room
+  // Spotlight padding for breathing room.
+  // Only compute sr when both targetRect is set AND spotlightVisible is true
+  // so the SVG is not rendered until the position is confirmed.
   const pad = 8;
-  const sr = targetRect ? {
+  const sr = (targetRect && spotlightVisible) ? {
     top: Math.max(0, targetRect.top - pad),
     bottom: Math.min(window.innerHeight, targetRect.bottom + pad),
     left: Math.max(0, targetRect.left - pad),
@@ -798,6 +825,9 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
     height: targetRect.height + pad * 2,
     width: targetRect.width + pad * 2,
   } : null;
+
+  // Shared spring config — smooth movement without bouncing
+  const spotlightSpring = { type: 'spring' as const, stiffness: 120, damping: 28, mass: 0.8 };
 
   // Determine dialogue position using intelligent space budgeting
   let dialogueTop = 'auto';
@@ -923,36 +953,51 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
 
   return createPortal(
     <div className="fixed inset-0 z-[999999] pointer-events-none select-none">
-      {/* Animated Arrow pointing at spotlight target */}
-      {arrowPath && sr && (
-        <motion.div 
-          initial={false}
-          animate={{
-            y: dialogueInTop ? sr.top - 40 : sr.bottom + 8,
-            x: sr.left + sr.width / 2 - 12,
-          }}
-          transition={{ type: 'spring', stiffness: 80, damping: 22 }}
-          className={`absolute z-[1000000] pointer-events-none ${isLight ? 'text-[#00b577]' : 'text-[#00f295]'} drop-shadow-[0_2px_8px_rgba(0,255,133,0.3)]`}
-        >
-          <motion.svg 
-            width="24" 
-            height="32" 
-            viewBox="0 0 24 32" 
-            fill="none" 
-            xmlns="http://www.w3.org/2000/svg"
-            animate={{ y: [0, -6, 0] }}
-            transition={{ duration: 1.2, repeat: Infinity, ease: "easeInOut" }}
+      {/* Animated Arrow pointing at spotlight target.
+           Uses AnimatePresence + a step-keyed key so it cleanly fades
+           in/out on each step transition instead of snapping. */}
+      <AnimatePresence>
+        {arrowPath && sr && (
+          <motion.div
+            key={`arrow-${currentStep}`}
+            initial={{ opacity: 0, scale: 0.75 }}
+            animate={{
+              opacity: 1,
+              scale: 1,
+              y: dialogueInTop ? sr.top - 40 : sr.bottom + 8,
+              x: sr.left + sr.width / 2 - 12,
+            }}
+            exit={{ opacity: 0, scale: 0.75 }}
+            transition={{ ...spotlightSpring, opacity: { duration: 0.2 } }}
+            className={`absolute z-[1000000] pointer-events-none ${isLight ? 'text-[#00b577]' : 'text-[#00f295]'} drop-shadow-[0_2px_8px_rgba(0,255,133,0.3)]`}
           >
-            <path d={arrowPath} stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
-          </motion.svg>
-        </motion.div>
-      )}
+            <motion.svg
+              width="24"
+              height="32"
+              viewBox="0 0 24 32"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+              animate={{ y: [0, -6, 0] }}
+              transition={{ duration: 1.6, repeat: Infinity, ease: "easeInOut" }}
+            >
+              <path d={arrowPath} stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"/>
+            </motion.svg>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-      {/* SVG Path Masking */}
-      {sr ? (
-        <>
-          <svg 
-            className="absolute inset-0 w-full h-full cursor-default pointer-events-none"
+      {/* SVG spotlight with AnimatePresence for clean fade-in/out transitions.
+           'sr' is only truthy once the element is confirmed on screen, so there
+           is no more flash at position (0,0) at the start of a step. */}
+      <AnimatePresence>
+        {sr ? (
+          <motion.svg
+            key="spotlight-svg"
+            className="absolute inset-0 w-full h-full cursor-default"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.22 }}
             onClick={handleBackdropClick}
             onMouseDown={handleBackdropPress}
             onTouchStart={handleBackdropPress}
@@ -960,33 +1005,33 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
           >
             <defs>
               <mask id="spotlight-mask">
-                {/* White cover (keeps backdrop visible) */}
+                {/* White cover keeps backdrop visible everywhere */}
                 <rect x="0" y="0" width="100%" height="100%" fill="white" />
-                {/* Black animated rounded rect cutout (creates transparent hole) */}
+                {/* Black animated rounded-rect = transparent hole in the overlay */}
                 <motion.rect
-                  initial={false}
                   animate={{
                     x: sr.left,
                     y: sr.top,
                     width: sr.width,
                     height: sr.height,
                   }}
-                  transition={{ type: 'spring', stiffness: 80, damping: 22 }}
+                  transition={spotlightSpring}
                   rx="16"
                   fill="black"
                 />
               </mask>
               <filter id="glow-filter" x="-20%" y="-20%" width="140%" height="140%">
-                <feDropShadow 
-                  dx="0" 
-                  dy="0" 
-                  stdDeviation="6" 
-                  floodColor={isLight ? '#00b577' : '#00f295'} 
-                  floodOpacity={isLight ? '0.45' : '0.65'} 
+                <feDropShadow
+                  dx="0"
+                  dy="0"
+                  stdDeviation="6"
+                  floodColor={isLight ? '#00b577' : '#00f295'}
+                  floodOpacity={isLight ? '0.45' : '0.65'}
                 />
               </filter>
             </defs>
-            {/* The backdrop overlay itself */}
+
+            {/* Dark overlay with spotlight hole */}
             <rect
               x="0"
               y="0"
@@ -996,16 +1041,16 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
               mask="url(#spotlight-mask)"
               className="pointer-events-none"
             />
-            {/* 1. Main Spotlight Border Outline with SVG Glow */}
+
+            {/* Green border outline */}
             <motion.rect
-              initial={false}
               animate={{
                 x: sr.left,
                 y: sr.top,
                 width: sr.width,
                 height: sr.height,
               }}
-              transition={{ type: 'spring', stiffness: 80, damping: 22 }}
+              transition={spotlightSpring}
               rx="16"
               stroke={isLight ? '#00b577' : '#00f295'}
               strokeWidth="2.5"
@@ -1013,22 +1058,22 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
               filter="url(#glow-filter)"
               className="pointer-events-none"
             />
-            {/* 2. Pulsing Inner Ring in SVG */}
+
+            {/* Pulsing outer ring */}
             <motion.rect
-              initial={false}
               animate={{
                 x: sr.left - 3,
                 y: sr.top - 3,
                 width: sr.width + 6,
                 height: sr.height + 6,
-                opacity: [0.35, 0.1, 0.35],
+                opacity: [0.35, 0.08, 0.35],
               }}
               transition={{
-                x: { type: 'spring', stiffness: 80, damping: 22 },
-                y: { type: 'spring', stiffness: 80, damping: 22 },
-                width: { type: 'spring', stiffness: 80, damping: 22 },
-                height: { type: 'spring', stiffness: 80, damping: 22 },
-                opacity: { duration: 2.2, repeat: Infinity, ease: "easeInOut" }
+                x: spotlightSpring,
+                y: spotlightSpring,
+                width: spotlightSpring,
+                height: spotlightSpring,
+                opacity: { duration: 2.4, repeat: Infinity, ease: "easeInOut" },
               }}
               rx="19"
               stroke={isLight ? '#00b577' : '#00f295'}
@@ -1036,12 +1081,19 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
               fill="none"
               className="pointer-events-none"
             />
-          </svg>
-        </>
-      ) : (
-        /* Full Backdrop for center welcome steps */
-        <div className={`absolute inset-0 ${isLight ? 'bg-black/60' : 'bg-black/72'} pointer-events-auto`} />
-      )}
+          </motion.svg>
+        ) : (
+          /* Full backdrop for welcome / outro steps with no selector */
+          <motion.div
+            key="full-backdrop"
+            className={`absolute inset-0 ${isLight ? 'bg-black/60' : 'bg-black/72'} pointer-events-auto`}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.25 }}
+          />
+        )}
+      </AnimatePresence>
 
       {/* Main Dialogue Box */}
       <div 
