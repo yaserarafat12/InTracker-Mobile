@@ -198,15 +198,7 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
       actionText: L.s0_action,
       tab: 'habits',
     },
-    // 1. Habit Card Double Click
-    {
-      selector: '#first-habit-card',
-      title: L.s1_title,
-      desc: L.s1_desc,
-      expression: 'guide',
-      tab: 'habits',
-    },
-    // 2. Add Habit FAB
+    // 1. Add Habit FAB
     {
       selector: '#add-habit-fab',
       title: L.s2_title,
@@ -214,7 +206,7 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
       expression: 'guide',
       tab: 'habits',
     },
-    // 3. Select Drink Water preset
+    // 2. Select Drink Water preset
     {
       selector: '#habit-pick-drink-water',
       title: L.s3_title,
@@ -222,7 +214,7 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
       expression: 'guide',
       tab: 'habits',
     },
-    // 4. Open Intensity Picker
+    // 3. Open Intensity Picker
     {
       selector: '#habit-config-intensity-btn',
       title: L.s4_title,
@@ -230,7 +222,7 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
       expression: 'guide',
       tab: 'habits',
     },
-    // 5. Done in Intensity Picker
+    // 4. Done in Intensity Picker
     {
       selector: '#habit-config-intensity-modal',
       clickTarget: '#habit-config-intensity-done-btn',
@@ -239,13 +231,21 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
       expression: 'thinking',
       tab: 'habits',
     },
-    // 6. Save Habit
+    // 5. Save Habit
     {
       selector: '#habit-config-modal',
       clickTarget: '#habit-config-save-btn',
       title: L.s6_title,
       desc: L.s6_desc,
       expression: 'success',
+      tab: 'habits',
+    },
+    // 6. Habit Card Double Click
+    {
+      selector: '#first-habit-card',
+      title: L.s1_title,
+      desc: L.s1_desc,
+      expression: 'guide',
       tab: 'habits',
     },
     // 7. Navigate to To-Do tab
@@ -575,9 +575,9 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
     };
   }, [currentStep, currentStepData, maxStep]);
 
-  // Listen for habit completions to advance Step 2 (index 1)
+  // Listen for habit completions to advance Step 7 (index 6)
   useEffect(() => {
-    if (currentStep !== 1) return;
+    if (currentStep !== 6) return;
     if (currentStep < maxStep) return;
 
     let active = true;
@@ -603,9 +603,9 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
   useEffect(() => {
     if (currentStep < maxStep) return;
     const checkStateAndAdvance = () => {
-      // 1. If we are on Step 2 (index 2: "Buat Habit Pertama" / '#add-habit-fab')
+      // 1. If we are on Step 1 (index 1: "Buat Habit Pertama" / '#add-habit-fab')
       // and the Add Habit screen/modal is open (which has #habit-pick-drink-water)
-      if (currentStep === 2 && document.getElementById('habit-pick-drink-water')) {
+      if (currentStep === 1 && document.getElementById('habit-pick-drink-water')) {
         handleNext();
         return;
       }

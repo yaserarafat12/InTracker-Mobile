@@ -13,6 +13,7 @@ import LoseStreak from './pages/LoseStreak.tsx';
 import Beranda from './mainscreen/beranda/Beranda';
 import Lab from './pages/Lab.tsx';
 import { useUserStore } from './store/useUserStore';
+import { useHabitStore } from './store/useHabitStore';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { startReminderService } from './utils/reminderService';
 import './index.css';
@@ -234,10 +235,37 @@ const RootRedirect = () => {
   return <Navigate to="/questions/0" />;
 };
 
+const TutorialRedirect = () => {
+  useEffect(() => {
+    // 1. Reset tutorial keys in localStorage
+    localStorage.removeItem('interactive_tutorial_completed');
+    localStorage.removeItem('tutorial_dummy_completed');
+    localStorage.setItem('interactive_tutorial_active', 'true');
+    localStorage.removeItem('interactive_tutorial_step');
+
+    // 2. Reset Drink Water / Hidrasi Harian habits from store
+    try {
+      const { habits, deleteHabit } = useHabitStore.getState();
+      const targetHabits = habits.filter((h: any) => h.name === 'Drink Water' || h.name === 'Hidrasi Harian');
+      targetHabits.forEach((h: any) => {
+        deleteHabit(h.id);
+      });
+    } catch (e) {
+      console.error('Error resetting habits for tutorial:', e);
+    }
+  }, []);
+
+  return <Navigate to="/habits" replace />;
+};
+
 const router = createBrowserRouter([
   {
     path: '/',
     element: <AuthGuard><RootRedirect /></AuthGuard>,
+  },
+  {
+    path: '/tutorial',
+    element: <AuthGuard><TutorialRedirect /></AuthGuard>,
   },
   {
     path: '/login',
