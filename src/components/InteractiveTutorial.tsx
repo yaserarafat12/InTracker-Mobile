@@ -598,13 +598,14 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
   // Listen for habit completions to advance Step 7 (index 6)
   useEffect(() => {
     if (currentStep !== 6) return;
-    if (currentStep < maxStep) return;
 
     let active = true;
     const unsubscribe = useHabitStore.subscribe((state) => {
-      // Check if any habit is completed
-      const hasCompleted = state.habits.some(h => h.completed);
-      if (hasCompleted && active) {
+      // Check specifically if the Drink Water habit is completed
+      const isDrinkWaterCompleted = state.habits.some(
+        (h: any) => (h.name === 'Drink Water' || h.name === 'Hidrasi Harian') && h.completed
+      );
+      if (isDrinkWaterCompleted && active) {
         active = false;
         unsubscribe();
         setTimeout(() => {
@@ -617,7 +618,7 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
       active = false;
       unsubscribe();
     };
-  }, [currentStep, maxStep]);
+  }, [currentStep]);
 
   // Auto-advance if the DOM state reflects that the user has already navigated to the next phase
   useEffect(() => {
