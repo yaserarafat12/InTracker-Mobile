@@ -16,6 +16,7 @@ export function ToolCard({ id, title, description, backgroundImage, comingSoon, 
 
   return (
     <motion.div
+      id={id}
       whileTap={{ scale: 0.96, boxShadow: "0px 0px 0px rgba(0,0,0,1)" }}
       onClick={onPress}
       className={`relative aspect-[4/5] rounded-[16px] border-[2px] overflow-hidden cursor-pointer select-none shadow-[4px_4px_0px_rgba(0,0,0,1)] ${

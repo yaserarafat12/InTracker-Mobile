@@ -191,6 +191,19 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
       s34_action: pick({ 'English': 'Finish', 'Bahasa Indonesia': 'Selesaikan', 'Español': 'Finalizar', 'Chinese': '完成', 'Hindi': 'समाप्त करें', 'Arabic': 'إنهاء', 'Portuguese': 'Concluir', 'Français': 'Terminer', 'Japanese': '完了', 'Deutsch': 'Beenden' }),
       // ── Shared ──────────────────────────────────────────────────────────────
       next: pick({ 'English': 'Next', 'Bahasa Indonesia': 'Lanjut', 'Español': 'Siguiente', 'Chinese': '下一步', 'Hindi': 'अगला', 'Arabic': 'التالي', 'Portuguese': 'Próximo', 'Français': 'Suivant', 'Japanese': '次へ', 'Deutsch': 'Weiter' }),
+      // ── Tools ──────────────────────────────────────────────────────────────
+      tool_cal_title: pick({ 'English': 'Calorie Tracker', 'Bahasa Indonesia': 'Pelacak Kalori' }),
+      tool_cal_desc: pick({ 'English': 'Track your daily food intake, log meals, and monitor your calories to stay fit.', 'Bahasa Indonesia': 'Catat asupan makanan harian, pantau konsumsi nutrisi, dan jaga berat badan idealmu.' }),
+      tool_pomo_title: pick({ 'English': 'Pomodoro Focus Timer', 'Bahasa Indonesia': 'Timer Pomodoro' }),
+      tool_pomo_desc: pick({ 'English': 'Use focus sessions with ambient lo-fi soundscapes to work and study with maximum efficiency.', 'Bahasa Indonesia': 'Gunakan sesi fokus berwaktu yang diiringi musik lo-fi tenang untuk belajar dan bekerja dengan produktif.' }),
+      tool_work_title: pick({ 'English': 'Workout Rep Counter', 'Bahasa Indonesia': 'Workout Counter' }),
+      tool_work_desc: pick({ 'English': 'Keep count of your fitness repetitions (pushups, squats) automatically.', 'Bahasa Indonesia': 'Hitung repetisi latihan fisikmu (seperti push-up atau squat) secara otomatis.' }),
+      tool_breath_title: pick({ 'English': 'Deep Breathing Guide', 'Bahasa Indonesia': 'Deep Breathing' }),
+      tool_breath_desc: pick({ 'English': 'Calm your heart, reduce anxiety, and clear your mind with interactive breathing guides.', 'Bahasa Indonesia': 'Tenangkan pikiran, kurangi stres, dan kembalikan fokusmu lewat panduan pernapasan interaktif.' }),
+      tool_books_title: pick({ 'English': 'Library & Summaries', 'Bahasa Indonesia': 'Ringkasan Buku' }),
+      tool_books_desc: pick({ 'English': 'Access bite-sized key summaries of world-class self-development and habit building books.', 'Bahasa Indonesia': 'Baca intisari dan ringkasan penting dari buku-buku pengembangan diri terbaik di dunia.' }),
+      tool_math_title: pick({ 'English': 'Math Racing Game', 'Bahasa Indonesia': 'Math Racing' }),
+      tool_math_desc: pick({ 'English': 'Boost your brain speed and focus by solving rapid arithmetic quizzes under time pressure.', 'Bahasa Indonesia': 'Latih kecepatan berpikir otakmu lewat permainan kuis matematika cepat berpacu dengan waktu.' }),
     };
   }, [language, programDuration]);
 
@@ -490,12 +503,57 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
       expectedTab: 'features',
       tab: 'global',
     },
-    // 20. Features Hub (Pomodoro, Workout, Math)
+    // 20. Features Hub - Calorie Tracker
     {
-      selector: '#features-hub-grid, .grid.grid-cols-2',
-      title: L.s32_title,
-      desc: L.s32_desc,
+      selector: '#nutrition',
+      title: L.tool_cal_title,
+      desc: L.tool_cal_desc,
       expression: 'guide',
+      actionText: L.next,
+      tab: 'features',
+    },
+    // 20b. Features Hub - Pomodoro Timer
+    {
+      selector: '#pomodoro',
+      title: L.tool_pomo_title,
+      desc: L.tool_pomo_desc,
+      expression: 'guide',
+      actionText: L.next,
+      tab: 'features',
+    },
+    // 20c. Features Hub - Workout Counter
+    {
+      selector: '#workout',
+      title: L.tool_work_title,
+      desc: L.tool_work_desc,
+      expression: 'guide',
+      actionText: L.next,
+      tab: 'features',
+    },
+    // 20d. Features Hub - Deep Breathing
+    {
+      selector: '#breathing',
+      title: L.tool_breath_title,
+      desc: L.tool_breath_desc,
+      expression: 'guide',
+      actionText: L.next,
+      tab: 'features',
+    },
+    // 20e. Features Hub - Book Summaries
+    {
+      selector: '#books',
+      title: L.tool_books_title,
+      desc: L.tool_books_desc,
+      expression: 'guide',
+      actionText: L.next,
+      tab: 'features',
+    },
+    // 20f. Features Hub - Math Racing
+    {
+      selector: '#mathican',
+      title: L.tool_math_title,
+      desc: L.tool_math_desc,
+      expression: 'success',
       actionText: L.next,
       tab: 'features',
     },
