@@ -467,7 +467,6 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
       title: L.s30_title,
       desc: L.s30_desc,
       expression: 'success',
-      actionText: L.next,
       tab: 'global',
     },
     // 19. Navigate to Features tab
@@ -604,7 +603,7 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
     if (currentStep < maxStep) return;
     const targetSelector = currentStepData?.clickTarget || currentStepData?.selector;
     if (!targetSelector || currentStepData.actionText) return;
-    if (currentStep === 1) return; // Exclude step 2 (index 1) double-tap card from single-click listener
+    if (currentStepData?.selector === '#first-habit-card') return; // Exclude double-tap card from single-click listener
 
     const handleDocumentClick = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
@@ -622,9 +621,9 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
     };
   }, [currentStep, currentStepData, maxStep]);
 
-  // Listen for habit completions to advance Step 7 (index 6)
+  // Listen for habit completions to advance the double-click step
   useEffect(() => {
-    if (currentStep !== 6) return;
+    if (currentStepData?.selector !== '#first-habit-card') return;
 
     let active = true;
     const unsubscribe = useHabitStore.subscribe((state) => {
@@ -645,29 +644,29 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
       active = false;
       unsubscribe();
     };
-  }, [currentStep]);
+  }, [currentStep, currentStepData]);
 
   // Auto-advance if the DOM state reflects that the user has already navigated to the next phase
   useEffect(() => {
     if (currentStep < maxStep) return;
     const checkStateAndAdvance = () => {
-      // 1. If we are on Step 1 (index 1: "Buat Habit Pertama" / '#add-habit-fab')
+      // 1. If we are on the Add Habit FAB step
       // and the Add Habit screen/modal is open (which has #habit-pick-drink-water)
-      if (currentStep === 1 && document.getElementById('habit-pick-drink-water')) {
+      if (currentStepData?.selector === '#add-habit-fab' && document.getElementById('habit-pick-drink-water')) {
         handleNext();
         return;
       }
 
-      // 2. If we are on Step 4 (index 4: "Done in Intensity Picker")
+      // 2. If we are on the Intensity Picker step
       // and the intensity picker is closed (meaning #habit-config-intensity-modal is gone, but we are still in config modal #habit-config-save-btn)
-      if (currentStep === 4 && !document.getElementById('habit-config-intensity-modal') && document.getElementById('habit-config-save-btn')) {
+      if (currentStepData?.selector === '#habit-config-intensity-modal' && !document.getElementById('habit-config-intensity-modal') && document.getElementById('habit-config-save-btn')) {
         handleNext();
         return;
       }
 
-      // 3. If we are on Step 5 (index 5: "Save Habit")
+      // 3. If we are on the Save Habit step
       // and the config modal is closed (meaning #habit-config-modal is gone)
-      if (currentStep === 5 && !document.getElementById('habit-config-modal')) {
+      if (currentStepData?.selector === '#habit-config-modal' && !document.getElementById('habit-config-modal')) {
         handleNext();
         return;
       }
