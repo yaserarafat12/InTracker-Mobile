@@ -1464,11 +1464,16 @@ const RadarChartScreen = ({ acceptedHabits, answers, onNext, onBack, language }:
 
       {/* Description & Action */}
       <div className="relative z-10 w-full max-w-[420px] text-center flex flex-col items-center gap-6">
-        <p className={`text-[13px] px-6 leading-relaxed ${isLight ? 'text-black/60 font-semibold' : 'text-white/50'}`}>
-          {mode === 'current'
-            ? trans.currentStandingDesc
-            : trans.potentialDesc.replace('{duration}', programDuration.toString())}
-        </p>
+        <div className={`text-[13px] px-6 leading-relaxed ${isLight ? 'text-black/60 font-semibold' : 'text-white/50'} space-y-3`}>
+          {mode === 'current' ? (
+            trans.currentStandingDesc.split(/(?<=[.。])\s*/).map((sentence, idx) => {
+              if (!sentence.trim()) return null;
+              return <p key={idx}>{sentence}</p>;
+            })
+          ) : (
+            <p>{trans.potentialDesc.replace('{duration}', programDuration.toString())}</p>
+          )}
+        </div>
 
         <CinematicButton
           onClick={() => {
