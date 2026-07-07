@@ -58,7 +58,7 @@ const TargetCard = ({ target, index, onOpen }: { target: TargetItem; index: numb
   };
 
   return (
-    <div className="relative w-full">
+    <div className="relative w-full" id={target.completed && index === 0 ? "completed-todo-item" : undefined}>
       {/* Background Actions */}
       <div className="absolute inset-0 flex items-center justify-between px-2">
         {/* Edit Action (Left) - Dynamic for Delayed */}

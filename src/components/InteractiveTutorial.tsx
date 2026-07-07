@@ -110,6 +110,9 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
       // ── Step 10 ─────────────────────────────────────────────────────────────
       s10_title: pick({ 'English': 'Completed Tasks History', 'Bahasa Indonesia': 'Riwayat Tugas Selesai', 'Español': 'Historial de tareas completadas', 'Chinese': '已完成任务历史', 'Hindi': 'पूर्ण कार्य इतिहास', 'Arabic': 'سجل المهام المكتملة', 'Portuguese': 'Histórico de tarefas concluídas', 'Français': 'Historique des tâches terminées', 'Japanese': '完了タスクの履歴', 'Deutsch': 'Verlauf abgeschlossener Aufgaben' }),
       s10_desc: pick({ 'English': 'Tap the Done tab to view completed tasks.', 'Bahasa Indonesia': 'Ketuk tab Done untuk melihat tugas selesai.', 'Español': 'Toca la pestaña Hecho para ver tareas completadas.', 'Chinese': '点击完成选项卡查看已完成的任务。', 'Hindi': 'Done टैब पर टैप करें।', 'Arabic': 'انقر على علامة تبويب تم لعرض المهام المكتملة.', 'Portuguese': 'Toque na aba Concluído para ver as tarefas concluídas.', 'Français': 'Appuyez sur l\'onglet Terminé pour voir les tâches terminées.', 'Japanese': 'Doneタブをタップして完了したタスクを表示しましょう。', 'Deutsch': 'Tippe auf den Fertig-Tab, um abgeschlossene Aufgaben zu sehen.' }),
+      // ── Step 10a ─────────────────────────────────────────────────────────────
+      s10a_title: pick({ 'English': 'Completed Tasks List', 'Bahasa Indonesia': 'Daftar Tugas Selesai', 'Español': 'Lista de tareas completadas', 'Chinese': '已完成任务列表', 'Hindi': 'पूर्ण कार्यों की सूची', 'Arabic': 'قائمة المهام المكتملة', 'Portuguese': 'Lista de tarefas concluídas', 'Français': 'Liste des tâches terminées', 'Japanese': '完了したタスクのリスト', 'Deutsch': 'Liste abgeschlossener Aufgaben' }),
+      s10a_desc: pick({ 'English': 'Here is your list of completed tasks. You can review everything you have accomplished today.', 'Bahasa Indonesia': 'Di sini adalah daftar tugas yang sudah selesai. Kamu bisa melihat semua riwayat tugasmu yang telah tuntas hari ini.', 'Español': 'Aquí está tu lista de tareas completadas. Puedes revisar todo lo que has logrado hoy.', 'Chinese': '这是你已完成的任务列表。你可以回顾今天完成的所有工作。', 'Hindi': 'यहाँ आपके पूर्ण किए गए कार्यों की सूची है। आप आज जो कुछ भी पूरा कर चुके हैं उसकी समीक्षा कर सकते हैं।', 'Arabic': 'هنا قائمة المهام المكتملة. يمكنك مراجعة كل ما أنجزته اليوم.', 'Portuguese': 'Aqui está sua lista de tarefas concluídas. Você pode revisar tudo o que realizou hoje.', 'Français': 'Voici la liste de vos tâches terminées. Vous pouvez revoir tout ce que vous avez accompli aujourd\'hui.', 'Japanese': '完了したタスクのリストはここです。今日達成したすべてのことを振り返ることができます。', 'Deutsch': 'Hier ist deine Liste abgeschlossener Aufgaben. Du kannst alles überprüfen, was du heute erreicht hast.' }),
       // ── Step 11 ─────────────────────────────────────────────────────────────
       s11_title: pick({ 'English': 'Open Analytics', 'Bahasa Indonesia': 'Buka Analitik', 'Español': 'Abrir analíticas', 'Chinese': '打开分析', 'Hindi': 'एनालिटिक्स खोलें', 'Arabic': 'فتح التحليلات', 'Portuguese': 'Abrir análises', 'Français': 'Ouvrir les analyses', 'Japanese': '分析を開く', 'Deutsch': 'Analytik öffnen' }),
       s11_desc: pick({ 'English': 'Tap the Analytics tab in the bottom navigation bar.', 'Bahasa Indonesia': 'Ketuk tab menu Analitik di navigasi bawah.', 'Español': 'Toca la pestaña de analíticas en la barra de navegación inferior.', 'Chinese': '点击底部导航栏中的分析选项卡。', 'Hindi': 'नीचे नेविगेशन बार में Analytics टैब पर टैप करें।', 'Arabic': 'انقر على علامة تبويب التحليلات في شريط التنقل السفلي.', 'Portuguese': 'Toque na aba de análises na barra de navegação inferior.', 'Français': 'Appuyez sur l\'onglet Analyses dans la barre de navigation inférieure.', 'Japanese': '下部ナビゲーションバーの分析タブをタップしましょう。', 'Deutsch': 'Tippe auf den Analytics-Tab in der unteren Navigationsleiste.' }),
@@ -280,6 +283,15 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
       title: L.s10_title,
       desc: L.s10_desc,
       expression: 'guide',
+      tab: 'todo',
+    },
+    // 10a. Completed Tasks List Spotlight
+    {
+      selector: '#completed-todo-item',
+      title: L.s10a_title,
+      desc: L.s10a_desc,
+      expression: 'success',
+      actionText: L.next,
       tab: 'todo',
     },
     // 11. Navigate to Analytics tab
