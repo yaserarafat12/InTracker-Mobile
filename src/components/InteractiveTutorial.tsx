@@ -867,7 +867,7 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
 
             {/* Dialogue Content */}
             <div className={`flex flex-col relative transition-all duration-300 ${
-              currentStep === 0 ? 'pt-8 pb-8 px-8' : 'pt-5 pb-5 px-6'
+              currentStep === 0 ? 'pt-14 pb-12 px-8' : 'pt-5 pb-5 px-6'
             }`}>
 
               {/* Step Title */}
