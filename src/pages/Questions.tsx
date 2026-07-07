@@ -1673,6 +1673,7 @@ const SwipeDeckScreen = ({ answers, onComplete, onBack }: { answers: Record<numb
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [showMaxModal, setShowMaxModal] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [showIntro, setShowIntro] = useState(true);
 
   const triggerComplete = (habits: any[]) => {
     setIsProcessing(true);
@@ -1718,6 +1719,64 @@ const SwipeDeckScreen = ({ answers, onComplete, onBack }: { answers: Record<numb
   const remainingOptions = HABIT_REC_POOL.filter(
     h => h.name !== 'Hidrasi Harian' && h.name !== 'Drink Water' && !deck.some(d => d.name === h.name) && !accepted.some(acc => acc.name === h.name)
   );
+
+  if (showIntro) {
+    return (
+      <div className={`h-[100dvh] w-screen font-['Outfit'] flex flex-col items-center justify-center p-6 transition-colors duration-300 relative select-none ${isLight ? 'bg-[#F2F2F7] text-black' : 'bg-black text-white'}`}>
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95, y: 15 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          transition={{ type: 'spring', damping: 25, stiffness: 350 }}
+          className={`w-full max-w-[340px] border-[3px] border-black rounded-[24px] p-6 shadow-[8px_8px_0px_rgba(0,0,0,1)] text-center flex flex-col gap-6 relative overflow-hidden ${
+            isLight ? 'bg-white' : 'bg-[#111]'
+          }`}
+        >
+          {/* Accent Line/Glow */}
+          <div className="absolute top-0 left-0 right-0 h-1.5 bg-[#10B981]" />
+
+          {/* Close/Back Button */}
+          <button 
+            onClick={onBack}
+            className={`absolute top-4 left-4 w-7 h-7 flex items-center justify-center rounded-lg border transition-all ${
+              isLight 
+                ? 'bg-neutral-100 border-neutral-200 text-black hover:bg-neutral-200' 
+                : 'bg-white/5 border-white/10 text-white hover:bg-white/10'
+            }`}
+          >
+            <Icon icon="ph:caret-left-bold" width={12} />
+          </button>
+          
+          {/* Icon */}
+          <div className="w-16 h-16 rounded-full bg-[#10B981]/10 flex items-center justify-center mx-auto border border-[#10B981]/20 mt-4">
+            <Icon icon="solar:star-rainbow-bold" className="text-[#10B981]" width={32} />
+          </div>
+
+          <div className="space-y-2">
+            <h2 className={`text-lg font-black uppercase tracking-wider ${isLight ? 'text-black font-extrabold' : 'text-white'}`}>
+              {language === 'Bahasa Indonesia' ? 'Kurasi Kebiasaan Anda' : 'Curate Your Habits'}
+            </h2>
+            <p className={`text-xs leading-relaxed ${isLight ? 'text-neutral-500 font-semibold' : 'text-white/60'}`}>
+              {language === 'Bahasa Indonesia' 
+                ? 'Berikut adalah daftar kebiasaan yang dirancang khusus berdasarkan prioritas dan target perkembangan diri Anda. Swipe kanan untuk menambahkan ke rutinitas Anda, atau swipe kiri untuk melewatkannya.' 
+                : 'Here are habits curated specially for you based on your personal growth priorities. Swipe right to add to your routine, or swipe left to skip.'
+              }
+            </p>
+          </div>
+
+          <button
+            onClick={() => {
+              if (navigator.vibrate) navigator.vibrate(10);
+              setShowIntro(false);
+            }}
+            className="w-full py-4 bg-[#10B981] hover:brightness-105 active:scale-[0.98] text-black font-black text-xs uppercase tracking-widest rounded-xl shadow-md transition-all flex items-center justify-center gap-2 border-[3px] border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-x-[4px] active:translate-y-[4px]"
+          >
+            <span>{language === 'Bahasa Indonesia' ? 'MULAI MEMILIH' : 'START SELECTING'}</span>
+            <Icon icon="solar:alt-arrow-right-bold" width={14} />
+          </button>
+        </motion.div>
+      </div>
+    );
+  }
 
   return (
     <div className={`h-screen w-screen font-['Outfit'] flex flex-col justify-between py-12 px-6 overflow-hidden select-none relative transition-colors duration-300 ${isLight ? 'bg-[#F2F2F7] text-black' : 'bg-black text-white'}`}>
