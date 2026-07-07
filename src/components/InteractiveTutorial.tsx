@@ -38,6 +38,14 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
   onStepChange,
 }) => {
   const [currentStep, setCurrentStep] = useState<number>(0);
+  const [maxStep, setMaxStep] = useState<number>(0);
+
+  // Sync maxStep with currentStep when moving forward
+  useEffect(() => {
+    if (currentStep > maxStep) {
+      setMaxStep(currentStep);
+    }
+  }, [currentStep, maxStep]);
 
   // Notify parent of step changes
   useEffect(() => {
@@ -536,15 +544,17 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
 
   // Auto advance if the user performs the target tab switch action
   useEffect(() => {
+    if (currentStep < maxStep) return;
     if (currentStepData?.expectedTab === activeTab) {
       setTimeout(() => {
         handleNext();
       }, 100);
     }
-  }, [activeTab, currentStep]);
+  }, [activeTab, currentStep, maxStep]);
 
   // Special listener for custom clicks on the highlighted target elements to auto-advance
   useEffect(() => {
+    if (currentStep < maxStep) return;
     const targetSelector = currentStepData?.clickTarget || currentStepData?.selector;
     if (!targetSelector || currentStepData.actionText) return;
     if (currentStep === 1) return; // Exclude step 2 (index 1) double-tap card from single-click listener
@@ -563,11 +573,12 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
     return () => {
       document.removeEventListener('click', handleDocumentClick, true);
     };
-  }, [currentStep, currentStepData]);
+  }, [currentStep, currentStepData, maxStep]);
 
   // Listen for habit completions to advance Step 2 (index 1)
   useEffect(() => {
     if (currentStep !== 1) return;
+    if (currentStep < maxStep) return;
 
     let active = true;
     const unsubscribe = useHabitStore.subscribe((state) => {
@@ -586,10 +597,11 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
       active = false;
       unsubscribe();
     };
-  }, [currentStep]);
+  }, [currentStep, maxStep]);
 
   // Auto-advance if the DOM state reflects that the user has already navigated to the next phase
   useEffect(() => {
+    if (currentStep < maxStep) return;
     const checkStateAndAdvance = () => {
       // 1. If we are on Step 2 (index 2: "Buat Habit Pertama" / '#add-habit-fab')
       // and the Add Habit screen/modal is open (which has #habit-pick-drink-water)
@@ -630,7 +642,7 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
     checkStateAndAdvance();
     const interval = setInterval(checkStateAndAdvance, 200);
     return () => clearInterval(interval);
-  }, [currentStep]);
+  }, [currentStep, maxStep]);
 
   const handleNext = () => {
     if (navigator.vibrate) navigator.vibrate(10);
