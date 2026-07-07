@@ -787,53 +787,69 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
             </p>
 
             {/* Action buttons */}
-            <div className="flex items-center justify-between">
-              {/* Back Button */}
-              {currentStep > 0 ? (
-                <button 
-                  onClick={handleBack}
-                  className={`w-9 h-9 rounded-xl border flex items-center justify-center transition-all ${
+            {currentStep === 0 ? (
+              <div className="flex justify-center mt-2">
+                <motion.button 
+                  whileTap={{ scale: 0.95 }}
+                  onClick={handleNext}
+                  className={`px-8 py-3 rounded-xl border font-black uppercase text-[11px] tracking-widest transition-all font-['Outfit'] ${
                     isLight 
-                      ? 'bg-white border-black text-black shadow-[3px_3px_0px_rgba(0,0,0,1)] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none' 
-                      : 'bg-[#2a2c32] border-white/10 text-white active:scale-95'
+                      ? 'bg-[#00b577] border-black text-white shadow-[3px_3px_0px_rgba(0,0,0,1)] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none' 
+                      : 'bg-[#00f295] border-transparent text-black'
                   }`}
                 >
-                  <Icon icon="ph:caret-left-bold" width={16} />
-                </button>
-              ) : (
-                <div />
-              )}
-
-              {/* Lanjut / Next Button */}
-              {(currentStepData.actionText || currentStep < steps.length - 1) && (
-                currentStepData.actionText && currentStepData.actionText !== 'Lanjut' ? (
-                  <motion.button 
-                    whileTap={{ scale: 0.95 }}
-                    onClick={handleNext}
-                    className={`px-5 py-2.5 rounded-xl border font-black uppercase text-[11px] tracking-wider transition-all flex items-center gap-1.5 font-['Outfit'] ${
-                      isLight 
-                        ? 'bg-[#00b577] border-black text-white shadow-[3px_3px_0px_rgba(0,0,0,1)] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none' 
-                        : 'bg-[#00f295] border-transparent text-black'
-                    }`}
-                  >
-                    <span>{currentStepData.actionText}</span>
-                    <Icon icon="ph:caret-right-bold" width={13} />
-                  </motion.button>
-                ) : (
-                  <motion.button 
-                    whileTap={{ scale: 0.95 }}
-                    onClick={handleNext}
+                  {currentStepData.actionText}
+                </motion.button>
+              </div>
+            ) : (
+              <div className="flex items-center justify-between">
+                {/* Back Button */}
+                {currentStep > 0 ? (
+                  <button 
+                    onClick={handleBack}
                     className={`w-9 h-9 rounded-xl border flex items-center justify-center transition-all ${
                       isLight 
-                        ? 'bg-[#00b577] border-black text-white shadow-[3px_3px_0px_rgba(0,0,0,1)] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none' 
-                        : 'bg-[#00f295] border-transparent text-black'
+                        ? 'bg-white border-black text-black shadow-[3px_3px_0px_rgba(0,0,0,1)] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none' 
+                        : 'bg-[#2a2c32] border-white/10 text-white active:scale-95'
                     }`}
                   >
-                    <Icon icon="ph:caret-right-bold" width={16} />
-                  </motion.button>
-                )
-              )}
-            </div>
+                    <Icon icon="ph:caret-left-bold" width={16} />
+                  </button>
+                ) : (
+                  <div />
+                )}
+
+                {/* Lanjut / Next Button */}
+                {(currentStepData.actionText || currentStep < steps.length - 1) && (
+                  currentStepData.actionText && currentStepData.actionText !== 'Lanjut' ? (
+                    <motion.button 
+                      whileTap={{ scale: 0.95 }}
+                      onClick={handleNext}
+                      className={`px-5 py-2.5 rounded-xl border font-black uppercase text-[11px] tracking-wider transition-all flex items-center gap-1.5 font-['Outfit'] ${
+                        isLight 
+                          ? 'bg-[#00b577] border-black text-white shadow-[3px_3px_0px_rgba(0,0,0,1)] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none' 
+                          : 'bg-[#00f295] border-transparent text-black'
+                      }`}
+                    >
+                      <span>{currentStepData.actionText}</span>
+                      <Icon icon="ph:caret-right-bold" width={13} />
+                    </motion.button>
+                  ) : (
+                    <motion.button 
+                      whileTap={{ scale: 0.95 }}
+                      onClick={handleNext}
+                      className={`w-9 h-9 rounded-xl border flex items-center justify-center transition-all ${
+                        isLight 
+                          ? 'bg-[#00b577] border-black text-white shadow-[3px_3px_0px_rgba(0,0,0,1)] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none' 
+                          : 'bg-[#00f295] border-transparent text-black'
+                      }`}
+                    >
+                      <Icon icon="ph:caret-right-bold" width={16} />
+                    </motion.button>
+                  )
+                )}
+              </div>
+            )}
           </div>
         </motion.div>
       </div>
