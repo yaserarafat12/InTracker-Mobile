@@ -516,25 +516,40 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
       });
       setTargetRect(rect);
     } else {
-      console.log(`[InteractiveTutorial Debug] Step ${currentStep} (${currentStepData.title}): selector="${currentStepData.selector}" NOT FOUND`);
-      setTargetRect(null);
+      console.log(`[InteractiveTutorial Debug] Step ${currentStep} (${currentStepData.title}): selector="${currentStepData.selector}" NOT FOUND YET`);
+      // Do NOT set targetRect to null immediately if we are transitioning to a step that expects a selector.
+      // This preserves the spotlight geometry so Framer Motion can morph it smoothly
+      // instead of snapping it from 0/hidden state.
     }
   };
 
   // Recalculate layout size on step change, resize, or scroll
   useEffect(() => {
-    // Delay initial rect calc to let DOM settle after tab switch
-    const initTimer = setTimeout(updateBoundingRect, 200);
+    // Run immediately on step change
+    updateBoundingRect();
+
+    // Staggered checks during transitions to capture elements mounting instantly
+    const t1 = setTimeout(updateBoundingRect, 50);
+    const t2 = setTimeout(updateBoundingRect, 100);
+    const t3 = setTimeout(updateBoundingRect, 200);
+    const t4 = setTimeout(updateBoundingRect, 400);
+
     const handleResize = () => {
       if (updateTimerRef.current) cancelAnimationFrame(updateTimerRef.current);
       updateTimerRef.current = requestAnimationFrame(updateBoundingRect);
     };
-    // Periodic polling to handle scroll and dynamic DOM changes
-    const pollInterval = setInterval(updateBoundingRect, 500);
+
+    // Fast polling to ensure responsive positioning on scroll/dynamic layout updates
+    const pollInterval = setInterval(updateBoundingRect, 150);
+
     window.addEventListener('resize', handleResize);
     window.addEventListener('scroll', handleResize, true);
+
     return () => {
-      clearTimeout(initTimer);
+      clearTimeout(t1);
+      clearTimeout(t2);
+      clearTimeout(t3);
+      clearTimeout(t4);
       clearInterval(pollInterval);
       window.removeEventListener('resize', handleResize);
       window.removeEventListener('scroll', handleResize, true);
@@ -806,7 +821,7 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
       {sr ? (
         <>
           <svg 
-            className="absolute inset-0 w-full h-full cursor-default"
+            className="absolute inset-0 w-full h-full cursor-default pointer-events-none"
             onClick={handleBackdropClick}
             style={{ pointerEvents: 'auto' }}
           >
@@ -828,6 +843,15 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
                   fill="black"
                 />
               </mask>
+              <filter id="glow-filter" x="-20%" y="-20%" width="140%" height="140%">
+                <feDropShadow 
+                  dx="0" 
+                  dy="0" 
+                  stdDeviation="6" 
+                  floodColor={isLight ? '#00b577' : '#00f295'} 
+                  floodOpacity={isLight ? '0.45' : '0.65'} 
+                />
+              </filter>
             </defs>
             {/* The backdrop overlay itself */}
             <rect
@@ -839,34 +863,47 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
               mask="url(#spotlight-mask)"
               className="pointer-events-none"
             />
-          </svg>
-
-          {/* Spotlight Border Glow & Pulse ring */}
-          <motion.div
-            className={`absolute rounded-2xl border-2 pointer-events-none`}
-            initial={false}
-            animate={{
-              top: sr.top,
-              left: sr.left,
-              width: sr.width,
-              height: sr.height,
-            }}
-            transition={{ type: 'spring', stiffness: 220, damping: 26 }}
-            style={{
-              borderColor: isLight ? '#00b577' : '#00f295',
-              boxShadow: isLight 
-                ? '0 0 15px rgba(0, 181, 119, 0.35)' 
-                : '0 0 15px rgba(0, 242, 149, 0.35)',
-            }}
-          >
-            {/* Animated Pulsing Inner Ring */}
-            <motion.div 
-              className="absolute -inset-[3px] rounded-[19px] border-[2px] opacity-40"
-              style={{ borderColor: isLight ? '#00b577' : '#00f295' }}
-              animate={{ scale: [0.98, 1.03, 0.98], opacity: [0.4, 0.15, 0.4] }}
-              transition={{ duration: 2.2, repeat: Infinity, ease: "easeInOut" }}
+            {/* 1. Main Spotlight Border Outline with SVG Glow */}
+            <motion.rect
+              initial={false}
+              animate={{
+                x: sr.left,
+                y: sr.top,
+                width: sr.width,
+                height: sr.height,
+              }}
+              transition={{ type: 'spring', stiffness: 220, damping: 26 }}
+              rx="16"
+              stroke={isLight ? '#00b577' : '#00f295'}
+              strokeWidth="2.5"
+              fill="none"
+              filter="url(#glow-filter)"
+              className="pointer-events-none"
             />
-          </motion.div>
+            {/* 2. Pulsing Inner Ring in SVG */}
+            <motion.rect
+              initial={false}
+              animate={{
+                x: sr.left - 3,
+                y: sr.top - 3,
+                width: sr.width + 6,
+                height: sr.height + 6,
+                opacity: [0.35, 0.1, 0.35],
+              }}
+              transition={{
+                x: { type: 'spring', stiffness: 220, damping: 26 },
+                y: { type: 'spring', stiffness: 220, damping: 26 },
+                width: { type: 'spring', stiffness: 220, damping: 26 },
+                height: { type: 'spring', stiffness: 220, damping: 26 },
+                opacity: { duration: 2.2, repeat: Infinity, ease: "easeInOut" }
+              }}
+              rx="19"
+              stroke={isLight ? '#00b577' : '#00f295'}
+              strokeWidth="1.5"
+              fill="none"
+              className="pointer-events-none"
+            />
+          </svg>
         </>
       ) : (
         /* Full Backdrop for center welcome steps */
