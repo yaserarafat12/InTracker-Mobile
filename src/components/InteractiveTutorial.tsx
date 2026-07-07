@@ -781,7 +781,7 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
             {/* Step Description */}
             <p 
               style={{ color: isLight ? 'rgba(0, 0, 0, 0.65)' : 'rgba(255, 255, 255, 0.7)' }}
-              className="text-[14.5px] font-normal leading-relaxed mb-8 font-['Outfit'] whitespace-pre-line pr-16"
+              className="text-[14.5px] font-normal leading-relaxed mb-8 font-['Outfit'] whitespace-pre-line"
             >
               {currentStepData.desc}
             </p>
