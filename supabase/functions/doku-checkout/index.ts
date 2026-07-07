@@ -35,7 +35,7 @@ serve(async (req) => {
         callback_url: callbackUrl || "https://inrising-web.vercel.app/payment-callback",
         line_items: items || [
           {
-            name: "InTracker Premium Plan",
+            name: "InRising Premium Plan",
             price: amount,
             quantity: 1
           }
@@ -45,8 +45,8 @@ serve(async (req) => {
         payment_due_date: 60
       },
       customer: {
-        name: customerName || "InTracker User",
-        email: customerEmail || "user@intracker.co"
+        name: customerName || "InRising User",
+        email: customerEmail || "user@inrising.co"
       }
     };
 

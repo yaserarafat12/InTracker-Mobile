@@ -560,7 +560,7 @@ function HabitPattern({ habits, habitLogs, timeRange, setTimeRange, timeRanges, 
     if (!isTutorialActive || tutorialStep === undefined) return;
 
     if (tutorialStep === 11 || tutorialStep === 12 || tutorialStep === 13) {
-      const hidrasi = habits.find((h: any) => h.name === 'Hidrasi Harian');
+      const hidrasi = habits.find((h: any) => h.name === 'Drink Water');
       if (hidrasi) {
         setExpandedHabit(hidrasi.id);
       }
@@ -641,8 +641,8 @@ function HabitPattern({ habits, habitLogs, timeRange, setTimeRange, timeRanges, 
     });
 
     return [...mapped].sort((a, b) => {
-      if (a.name === 'Hidrasi Harian') return -1;
-      if (b.name === 'Hidrasi Harian') return 1;
+      if (a.name === 'Drink Water') return -1;
+      if (b.name === 'Drink Water') return 1;
       return 0;
     });
   }, [filteredHabits, habitLogs]);
@@ -700,7 +700,7 @@ function HabitPattern({ habits, habitLogs, timeRange, setTimeRange, timeRanges, 
               <div key={h.id}>
                 {/* Card - persis kayak habits display */}
                 <motion.button
-                  id={h.name === 'Hidrasi Harian' ? 'analytics-drink-water-card' : undefined}
+                  id={h.name === 'Drink Water' ? 'analytics-drink-water-card' : undefined}
                   whileTap={{ scale: 0.97 }}
                   onClick={() => setExpandedHabit(isExpanded ? null : h.id)}
                   className={`w-full relative overflow-visible border-[3px] text-left h-[120px] habit-analytics-card transition-all ${

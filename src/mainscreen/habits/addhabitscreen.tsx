@@ -76,7 +76,7 @@ export const TambahHabitModal = ({
     return categories.map(cat => ({
       category: cat,
       habits: HABIT_OPTIONS.filter(h => {
-        if (h.name === 'Hidrasi Harian') {
+        if (h.name === 'Drink Water') {
           return isTutorialActive;
         }
         return true;
@@ -128,28 +128,28 @@ export const TambahHabitModal = ({
     const isTutorialActive = localStorage.getItem('interactive_tutorial_active') === 'true';
     if (!isTutorialActive || tutorialStep === undefined) return;
 
-    if (tutorialStep === 3) {
-      // Step 3: Choose Preset. The preset list must be open (selectedHabitForConfig = null)
+    if (tutorialStep === 2) {
+      // Step 2: Choose Preset. The preset list must be open (selectedHabitForConfig = null)
       setSelectedHabitForConfig(null);
       setShowIntensityPicker(false);
-    } else if (tutorialStep === 4) {
-      // Step 4: Open Intensity Picker. Preset must be selected, intensity picker modal closed.
-      const preset = HABIT_OPTIONS.find(h => h.name === 'Hidrasi Harian');
-      if (preset && (!selectedHabitForConfig || selectedHabitForConfig.name !== 'Hidrasi Harian')) {
+    } else if (tutorialStep === 3) {
+      // Step 3: Open Intensity Picker. Preset must be selected, intensity picker modal closed.
+      const preset = HABIT_OPTIONS.find(h => h.name === 'Drink Water');
+      if (preset && (!selectedHabitForConfig || selectedHabitForConfig.name !== 'Drink Water')) {
         setSelectedHabitForConfig(preset);
       }
       setShowIntensityPicker(false);
-    } else if (tutorialStep === 5) {
-      // Step 5: Done in Intensity Picker. Intensity picker modal must be open.
-      const preset = HABIT_OPTIONS.find(h => h.name === 'Hidrasi Harian');
-      if (preset && (!selectedHabitForConfig || selectedHabitForConfig.name !== 'Hidrasi Harian')) {
+    } else if (tutorialStep === 4) {
+      // Step 4: Done in Intensity Picker. Intensity picker modal must be open.
+      const preset = HABIT_OPTIONS.find(h => h.name === 'Drink Water');
+      if (preset && (!selectedHabitForConfig || selectedHabitForConfig.name !== 'Drink Water')) {
         setSelectedHabitForConfig(preset);
       }
       setShowIntensityPicker(true);
-    } else if (tutorialStep === 6) {
-      // Step 6: Save Habit (ADD). Config sheet open, intensity picker closed.
-      const preset = HABIT_OPTIONS.find(h => h.name === 'Hidrasi Harian');
-      if (preset && (!selectedHabitForConfig || selectedHabitForConfig.name !== 'Hidrasi Harian')) {
+    } else if (tutorialStep === 5) {
+      // Step 5: Save Habit (ADD). Config sheet open, intensity picker closed.
+      const preset = HABIT_OPTIONS.find(h => h.name === 'Drink Water');
+      if (preset && (!selectedHabitForConfig || selectedHabitForConfig.name !== 'Drink Water')) {
         setSelectedHabitForConfig(preset);
       }
       setShowIntensityPicker(false);
@@ -285,7 +285,7 @@ export const TambahHabitModal = ({
                       return (
                         <motion.button
                           key={habit.name}
-                          id={habit.name === 'Hidrasi Harian' ? 'habit-pick-drink-water' : undefined}
+                          id={habit.name === 'Drink Water' ? 'habit-pick-drink-water' : undefined}
                           whileTap={{ scale: 0.95 }}
                           onClick={() => handleChipClick(habit)}
                           className={`flex items-center gap-1.5 px-3 py-2 rounded-lg border transition-all ${

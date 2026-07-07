@@ -37,7 +37,7 @@ export const AmbientPlayer = () => {
       audio.currentTime = 0;
       setIsOn(false);
     } else {
-      audio.play().catch(err => console.error('[InTracker] Audio play failed:', err));
+      audio.play().catch(err => console.error('[InRising] Audio play failed:', err));
       setIsOn(true);
     }
     if (navigator.vibrate) navigator.vibrate(10);

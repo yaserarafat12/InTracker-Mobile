@@ -428,7 +428,7 @@ export const SettingsOverlay = () => {
             const LocalNotifications = win.Capacitor.Plugins.LocalNotifications;
             await LocalNotifications.requestPermissions();
           } catch (e) {
-            console.error("[InTracker] Capacitor requestPermissions failed:", e);
+            console.error("[InRising] Capacitor requestPermissions failed:", e);
           }
         }
 
@@ -440,7 +440,7 @@ export const SettingsOverlay = () => {
               permission = await Notification.requestPermission();
             }
             if (permission === 'granted') {
-              let title = "InTracker Alert Enabled";
+              let title = "InRising Alert Enabled";
               let body = "You have enabled alerts.";
               if (key === 'dailyReminder') {
                 title = "Daily Habit Reminder";
@@ -648,8 +648,8 @@ export const SettingsOverlay = () => {
         body: {
           amount,
           invoiceNumber,
-          customerName: nickname || profile?.full_name || 'InTracker User',
-          customerEmail: email || user.email || 'user@intracker.co',
+          customerName: nickname || profile?.full_name || 'InRising User',
+          customerEmail: email || user.email || 'user@inrising.co',
           items: [
             {
               name: `InRising Premium - ${checkoutPlan}`,
@@ -744,14 +744,14 @@ export const SettingsOverlay = () => {
     { id: 'premium', label: 'Manage plan', icon: 'solar:ticket-bold', desc: 'Subscriptions & billing details' },
     { id: 'preferences', label: 'App preferences', icon: 'solar:settings-bold', desc: 'Language, theme & units' },
     { id: 'support', label: 'Help & support', icon: 'solar:chat-round-line-bold', desc: 'FAQs, contact team & feedback' },
-    { id: 'about', label: 'About InTracker', icon: 'solar:info-circle-bold', desc: 'Legal, terms & system info' },
+    { id: 'about', label: 'About InRising', icon: 'solar:info-circle-bold', desc: 'Legal, terms & system info' },
   ] as const;
 
   const faqs = [
     { q: 'Gimana cara mulai tracking habit?', a: 'Buka tab Habits, tekan tombol + di pojok kanan atas untuk tambah habit baru. Pilih kategori, atur frekuensi, lalu selesaikan setiap hari untuk jaga streak-mu.' },
     { q: 'Apa itu Streak dan gimana cara jaganya?', a: 'Streak adalah jumlah hari berturut-turut kamu menyelesaikan habit. Kamu harus menyelesaikan habit setiap hari agar streak tidak reset. Jika streak pecah, kamu bisa memulihkannya dengan menyelesaikan tantangan mini-game.' },
     { q: 'Apa fungsi fitur Journey?', a: 'Journey adalah mood log harian. Kamu bisa catat perasaan, energi, dan refleksi singkat setiap hari. Data ini terakumulasi di Analytics untuk melihat tren emosimu dari waktu ke waktu.' },
-    { q: 'Apa itu XP dan level di InTracker?', a: 'XP (Experience Points) didapat dari menyelesaikan habit, todo, dan aktivitas lainnya. Semakin banyak XP, semakin tinggi levelmu. Level mencerminkan konsistensi dan progressmu secara keseluruhan.' },
+    { q: 'Apa itu XP dan level di InRising?', a: 'XP (Experience Points) didapat dari menyelesaikan habit, todo, dan aktivitas lainnya. Semakin banyak XP, semakin tinggi levelmu. Level mencerminkan konsistensi dan progressmu secara keseluruhan.' },
     { q: 'Gimana cara pakai fitur Todo / Target?', a: 'Buka tab Todo dari beranda. Tambah task baru dengan tombol +, atur deadline dan prioritas. Task yang selesai akan otomatis diarsipkan setelah 24 jam untuk menjaga tampilan tetap bersih.' },
     { q: 'Apa itu Weekly Summary?', a: 'Weekly Summary adalah rekap mingguan otomatis yang merangkum habit yang diselesaikan, streak terbaik, mood rata-rata, dan pencapaian selama 7 hari terakhir. Bisa diakses dari tab Analytics.' },
   ];
@@ -873,10 +873,10 @@ export const SettingsOverlay = () => {
                      </div>
                      <div>
                        <p className={`text-base font-black leading-tight group-hover:text-[#00FF85] transition-colors ${isLight ? 'text-black' : 'text-white'}`}>
-                         {nickname || profile?.nickname || 'InTracker User'}
+                         {nickname || profile?.nickname || 'InRising User'}
                        </p>
                        <p className={`text-[11px] mt-0.5 ${isLight ? 'text-black/40' : 'text-white/40'}`}>
-                         {email || profile?.full_name || 'user@intracker.co'}
+                         {email || profile?.full_name || 'user@inrising.co'}
                        </p>
                      </div>
                    </div>
@@ -1743,7 +1743,7 @@ export const SettingsOverlay = () => {
                       <Icon icon="solar:settings-bold" className="text-[#10B981]" width={20} />
                     </div>
                     <div>
-                      <h4 className={`text-xs font-black leading-tight ${isLight ? 'text-black' : 'text-white'}`}>InTracker Mobile</h4>
+                      <h4 className={`text-xs font-black leading-tight ${isLight ? 'text-black' : 'text-white'}`}>InRising Mobile</h4>
                     </div>
                   </div>
                   <p className={`text-xs leading-relaxed ${isLight ? 'text-black/60' : 'text-white/50'}`}>

@@ -32,7 +32,7 @@ export const useBookStore = create<BookState & BookActions>()(
       },
     }),
     {
-      name: 'intracker-book-store',
+      name: 'inrising-book-store',
     }
   )
 );

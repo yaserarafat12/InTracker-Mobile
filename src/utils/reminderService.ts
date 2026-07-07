@@ -105,10 +105,10 @@ const triggerNotification = (title: string, body: string) => {
           }
         ]
       });
-      console.log("[InTracker] Capacitor local notification fired:", { title, body });
+      console.log("[InRising] Capacitor local notification fired:", { title, body });
       return;
     } catch (e) {
-      console.error("[InTracker] Capacitor local notifications failed:", e);
+      console.error("[InRising] Capacitor local notifications failed:", e);
     }
   }
 
@@ -118,7 +118,7 @@ const triggerNotification = (title: string, body: string) => {
       body,
       icon: '/logo.png',
     });
-    console.log("[InTracker] Web notification fired:", { title, body });
+    console.log("[InRising] Web notification fired:", { title, body });
   }
 };
 
@@ -165,7 +165,7 @@ export const initReminderEngine = () => {
   // Run initial check and then run every 30 seconds
   checkReminders();
   reminderInterval = setInterval(checkReminders, 30000);
-  console.log("[InTracker] Reminder check engine initialized.");
+  console.log("[InRising] Reminder check engine initialized.");
 };
 
 export const startReminderService = () => {

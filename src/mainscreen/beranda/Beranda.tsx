@@ -26,7 +26,7 @@ import { HomeView } from './views/HomeView';
 import { AIView } from './views/AIView';
 import { ToolsHub } from '../features/ToolsHub';
 import { DateNavigator } from './components/DateNavigator';
-import { StreakRecoveryModal } from './components/StreakRecoveryModal';
+
 import { AdminDashboard } from '../admin/AdminDashboard';
 
 const TodoList = ({ filter }: { filter?: TargetFilter }) => <TodoTargetView initialFilter={filter} />;
@@ -97,8 +97,8 @@ function Beranda({ activeTab: initialTab = 'habits' }: { activeTab?: string }) {
     const isTutorialActive = localStorage.getItem('interactive_tutorial_active') === 'true';
     if (!isTutorialActive) return;
 
-    // Steps 3, 4, 5, 6 require TambahHabitModal to be open
-    if (tutorialStep >= 3 && tutorialStep <= 6) {
+    // Steps 2, 3, 4, 5 require TambahHabitModal to be open
+    if (tutorialStep >= 2 && tutorialStep <= 5) {
       setIsAddModalOpen(true);
     } else {
       setIsAddModalOpen(false);
@@ -152,7 +152,7 @@ function Beranda({ activeTab: initialTab = 'habits' }: { activeTab?: string }) {
       const { data: { user: authUser }, error: authError } = await supabase.auth.getUser();
       
       if (authError) {
-        console.error('[InTracker] Auth error:', authError.message);
+        console.error('[InRising] Auth error:', authError.message);
         setError("Sesi Bos berakhir. Silakan login ulang.");
         return;
       }
@@ -177,7 +177,7 @@ function Beranda({ activeTab: initialTab = 'habits' }: { activeTab?: string }) {
         setError("Bos belum login nih.");
       }
     } catch (err) {
-      console.error('[InTracker] Dashboard init crash:', err);
+      console.error('[InRising] Dashboard init crash:', err);
       setError("Aplikasi agak error dikit, Bos. Rin coba benerin.");
     } finally {
       setLoading(false);
@@ -191,7 +191,7 @@ function Beranda({ activeTab: initialTab = 'habits' }: { activeTab?: string }) {
   // Trigger daily reset check when app gains focus (e.g. phone unlocks or user returns to tab)
   useEffect(() => {
     const handleFocus = () => {
-      console.log("[InTracker] App focused, running timezone-aware daily reset check...");
+      console.log("[InRising] App focused, running timezone-aware daily reset check...");
       _checkAndResetDaily();
       fetchHabits();
     };
@@ -337,7 +337,7 @@ function Beranda({ activeTab: initialTab = 'habits' }: { activeTab?: string }) {
 
       <NavigasiBawah activeTab={activeTab} setActiveTab={setActiveTab} />
       <SettingsOverlay />
-      <StreakRecoveryModal />
+
 
       <InteractiveTutorial 
         activeTab={activeTab} 

@@ -543,7 +543,7 @@ export const useProgressionStore = create<ProgressionState & ProgressionActions>
       },
     }),
     {
-      name: 'intracker-progression-v1',
+      name: 'inrising-progression-v1',
       version: 1,
       // Serialize Set as array (completedTodoIds is already string[])
     },

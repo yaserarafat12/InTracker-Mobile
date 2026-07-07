@@ -129,7 +129,7 @@ export const useTargetStore = create<TargetStore>()(
             .map(t => t.id);
 
           if (toTodayIds.length > 0) {
-            console.log(`[InTracker] Auto-moving ${toTodayIds.length} upcoming targets to today.`);
+            console.log(`[InRising] Auto-moving ${toTodayIds.length} upcoming targets to today.`);
             supabase.from('targets').update({ window: 'today' }).in('id', toTodayIds).then();
           }
 
@@ -139,7 +139,7 @@ export const useTargetStore = create<TargetStore>()(
             .map(t => t.id);
 
           if (toDelayIds.length > 0) {
-            console.log(`[InTracker] Auto-delaying ${toDelayIds.length} expired targets.`);
+            console.log(`[InRising] Auto-delaying ${toDelayIds.length} expired targets.`);
             supabase.from('targets').update({ window: 'delayed' }).in('id', toDelayIds).then();
           }
 
@@ -452,12 +452,12 @@ export const useTargetStore = create<TargetStore>()(
         const results = await Promise.all(updatePromises);
         const failed = results.filter(r => r.error);
         if (failed.length > 0) {
-          console.error('[InTracker] Error persisting target order:', failed[0].error);
+          console.error('[InRising] Error persisting target order:', failed[0].error);
         }
       },
     }),
     {
-      name: 'intracker-targets-v2', // Changed name for Supabase sync
+      name: 'inrising-targets-v2', // Changed name for Supabase sync
       version: 1,
     }
   )

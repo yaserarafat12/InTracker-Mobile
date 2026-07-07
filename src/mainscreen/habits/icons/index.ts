@@ -143,7 +143,7 @@ export interface HabitOption {
 
 export const HABIT_OPTIONS: HabitOption[] = [
   // Rutinitas
-  { name: 'Hidrasi Harian', iconName: 'WaterGlass', category: 'Rutinitas', imageUrl: '/all_images/display_images/minumair.png', frequency: 'harian', difficulty: 1, intensity: { type: 'numeric', unit: 'Gelas', options: [6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20], defaultValue: 8 } },
+  { name: 'Drink Water', iconName: 'WaterGlass', category: 'Rutinitas', imageUrl: '/all_images/display_images/minumair.png', frequency: 'harian', difficulty: 1, intensity: { type: 'numeric', unit: 'Gelas', options: [6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20], defaultValue: 8 } },
   { name: 'Bangun Pagi', iconName: 'Sunrise', category: 'Rutinitas', imageUrl: '/all_images/display_images/bangunpagi.png', imagePosition: 'object-top', frequency: 'harian', difficulty: 2, intensity: { type: 'none' } },
   { name: 'Tidur 8 Jam', iconName: 'Bed', category: 'Rutinitas', imageUrl: '/all_images/display_images/tidur8jam.png', imagePosition: 'object-right', frequency: 'harian', difficulty: 1, intensity: { type: 'none' } },
   { name: 'Minum Pil', iconName: 'Medicine', category: 'Rutinitas', imageUrl: '/all_images/display_images/minumpil.png', imagePosition: 'object-top', frequency: 'harian', difficulty: 1, intensity: { type: 'numeric', unit: 'Pil', options: [1, 2, 3] } },

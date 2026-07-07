@@ -435,7 +435,7 @@ const GlobalView: React.FC = () => {
                             </div>
                             <div className="flex flex-col">
                               <span className="font-black text-sm">{user.nickname}</span>
-                              <span className="text-[9px] text-white/20 uppercase font-bold">{user.full_name || 'InTracker User'}</span>
+                              <span className="text-[9px] text-white/20 uppercase font-bold">{user.full_name || 'InRising User'}</span>
                             </div>
                           </div>
                           {user.requested ? (
@@ -542,7 +542,7 @@ const GlobalView: React.FC = () => {
                     </div>
                   </div>
                   <div className="bg-black/40 border-[2px] border-black p-4 rounded-2xl shadow-[4px_4px_0px_rgba(0,0,0,1)]">
-                    <span className="text-[9px] font-black text-[#00FF85] uppercase tracking-widest block mb-1">{t('global.profile.intrackerLevel')}</span>
+                    <span className="text-[9px] font-black text-[#00FF85] uppercase tracking-widest block mb-1">{t('global.profile.inrisingLevel')}</span>
                     <div className="flex items-center gap-2">
                       <Icon icon="solar:star-bold" className="text-[#00FF85]" width={20} />
                       <span className="text-xl font-black">LVL {Math.floor((selectedProfile.streak_count || 0) / 10) + 1}</span>

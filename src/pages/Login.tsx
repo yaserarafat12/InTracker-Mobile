@@ -102,7 +102,7 @@ export default function Login() {
           });
           
           // Remove guest profile from localStorage to force recreation on mount
-          localStorage.removeItem('intracker-guest-profile');
+          localStorage.removeItem('inrising-guest-profile');
 
           // Navigate directly to habits
           navigate('/habits');

@@ -231,7 +231,7 @@ export const useNutritionStore = create<NutritionStore>()(
       },
     }),
     {
-      name: 'intracker-nutrition-v1',
+      name: 'inrising-nutrition-v1',
       version: 1,
     }
   )

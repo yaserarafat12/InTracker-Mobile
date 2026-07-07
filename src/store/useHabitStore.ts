@@ -851,7 +851,7 @@ export const useHabitStore = create<HabitStore>()(
       },
     }),
     {
-      name: 'intracker-habits-v2', // New name for Supabase-ready store
+      name: 'inrising-habits-v2', // New name for Supabase-ready store
       version: 1,
     }
   )

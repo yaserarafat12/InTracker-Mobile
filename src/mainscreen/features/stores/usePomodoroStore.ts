@@ -112,7 +112,7 @@ export const usePomodoroStore = create<PomodoroState & PomodoroActions>()(
       clearHistory: () => set({ sessions: [] }),
     }),
     {
-      name: 'intracker-pomodoro-store',
+      name: 'inrising-pomodoro-store',
     }
   )
 );

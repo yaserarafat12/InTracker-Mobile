@@ -67,7 +67,7 @@ export const useWorkoutStore = create<WorkoutState & WorkoutActions>()(
       },
     }),
     {
-      name: 'intracker-workout-store',
+      name: 'inrising-workout-store',
     }
   )
 );

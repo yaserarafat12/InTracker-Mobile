@@ -137,7 +137,7 @@ export default function Notif() {
           const LocalNotifications = win.Capacitor.Plugins.LocalNotifications;
           await LocalNotifications.requestPermissions();
         } catch (e) {
-          console.error("[InTracker] Capacitor requestPermissions failed:", e);
+          console.error("[InRising] Capacitor requestPermissions failed:", e);
         }
       }
 
@@ -149,7 +149,7 @@ export default function Notif() {
             permission = await Notification.requestPermission();
           }
           if (permission === 'granted') {
-            let title = "InTracker Alert Enabled";
+            let title = "InRising Alert Enabled";
             let body = "You have enabled alerts.";
             if (key === 'dailyReminder') {
               title = "Daily Habit Reminder";

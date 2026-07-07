@@ -26,7 +26,7 @@ export class ErrorBoundary extends React.Component<Props, State> {
   }
 
   public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    console.error('[InTracker] ErrorBoundary caught an error:', error, errorInfo);
+    console.error('[InRising] ErrorBoundary caught an error:', error, errorInfo);
     this.setState({ errorInfo });
   }
 
@@ -40,7 +40,7 @@ export class ErrorBoundary extends React.Component<Props, State> {
       // Get language from localStorage if possible (fallback to Indonesian/English)
       let isIndonesian = true;
       try {
-        const localSettings = localStorage.getItem('intracker-user-v1');
+        const localSettings = localStorage.getItem('inrising-user-v1');
         if (localSettings) {
           const parsed = JSON.parse(localSettings);
           const lang = parsed?.state?.settings?.language;

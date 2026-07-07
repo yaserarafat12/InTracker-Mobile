@@ -168,12 +168,12 @@ export const useUserStore = create<UserStore>()(
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) return;
 
-        const lastUserId = localStorage.getItem('intracker-last-user-id');
+        const lastUserId = localStorage.getItem('inrising-last-user-id');
         const currentProfile = get().profile;
         const hasUserChanged = (lastUserId && lastUserId !== user.id) || (currentProfile && currentProfile.id !== user.id);
 
         if (hasUserChanged) {
-          console.log("[InTracker] User changed! Clearing local storage safely...");
+          console.log("[InRising] User changed! Clearing local storage safely...");
           const keysToKeep = Object.keys(localStorage).filter(k => k.startsWith('sb-') || k.includes('auth-token'));
           const keptValues: Record<string, string> = {};
           keysToKeep.forEach(k => {
@@ -184,11 +184,11 @@ export const useUserStore = create<UserStore>()(
           localStorage.clear();
 
           Object.entries(keptValues).forEach(([k, v]) => localStorage.setItem(k, v));
-          localStorage.setItem('intracker-last-user-id', user.id);
+          localStorage.setItem('inrising-last-user-id', user.id);
           window.location.reload();
           return;
         }
-        localStorage.setItem('intracker-last-user-id', user.id);
+        localStorage.setItem('inrising-last-user-id', user.id);
 
         set({ loading: true });
         
@@ -261,7 +261,7 @@ export const useUserStore = create<UserStore>()(
           // --- AUTO TRIAL LOGIC (The "Trap Manis") ---
           // If never had pro_until and not pro, give 7 days trial
           if (!data.pro_until && !data.is_pro) {
-            console.log("[InTracker] New user detected. Deploying 7-day trial trap...");
+            console.log("[InRising] New user detected. Deploying 7-day trial trap...");
             await get().claimTrial();
           }
         }
@@ -369,12 +369,12 @@ export const useUserStore = create<UserStore>()(
         if (!error && data) {
           const cleanCreatedAt = data.created_at || get().profile?.created_at;
           set({ profile: { ...data, created_at: cleanCreatedAt } as UserProfile });
-          console.log(`[InTracker] Daily Login Streak Updated: ${newStreak} days! 🔥`);
+          console.log(`[InRising] Daily Login Streak Updated: ${newStreak} days! 🔥`);
         }
       }
     }),
     {
-      name: 'intracker-user-v1',
+      name: 'inrising-user-v1',
     }
   )
 );

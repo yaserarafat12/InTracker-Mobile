@@ -107,7 +107,7 @@ export function ToolsHub() {
       message: feedbackMessage.trim(),
       nickname: settings.username || profile?.nickname || 'guest',
       fullName: settings.nickname || profile?.full_name || 'Anonymous User',
-      email: settings.email || 'guest@intracker.app'
+      email: settings.email || 'guest@inrising.app'
     };
 
     try {
@@ -129,13 +129,13 @@ export function ToolsHub() {
       console.warn("Could not sync feedback to Supabase", e);
     }
 
-    const existing = localStorage.getItem('intracker-local-feedbacks');
+    const existing = localStorage.getItem('inrising-local-feedbacks');
     let feedbackList = [];
     if (existing) {
       try { feedbackList = JSON.parse(existing); } catch (err) {}
     }
     feedbackList.push(newFeedbackLoc);
-    localStorage.setItem('intracker-local-feedbacks', JSON.stringify(feedbackList));
+    localStorage.setItem('inrising-local-feedbacks', JSON.stringify(feedbackList));
 
     setIsSubmittingFeedback(false);
     setIsFeedbackOpen(false);

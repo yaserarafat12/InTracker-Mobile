@@ -211,7 +211,7 @@ export const useFoodLogStore = create<FoodLogStore>()(
       },
     }),
     {
-      name: 'intracker-food-log-v1',
+      name: 'inrising-food-log-v1',
       version: 1,
     }
   )

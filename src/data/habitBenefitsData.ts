@@ -33,7 +33,7 @@ const GENERIC_BENEFIT: HabitBenefitData = {
 };
 
 export const HABIT_BENEFITS_FULL: Record<string, HabitBenefitData> = {
-  'Hidrasi Harian': {
+  'Drink Water': {
     quote: 'Otak lo berjalan di atas air. Kurang 2% saja, fokus lo turun 20%.',
     top5: [
       'Meningkatkan fungsi kognitif — dehidrasi ringan menurunkan konsentrasi 20%',

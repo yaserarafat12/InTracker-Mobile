@@ -261,22 +261,18 @@ const DaftarHabit = ({
 
   let todoHabits = rawTodoHabits;
   if (isTutorialActive) {
-    if (tutorialStep === 1) {
-      todoHabits = [dummyTutorialHabit, ...rawTodoHabits];
-    } else {
-      todoHabits = [...rawTodoHabits].sort((a, b) => {
-        if (a.name === 'Hidrasi Harian') return -1;
-        if (b.name === 'Hidrasi Harian') return 1;
-        return 0;
-      });
-    }
+    todoHabits = [...rawTodoHabits].sort((a, b) => {
+      if (a.name === 'Drink Water') return -1;
+      if (b.name === 'Drink Water') return 1;
+      return 0;
+    });
   }
 
   const rawCompletedHabits = habits.filter((h) => h.completed);
   const completedHabits = isTutorialActive
     ? [...rawCompletedHabits].sort((a, b) => {
-        if (a.name === 'Hidrasi Harian') return -1;
-        if (b.name === 'Hidrasi Harian') return 1;
+        if (a.name === 'Drink Water') return -1;
+        if (b.name === 'Drink Water') return 1;
         return 0;
       })
     : rawCompletedHabits;

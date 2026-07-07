@@ -67,11 +67,11 @@ const initTheme = () => {
         const isCurrentlyDark = document.documentElement.classList.contains('dark');
         const nextTheme = isCurrentlyDark ? 'Light' : 'Dark';
         useUserStore.getState().updateSettings({ theme: nextTheme });
-        console.log(`[InTracker] Theme toggled via Ctrl+D to: ${nextTheme}`);
+        console.log(`[InRising] Theme toggled via Ctrl+D to: ${nextTheme}`);
       }
     });
   } catch (error) {
-    console.error('[InTracker] Theme synchronizer failed:', error);
+    console.error('[InRising] Theme synchronizer failed:', error);
   }
 };
 
@@ -92,9 +92,9 @@ const AuthGuard = ({ children }: { children: React.ReactNode }) => {
         const { data: { user } } = await Promise.race([authCall, timeout]) as any;
         
         if (user) {
-          const lastUserId = localStorage.getItem('intracker-last-user-id');
+          const lastUserId = localStorage.getItem('inrising-last-user-id');
           if (lastUserId && lastUserId !== user.id) {
-            console.log('[InTracker] User ID mismatch detected in AuthGuard! Clearing local data safely...');
+            console.log('[InRising] User ID mismatch detected in AuthGuard! Clearing local data safely...');
             // Preserve Supabase session keys so user remains logged in
             const keysToKeep = Object.keys(localStorage).filter(k => k.startsWith('sb-') || k.includes('auth-token'));
             const keptValues: Record<string, string> = {};
@@ -107,16 +107,16 @@ const AuthGuard = ({ children }: { children: React.ReactNode }) => {
 
             // Restore Supabase keys
             Object.entries(keptValues).forEach(([k, v]) => localStorage.setItem(k, v));
-            localStorage.setItem('intracker-last-user-id', user.id);
+            localStorage.setItem('inrising-last-user-id', user.id);
             window.location.reload();
             return;
           }
-          localStorage.setItem('intracker-last-user-id', user.id);
+          localStorage.setItem('inrising-last-user-id', user.id);
         }
 
         setUser(user);
       } catch (err) {
-        console.error('[InTracker] AuthGuard error:', err);
+        console.error('[InRising] AuthGuard error:', err);
         setUser(null);
       } finally {
         setLoading(false);
@@ -168,7 +168,7 @@ const OnboardingGuard = ({ children }: { children: React.ReactNode }) => {
           setIsCompleted(data?.onboarding_completed || false);
         }
       } catch (err) {
-        console.error('[InTracker] OnboardingGuard error:', err);
+        console.error('[InRising] OnboardingGuard error:', err);
       } finally {
         setLoading(false);
       }
@@ -208,7 +208,7 @@ const RootRedirect = () => {
           setIsCompleted(data?.onboarding_completed || false);
         }
       } catch (err) {
-        console.error('[InTracker] RootRedirect error:', err);
+        console.error('[InRising] RootRedirect error:', err);
       } finally {
         setLoading(false);
       }
@@ -333,7 +333,7 @@ const router = createBrowserRouter([
   },
 ]);
 
-console.log('[InTracker] main.tsx reached bottom - about to mount React');
+console.log('[InRising] main.tsx reached bottom - about to mount React');
 
 try {
   const root = document.getElementById('root');
@@ -346,12 +346,12 @@ try {
         </ErrorBoundary>
       </React.StrictMode>,
     );
-    console.log('[InTracker] ReactDOM.createRoot().render() called successfully');
+    console.log('[InRising] ReactDOM.createRoot().render() called successfully');
   } else {
-    console.error('[InTracker] root element not found!');
+    console.error('[InRising] root element not found!');
   }
 } catch (e) {
-  console.error('[InTracker] FATAL mount error:', e);
+  console.error('[InRising] FATAL mount error:', e);
   const root = document.getElementById('root');
   if (root) root.innerHTML = '<pre style="color:red;padding:20px;background:#111">' + (e as any)?.stack + '</pre>';
 }

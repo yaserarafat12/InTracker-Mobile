@@ -16,7 +16,7 @@ export const TutorialOverlay = ({ onClose }: TutorialOverlayProps) => {
     {
       icon: 'solar:sparkles-bold',
       iconColor: '#FF4D00',
-      title: isIndo ? 'Selamat Datang di InTracker!' : 'Welcome to InTracker!',
+      title: isIndo ? 'Selamat Datang di InRising!' : 'Welcome to InRising!',
       description: isIndo 
         ? 'Sebuah program konsistensi 66 hari yang dirancang untuk membangun kebiasaan positif dan melacak perkembangan harianmu.' 
         : 'A 66-day consistency program designed to build positive habits and track your daily development.',

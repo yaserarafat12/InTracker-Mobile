@@ -55,7 +55,7 @@ export function AdminDashboard({ activeTab }: { activeTab: string }) {
         .in('post_id', ['suggestion', 'bug'])
         .order('created_at', { ascending: false });
 
-      const localFeedbacksRaw = localStorage.getItem('intracker-local-feedbacks');
+      const localFeedbacksRaw = localStorage.getItem('inrising-local-feedbacks');
       let combinedFeedbacks: FeedbackItem[] = [];
 
       if (feedbackData) {
@@ -66,12 +66,12 @@ export function AdminDashboard({ activeTab }: { activeTab: string }) {
             user: f.user ? {
               ...f.user,
               full_name: f.user.full_name || matchedProfile?.full_name || 'Anonymous',
-              email: matchedProfile?.onboarding_data?.email || 'guest@intracker.app'
+              email: matchedProfile?.onboarding_data?.email || 'guest@inrising.app'
             } : {
               id: f.user_id,
               nickname: matchedProfile?.nickname || 'guest',
               full_name: matchedProfile?.full_name || 'Anonymous User',
-              email: matchedProfile?.onboarding_data?.email || 'guest@intracker.app'
+              email: matchedProfile?.onboarding_data?.email || 'guest@inrising.app'
             }
           };
         });
@@ -91,7 +91,7 @@ export function AdminDashboard({ activeTab }: { activeTab: string }) {
                 id: 'local',
                 nickname: loc.nickname || 'guest',
                 full_name: loc.fullName || 'Guest User',
-                email: loc.email || 'guest@intracker.app'
+                email: loc.email || 'guest@inrising.app'
               }
             });
           });
@@ -489,7 +489,7 @@ export function AdminDashboard({ activeTab }: { activeTab: string }) {
                       <span>{f.user?.full_name} (@{f.user?.nickname})</span>
                       <span>·</span>
                       <Icon icon="ph:envelope-simple-bold" width={10} />
-                      <span>{f.user?.email || 'guest@intracker.app'}</span>
+                      <span>{f.user?.email || 'guest@inrising.app'}</span>
                     </div>
                   </div>
                 );

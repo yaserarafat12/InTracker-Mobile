@@ -1,5 +1,5 @@
 {
-  "name": "intracker-mobile",
+  "name": "inrising-mobile",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -15,6 +15,7 @@
     "@iconify/react": "^6.0.2",
     "@supabase/supabase-js": "^2.104.1",
     "@types/canvas-confetti": "^1.9.0",
+    "@vercel/analytics": "^2.0.1",
     "@vercel/speed-insights": "^2.0.0",
     "autoprefixer": "^10.5.0",
     "canvas-confetti": "^1.9.4",
