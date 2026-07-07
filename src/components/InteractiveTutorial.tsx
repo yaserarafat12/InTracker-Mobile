@@ -738,6 +738,41 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
     return dialogueInTop ? "M12 4v24M6 20l6 8 6-8" : "M12 28V4M6 12l6-8 6 8";
   }, [sr, dialogueInTop, hasValidSpace]);
 
+  // Intercept backdrop clicks and pass them through only if inside the spotlight hole
+  const handleBackdropClick = (e: React.MouseEvent) => {
+    if (!sr) return;
+
+    const clientX = e.clientX;
+    const clientY = e.clientY;
+
+    // Check if coordinates are inside the spotlight hole `sr`
+    // We add a tiny buffer (4px) to make tapping easier
+    const insideX = clientX >= sr.left - 4 && clientX <= sr.right + 4;
+    const insideY = clientY >= sr.top - 4 && clientY <= sr.bottom + 4;
+
+    if (insideX && insideY) {
+      // Temporarily disable pointer-events on the SVG to find the element underneath
+      const svg = e.currentTarget as HTMLElement;
+      const prevPointerEvents = svg.style.pointerEvents;
+      svg.style.pointerEvents = 'none';
+      
+      const underlyingElement = document.elementFromPoint(clientX, clientY) as HTMLElement | null;
+      svg.style.pointerEvents = prevPointerEvents;
+
+      if (underlyingElement) {
+        // Trigger click & focus on the underlying element
+        underlyingElement.click();
+        if (typeof underlyingElement.focus === 'function') {
+          underlyingElement.focus();
+        }
+      }
+    } else {
+      // Click is outside - block it
+      e.preventDefault();
+      e.stopPropagation();
+    }
+  };
+
   if (completed) return null;
 
   return createPortal(
@@ -770,7 +805,11 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
       {/* SVG Path Masking */}
       {sr ? (
         <>
-          <svg className="absolute inset-0 w-full h-full pointer-events-none">
+          <svg 
+            className="absolute inset-0 w-full h-full cursor-default"
+            onClick={handleBackdropClick}
+            style={{ pointerEvents: 'auto' }}
+          >
             <defs>
               <mask id="spotlight-mask">
                 {/* White cover (keeps backdrop visible) */}
@@ -798,7 +837,7 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
               height="100%"
               fill={isLight ? 'rgba(0, 0, 0, 0.62)' : 'rgba(0, 0, 0, 0.72)'}
               mask="url(#spotlight-mask)"
-              className="pointer-events-auto cursor-default"
+              className="pointer-events-none"
             />
           </svg>
 
