@@ -109,7 +109,7 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
       s9_desc: pick({ 'English': 'Check the task checkbox after you complete it.', 'Bahasa Indonesia': 'Centang kotak tugas setelah kamu menyelesaikannya.', 'Español': 'Marca la casilla de verificación de la tarea después de completarla.', 'Chinese': '完成任务后勾选任务复选框。', 'Hindi': 'कार्य पूरा करने के बाद कार्य चेकबॉक्स को चेक करें।', 'Arabic': 'ضع علامة في مربع الاختيار للمهمة بعد إكمالها.', 'Portuguese': 'Marque a caixa de seleção da tarefa depois de concluí-la.', 'Français': 'Cochez la case de la tâche après l\'avoir terminée.', 'Japanese': 'タスクを完了したらチェックボックスにチェックを入れましょう。', 'Deutsch': 'Markiere das Kontrollkästchen der Aufgabe, nachdem du sie abgeschlossen hast.' }),
       // ── Step 10 ─────────────────────────────────────────────────────────────
       s10_title: pick({ 'English': 'Completed Tasks History', 'Bahasa Indonesia': 'Riwayat Tugas Selesai', 'Español': 'Historial de tareas completadas', 'Chinese': '已完成任务历史', 'Hindi': 'पूर्ण कार्य इतिहास', 'Arabic': 'سجل المهام المكتملة', 'Portuguese': 'Histórico de tarefas concluídas', 'Français': 'Historique des tâches terminées', 'Japanese': '完了タスクの履歴', 'Deutsch': 'Verlauf abgeschlossener Aufgaben' }),
-      s10_desc: pick({ 'English': 'Swipe right or tap the Done tab to view completed tasks.', 'Bahasa Indonesia': 'Geser ke kanan atau ketuk tab Done untuk melihat tugas selesai.', 'Español': 'Desliza hacia la derecha o toca la pestaña Hecho para ver tareas completadas.', 'Chinese': '向右滑动或点击完成选项卡查看已完成的任务。', 'Hindi': 'पूर्ण कार्यों को देखने के लिए दाईं ओर स्वाइप करें या Done टैब पर टैप करें।', 'Arabic': 'اسحب لليمين أو انقر على علامة تبويب تم لعرض المهام المكتملة.', 'Portuguese': 'Deslize para a direita ou toque na aba Concluído para ver as tarefas concluídas.', 'Français': 'Glissez vers la droite ou appuyez sur l\'onglet Terminé pour voir les tâches terminées.', 'Japanese': '右にスワイプするかDoneタブをタップして完了したタスクを表示しましょう。', 'Deutsch': 'Wische nach rechts oder tippe auf den Fertig-Tab, um abgeschlossene Aufgaben zu sehen.' }),
+      s10_desc: pick({ 'English': 'Tap the Done tab to view completed tasks.', 'Bahasa Indonesia': 'Ketuk tab Done untuk melihat tugas selesai.', 'Español': 'Toca la pestaña Hecho para ver tareas completadas.', 'Chinese': '点击完成选项卡查看已完成的任务。', 'Hindi': 'Done टैब पर टैप करें।', 'Arabic': 'انقر على علامة تبويب تم لعرض المهام المكتملة.', 'Portuguese': 'Toque na aba Concluído para ver as tarefas concluídas.', 'Français': 'Appuyez sur l\'onglet Terminé pour voir les tâches terminées.', 'Japanese': 'Doneタブをタップして完了したタスクを表示しましょう。', 'Deutsch': 'Tippe auf den Fertig-Tab, um abgeschlossene Aufgaben zu sehen.' }),
       // ── Step 11 ─────────────────────────────────────────────────────────────
       s11_title: pick({ 'English': 'Open Analytics', 'Bahasa Indonesia': 'Buka Analitik', 'Español': 'Abrir analíticas', 'Chinese': '打开分析', 'Hindi': 'एनालिटिक्स खोलें', 'Arabic': 'فتح التحليلات', 'Portuguese': 'Abrir análises', 'Français': 'Ouvrir les analyses', 'Japanese': '分析を開く', 'Deutsch': 'Analytik öffnen' }),
       s11_desc: pick({ 'English': 'Tap the Analytics tab in the bottom navigation bar.', 'Bahasa Indonesia': 'Ketuk tab menu Analitik di navigasi bawah.', 'Español': 'Toca la pestaña de analíticas en la barra de navegación inferior.', 'Chinese': '点击底部导航栏中的分析选项卡。', 'Hindi': 'नीचे नेविगेशन बार में Analytics टैब पर टैप करें।', 'Arabic': 'انقر على علامة تبويب التحليلات في شريط التنقل السفلي.', 'Portuguese': 'Toque na aba de análises na barra de navegação inferior.', 'Français': 'Appuyez sur l\'onglet Analyses dans la barre de navigation inférieure.', 'Japanese': '下部ナビゲーションバーの分析タブをタップしましょう。', 'Deutsch': 'Tippe auf den Analytics-Tab in der unteren Navigationsleiste.' }),
@@ -678,8 +678,19 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
     }
   };
 
-
-
+  // Scroll target element into view automatically when step changes
+  useEffect(() => {
+    const sel = currentStepData?.selector;
+    if (sel) {
+      const timeout = setTimeout(() => {
+        const el = document.querySelector(sel);
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' });
+        }
+      }, 100);
+      return () => clearTimeout(timeout);
+    }
+  }, [currentStep, currentStepData]);
 
   // Spotlight padding for breathing room
   const pad = 8;
