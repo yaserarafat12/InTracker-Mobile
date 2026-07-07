@@ -629,6 +629,20 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
         handleNext();
         return;
       }
+
+      // 2. If we are on Step 4 (index 4: "Done in Intensity Picker")
+      // and the intensity picker is closed (meaning #habit-config-intensity-modal is gone, but we are still in config modal #habit-config-save-btn)
+      if (currentStep === 4 && !document.getElementById('habit-config-intensity-modal') && document.getElementById('habit-config-save-btn')) {
+        handleNext();
+        return;
+      }
+
+      // 3. If we are on Step 5 (index 5: "Save Habit")
+      // and the config modal is closed (meaning #habit-config-modal is gone)
+      if (currentStep === 5 && !document.getElementById('habit-config-modal')) {
+        handleNext();
+        return;
+      }
     };
 
     checkStateAndAdvance();
