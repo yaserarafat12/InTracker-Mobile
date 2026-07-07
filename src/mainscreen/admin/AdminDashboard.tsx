@@ -404,7 +404,7 @@ export function AdminDashboard({ activeTab }: { activeTab: string }) {
             { id: 9, title: 'Kondisi Hidup Saat Ini / Life Condition' },
             { id: 10, title: 'Prioritas Utama / Top Focus Priorities' },
             { id: 11, title: 'Hambatan Terbesar / Biggest Roadblock' },
-            { id: 12, title: 'Asal Tahu InTracker / Discovery Channel' },
+            { id: 12, title: 'Asal Tahu InRising / Discovery Channel' },
             { id: 13, title: 'Durasi Target Program / Target Duration' },
             { id: 14, title: 'Fokus Kebiasaan / Habit Areas' },
           ].map((q) => {

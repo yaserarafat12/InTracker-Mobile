@@ -205,7 +205,7 @@ const QUESTION_TRANSLATIONS: Record<string, Record<number, { question: string; i
     9: { question: "Bagaimana Anda mendeskripsikan hidup Anda saat ini?", instruction: "", options: ["Sangat Puas & Bahagia", "Biasa Saja", "Ingin Melakukan Perubahan", "Sedang di Titik Terendah"] },
     10: { question: "Apa yang ingin Anda prioritaskan?", instruction: "(Pilih maks. 3)", options: ["Manajemen Keuangan", "Disiplin & Kebiasaan", "Karir & Produktivitas", "Kesehatan Fisik", "Pendidikan / Skill Baru"] },
     11: { question: "Apa tantangan terbesar Anda saat ini?", instruction: "(Bisa pilih semua yang sesuai)", options: ["Sering Menunda", "Kurang Motivasi", "Bingung Mulai dari Mana", "Masalah Biaya / Modal", "Lingkungan Tidak Mendukung"] },
-    12: { question: "Dari mana Anda tahu tentang InTracker?", instruction: "", options: ["TikTok", "Instagram / Facebook", "Iklan Digital", "Rekomendasi Teman", "Lainnya"] },
+    12: { question: "Dari mana Anda tahu tentang InRising?", instruction: "", options: ["TikTok", "Instagram / Facebook", "Iklan Digital", "Rekomendasi Teman", "Lainnya"] },
     13: { question: "Berapa lama program yang ingin Anda jalankan?", instruction: "", options: ["30 Hari", "60 Hari", "90 Hari"] },
     14: { question: "Di area mana Anda ingin bertumbuh?", instruction: "(Anda dapat memilih semua kategori fokus Anda)", options: ["Rutinitas Harian", "Ketenangan Diri", "Evolusi Diri", "Latihan Fisik"] },
   },
@@ -221,7 +221,7 @@ const QUESTION_TRANSLATIONS: Record<string, Record<number, { question: string; i
     9: { question: "現在の生活をどのように表現しますか？", instruction: "", options: ["大満足で幸せ", "普通", "変化を起こしたい", "どん底にある"] },
     10: { question: "何を優先したいですか？", instruction: "(最大3つ選択)", options: ["資産管理", "規律と習慣", "キャリアと生産性", "身体の健康", "教育・新しいスキル"] },
     11: { question: "現在、最大の課題は何ですか？", instruction: "(複数選択可)", options: ["先延ばし癖", "モチベーション不足", "どこから始めるか混乱", "費用・資金問題", "非協力的な環境"] },
-    12: { question: "InTrackerをどこで知りましたか？", instruction: "", options: ["TikTok", "Instagram / Facebook", "デジタル広告", "友人の紹介", "その他"] },
+    12: { question: "InRisingをどこで知りましたか？", instruction: "", options: ["TikTok", "Instagram / Facebook", "デジタル広告", "友人の紹介", "その他"] },
     13: { question: "どのくらいの期間のプログラムを実行したいですか？", instruction: "", options: ["30日間", "60日間", "90日間"] },
     14: { question: "どの分野で成長したいですか？", instruction: "(フォーカスするカテゴリをすべて選択できます)", options: ["日常の習慣", "マインドフルネス", "自己進化", "運動・トレーニング"] },
   },
@@ -237,7 +237,7 @@ const QUESTION_TRANSLATIONS: Record<string, Record<number, { question: string; i
     9: { question: "Comment décririez-vous votre vie actuellement ?", instruction: "", options: ["Très satisfait & heureux", "Moyen", "Envie de changement", "Au plus bas"] },
     10: { question: "Que voulez-vous prioriser ?", instruction: "(Sélectionnez max. 3)", options: ["Gestion financière", "Discipline & Habitudes", "Carrière & Productivité", "Santé physique", "Éducation / Nouvelles compétences"] },
     11: { question: "Quel est votre plus grand défi actuellement ?", instruction: "(Sélectionnez tout ce qui s'applique)", options: ["Procrastination", "Manque de motivation", "Difficile de savoir par où commencer", "Problèmes de coût / capital", "Environnement non favorable"] },
-    12: { question: "Comment avez-vous connu InTracker ?", instruction: "", options: ["TikTok", "Instagram / Facebook", "Publicités numériques", "Recommandation d'un ami", "Autre"] },
+    12: { question: "Comment avez-vous connu InRising ?", instruction: "", options: ["TikTok", "Instagram / Facebook", "Publicités numériques", "Recommandation d'un ami", "Autre"] },
     13: { question: "Combien de temps voulez-vous que le programme dure ?", instruction: "", options: ["30 Jours", "60 Jours", "90 Jours"] },
     14: { question: "Dans quel domaine souhaitez-vous évoluer ?", instruction: "(Vous pouvez sélectionner toutes vos catégories cibles)", options: ["Habitudes quotidiennes", "Pleine conscience", "Évolution personnelle", "Exercice physique"] },
   },
@@ -253,7 +253,7 @@ const QUESTION_TRANSLATIONS: Record<string, Record<number, { question: string; i
     9: { question: "Wie würden Sie Ihr Leben derzeit beschreiben?", instruction: "", options: ["Sehr zufrieden & glücklich", "Durchschnittlich", "Möchte etwas verändern", "Am Tiefpunkt"] },
     10: { question: "Was möchten Sie priorisieren?", instruction: "(Max. 3 auswählen)", options: ["Finanzmanagement", "Disziplin & Gewohnheiten", "Karriere & Produktivität", "Physische Gesundheit", "Bildung / Neue Fähigkeiten"] },
     11: { question: "Was ist derzeit Ihre größte Herausforderung?", instruction: "(Alle zutreffenden auswählen)", options: ["Prokrastination", "Mangel an Motivation", "Unschlüssig, wo man anfangen soll", "Kosten-/Kapitalprobleme", "Nicht unterstützendes Umfeld"] },
-    12: { question: "Wie haben Sie von InTracker erfahren?", instruction: "", options: ["TikTok", "Instagram / Facebook", "Digitale Anzeigen", "Empfehlung von Freunden", "Andere"] },
+    12: { question: "Wie haben Sie von InRising erfahren?", instruction: "", options: ["TikTok", "Instagram / Facebook", "Digitale Anzeigen", "Empfehlung von Freunden", "Andere"] },
     13: { question: "Wie lange soll Ihr Programm laufen?", instruction: "", options: ["30 Tage", "60 Tage", "90 Tage"] },
     14: { question: "In welchem Bereich möchten Sie wachsen?", instruction: "(Sie können alle Ihre Fokusbereiche auswählen)", options: ["Tägliche Routine", "Achtsamkeit", "Selbstentwicklung", "Körperliche Bewegung"] },
   },
@@ -269,7 +269,7 @@ const QUESTION_TRANSLATIONS: Record<string, Record<number, { question: string; i
     9: { question: "¿Cómo describirías tu vida actualmente?", instruction: "", options: ["Muy satisfecho y feliz", "Normal", "Quiero hacer un cambio", "En el punto más bajo"] },
     10: { question: "¿Qué quieres priorizar?", instruction: "(Selecciona máx. 3)", options: ["Gestión Financiera", "Disciplina y Hábitos", "Carrera y Productividad", "Salud Física", "Educación / Nuevas Habilidades"] },
     11: { question: "¿Cuál es tu mayor desafío actualmente?", instruction: "(Selecciona todas las que correspondan)", options: ["Procrastinación", "Falta de Motivación", "Confundido por dónde empezar", "Problemas de Costo / Capital", "Entorno no compatible"] },
-    12: { question: "¿Cómo te enteraste de InTracker?", instruction: "", options: ["TikTok", "Instagram / Facebook", "Anuncios Digitales", "Recomendación de Amigo", "Otro"] },
+    12: { question: "¿Cómo te enteraste de InRising?", instruction: "", options: ["TikTok", "Instagram / Facebook", "Anuncios Digitales", "Recomendación de Amigo", "Otro"] },
     13: { question: "¿Cuánto tiempo de programa quieres ejecutar?", instruction: "", options: ["30 Días", "60 Días", "90 Días"] },
     14: { question: "¿En qué área deseas crecer?", instruction: "(Puedes seleccionar todas tus categorías de enfoque)", options: ["Rutinas Diarias", "Atención Plena", "Evolución Personal", "Ejercicio Físico"] },
   },
@@ -285,7 +285,7 @@ const QUESTION_TRANSLATIONS: Record<string, Record<number, { question: string; i
     9: { question: "Como você descreveria sua vida atualmente?", instruction: "", options: ["Muito satisfeito e feliz", "Normal", "Quero fazer uma mudança", "No ponto mais baixo"] },
     10: { question: "O que você quer priorizar?", instruction: "(Selecione no máx. 3)", options: ["Gestão Financeira", "Disciplina e Hábitos", "Carreira e Produtividade", "Saúde Física", "Educação / Novas Habilidades"] },
     11: { question: "Qual é o seu maior desafio atualmente?", instruction: "(Selecione todas que se aplicam)", options: ["Procrastinação", "Falta de Motivação", "Confuso sobre por onde começar", "Problemas de Custo / Capital", "Ambiente não apoiador"] },
-    12: { question: "Como você ouviu falar do InTracker?", instruction: "", options: ["TikTok", "Instagram / Facebook", "Anúncios Digitais", "Recomendação de Amigos", "Outro"] },
+    12: { question: "Como você ouviu falar do InRising?", instruction: "", options: ["TikTok", "Instagram / Facebook", "Anúncios Digitais", "Recomendação de Amigos", "Outro"] },
     13: { question: "Quanto tempo de programa você quer executar?", instruction: "", options: ["30 Dias", "60 Dias", "90 Dias"] },
     14: { question: "Em qual área você quer crescer?", instruction: "(Você pode selecionar todas as suas categorias de foco)", options: ["Rotinas Diárias", "Atenção Plena", "Evolução Pessoal", "Exercício Físico"] },
   },
@@ -301,7 +301,7 @@ const QUESTION_TRANSLATIONS: Record<string, Record<number, { question: string; i
     9: { question: "您如何描述自己目前的生活？", instruction: "", options: ["非常满意且快乐", "平平淡淡", "渴望改变", "处于低谷"] },
     10: { question: "您想优先考虑什么？", instruction: "(最多选择3项)", options: ["财务管理", "自律与习惯", "职业与效率", "身体健康", "教育与新技能"] },
     11: { question: "您目前面临的最大挑战是什么？", instruction: "(可多选/全选)", options: ["拖延症", "缺乏动力", "不知从何开始", "资金/成本问题", "缺乏支持的环境"] },
-    12: { question: "您是如何知道InTracker的？", instruction: "", options: ["TikTok", "Instagram / Facebook", "数字广告", "朋友推荐", "其他"] },
+    12: { question: "您是如何知道InRising的？", instruction: "", options: ["TikTok", "Instagram / Facebook", "数字广告", "朋友推荐", "其他"] },
     13: { question: "您想运行多长时间的计划？", instruction: "", options: ["30天", "60天", "90天"] },
     14: { question: "您想在哪个领域成长？", instruction: "(您可以选择您想要关注的所有类别)", options: ["每日惯例", "正念心灵", "自我进化", "身体锻炼"] },
   },
@@ -317,7 +317,7 @@ const QUESTION_TRANSLATIONS: Record<string, Record<number, { question: string; i
     9: { question: "आप वर्तमान में अपने जीवन का वर्णन कैसे करेंगे?", instruction: "", options: ["अत्यधिक संतुष्ट और खुश", "बस सामान्य", "बदलाव करना चाहते हैं", "निचले स्तर पर"] },
     10: { question: "आप किसे प्राथमिकता देना चाहते हैं?", instruction: "(अधिकतम 3 चुनें)", options: ["वित्तीय प्रबंधन", "अनुशासन और आदतें", "करियर और उत्पादकता", "शारीरिक स्वास्थ्य", "शिक्षा / नए कौशल"] },
     11: { question: "वर्तमान में आपकी सबसे बड़ी चुनौती क्या है?", instruction: "(सभी उपयुक्त चुनें)", options: ["टालमटोल", "प्रेरणा की कमी", "उलझन में हैं कि कहाँ से शुरू करें", "लागत / पूंजी की समस्याएं", "असहयोगी वातावरण"] },
-    12: { question: "आपको InTracker के बारे में कैसे पता चला?", instruction: "", options: ["TikTok", "Instagram / Facebook", "डिजिटल विज्ञापन", "दोस्त की सिफारिश", "अन्य"] },
+    12: { question: "आपको InRising के बारे में कैसे पता चला?", instruction: "", options: ["TikTok", "Instagram / Facebook", "डिजिटल विज्ञापन", "दोस्त की सिफारिश", "अन्य"] },
     13: { question: "आप कितने समय का कार्यक्रम चलाना चाहते हैं?", instruction: "", options: ["30 दिन", "60 दिन", "90 दिन"] },
     14: { question: "आप किस क्षेत्र में आगे बढ़ना चाहते हैं?", instruction: "(आप अपने सभी फोकस श्रेणियों का चयन कर सकते हैं)", options: ["दैनिक दिनचर्या", "सचेत ध्यान", "स्वयं का विकास", "शारीरिक व्यायाम"] },
   },
@@ -333,7 +333,7 @@ const QUESTION_TRANSLATIONS: Record<string, Record<number, { question: string; i
     9: { question: "كيف تصف حياتك حالياً؟", instruction: "", options: ["راضٍ وسعيد للغاية", "عادي فقط", "أريد إجراء تغيير", "في أدنى مستوياتي"] },
     10: { question: "ما الذي تريد منحه الأولوية؟", instruction: "(اختر 3 كحد أقصى)", options: ["الإدارة المالية", "الانضباط والعادات", "المهنة والإنتاجية", "الصحة البدنية", "التعليم / مهارات جديدة"] },
     11: { question: "ما هو أكبر تحدٍ يواجهك حالياً؟", instruction: "(اختر كل ما ينطبق)", options: ["المماطلة", "نقص الحافز", "الحيرة من أين أبدأ", "مشاكل التكلفة / رأس المال", "بيئة غير داعمة"] },
-    12: { question: "كيف سمعت عن InTracker؟", instruction: "", options: ["تيك توك", "إنستغرام / فيسبوك", "الإعلانات الرقمية", "توصية صديق", "آخر"] },
+    12: { question: "كيف سمعت عن InRising؟", instruction: "", options: ["تيك توك", "إنستغرام / فيسبوك", "الإعلانات الرقمية", "توصية صديق", "آخر"] },
     13: { question: "ما هي مدة البرنامج التي ترغب في تشغيلها؟", instruction: "", options: ["30 يومًا", "60 يومًا", "90 يومًا"] },
     14: { question: "في أي مجال ترغب في النمو؟", instruction: "(يمكنك اختيار جميع فئات التركيز الخاصة بك)", options: ["الروتين اليومي", "اليقظة الذهنية", "التطور الذاتي", "التمرين البدني"] },
   },
@@ -349,7 +349,7 @@ const QUESTION_TRANSLATIONS: Record<string, Record<number, { question: string; i
     9: { question: "How would you describe your life currently?", instruction: "", options: ["Highly Satisfied & Happy", "Just Average", "Want to Make a Change", "At a Low Point"] },
     10: { question: "What do you want to prioritize?", instruction: "(Select max. 3)", options: ["Financial Management", "Discipline & Habits", "Career & Productivity", "Physical Health", "Education / New Skills"] },
     11: { question: "What is your biggest challenge currently?", instruction: "(Select all that apply)", options: ["Procrastination", "Lack of Motivation", "Confused Where to Start", "Cost / Capital Issues", "Unsupportive Environment"] },
-    12: { question: "How did you hear about InTracker?", instruction: "", options: ["TikTok", "Instagram / Facebook", "Digital Ads", "Friend's Recommendation", "Other"] },
+    12: { question: "How did you hear about InRising?", instruction: "", options: ["TikTok", "Instagram / Facebook", "Digital Ads", "Friend's Recommendation", "Other"] },
     13: { question: "How long of a program do you want to run?", instruction: "", options: ["30 Days", "60 Days", "90 Days"] },
     14: { question: "Which area do you want to grow in?", instruction: "(You can select all of your focus categories)", options: ["Daily Routines", "Mindfulness", "Self Evolution", "Physical Exercise"] },
   }
@@ -534,7 +534,7 @@ const MONTH_NAMES = {
 // Curated pool of Top 4 habits per category for onboarding swipe
 const HABIT_REC_POOL = [
   // Rutinitas (Daily Routines)
-  { name: 'Hidrasi Harian', iconName: 'ph:drop-bold', category: 'Rutinitas', imageUrl: '/all_images/display_images/minumair.png', difficulty: 1, color: '#3B82F6', frequency: 'harian', imagePosition: 'object-center' },
+  { name: 'Drink Water', iconName: 'ph:drop-bold', category: 'Rutinitas', imageUrl: '/all_images/display_images/minumair.png', difficulty: 1, color: '#3B82F6', frequency: 'harian', imagePosition: 'object-center' },
   { name: 'Bangun Pagi', iconName: 'solar:sunrise-bold', category: 'Rutinitas', imageUrl: '/all_images/display_images/bangunpagi.png', difficulty: 2, color: '#10B981', frequency: 'harian', imagePosition: 'object-top' },
   { name: 'Mandi Pagi', iconName: 'ph:shower-bold', category: 'Rutinitas', imageUrl: '/all_images/display_images/mandi.png', difficulty: 1, color: '#A855F7', frequency: 'harian', imagePosition: 'object-center' },
   { name: 'Tidur 8 Jam', iconName: 'ph:bed-bold', category: 'Rutinitas', imageUrl: '/all_images/display_images/tidur8jam.png', difficulty: 1, color: '#F59E0B', frequency: 'harian', imagePosition: 'object-right' },
@@ -1658,12 +1658,12 @@ const SwipeDeckScreen = ({ answers, onComplete, onBack }: { answers: Record<numb
     selectedCats.forEach(catName => {
       const dbCat = categoryMapping[catName];
       if (dbCat) {
-        const matching = HABIT_REC_POOL.filter(h => h.category === dbCat).slice(0, 4);
+        const matching = HABIT_REC_POOL.filter(h => h.category === dbCat && h.name !== 'Hidrasi Harian' && h.name !== 'Drink Water').slice(0, 4);
         result.push(...matching);
       }
     });
     if (result.length === 0) {
-      return HABIT_REC_POOL.slice(0, 8);
+      return HABIT_REC_POOL.filter(h => h.name !== 'Hidrasi Harian' && h.name !== 'Drink Water').slice(0, 8);
     }
     return result;
   }, [selectedCats]);
@@ -1676,7 +1676,8 @@ const SwipeDeckScreen = ({ answers, onComplete, onBack }: { answers: Record<numb
 
   const triggerComplete = (habits: any[]) => {
     setIsProcessing(true);
-    setTimeout(() => onComplete(habits.length > 0 ? habits : [HABIT_REC_POOL[0]]), 1600);
+    // Use second pool element (Bangun Pagi) as fallback default if no habits were chosen
+    setTimeout(() => onComplete(habits.length > 0 ? habits : [HABIT_REC_POOL[1]]), 1600);
   };
 
   const activeHabit = deck[currentIndex];
@@ -1715,7 +1716,7 @@ const SwipeDeckScreen = ({ answers, onComplete, onBack }: { answers: Record<numb
   const isDeckCompleted = currentIndex >= deck.length;
   // Show habits that never appeared in the swipe deck at all
   const remainingOptions = HABIT_REC_POOL.filter(
-    h => !deck.some(d => d.name === h.name) && !accepted.some(acc => acc.name === h.name)
+    h => h.name !== 'Hidrasi Harian' && h.name !== 'Drink Water' && !deck.some(d => d.name === h.name) && !accepted.some(acc => acc.name === h.name)
   );
 
   return (
