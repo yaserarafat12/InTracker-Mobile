@@ -1211,76 +1211,80 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
             >
               {currentStep === 0 ? (
                 // Speech bubble layout: mascot left, bubble right
-                <div className="flex items-center gap-3 w-full">
+                <div className="flex flex-col items-center gap-4 w-full">
+                  <div className="flex items-center gap-3 w-full">
 
-                  {/* Mascot floating on the left */}
-                  <motion.div
-                    className="w-[150px] h-[150px] flex-shrink-0"
-                    animate={{ y: [0, -5, 0] }}
-                    transition={{ duration: 3.5, repeat: Infinity, ease: "easeInOut" }}
-                  >
-                    <img
-                      src={getMascotSrc(getIntroExpression(introScene))}
-                      alt="Rise Mascot"
-                      className="w-full h-full object-contain drop-shadow-[0_6px_14px_rgba(0,0,0,0.18)]"
-                    />
-                  </motion.div>
+                    {/* Mascot floating on the left */}
+                    <motion.div
+                      className="w-[150px] h-[150px] flex-shrink-0"
+                      animate={{ y: [0, -5, 0] }}
+                      transition={{ duration: 3.5, repeat: Infinity, ease: "easeInOut" }}
+                    >
+                      <img
+                        src={getMascotSrc(getIntroExpression(introScene))}
+                        alt="Rise Mascot"
+                        className="w-full h-full object-contain drop-shadow-[0_6px_14px_rgba(0,0,0,0.18)]"
+                      />
+                    </motion.div>
 
-                  {/* Speech bubble on the right */}
-                  <div
-                    onClick={handleIntroCardClick}
-                    className={`relative flex-1 rounded-2xl rounded-bl-sm px-4 py-3 cursor-pointer ${
-                      isLight
-                        ? 'bg-white border border-black/8 shadow-[0_4px_24px_rgba(0,0,0,0.12)]'
-                        : 'bg-[#252830] border border-white/10 shadow-[0_4px_24px_rgba(0,0,0,0.35)]'
-                    }`}
-                  >
-                    {/* Bubble tail pointing left toward mascot */}
+                    {/* Speech bubble on the right */}
                     <div
-                      className="absolute -left-[9px] top-1/2 -translate-y-1/2"
-                      style={{
-                        width: 0,
-                        height: 0,
-                        borderTop: '7px solid transparent',
-                        borderBottom: '7px solid transparent',
-                        borderRight: `8px solid ${isLight ? 'white' : '#252830'}`,
-                      }}
-                    />
+                      onClick={handleIntroCardClick}
+                      className={`relative flex-1 rounded-2xl rounded-bl-sm px-4 py-3 cursor-pointer ${
+                        isLight
+                          ? 'bg-white border border-black/8 shadow-[0_4px_24px_rgba(0,0,0,0.12)]'
+                          : 'bg-[#252830] border border-white/10 shadow-[0_4px_24px_rgba(0,0,0,0.35)]'
+                      }`}
+                    >
+                      {/* Bubble tail pointing left toward mascot */}
+                      <div
+                        className="absolute -left-[9px] top-1/2 -translate-y-1/2"
+                        style={{
+                          width: 0,
+                          height: 0,
+                          borderTop: '7px solid transparent',
+                          borderBottom: '7px solid transparent',
+                          borderRight: `8px solid ${isLight ? 'white' : '#252830'}`,
+                        }}
+                      />
 
-                    {introScene <= 3 ? (
-                      /* Typing Scene */
-                      <p
-                        style={{ color: isLight ? 'rgba(0,0,0,0.85)' : 'rgba(255,255,255,0.9)' }}
-                        className="text-[17px] font-semibold leading-relaxed font-['Outfit'] min-h-[60px]"
-                      >
-                        {typedText}
-                      </p>
-                    ) : (
-                      /* Scene 4 — Instructional text + CTA button */
-                      <div className="flex flex-col items-center gap-3 py-1">
+                      {introScene <= 3 ? (
+                        /* Typing Scene */
                         <p
                           style={{ color: isLight ? 'rgba(0,0,0,0.85)' : 'rgba(255,255,255,0.9)' }}
-                          className="text-[16px] font-semibold leading-snug font-['Outfit'] text-center"
+                          className="text-[17px] font-semibold leading-relaxed font-['Outfit'] min-h-[60px]"
+                        >
+                          {typedText}
+                        </p>
+                      ) : (
+                        /* Scene 4 — Instructional text */
+                        <p
+                          style={{ color: isLight ? 'rgba(0,0,0,0.85)' : 'rgba(255,255,255,0.9)' }}
+                          className="text-[16px] font-semibold leading-snug font-['Outfit'] text-center py-2"
                         >
                           Tekan tombol mulai petualangan 👇
                         </p>
-                        <motion.button
-                          whileTap={{ scale: 0.95 }}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleNext();
-                          }}
-                          className={`px-6 py-2.5 rounded-xl border font-black uppercase text-[10px] tracking-widest transition-all font-['Outfit'] ${
-                            isLight
-                              ? 'bg-[#6ED7A0] border-black text-black shadow-[3px_3px_0px_rgba(0,0,0,1)] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none'
-                              : 'bg-[#6ED7A0] border-transparent text-black'
-                          }`}
-                        >
-                          {L.s0_action}
-                        </motion.button>
-                      </div>
-                    )}
+                      )}
+                    </div>
                   </div>
+
+                  {/* Scene 4 — CTA button outside bubble */}
+                  {introScene > 3 && (
+                    <motion.button
+                      whileTap={{ scale: 0.95 }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleNext();
+                      }}
+                      className={`px-8 py-3 rounded-xl border font-black uppercase text-[11px] tracking-widest transition-all font-['Outfit'] shadow-[0_4px_14px_rgba(110,215,160,0.4)] ${
+                        isLight
+                          ? 'bg-[#6ED7A0] border-black text-black shadow-[3px_3px_0px_rgba(0,0,0,1)] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none'
+                          : 'bg-[#6ED7A0] border-transparent text-black'
+                      }`}
+                    >
+                      {L.s0_action}
+                    </motion.button>
+                  )}
                 </div>
               ) : (
                 // Other steps (Step > 0)
