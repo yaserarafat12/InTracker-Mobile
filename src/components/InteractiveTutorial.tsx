@@ -1231,7 +1231,7 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
                 // Greeting Sub-scenes rendering
                 <div className="flex flex-col text-center items-center justify-center min-h-[140px]">
                   {/* Speaker Label */}
-                  <span className={`text-[11px] font-black uppercase tracking-widest ${isLight ? 'text-[#6ED7A0]' : 'text-[#6ED7A0]'} mb-2.5`}>
+                  <span className={`text-[11px] font-black uppercase tracking-widest ${isLight ? 'text-[#6ED7A0]' : 'text-[#6ED7A0]'} -mt-2 mb-2.5`}>
                     Rise
                   </span>
                   
@@ -1250,7 +1250,7 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
                         style={{ color: isLight ? 'rgba(0, 0, 0, 0.85)' : 'rgba(255, 255, 255, 0.9)' }}
                         className="text-[15.5px] font-medium leading-relaxed font-['Outfit'] mb-6"
                       >
-                        {L.s0_desc.replace(/\.(?= )/g, '.\n')}
+                        {L.s0_desc.split('\n').slice(1).join(' ').trim()}
                       </p>
                       <motion.button 
                         whileTap={{ scale: 0.95 }}
