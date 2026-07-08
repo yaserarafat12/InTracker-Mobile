@@ -2825,7 +2825,7 @@ export default function Questions() {
     const trans = getPreferencesTranslation(settings.language || 'English');
 
     return (
-      <div className={`min-h-screen font-['Inter'] relative flex flex-col items-center justify-between py-12 px-6 overflow-hidden select-none transition-colors duration-300 ${isLight ? 'bg-white text-black' : 'bg-black text-white'}`}>
+      <div className="min-h-screen font-['Inter'] relative flex flex-col items-center justify-between py-12 px-6 overflow-hidden select-none transition-colors duration-300 bg-white text-black">
 
 
         {/* TOP TITLE */}
@@ -2834,7 +2834,7 @@ export default function Questions() {
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, ease: CUBIC_BEZIER }}
-            className={`text-[26px] font-black font-['Outfit'] tracking-wide leading-tight px-4 ${isLight ? 'text-black' : 'text-white'}`}
+            className="text-[26px] font-black font-['Outfit'] tracking-wide leading-tight px-4 text-black"
           >
             {trans.themeLabel}
           </motion.h1>
@@ -2842,7 +2842,7 @@ export default function Questions() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.2 }}
-            className={`text-[11px] mt-1 font-medium px-6 ${isLight ? 'text-neutral-500' : 'text-white/40'}`}
+            className="text-[11px] mt-1 font-medium px-6 text-neutral-500"
           >
             {settings.language === 'Bahasa Indonesia' 
               ? 'Pilih tema tampilan aplikasi pilihan Anda' 
@@ -2861,9 +2861,7 @@ export default function Questions() {
               className={`relative py-7 px-4 rounded-2xl border flex flex-col items-center justify-center gap-3.5 transition-all duration-300 ${
                 activeTheme === 'Light'
                   ? 'bg-neutral-100 border-black text-black shadow-[6px_6px_0px_rgba(0,0,0,1)]'
-                  : isLight
-                    ? 'bg-neutral-50 border-black/10 text-black/50 hover:bg-neutral-100 hover:border-black/30'
-                    : 'bg-white/[0.02] border-white/[0.08] text-white/50 hover:bg-white/[0.05] hover:border-white/20'
+                  : 'bg-neutral-50 border-black/10 text-black/50 hover:bg-neutral-100 hover:border-black/30'
               }`}
             >
               <Icon 
@@ -2882,7 +2880,7 @@ export default function Questions() {
               <span className={`absolute -top-3 px-3 py-0.5 rounded-full text-[8px] font-black uppercase tracking-wider border transition-all duration-300 ${
                 activeTheme === 'Light' 
                   ? 'bg-black text-white border-black shadow-[2px_2px_0px_rgba(0,0,0,1)]' 
-                  : 'bg-neutral-800 text-white/30 border-white/10'
+                  : 'bg-neutral-200 text-neutral-500 border-neutral-300'
               }`}>
                 {trans.recommended}
               </span>
@@ -2895,12 +2893,8 @@ export default function Questions() {
               onClick={() => updateSettings({ theme: 'Dark' })}
               className={`relative py-7 px-4 rounded-2xl border flex flex-col items-center justify-center gap-3.5 transition-all duration-300 ${
                 activeTheme === 'Dark'
-                  ? isLight
-                    ? 'bg-neutral-900 border-black text-white shadow-[6px_6px_0px_rgba(0,0,0,1)]'
-                    : 'bg-white/[0.08] border-white text-white shadow-[6px_6px_0px_rgba(255,255,255,0.15)]'
-                  : isLight
-                    ? 'bg-neutral-50 border-black/10 text-black/50 hover:bg-neutral-100 hover:border-black/30'
-                    : 'bg-white/[0.02] border-white/[0.08] text-white/50 hover:bg-white/[0.05] hover:border-white/20'
+                  ? 'bg-neutral-900 border-black text-white shadow-[6px_6px_0px_rgba(0,0,0,1)]'
+                  : 'bg-neutral-50 border-black/10 text-black/50 hover:bg-neutral-100 hover:border-black/30'
               }`}
             >
               <Icon 
@@ -2934,7 +2928,7 @@ export default function Questions() {
           >
             {trans.continueBtn}
           </CinematicButton>
-          <p className={`text-[10px] font-medium tracking-wide ${isLight ? 'text-black/40' : 'text-white/30'}`}>
+          <p className="text-[10px] font-medium tracking-wide text-black/40">
             {trans.footerHint}
           </p>
         </div>
