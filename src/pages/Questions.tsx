@@ -2967,9 +2967,9 @@ export default function Questions() {
               scale: { delay: 0.1, duration: 0.5 },
               y: { repeat: Infinity, duration: 3.5, ease: "easeInOut" }
             }}
-            src="/all_images/antigravitybg/maskot/happy.png" 
+            src="/all_images/antigravitybg/maskot/cheer.png" 
             alt="Mascot" 
-            className="w-64 h-64 object-contain drop-shadow-[0_8px_16px_rgba(0,0,0,0.08)]"
+            className="w-[350px] h-[350px] object-contain drop-shadow-[0_8px_16px_rgba(0,0,0,0.08)]"
           />
         </div>
 
