@@ -1196,17 +1196,17 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
             animate={{ scale: 1, opacity: 1, y: 0 }}
             exit={{ scale: 0.95, opacity: 0, y: -15 }}
             transition={{ type: 'spring', stiffness: 240, damping: 24 }}
-            className={`max-w-[340px] w-full mx-auto flex flex-col relative select-text transition-all duration-300 ${
+            className={`max-w-[280px] w-full mx-auto flex flex-col relative select-text transition-all duration-300 overflow-visible ${
               currentStep === 0 
-                ? 'overflow-visible bg-transparent shadow-none border-0'
-                : `overflow-hidden border rounded-[24px] shadow-[0_20px_50px_rgba(0,0,0,0.35)] ${isLight ? 'bg-[#ffffff] border-black/5' : 'bg-[#252830] border-white/[0.08]'}`
+                ? 'bg-transparent shadow-none border-0'
+                : `border rounded-[24px] shadow-[0_20px_50px_rgba(0,0,0,0.35)] ${isLight ? 'bg-[#ffffff] border-black/5' : 'bg-[#252830] border-white/[0.08]'}`
             }`}
           >
 
             {/* Dialogue Content */}
             <div 
               className={`flex flex-col relative transition-all duration-300 ${
-                currentStep === 0 ? 'p-0' : 'pt-5 pb-5 px-6'
+                currentStep === 0 ? 'p-0' : 'pt-6 pb-5 px-6'
               }`}
             >
               {currentStep === 0 ? (
@@ -1286,54 +1286,38 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
                 </div>
               ) : (
                 // Other steps (Step > 0)
-                <div className="flex flex-col items-center text-center">
-                  {/* Mascot — full size, truly centered */}
+                <div className="flex flex-col items-center text-center relative w-full pt-2">
+                  {/* Mascot — small icon in the top right corner, seeable */}
                   <motion.div
-                    className="w-80 h-80 mx-auto mb-4 flex-shrink-0"
-                    animate={{ y: [0, -6, 0] }}
+                    className="absolute -top-16 -right-6 w-[92px] h-[92px] z-20 pointer-events-none"
+                    animate={{ y: [0, -3, 0] }}
                     transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
                   >
                     <img 
                       src={getMascotSrc(currentStepData.expression)} 
                       alt="Rise" 
-                      className="w-full h-full object-contain drop-shadow-[0_6px_16px_rgba(0,0,0,0.15)]" 
+                      className="w-full h-full object-contain drop-shadow-[0_4px_10px_rgba(0,0,0,0.15)]" 
                     />
                   </motion.div>
                   <div className="w-full">
                     {/* Step Title */}
                     <h4 
                       style={{ color: isLight ? '#000000' : '#ffffff' }}
-                      className="text-[15px] font-black font-['Outfit'] tracking-tight mb-1"
+                      className="text-[15px] font-black font-['Outfit'] tracking-tight mb-2 pr-6 text-left"
                     >
                       {currentStepData.title}
                     </h4>
 
-                    {/* Step Description */}
-                    <p 
-                      style={{ color: isLight ? 'rgba(0, 0, 0, 0.65)' : 'rgba(255, 255, 255, 0.7)' }}
-                      className="text-[13px] font-normal leading-relaxed font-['Outfit'] whitespace-pre-line"
-                    >
-                      {currentStepData.desc.replace(/\.(?= )/g, '.\n')}
-                    </p>
+                     {/* Step Description */}
+                     <p 
+                       style={{ color: isLight ? 'rgba(0, 0, 0, 0.65)' : 'rgba(255, 255, 255, 0.7)' }}
+                       className="text-[13px] font-normal leading-relaxed font-['Outfit'] whitespace-pre-line text-left"
+                     >
+                       {currentStepData.desc.replace(/\.(?= )/g, '.\n')}
+                     </p>
 
                     {/* Action buttons footer for step > 0 */}
-                    <div className="flex items-center justify-between mt-4">
-                      {/* Back Button */}
-                      {currentStep > 0 ? (
-                        <button 
-                          onClick={handleBack}
-                          className={`w-9 h-9 rounded-xl border flex items-center justify-center transition-all ${
-                            isLight 
-                              ? 'bg-white border-black text-black shadow-[3px_3px_0px_rgba(0,0,0,1)] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none' 
-                              : 'bg-[#2a2c32] border-white/10 text-white active:scale-95'
-                          }`}
-                        >
-                          <Icon icon="ph:caret-left-bold" width={16} />
-                        </button>
-                      ) : (
-                        <div />
-                      )}
-
+                    <div className="flex items-center justify-center mt-4">
                       {/* Lanjut / Next Button */}
                       {(currentStepData.actionText || currentStep < maxStep) && (
                         currentStepData.actionText && currentStepData.actionText !== 'Lanjut' ? (
