@@ -1289,7 +1289,7 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
                 <div className="flex flex-col items-center text-center relative w-full pt-2">
                   {/* Mascot — small icon in the top right corner, seeable */}
                   <motion.div
-                    className="absolute -top-16 -right-4 w-[92px] h-[92px] z-20 pointer-events-none"
+                    className="absolute -top-16 -right-8 w-[92px] h-[92px] z-20 pointer-events-none"
                     animate={{ y: [0, -3, 0] }}
                     transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
                   >
