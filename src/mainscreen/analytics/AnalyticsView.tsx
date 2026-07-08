@@ -566,7 +566,13 @@ function HabitPattern({ habits, habitLogs, timeRange, setTimeRange, timeRanges, 
     } else if (tutorialStep === 14) {
       // step 14 (array index 14) = "Weekly Chart Explanation"
       // Card must be OPEN to show the chart
-      const hidrasi = habits.find((h: any) => h.name === 'Drink Water');
+      const hidrasi = habits.find((h: any) => 
+        h.name === 'Drink Water' || 
+        h.name === 'Hidrasi Harian' || 
+        h.name === 'Minum Air' ||
+        h.iconName === 'ph:drop-bold' ||
+        h.iconName === 'WaterGlass'
+      );
       if (hidrasi) {
         setExpandedHabit(hidrasi.id);
       }

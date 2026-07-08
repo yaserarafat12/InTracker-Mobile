@@ -358,7 +358,7 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
     setShowDialogue(false);
     setTypedDesc('');
 
-    // Wait 2000ms for spotlight to stabilize, then show dialogue + start typing
+    // Wait 650ms for spotlight to stabilize, then show dialogue + start typing
     const delayTimer = setTimeout(() => {
       setShowDialogue(true);
       let idx = 0;
@@ -371,7 +371,7 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
         }
       }, 22);
       return () => clearInterval(typeTimer);
-    }, 2000);
+    }, 650);
 
     return () => clearTimeout(delayTimer);
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -890,9 +890,16 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
 
     let active = true;
     const unsubscribe = useHabitStore.subscribe((state) => {
-      // Check specifically if the Drink Water habit is completed
+      // Check specifically if the Drink Water habit is completed (using name/icon variants)
       const isDrinkWaterCompleted = state.habits.some(
-        (h: any) => (h.name === 'Drink Water' || h.name === 'Hidrasi Harian') && h.completed
+        (h: any) => 
+          (
+            h.name === 'Drink Water' || 
+            h.name === 'Hidrasi Harian' || 
+            h.name === 'Minum Air' ||
+            h.iconName === 'ph:drop-bold' ||
+            h.iconName === 'WaterGlass'
+          ) && h.completed
       );
       if (isDrinkWaterCompleted && active) {
         active = false;
@@ -1257,7 +1264,7 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.22, ease: 'easeInOut' }}
+            transition={{ duration: 0.14, ease: 'easeOut' }}
             onClick={currentStep > 0 ? handleDialogueTap : undefined}
             className={`w-full mx-auto flex flex-col relative select-text transition-all duration-300 overflow-visible cursor-pointer ${
               currentStep === 0 
