@@ -1123,7 +1123,7 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
               y="0"
               width="100%"
               height="100%"
-              fill={isLight ? 'rgba(0, 0, 0, 0.62)' : 'rgba(0, 0, 0, 0.72)'}
+              fill={isLight ? 'rgba(0, 0, 0, 0.78)' : 'rgba(0, 0, 0, 0.90)'}
               mask="url(#spotlight-mask)"
               className="pointer-events-none"
             />
@@ -1172,7 +1172,7 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
           /* Full backdrop for welcome / outro steps with no selector */
           <motion.div
             key="full-backdrop"
-            className={`absolute inset-0 ${isLight ? 'bg-black/60' : 'bg-black/72'} pointer-events-auto`}
+            className={`absolute inset-0 ${isLight ? 'bg-black/75' : 'bg-black/90'} pointer-events-auto`}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
