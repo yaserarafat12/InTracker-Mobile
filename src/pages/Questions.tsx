@@ -20,7 +20,7 @@ const STAT_DISPLAY: Record<string, { key: string; icon: string; color: string }>
 const CUBIC_BEZIER = "easeOut" as const;
 
 // --- COMPONENT: CINEMATIC BUTTON ---
-const CinematicButton = ({ onClick, children, className = "", disabled = false, bg = "#10B981" }: { onClick: () => void, children: React.ReactNode, className?: string, disabled?: boolean, bg?: string }) => {
+const CinematicButton = ({ onClick, children, className = "", disabled = false, bg = "#10B981", shadowClass = "shadow-[5px_5px_0px_rgba(0,0,0,1)]" }: { onClick: () => void, children: React.ReactNode, className?: string, disabled?: boolean, bg?: string, shadowClass?: string }) => {
   return (
     <motion.button
       disabled={disabled}
@@ -29,7 +29,7 @@ const CinematicButton = ({ onClick, children, className = "", disabled = false, 
       className={`group relative overflow-hidden rounded-xl py-3 px-8 border-[2px] border-black transition-all ${
         disabled 
         ? 'bg-neutral-800 border-neutral-700 text-neutral-500 cursor-not-allowed' 
-        : 'shadow-[5px_5px_0px_rgba(0,0,0,1)] active:scale-[0.98] active:shadow-none'
+        : `${shadowClass} active:scale-[0.98] active:shadow-none`
       } ${className}`}
       style={disabled ? undefined : { backgroundColor: bg }}
     >
@@ -2994,6 +2994,7 @@ export default function Questions() {
           >
             <CinematicButton 
               bg="#6ED7A0"
+              shadowClass="shadow-[3px_3px_0px_rgba(0,0,0,1)]"
               onClick={async () => {
                 try {
                   const { data: { user } } = await supabase.auth.getUser();
