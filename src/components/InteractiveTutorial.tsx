@@ -1132,7 +1132,7 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
            Uses AnimatePresence + a step-keyed key so it cleanly fades
            in/out on each step transition instead of snapping. */}
       <AnimatePresence>
-        {arrowPath && sr && (
+        {arrowPath && sr && spotlightVisible && (
           <motion.div
             key={`arrow-${currentStep}`}
             initial={{
