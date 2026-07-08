@@ -1264,7 +1264,7 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
                 <div className="flex flex-col items-center text-center">
                   {/* Mascot — full size, truly centered */}
                   <motion.div
-                    className="w-60 h-60 mx-auto mb-4 flex-shrink-0"
+                    className="w-80 h-80 mx-auto mb-4 flex-shrink-0"
                     animate={{ y: [0, -6, 0] }}
                     transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
                   >
