@@ -1183,7 +1183,7 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
 
       {/* Main Dialogue Box */}
       <div 
-        className="absolute w-full px-6 pointer-events-auto"
+        className="absolute w-full px-6 pointer-events-auto mb-8"
         style={{
           top: dialogueTop,
           bottom: dialogueBottom,
@@ -1196,7 +1196,7 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
             animate={{ scale: 1, opacity: 1, y: 0 }}
             exit={{ scale: 0.95, opacity: 0, y: -15 }}
             transition={{ type: 'spring', stiffness: 240, damping: 24 }}
-            className={`max-w-[300px] w-full mx-auto flex flex-col relative select-text transition-all duration-300 ${
+            className={`max-w-[340px] w-full mx-auto flex flex-col relative select-text transition-all duration-300 ${
               currentStep === 0 
                 ? 'overflow-visible bg-transparent shadow-none border-0'
                 : `overflow-hidden border rounded-[24px] shadow-[0_20px_50px_rgba(0,0,0,0.35)] ${isLight ? 'bg-[#ffffff] border-black/5' : 'bg-[#252830] border-white/[0.08]'}`
@@ -1211,11 +1211,11 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
             >
               {currentStep === 0 ? (
                 // Speech bubble layout: mascot left, bubble right
-                <div className="flex items-end gap-2 w-full">
+                <div className="flex items-center gap-3 w-full">
 
                   {/* Mascot floating on the left */}
                   <motion.div
-                    className="w-[100px] h-[100px] flex-shrink-0"
+                    className="w-[150px] h-[150px] flex-shrink-0"
                     animate={{ y: [0, -5, 0] }}
                     transition={{ duration: 3.5, repeat: Infinity, ease: "easeInOut" }}
                   >
@@ -1237,7 +1237,7 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
                   >
                     {/* Bubble tail pointing left toward mascot */}
                     <div
-                      className="absolute -left-[8px] bottom-4"
+                      className="absolute -left-[9px] top-1/2 -translate-y-1/2"
                       style={{
                         width: 0,
                         height: 0,
@@ -1251,7 +1251,7 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
                       /* Typing Scene */
                       <p
                         style={{ color: isLight ? 'rgba(0,0,0,0.85)' : 'rgba(255,255,255,0.9)' }}
-                        className="text-[14px] font-semibold leading-relaxed font-['Outfit'] min-h-[44px]"
+                        className="text-[17px] font-semibold leading-relaxed font-['Outfit'] min-h-[60px]"
                       >
                         {typedText}
                       </p>
