@@ -719,80 +719,61 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
   // On each step change we hide the spotlight first (to avoid a flash at the
   // old position), wait 250 ms for page transitions to settle, then find the
   // target element and fade the spotlight back in.
+  // Recalculate spotlight rect on step/tab change in real-time.
+  // We use a requestAnimationFrame loop to continuously track the target element's position,
+  // ensuring the spotlight follows any layout animations, page transitions, modal sheet slide-ins,
+  // keyboard toggles, and scrolling smoothly without any delay or glitches.
   useEffect(() => {
     const isNewStep = prevStepRef.current !== currentStep;
     if (isNewStep) {
       prevStepRef.current = currentStep;
-      // Hide spotlight immediately so it doesn't flash at wrong position
+      // Temporarily hide the spotlight on step transition to prevent flashing
       setSpotlightVisible(false);
       setTargetRect(null);
     }
 
-    if (!currentStepData?.selector) {
+    const selector = currentStepData?.selector;
+    if (!selector) {
       setTargetRect(null);
       setSpotlightVisible(false);
       return;
     }
 
-    // How long to wait before we first try to find the target element
-    const revealDelay = isNewStep ? 250 : 0;
+    let animFrameId: number;
 
-    let retryTimer: ReturnType<typeof setTimeout>;
-
-    const findAndReveal = () => {
-      const el = document.querySelector(currentStepData.selector!);
-      if (el) {
-        setTargetRect(el.getBoundingClientRect());
-        setSpotlightVisible(true);
-      } else {
-        // Element not in DOM yet — retry shortly
-        retryTimer = setTimeout(findAndReveal, 80);
-      }
-    };
-
-    const initialTimer = setTimeout(findAndReveal, revealDelay);
-
-    const handleResize = () => {
-      if (updateTimerRef.current) cancelAnimationFrame(updateTimerRef.current);
-      updateTimerRef.current = requestAnimationFrame(() => {
-        const el = document.querySelector(currentStepData.selector!);
-        if (el) setTargetRect(el.getBoundingClientRect());
-      });
-    };
-
-    // Slow poll (400 ms) to stay in sync with keyboard/scroll layout shifts.
-    // We guard against no-op state updates by comparing positions.
-    const pollInterval = setInterval(() => {
-      const el = document.querySelector(currentStepData.selector!);
+    const trackElement = () => {
+      const el = document.querySelector(selector);
       if (el) {
         const r = el.getBoundingClientRect();
-        setTargetRect(prev => {
+        setTargetRect((prev) => {
           if (
             !prev ||
-            Math.abs(prev.top - r.top) > 1 ||
-            Math.abs(prev.left - r.left) > 1 ||
-            Math.abs(prev.width - r.width) > 1 ||
-            Math.abs(prev.height - r.height) > 1
+            prev.top !== r.top ||
+            prev.bottom !== r.bottom ||
+            prev.left !== r.left ||
+            prev.right !== r.right ||
+            prev.width !== r.width ||
+            prev.height !== r.height
           ) {
             return r;
           }
           return prev;
         });
+        setSpotlightVisible(true);
+      } else {
+        // Target element is not in DOM yet (e.g. during animations)
+        setTargetRect(null);
+        setSpotlightVisible(false);
       }
-    }, 400);
+      animFrameId = requestAnimationFrame(trackElement);
+    };
 
-    window.addEventListener('resize', handleResize);
-    window.addEventListener('scroll', handleResize, true);
+    animFrameId = requestAnimationFrame(trackElement);
 
     return () => {
-      clearTimeout(initialTimer);
-      clearTimeout(retryTimer);
-      clearInterval(pollInterval);
-      window.removeEventListener('resize', handleResize);
-      window.removeEventListener('scroll', handleResize, true);
-      if (updateTimerRef.current) cancelAnimationFrame(updateTimerRef.current);
+      cancelAnimationFrame(animFrameId);
     };
-  }, [currentStep, activeTab]);
+  }, [currentStep, currentStepData, activeTab]);
 
   // Auto advance if the user performs the target tab switch action
   useEffect(() => {
