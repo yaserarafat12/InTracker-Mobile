@@ -61,6 +61,10 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
   const [introScene, setIntroScene] = useState<number>(1);
   const [typedText, setTypedText] = useState<string>('');
 
+  // States for per-step typewriter effect (steps > 0)
+  const [typedDesc, setTypedDesc] = useState<string>('');
+  const [showDialogue, setShowDialogue] = useState<boolean>(false);
+
   const getMascotSrc = (expression: MascotExpression) => {
     switch (expression) {
       case 'cheer':
@@ -341,6 +345,43 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
     } else {
       // Advance immediately
       setIntroScene(prev => prev + 1);
+    }
+  };
+
+  // Typewriter effect for steps > 0
+  useEffect(() => {
+    if (currentStep === 0 || completed) return;
+    const fullDesc = currentStepData?.desc || '';
+
+    // Reset state on step change
+    setShowDialogue(false);
+    setTypedDesc('');
+
+    // Wait for spotlight to settle, then show dialogue + start typing
+    const delayTimer = setTimeout(() => {
+      setShowDialogue(true);
+      let idx = 0;
+      const typeTimer = setInterval(() => {
+        if (idx < fullDesc.length) {
+          setTypedDesc(fullDesc.substring(0, idx + 1));
+          idx++;
+        } else {
+          clearInterval(typeTimer);
+        }
+      }, 22);
+      return () => clearInterval(typeTimer);
+    }, 320);
+
+    return () => clearTimeout(delayTimer);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentStep, completed]);
+
+  // Skip typing on dialogue tap (steps > 0)
+  const handleDialogueTap = () => {
+    if (currentStep === 0) return;
+    const fullDesc = currentStepData?.desc || '';
+    if (typedDesc.length < fullDesc.length) {
+      setTypedDesc(fullDesc);
     }
   };
 
@@ -1082,16 +1123,16 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
         {arrowPath && sr && (
           <motion.div
             key={`arrow-${currentStep}`}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.4, ease: 'easeInOut' }}
-            style={{
-              position: 'absolute',
-              top: dialogueInTop ? sr.top - 40 : sr.bottom + 8,
-              left: sr.left + sr.width / 2 - 12,
+            initial={{ opacity: 0, scale: 0.75 }}
+            animate={{
+              opacity: 1,
+              scale: 1,
+              y: dialogueInTop ? sr.top - 40 : sr.bottom + 8,
+              x: sr.left + sr.width / 2 - 12,
             }}
-            className={`z-[1000000] pointer-events-none ${isLight ? 'text-[#6ED7A0]' : 'text-[#6ED7A0]'} drop-shadow-[0_2px_8px_rgba(0,255,133,0.3)]`}
+            exit={{ opacity: 0, scale: 0.75 }}
+            transition={{ ...spotlightSpring, opacity: { duration: 0.2 } }}
+            className={`absolute z-[1000000] pointer-events-none ${isLight ? 'text-[#6ED7A0]' : 'text-[#6ED7A0]'} drop-shadow-[0_2px_8px_rgba(0,255,133,0.3)]`}
           >
             <motion.svg
               width="24"
@@ -1114,12 +1155,12 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
       <AnimatePresence>
         {sr ? (
           <motion.svg
-            key={`spotlight-${currentStep}`}
+            key="spotlight-svg"
             className="absolute inset-0 w-full h-full cursor-default"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.4, ease: 'easeInOut' }}
+            transition={{ duration: 0.22 }}
             onClick={handleBackdropClick}
             onMouseDown={handleBackdropPress}
             onTouchStart={handleBackdropPress}
@@ -1130,11 +1171,14 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
                 {/* White cover keeps backdrop visible everywhere */}
                 <rect x="0" y="0" width="100%" height="100%" fill="white" />
                 {/* Black animated rounded-rect = transparent hole in the overlay */}
-                <rect
-                  x={sr.left}
-                  y={sr.top}
-                  width={sr.width}
-                  height={sr.height}
+                <motion.rect
+                  animate={{
+                    x: sr.left,
+                    y: sr.top,
+                    width: sr.width,
+                    height: sr.height,
+                  }}
+                  transition={spotlightSpring}
                   rx="16"
                   fill="black"
                 />
@@ -1162,11 +1206,14 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
             />
 
             {/* Green border outline */}
-            <rect
-              x={sr.left}
-              y={sr.top}
-              width={sr.width}
-              height={sr.height}
+            <motion.rect
+              animate={{
+                x: sr.left,
+                y: sr.top,
+                width: sr.width,
+                height: sr.height,
+              }}
+              transition={spotlightSpring}
               rx="16"
               stroke={isLight ? '#6ED7A0' : '#6ED7A0'}
               strokeWidth="2.5"
@@ -1177,14 +1224,18 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
 
             {/* Pulsing outer ring */}
             <motion.rect
-              x={sr.left - 3}
-              y={sr.top - 3}
-              width={sr.width + 6}
-              height={sr.height + 6}
               animate={{
+                x: sr.left - 3,
+                y: sr.top - 3,
+                width: sr.width + 6,
+                height: sr.height + 6,
                 opacity: [0.35, 0.08, 0.35],
               }}
               transition={{
+                x: spotlightSpring,
+                y: spotlightSpring,
+                width: spotlightSpring,
+                height: spotlightSpring,
                 opacity: { duration: 2.4, repeat: Infinity, ease: "easeInOut" },
               }}
               rx="19"
@@ -1216,13 +1267,16 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
         }}
       >
         <AnimatePresence mode="wait">
+          <AnimatePresence>
+          {(currentStep === 0 || showDialogue) && (
           <motion.div 
             key={currentStep}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.35, ease: 'easeInOut' }}
-            className={`w-full mx-auto flex flex-col relative select-text transition-all duration-300 overflow-visible ${
+            transition={{ duration: 0.18, ease: 'easeInOut' }}
+            onClick={currentStep > 0 ? handleDialogueTap : undefined}
+            className={`w-full mx-auto flex flex-col relative select-text transition-all duration-300 overflow-visible cursor-pointer ${
               currentStep === 0 
                 ? 'max-w-[340px] bg-transparent shadow-none border-0'
                 : `max-w-[580px] border rounded-[24px] shadow-[0_20px_50px_rgba(0,0,0,0.35)] ${isLight ? 'bg-[#ffffff] border-black/5' : 'bg-[#252830] border-white/[0.08]'}`
@@ -1334,12 +1388,20 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
                       {currentStepData.title}
                     </h4>
 
-                     {/* Step Description */}
+                     {/* Step Description — typewriter */}
                      <p 
                        style={{ color: isLight ? 'rgba(0, 0, 0, 0.65)' : 'rgba(255, 255, 255, 0.7)' }}
                        className="text-[13px] font-normal leading-relaxed font-['Outfit'] whitespace-pre-line text-left"
                      >
-                       {currentStepData.desc.replace(/\.(?= )/g, '.\n')}
+                       {typedDesc.replace(/\.(?= )/g, '.\n')}
+                       {/* Blinking cursor while typing */}
+                       {typedDesc.length < (currentStepData.desc || '').length && (
+                         <motion.span
+                           animate={{ opacity: [1, 0, 1] }}
+                           transition={{ duration: 0.7, repeat: Infinity }}
+                           className="inline-block w-[2px] h-[13px] bg-current align-middle ml-[1px]"
+                         />
+                       )}
                      </p>
 
                     {/* Action buttons footer for step > 0 */}
@@ -1363,6 +1425,8 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
               )}
             </div>
           </motion.div>
+          )}
+          </AnimatePresence>
         </AnimatePresence>
       </div>
     </div>,
