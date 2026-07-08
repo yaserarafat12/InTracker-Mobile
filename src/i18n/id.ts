@@ -81,7 +81,7 @@ export const id = {
     emptyCompleted: 'Tidak ada habit yang diselesaikan',
     emptySkipped: 'Tidak ada habit yang dilewati',
     emptyMissed: 'Tidak ada habit yang terlewat',
-    doubleTapHint: 'Ketuk 2x untuk menyelesaikan tugas',
+    doubleTapHint: 'Ketuk 2x untuk menyelesaikan',
     allCompleted: 'Semua habit hari ini selesai!',
     noneScheduled: 'Tidak ada habit yang dijadwalkan hari ini',
     zeroHabits: 'Belum ada habit.<br />Tap + untuk menambahkan',

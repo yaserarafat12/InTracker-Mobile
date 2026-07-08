@@ -321,16 +321,12 @@ const DaftarHabit = ({
                   {t('habits.doubleTapHint')}
                 </p>
               </div>
-              {/* X button - top right corner, half inside half outside */}
+              {/* Simple X button - positioned inside the banner on the right */}
               <button 
                 onClick={dismissHint} 
-                className={`absolute -top-2 -right-2 w-7 h-7 flex items-center justify-center rounded-lg border-[2px] transition-all ${
-                  settings.theme === 'Light'
-                    ? 'bg-white border-black text-black shadow-[2px_2px_0px_rgba(0,0,0,1)]'
-                    : 'border-white/10 bg-[#2a2c32] text-white shadow-none'
-                }`}
+                className="absolute top-1/2 -translate-y-1/2 right-3 w-6 h-6 flex items-center justify-center text-[#00FF85]/60 hover:text-[#00FF85] active:scale-90 transition-all"
               >
-                <Icon icon="ph:x-bold" width={12} />
+                <Icon icon="ph:x-bold" width={14} />
               </button>
             </div>
           )}
