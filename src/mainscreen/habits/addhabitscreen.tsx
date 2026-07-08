@@ -442,7 +442,7 @@ export const TambahHabitModal = ({
                     }}
                     className={`flex-1 py-2 rounded-lg text-[10px] font-black font-['Outfit'] uppercase tracking-wider transition-all ${
                       scheduleType === type
-                        ? 'bg-[#10B981] text-black border-2 border-black shadow-[2px_2px_0px_rgba(0,0,0,1)]'
+                        ? 'bg-[#6ED7A0] text-black border-2 border-black shadow-[2px_2px_0px_rgba(0,0,0,1)]'
                         : isLight
                           ? 'bg-white text-black/50 border border-black/10'
                           : 'bg-[#1a1a1a] text-white/40 border border-white/5'
@@ -475,7 +475,7 @@ export const TambahHabitModal = ({
                       }}
                       className={`w-8 h-8 rounded-full flex items-center justify-center text-[10px] font-bold font-['Outfit'] transition-all ${
                         scheduleDays.includes(i)
-                          ? 'bg-[#10B981] text-black border-2 border-black shadow-[1.5px_1.5px_0px_rgba(0,0,0,1)]'
+                          ? 'bg-[#6ED7A0] text-black border-2 border-black shadow-[1.5px_1.5px_0px_rgba(0,0,0,1)]'
                           : isLight
                             ? 'bg-white text-black/50 border border-black/10'
                             : 'bg-[#1a1a1a] text-[#E3DAC9]/40 border border-white/5'
@@ -509,8 +509,8 @@ export const TambahHabitModal = ({
                 onClick={() => handleActionClick(selectedHabitForConfig, intensityValue)}
                 className={`flex-[1.5] h-[48px] rounded-xl font-black font-['Outfit'] uppercase tracking-[0.15em] text-[12px] border transition-all flex items-center justify-center gap-2 ${
                   isLight
-                    ? 'bg-[#10B981] border-black text-black shadow-[2.5px_2.5px_0px_rgba(0,0,0,1)]'
-                    : 'bg-[#10B981] border-transparent text-black shadow-none'
+                    ? 'bg-[#6ED7A0] border-black text-black shadow-[2.5px_2.5px_0px_rgba(0,0,0,1)]'
+                    : 'bg-[#6ED7A0] border-transparent text-black shadow-none'
                 }`}
               >
                 {habitToEdit ? t('addHabit.save') : t('addHabit.add')}
@@ -540,7 +540,7 @@ export const TambahHabitModal = ({
             <h3 className="text-[16px] font-black font-['Outfit'] text-[#E3DAC9] text-center mb-6">{t('addHabit.selectIntensityTitle')}</h3>
 
             <div className="relative w-full h-[300px] overflow-hidden flex items-center justify-center">
-              <div className="absolute inset-x-4 h-[52px] bg-[#10B981]/8 border border-[#10B981]/20 pointer-events-none z-0 rounded-2xl" />
+              <div className="absolute inset-x-4 h-[52px] bg-[#6ED7A0]/8 border border-[#6ED7A0]/20 pointer-events-none z-0 rounded-2xl" />
               <div 
                 ref={pickerRef}
                 onScroll={handlePickerScroll}
@@ -573,8 +573,8 @@ export const TambahHabitModal = ({
                 onClick={() => { if (navigator.vibrate) navigator.vibrate(5); setShowIntensityPicker(false); }}
                 className={`flex-[1.5] h-[48px] rounded-xl font-black font-['Outfit'] uppercase tracking-[0.15em] text-[12px] border transition-all flex items-center justify-center ${
                   isLight
-                    ? 'bg-[#10B981] border-black text-black shadow-[2.5px_2.5px_0px_rgba(0,0,0,1)]'
-                    : 'bg-[#10B981] border-transparent text-black shadow-none'
+                    ? 'bg-[#6ED7A0] border-black text-black shadow-[2.5px_2.5px_0px_rgba(0,0,0,1)]'
+                    : 'bg-[#6ED7A0] border-transparent text-black shadow-none'
                 }`}
               >
                 {t('addHabit.done')}

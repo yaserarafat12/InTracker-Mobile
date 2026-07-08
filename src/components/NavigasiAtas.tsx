@@ -43,7 +43,7 @@ export const NavigasiAtas = ({ activeTab }: NavigasiAtasProps) => {
               onClick={toggleSettings}
               className={`w-11 h-11 rounded-xl shadow-[4px_4px_0px_rgba(0,0,0,1)] flex items-center justify-center transition-all border-[1.5px] ${
                 isSettingsOpen 
-                  ? 'bg-[#10B981] border-black' 
+                  ? 'bg-[#6ED7A0] border-black' 
                   : isLight 
                     ? 'bg-white border-black text-black' 
                     : 'bg-[#1A1A1A] border-white/10 text-white'
@@ -75,7 +75,7 @@ export const NavigasiAtas = ({ activeTab }: NavigasiAtasProps) => {
               onClick={toggleSettings}
               className={`w-11 h-11 rounded-xl shadow-[4px_4px_0px_rgba(0,0,0,1)] flex items-center justify-center transition-all border-[1.5px] ${
                 isSettingsOpen 
-                  ? 'bg-[#10B981] border-black' 
+                  ? 'bg-[#6ED7A0] border-black' 
                   : isLight 
                     ? 'bg-white border-black text-black' 
                     : 'bg-[#1A1A1A] border-white/10 text-white'

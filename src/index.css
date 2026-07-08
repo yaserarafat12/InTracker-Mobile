@@ -357,14 +357,14 @@ body::after {
   .bg-\[\#7BE495\],
   .bg-\[\#00FF85\],
   .bg-os-green {
-    background-color: #10B981 !important;
+    background-color: #6ED7A0 !important;
     color: #000000 !important;
   }
 
   /* Action buttons (e.g. Save Profile, Premium package select) */
   .bg-\[\#7BE495\].text-black,
   .bg-\[\#00FF85\].text-black {
-    background-color: #10B981 !important;
+    background-color: #6ED7A0 !important;
     color: #000000 !important;
     border-color: #000000 !important;
   }
@@ -398,7 +398,7 @@ body::after {
   /* Timezone / active row selectors */
   .bg-\[\#0a1a0d\] {
     background-color: #e6f7ec !important;
-    border-color: #10b981 !important;
+    border-color: #6ED7A0 !important;
     color: #047857 !important;
   }
 

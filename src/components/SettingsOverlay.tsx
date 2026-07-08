@@ -780,7 +780,7 @@ export const SettingsOverlay = () => {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -20 }}
                   className={`absolute top-6 left-1/2 -translate-x-1/2 z-[110] px-4 py-3 border-2 border-black shadow-[3px_3px_0px_rgba(0,0,0,1)] rounded-xl flex items-center gap-2 text-xs font-black whitespace-nowrap transition-colors ${
-                    isError ? 'bg-[#EF4444] text-white' : 'bg-[#10B981] text-black'
+                    isError ? 'bg-[#EF4444] text-white' : 'bg-[#6ED7A0] text-black'
                   }`}
                 >
                   {isError && <Icon icon="ph:warning-circle-bold" width={15} />}
@@ -862,7 +862,7 @@ export const SettingsOverlay = () => {
                      }}
                      className="flex items-center gap-3 cursor-pointer group"
                    >
-                     <div className="w-12 h-12 rounded-full border border-black shadow-[2px_2px_0px_rgba(0,0,0,1)] flex-shrink-0 overflow-hidden bg-[#10B981] flex items-center justify-center relative group-hover:scale-105 transition-transform">
+                     <div className="w-12 h-12 rounded-full border border-black shadow-[2px_2px_0px_rgba(0,0,0,1)] flex-shrink-0 overflow-hidden bg-[#6ED7A0] flex items-center justify-center relative group-hover:scale-105 transition-transform">
                        {avatarUrl ? (
                          <img src={avatarUrl} alt="avatar" className="w-full h-full object-cover" />
                        ) : (
@@ -884,7 +884,7 @@ export const SettingsOverlay = () => {
                     onClick={() => setCurrentView('premium')}
                     className={`px-3 py-1.5 rounded-lg text-[10px] font-black border tracking-wider ${
                       isPro
-                        ? 'bg-[#10B981] text-black border-black shadow-[2px_2px_0px_rgba(0,0,0,1)]'
+                        ? 'bg-[#6ED7A0] text-black border-black shadow-[2px_2px_0px_rgba(0,0,0,1)]'
                         : isLight ? 'bg-[#e8e8e8] text-black/50 border-[#ccc]' : 'bg-[#111] text-white/40 border-white/10 hover:border-white/20'
                     }`}
                   >
@@ -906,7 +906,7 @@ export const SettingsOverlay = () => {
                     >
                       <div className="flex items-center gap-3">
                         <div className={`w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0 ${danger ? 'bg-red-950/30' : isLight ? 'bg-[#f0f0f0] border border-[#ddd]' : 'bg-[#141414] border border-[#222]'}`}>
-                          <Icon icon={icon} className={danger ? 'text-red-500/70' : 'text-[#10B981]'} width={15} />
+                          <Icon icon={icon} className={danger ? 'text-red-500/70' : 'text-[#6ED7A0]'} width={15} />
                         </div>
                         <div>
                           <span className={`text-xs font-bold leading-none ${danger ? 'text-red-500/70' : isLight ? 'text-black' : 'text-white'}`}>{label}</span>
@@ -999,7 +999,7 @@ export const SettingsOverlay = () => {
                 {/* PROFILE PICTURE SELECTOR */}
                 <div className="flex flex-col items-center justify-center py-2 relative">
                   <div className="relative group cursor-pointer" onClick={() => document.getElementById('profile-avatar-input')?.click()}>
-                    <div className="w-24 h-24 rounded-full border-3 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] overflow-hidden bg-[#10B981] flex items-center justify-center relative">
+                    <div className="w-24 h-24 rounded-full border-3 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] overflow-hidden bg-[#6ED7A0] flex items-center justify-center relative">
                       {avatarUrl ? (
                         <img src={avatarUrl} alt="profile" className="w-full h-full object-cover" />
                       ) : (
@@ -1075,7 +1075,7 @@ export const SettingsOverlay = () => {
                       value={username}
                       onChange={(e) => setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ''))}
                       placeholder="username"
-                      className={inputClass + " text-[#10B981]"}
+                      className={inputClass + " text-[#6ED7A0]"}
                     />
                   </div>
 
@@ -1110,7 +1110,7 @@ export const SettingsOverlay = () => {
                           onClick={() => setGender(g)}
                           className={`py-3 rounded-xl border text-xs font-bold transition-all ${
                             gender === g 
-                              ? 'bg-[#10B981] text-black border-black shadow-[2px_2px_0px_rgba(0,0,0,1)]' 
+                              ? 'bg-[#6ED7A0] text-black border-black shadow-[2px_2px_0px_rgba(0,0,0,1)]' 
                               : 'bg-[#0c0c0c] border-[#222] text-white/60 hover:border-[#333]'
                           }`}
                         >
@@ -1135,7 +1135,7 @@ export const SettingsOverlay = () => {
                       </span>
                       <Icon 
                         icon={showDobPicker ? "solar:alt-arrow-up-bold-duotone" : "solar:alt-arrow-down-bold-duotone"} 
-                        className="text-[#10B981]" 
+                        className="text-[#6ED7A0]" 
                         width={18} 
                       />
                     </button>
@@ -1207,12 +1207,12 @@ export const SettingsOverlay = () => {
                                     if (navigator.vibrate) navigator.vibrate(10);
                                     setShowWheelMode(!showWheelMode);
                                   }}
-                                  className="flex items-center gap-1.5 text-xs font-black font-['Outfit'] text-white hover:text-[#10B981] transition-colors"
+                                  className="flex items-center gap-1.5 text-xs font-black font-['Outfit'] text-white hover:text-[#6ED7A0] transition-colors"
                                 >
                                   <span>{activeMonths[selMonth - 1]} {selYear}</span>
                                   <Icon 
                                     icon={showWheelMode ? "solar:alt-arrow-up-bold" : "solar:alt-arrow-right-bold"} 
-                                    className="text-[#10B981]" 
+                                    className="text-[#6ED7A0]" 
                                     width={14} 
                                   />
                                 </button>
@@ -1275,7 +1275,7 @@ export const SettingsOverlay = () => {
                                           <div 
                                             key={i} 
                                             className={`snap-center h-11 flex items-center justify-center text-xs font-black transition-colors duration-200 ${
-                                              isSelected ? 'text-[#10B981]' : 'text-white/30'
+                                              isSelected ? 'text-[#6ED7A0]' : 'text-white/30'
                                             }`}
                                           >
                                             {name}
@@ -1299,7 +1299,7 @@ export const SettingsOverlay = () => {
                                           <div 
                                             key={i} 
                                             className={`snap-center h-11 flex items-center justify-center text-[15px] font-black transition-colors duration-200 ${
-                                              isSelected ? 'text-[#10B981]' : 'text-white/30'
+                                              isSelected ? 'text-[#6ED7A0]' : 'text-white/30'
                                             }`}
                                           >
                                             {val}
@@ -1339,7 +1339,7 @@ export const SettingsOverlay = () => {
                                             }}
                                             className={`w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-black transition-all ${
                                               isSelected 
-                                                ? 'bg-[#10B981] text-black border border-black shadow-[1.5px_1.5px_0px_rgba(0,0,0,1)]' 
+                                                ? 'bg-[#6ED7A0] text-black border border-black shadow-[1.5px_1.5px_0px_rgba(0,0,0,1)]' 
                                                 : 'text-white/80 hover:bg-white/5 active:scale-90'
                                             }`}
                                           >
@@ -1460,11 +1460,11 @@ export const SettingsOverlay = () => {
                     .price-shimmer {
                       background: linear-gradient(
                         90deg,
-                        #10B981 0%,
+                        #6ED7A0 0%,
                         #b8f5cc 35%,
                         #ffffff 50%,
                         #b8f5cc 65%,
-                        #10B981 100%
+                        #6ED7A0 100%
                       );
                       background-size: 200% auto;
                       -webkit-background-clip: text;
@@ -1473,7 +1473,7 @@ export const SettingsOverlay = () => {
                       animation: price-shimmer 2.4s linear infinite;
                     }
                     .price-shimmer-static {
-                      background: linear-gradient(90deg, #10B981 0%, #b8f5cc 50%, #10B981 100%);
+                      background: linear-gradient(90deg, #6ED7A0 0%, #b8f5cc 50%, #6ED7A0 100%);
                       -webkit-background-clip: text;
                       background-clip: text;
                       -webkit-text-fill-color: transparent;
@@ -1485,7 +1485,7 @@ export const SettingsOverlay = () => {
                         90deg,
                         #047857 0%,
                         #059669 35%,
-                        #10b981 50%,
+                        #6ED7A0 50%,
                         #059669 65%,
                         #047857 100%
                       );
@@ -1541,12 +1541,12 @@ export const SettingsOverlay = () => {
                               className={`w-full text-left rounded-2xl p-4.5 flex items-center justify-between transition-all duration-200 ${
                                 isCurrent
                                   ? isLight
-                                    ? 'bg-[#e8f5ee] border border-[#10B981] text-black'
-                                    : 'bg-[#0a2012]/30 border border-[#10B981]/50 text-white'
+                                    ? 'bg-[#e8f5ee] border border-[#6ED7A0] text-black'
+                                    : 'bg-[#0a2012]/30 border border-[#6ED7A0]/50 text-white'
                                   : isSelected
                                   ? isLight
-                                    ? 'bg-[#f0fbf4] border-2 border-[#10B981] selected-plan-glow text-black'
-                                    : 'bg-[#0a1a0d] border-2 border-[#10B981] selected-plan-glow text-white'
+                                    ? 'bg-[#f0fbf4] border-2 border-[#6ED7A0] selected-plan-glow text-black'
+                                    : 'bg-[#0a1a0d] border-2 border-[#6ED7A0] selected-plan-glow text-white'
                                   : isDowngrade
                                   ? isLight
                                     ? 'bg-[#f9f9f9] border border-neutral-200 opacity-60 text-black/60'
@@ -1559,7 +1559,7 @@ export const SettingsOverlay = () => {
                               {/* LEFT: plan info */}
                               <div className="flex flex-col gap-0.5">
                                 {plan.badge && (
-                                  <span className="text-[10px] font-black text-[#10B981] uppercase tracking-wider light-theme-plan-badge">{plan.badge}</span>
+                                  <span className="text-[10px] font-black text-[#6ED7A0] uppercase tracking-wider light-theme-plan-badge">{plan.badge}</span>
                                 )}
                                 <span className={`text-sm font-black ${isCurrent || isSelected ? (isLight ? 'text-black' : 'text-white') : (isLight ? 'text-black/80' : 'text-white/80')}`}>{plan.name}</span>
                                 <span className={`text-[10px] max-w-[160px] leading-relaxed ${isLight ? 'text-black/50' : 'text-white/40'}`}>{plan.sub}</span>
@@ -1568,7 +1568,7 @@ export const SettingsOverlay = () => {
                               {/* RIGHT: price or status */}
                               <div className="flex flex-col items-end gap-1 flex-shrink-0">
                                 {isCurrent ? (
-                                  <span className="text-xs font-black text-[#10B981] bg-[#10B981]/10 px-2.5 py-1.5 rounded-lg border border-[#10B981]/30 uppercase tracking-wider light-theme-active-badge">
+                                  <span className="text-xs font-black text-[#6ED7A0] bg-[#6ED7A0]/10 px-2.5 py-1.5 rounded-lg border border-[#6ED7A0]/30 uppercase tracking-wider light-theme-active-badge">
                                     {t('settings.planCurrent')}
                                   </span>
                                 ) : (
@@ -1614,7 +1614,7 @@ export const SettingsOverlay = () => {
                       />
                       <button
                         onClick={handleRedeemPromo}
-                        className="px-5 bg-[#10B981] text-black font-black text-xs rounded-xl border border-black shadow-[2px_2px_0px_rgba(0,0,0,1)] hover:bg-[#6dd685]"
+                        className="px-5 bg-[#6ED7A0] text-black font-black text-xs rounded-xl border border-black shadow-[2px_2px_0px_rgba(0,0,0,1)] hover:bg-[#6dd685]"
                       >
                         {t('settings.redeemBtn')}
                       </button>
@@ -1681,11 +1681,11 @@ export const SettingsOverlay = () => {
                       onChange={(e) => setSupportMessage(e.target.value)}
                       placeholder={t('settings.messagePlaceholder')}
                       rows={3}
-                      className="w-full bg-[#0c0c0c] border border-[#222] rounded-xl px-4 py-3 text-xs font-semibold focus:outline-none focus:border-[#10B981]/40 resize-none"
+                      className="w-full bg-[#0c0c0c] border border-[#222] rounded-xl px-4 py-3 text-xs font-semibold focus:outline-none focus:border-[#6ED7A0]/40 resize-none"
                     />
                     <button
                       onClick={handleSendSupport}
-                      className="w-full py-3 bg-[#111] hover:bg-[#161616] text-[#10B981] border border-[#222] rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-colors"
+                      className="w-full py-3 bg-[#111] hover:bg-[#161616] text-[#6ED7A0] border border-[#222] rounded-xl text-xs font-bold flex items-center justify-center gap-2 transition-colors"
                     >
                       <Icon icon="solar:plain-bold" width={14} />
                       <span>{t('settings.sendMessageBtn')}</span>
@@ -1705,7 +1705,7 @@ export const SettingsOverlay = () => {
                       >
                         <Icon 
                           icon="solar:star-bold" 
-                          className={star <= feedbackRating ? 'text-[#10B981]' : 'text-neutral-700'} 
+                          className={star <= feedbackRating ? 'text-[#6ED7A0]' : 'text-neutral-700'} 
                           width={28} 
                         />
                       </button>
@@ -1722,11 +1722,11 @@ export const SettingsOverlay = () => {
                         onChange={(e) => setFeedbackText(e.target.value)}
                         placeholder={t('settings.feedbackPlaceholder')}
                         rows={2}
-                        className="w-full bg-[#0c0c0c] border border-[#222] rounded-xl px-4 py-3 text-xs font-semibold focus:outline-none focus:border-[#10B981]/40 resize-none"
+                        className="w-full bg-[#0c0c0c] border border-[#222] rounded-xl px-4 py-3 text-xs font-semibold focus:outline-none focus:border-[#6ED7A0]/40 resize-none"
                       />
                       <button
                         onClick={handleSendFeedback}
-                        className="w-full py-3 bg-[#10B981] text-black font-black text-xs rounded-xl border border-black shadow-[2px_2px_0px_rgba(0,0,0,1)] flex items-center justify-center gap-2"
+                        className="w-full py-3 bg-[#6ED7A0] text-black font-black text-xs rounded-xl border border-black shadow-[2px_2px_0px_rgba(0,0,0,1)] flex items-center justify-center gap-2"
                       >
                         {t('settings.submitFeedbackBtn')}
                       </button>
@@ -1740,7 +1740,7 @@ export const SettingsOverlay = () => {
                     <div className={`w-10 h-10 rounded-xl flex items-center justify-center border shadow-[2px_2px_0px_rgba(0,0,0,1)] ${
                       isLight ? 'bg-neutral-100 border-neutral-200' : 'bg-black border-[#222]'
                     }`}>
-                      <Icon icon="solar:settings-bold" className="text-[#10B981]" width={20} />
+                      <Icon icon="solar:settings-bold" className="text-[#6ED7A0]" width={20} />
                     </div>
                     <div>
                       <h4 className={`text-xs font-black leading-tight ${isLight ? 'text-black' : 'text-white'}`}>InRising Mobile</h4>
@@ -1807,7 +1807,7 @@ export const SettingsOverlay = () => {
                       <button
                         onClick={handleSyncLocation}
                         disabled={isSyncingLocation}
-                        className={`w-9 h-9 rounded-xl flex items-center justify-center text-[#10B981] transition-all border ${
+                        className={`w-9 h-9 rounded-xl flex items-center justify-center text-[#6ED7A0] transition-all border ${
                           isLight 
                             ? 'bg-white border-neutral-200 hover:bg-neutral-50 shadow-[0_1px_3px_rgba(0,0,0,0.02)]' 
                             : 'bg-[#141414] border-white/5 hover:bg-[#1a1a1a]'
@@ -1856,8 +1856,8 @@ export const SettingsOverlay = () => {
                             className={`w-full flex items-center justify-between p-4 rounded-2xl border text-left transition-all ${
                               isSelected
                                 ? isLight
-                                  ? 'bg-[#e6f7ec] border-[#10B981] text-black shadow-[0_2px_10px_rgba(16,185,129,0.1)]'
-                                  : 'bg-[#0a1a0d] border-[#10B981] text-white shadow-[0_0_15px_rgba(16,185,129,0.15)]'
+                                  ? 'bg-[#e6f7ec] border-[#6ED7A0] text-black shadow-[0_2px_10px_rgba(16,185,129,0.1)]'
+                                  : 'bg-[#0a1a0d] border-[#6ED7A0] text-white shadow-[0_0_15px_rgba(16,185,129,0.15)]'
                                 : isLight
                                   ? 'bg-white border-neutral-200 text-black hover:border-neutral-300'
                                   : 'bg-[#141414] border-white/5 text-white/70 hover:border-white/10'
@@ -1867,7 +1867,7 @@ export const SettingsOverlay = () => {
                               <span className="text-xs font-black block">{item.city}</span>
                               <span className="text-[10px] text-white/30 block mt-0.5">{item.zone}</span>
                             </div>
-                            <span className={`text-[10px] font-bold ${isSelected ? 'text-[#10B981]' : 'text-white/30'}`}>
+                            <span className={`text-[10px] font-bold ${isSelected ? 'text-[#6ED7A0]' : 'text-white/30'}`}>
                               {getGMTOffset(item.zone)}
                             </span>
                           </button>
@@ -1915,7 +1915,7 @@ export const SettingsOverlay = () => {
                           }}
                           className={`py-5 rounded-2xl border text-xs font-black transition-all flex flex-col items-center justify-center gap-2.5 ${
                             isActive
-                              ? 'bg-[#10B981] text-black border-black shadow-[4px_4px_0px_rgba(0,0,0,1)]'
+                              ? 'bg-[#6ED7A0] text-black border-black shadow-[4px_4px_0px_rgba(0,0,0,1)]'
                               : 'bg-[#0c0c0c] border-[#222] text-white/60 hover:border-[#333]'
                           }`}
                         >
@@ -1967,8 +1967,8 @@ export const SettingsOverlay = () => {
                             className={`w-full flex items-center justify-between p-4 rounded-2xl border text-left transition-all ${
                               isActive
                                 ? isLight
-                                  ? 'bg-[#e6f7ec] border-[#10B981] text-black shadow-[0_2px_10px_rgba(16,185,129,0.1)]'
-                                  : 'bg-[#0a1a0d] border-[#10B981] text-white shadow-[0_0_15px_rgba(16,185,129,0.15)]'
+                                  ? 'bg-[#e6f7ec] border-[#6ED7A0] text-black shadow-[0_2px_10px_rgba(16,185,129,0.1)]'
+                                  : 'bg-[#0a1a0d] border-[#6ED7A0] text-white shadow-[0_0_15px_rgba(16,185,129,0.15)]'
                                 : isLight
                                   ? 'bg-white border-neutral-200 text-black hover:border-neutral-300'
                                   : 'bg-[#141414] border-white/5 text-white/70 hover:border-white/10'
@@ -1977,7 +1977,7 @@ export const SettingsOverlay = () => {
                             <span className="text-xs font-black">{lang.label}</span>
                             <div className="flex items-center gap-3">
                               <span className="text-[10px] text-white/30">{lang.native}</span>
-                              {isActive && <Icon icon="ph:check-bold" width={14} className="text-[#10B981]" />}
+                              {isActive && <Icon icon="ph:check-bold" width={14} className="text-[#6ED7A0]" />}
                             </div>
                           </button>
                         );
@@ -2025,7 +2025,7 @@ export const SettingsOverlay = () => {
                         );
                       }}
                       className={`w-14 h-7 rounded-full p-1 transition-colors duration-200 focus:outline-none flex-shrink-0 ${
-                        settings.programPaused ? 'bg-[#10B981]' : 'bg-[#222]'
+                        settings.programPaused ? 'bg-[#6ED7A0]' : 'bg-[#222]'
                       }`}
                     >
                       <div
@@ -2056,7 +2056,7 @@ export const SettingsOverlay = () => {
                       <button
                         onClick={() => handleToggle('dailyReminder')}
                         className={`w-12 h-6 rounded-full p-0.5 transition-colors duration-200 focus:outline-none flex-shrink-0 ${
-                          settings.dailyReminder ? 'bg-[#10B981]' : 'bg-[#222]'
+                          settings.dailyReminder ? 'bg-[#6ED7A0]' : 'bg-[#222]'
                         }`}
                       >
                         <div
@@ -2082,7 +2082,7 @@ export const SettingsOverlay = () => {
                             const val = e.target.value;
                             updateSettings({ dailyReminderTime: val });
                           }}
-                          className="bg-black border border-[#222] rounded-lg px-2.5 py-1.5 text-xs text-[#10B981] font-black focus:outline-none"
+                          className="bg-black border border-[#222] rounded-lg px-2.5 py-1.5 text-xs text-[#6ED7A0] font-black focus:outline-none"
                         />
                       </motion.div>
                     )}
@@ -2096,7 +2096,7 @@ export const SettingsOverlay = () => {
                       <button
                         onClick={() => handleToggle('weeklySummary')}
                         className={`w-12 h-6 rounded-full p-0.5 transition-colors duration-200 focus:outline-none flex-shrink-0 ${
-                          settings.weeklySummary ? 'bg-[#10B981]' : 'bg-[#222]'
+                          settings.weeklySummary ? 'bg-[#6ED7A0]' : 'bg-[#222]'
                         }`}
                       >
                         <div
@@ -2116,7 +2116,7 @@ export const SettingsOverlay = () => {
                       <button
                         onClick={() => handleToggle('newFeatures')}
                         className={`w-12 h-6 rounded-full p-0.5 transition-colors duration-200 focus:outline-none flex-shrink-0 ${
-                          settings.newFeatures ? 'bg-[#10B981]' : 'bg-[#222]'
+                          settings.newFeatures ? 'bg-[#6ED7A0]' : 'bg-[#222]'
                         }`}
                       >
                         <div
@@ -2167,7 +2167,7 @@ export const SettingsOverlay = () => {
               {currentView === 'profile' && (
                 <button
                   onClick={handleSaveProfile}
-                  className="w-full py-4 bg-[#10B981] text-black font-black text-sm rounded-xl border border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] flex items-center justify-center gap-2 hover:brightness-95 active:scale-[0.98] transition-all"
+                  className="w-full py-4 bg-[#6ED7A0] text-black font-black text-sm rounded-xl border border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] flex items-center justify-center gap-2 hover:brightness-95 active:scale-[0.98] transition-all"
                 >
                   <Icon icon="solar:diskette-bold" width={18} />
                   <span>{t('settings.saveProfile')}</span>
@@ -2210,7 +2210,7 @@ export const SettingsOverlay = () => {
                     setPaymentSuccess(false);
                     setIsProcessingPayment(false);
                   }}
-                  className="w-full py-4 bg-[#10B981] text-black font-black text-sm rounded-xl border border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] flex items-center justify-center gap-2 hover:brightness-95 active:scale-[0.98] transition-all"
+                  className="w-full py-4 bg-[#6ED7A0] text-black font-black text-sm rounded-xl border border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] flex items-center justify-center gap-2 hover:brightness-95 active:scale-[0.98] transition-all"
                 >
                   <Icon icon="solar:wallet-money-bold" width={18} />
                   <span>
@@ -2227,7 +2227,7 @@ export const SettingsOverlay = () => {
               {currentView === 'timezone' && (
                 <button
                   onClick={handleSaveTimezone}
-                  className="w-full py-4 bg-[#10B981] text-black font-black text-sm rounded-xl border border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] flex items-center justify-center gap-2 hover:brightness-95 active:scale-[0.98] transition-all"
+                  className="w-full py-4 bg-[#6ED7A0] text-black font-black text-sm rounded-xl border border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] flex items-center justify-center gap-2 hover:brightness-95 active:scale-[0.98] transition-all"
                 >
                   <Icon icon="solar:diskette-bold" width={18} />
                   <span>{t('settings.saveProfile')}</span>
@@ -2239,7 +2239,7 @@ export const SettingsOverlay = () => {
                     if (navigator.vibrate) navigator.vibrate(10);
                     setCurrentView('menu');
                   }}
-                  className="w-full py-4 bg-[#10B981] text-black font-black text-sm rounded-xl border border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] flex items-center justify-center gap-2 hover:brightness-95 active:scale-[0.98] transition-all"
+                  className="w-full py-4 bg-[#6ED7A0] text-black font-black text-sm rounded-xl border border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] flex items-center justify-center gap-2 hover:brightness-95 active:scale-[0.98] transition-all"
                 >
                   <span>{t('settings.backBtn')}</span>
                 </button>
@@ -2346,8 +2346,8 @@ export const SettingsOverlay = () => {
                   
                   {paymentSuccess ? (
                     <div className="flex flex-col items-center justify-center py-8 text-center">
-                      <div className="w-20 h-20 rounded-full bg-[#10B981]/10 border-[1.5px] border-[#10B981]/30 flex items-center justify-center mb-6 shadow-xl animate-pulse">
-                        <Icon icon="solar:check-circle-bold" className="text-[#10B981]" width={48} height={48} />
+                      <div className="w-20 h-20 rounded-full bg-[#6ED7A0]/10 border-[1.5px] border-[#6ED7A0]/30 flex items-center justify-center mb-6 shadow-xl animate-pulse">
+                        <Icon icon="solar:check-circle-bold" className="text-[#6ED7A0]" width={48} height={48} />
                       </div>
                       <h4 className={`text-xl font-black font-['Outfit'] uppercase tracking-wider mb-2 ${isLight ? 'text-black' : 'text-white'}`}>
                         {language === 'Bahasa Indonesia' ? 'PEMBAYARAN BERHASIL!' : 'PAYMENT SUCCESSFUL!'}
@@ -2361,7 +2361,7 @@ export const SettingsOverlay = () => {
                   ) : (
                     <div className="space-y-6">
                       <div className="text-center">
-                        <h4 className="text-[16px] font-black font-['Outfit'] text-[#10B981] uppercase tracking-wider mb-1">
+                        <h4 className="text-[16px] font-black font-['Outfit'] text-[#6ED7A0] uppercase tracking-wider mb-1">
                           {language === 'Bahasa Indonesia' ? 'Konfirmasi Pembayaran' : 'Checkout Premium'}
                         </h4>
                         <p className={`text-[11px] ${isLight ? 'text-black/40' : 'text-white/40'}`}>
@@ -2383,7 +2383,7 @@ export const SettingsOverlay = () => {
                             InRising {checkoutPlan === 'weekly' ? 'Weekly' : checkoutPlan === 'monthly' ? 'Monthly' : 'Annual'}
                           </span>
                         </div>
-                        <span className="text-lg font-black text-[#10B981]">
+                        <span className="text-lg font-black text-[#6ED7A0]">
                           {checkoutPlan === 'weekly' ? 'Rp5.000' : checkoutPlan === 'monthly' ? 'Rp20.000' : 'Rp200.000'}
                         </span>
                       </div>
@@ -2407,7 +2407,7 @@ export const SettingsOverlay = () => {
                               }}
                               className={`p-3 rounded-2xl border flex flex-col items-center justify-center gap-1.5 transition-all text-center ${
                                 selectedPaymentMethod === method.id
-                                  ? 'bg-[#10B981]/10 border-[#10B981] text-[#10B981]'
+                                  ? 'bg-[#6ED7A0]/10 border-[#6ED7A0] text-[#6ED7A0]'
                                   : isLight
                                   ? 'bg-neutral-50 border-neutral-200 text-neutral-500 hover:bg-neutral-100 hover:text-neutral-700'
                                   : 'bg-[#0b0b0b] border-[#222] text-white/45 hover:text-white/60'
@@ -2424,7 +2424,7 @@ export const SettingsOverlay = () => {
                       <button
                         onClick={handleConfirmPayment}
                         disabled={isProcessingPayment}
-                        className="w-full py-4 bg-[#10B981] hover:brightness-105 active:scale-[0.98] disabled:opacity-50 text-black font-black text-sm rounded-xl shadow-md flex items-center justify-center gap-2 transition-all mt-4"
+                        className="w-full py-4 bg-[#6ED7A0] hover:brightness-105 active:scale-[0.98] disabled:opacity-50 text-black font-black text-sm rounded-xl shadow-md flex items-center justify-center gap-2 transition-all mt-4"
                       >
                         {isProcessingPayment ? (
                           <div className="w-5 h-5 border-2 border-black/20 border-t-black rounded-full animate-spin" />

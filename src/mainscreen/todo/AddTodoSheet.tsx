@@ -160,7 +160,7 @@ export const AddTodoSheet = ({ isOpen, onClose, targetToEdit }: AddTodoSheetProp
                         idx === 0 ? 'col-span-2' : 'col-span-1'
                       } ${
                         window === cat.id 
-                        ? 'bg-[#10B981] border-black text-black shadow-[2.5px_2.5px_0px_rgba(0,0,0,1)]' 
+                        ? 'bg-[#6ED7A0] border-black text-black shadow-[2.5px_2.5px_0px_rgba(0,0,0,1)]' 
                         : isLight
                           ? 'bg-white border-black text-black/50 shadow-[2px_2px_0px_rgba(0,0,0,0.15)]'
                           : 'bg-[#2a2c32] border-white/10 text-[#E3DAC9]/40 shadow-none'
@@ -188,7 +188,7 @@ export const AddTodoSheet = ({ isOpen, onClose, targetToEdit }: AddTodoSheetProp
                     }}
                     className={`flex-1 py-2.5 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all flex items-center justify-center gap-2 border-[2px] ${
                       !isPenting 
-                      ? 'bg-[#10B981] border-black text-black shadow-[1.5px_1.5px_0px_rgba(0,0,0,1)]' 
+                      ? 'bg-[#6ED7A0] border-black text-black shadow-[1.5px_1.5px_0px_rgba(0,0,0,1)]' 
                       : 'bg-transparent border-transparent text-[#E3DAC9]/40'
                     }`}
                   >
@@ -237,11 +237,11 @@ export const AddTodoSheet = ({ isOpen, onClose, targetToEdit }: AddTodoSheetProp
                   className={`flex-[1.5] h-[48px] rounded-xl font-black font-['Outfit'] uppercase tracking-[0.15em] text-[12px] border transition-all flex items-center justify-center gap-2 ${
                     title.trim() 
                       ? isLight
-                        ? 'bg-[#10B981] border-black text-black shadow-[2.5px_2.5px_0px_rgba(0,0,0,1)]'
-                        : 'bg-[#10B981] border-transparent text-black shadow-none'
+                        ? 'bg-[#6ED7A0] border-black text-black shadow-[2.5px_2.5px_0px_rgba(0,0,0,1)]'
+                        : 'bg-[#6ED7A0] border-transparent text-black shadow-none'
                       : isLight
-                        ? 'bg-[#10B981]/15 border-black/10 text-black/25 cursor-not-allowed shadow-none'
-                        : 'bg-[#10B981]/10 border-white/5 text-white/20 cursor-not-allowed shadow-none'
+                        ? 'bg-[#6ED7A0]/15 border-black/10 text-black/25 cursor-not-allowed shadow-none'
+                        : 'bg-[#6ED7A0]/10 border-white/5 text-white/20 cursor-not-allowed shadow-none'
                   }`}
                 >
                   {targetToEdit ? t('todo.saveChanges') : t('todo.createPlan')}

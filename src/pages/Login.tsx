@@ -81,8 +81,8 @@ export default function Login() {
         />
         
         {/* Glow Effects */}
-        <div className="absolute top-[-20%] left-[-20%] w-[60%] h-[60%] rounded-full bg-[#10B981]/10 blur-[150px] pointer-events-none" />
-        <div className="absolute bottom-[-20%] right-[-20%] w-[60%] h-[60%] rounded-full bg-[#10B981]/5 blur-[150px] pointer-events-none" />
+        <div className="absolute top-[-20%] left-[-20%] w-[60%] h-[60%] rounded-full bg-[#6ED7A0]/10 blur-[150px] pointer-events-none" />
+        <div className="absolute bottom-[-20%] right-[-20%] w-[60%] h-[60%] rounded-full bg-[#6ED7A0]/5 blur-[150px] pointer-events-none" />
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#0d0f12]/20 to-[#0d0f12]" />
       </div>
 

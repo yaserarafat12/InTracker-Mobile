@@ -31,7 +31,7 @@ export const TutorialOverlay = ({ onClose }: TutorialOverlayProps) => {
     },
     {
       icon: 'solar:gamepad-bold',
-      iconColor: '#10B981',
+      iconColor: '#6ED7A0',
       title: isIndo ? 'Pemulihan Streak Interaktif' : 'Interactive Streak Rescue',
       description: isIndo 
         ? 'Jika kamu tidak sempat menyelesaikan habit kemarin, pulihkan streak-mu dengan memenangkan tantangan mini-game seru.' 
@@ -55,7 +55,7 @@ export const TutorialOverlay = ({ onClose }: TutorialOverlayProps) => {
     },
     {
       icon: 'solar:rocket-bold',
-      iconColor: '#10B981',
+      iconColor: '#6ED7A0',
       title: isIndo ? 'Siap Memulai?' : 'Ready to Begin?',
       description: isIndo 
         ? 'Mulailah perjalanan transformasimu hari ini dan jadilah versi terbaik dari dirimu!' 
@@ -121,7 +121,7 @@ export const TutorialOverlay = ({ onClose }: TutorialOverlayProps) => {
               key={idx}
               className={`h-1.5 rounded-full transition-all duration-300 ${
                 currentPage === idx
-                  ? 'w-5 bg-[#10B981]'
+                  ? 'w-5 bg-[#6ED7A0]'
                   : `w-1.5 ${isLight ? 'bg-black/15' : 'bg-white/10'}`
               }`}
             />
@@ -154,7 +154,7 @@ export const TutorialOverlay = ({ onClose }: TutorialOverlayProps) => {
         <motion.button
           whileTap={{ x: 3, y: 3, boxShadow: '0px 0px 0px rgba(0,0,0,1)' }}
           onClick={handleNext}
-          className="w-full py-3.5 bg-[#10B981] text-black font-black font-['Outfit'] text-[13px] rounded-xl border-2 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] uppercase tracking-wider transition-all"
+          className="w-full py-3.5 bg-[#6ED7A0] text-black font-black font-['Outfit'] text-[13px] rounded-xl border-2 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] uppercase tracking-wider transition-all"
         >
           {page.isLast 
             ? (isIndo ? 'Mulai Sekarang 🔥' : 'Get Started 🔥')

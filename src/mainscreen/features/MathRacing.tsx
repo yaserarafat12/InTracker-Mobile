@@ -273,7 +273,7 @@ function MenuView({ onBack, onStart, isLight }: { onBack: () => void; onStart: (
           onClick={() => setSelectedMode('timer')}
           className={`flex-1 py-5 rounded-xl text-[13px] font-black border-[2px] transition-all uppercase tracking-wide ${
             selectedMode === 'timer'
-              ? 'bg-[#10B981] text-black border-black shadow-[4px_4px_0px_rgba(0,0,0,1)]'
+              ? 'bg-[#6ED7A0] text-black border-black shadow-[4px_4px_0px_rgba(0,0,0,1)]'
               : isLight
                 ? 'bg-white text-black/60 border-black/25 hover:border-black/50 shadow-[3px_3px_0px_rgba(0,0,0,0.15)]'
                 : 'bg-white/5 text-white/50 border-white/10'
@@ -286,7 +286,7 @@ function MenuView({ onBack, onStart, isLight }: { onBack: () => void; onStart: (
           onClick={() => setSelectedMode('exercise')}
           className={`flex-1 py-5 rounded-xl text-[13px] font-black border-[2px] transition-all uppercase tracking-wide ${
             selectedMode === 'exercise'
-              ? 'bg-[#10B981] text-black border-black shadow-[4px_4px_0px_rgba(0,0,0,1)]'
+              ? 'bg-[#6ED7A0] text-black border-black shadow-[4px_4px_0px_rgba(0,0,0,1)]'
               : isLight
                 ? 'bg-white text-black/60 border-black/25 hover:border-black/50 shadow-[3px_3px_0px_rgba(0,0,0,0.15)]'
                 : 'bg-white/5 text-white/50 border-white/10'
