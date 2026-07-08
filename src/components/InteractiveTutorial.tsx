@@ -1358,14 +1358,13 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
                         <motion.button 
                           whileTap={{ scale: 0.95 }}
                           onClick={handleNext}
-                          className={`px-5 py-2.5 rounded-xl border font-black uppercase text-[11px] tracking-wider transition-all flex items-center gap-1.5 font-['Outfit'] ${
+                          className={`px-5 py-2.5 rounded-xl border font-black uppercase text-[11px] tracking-wider transition-all font-['Outfit'] ${
                             isLight 
                               ? 'bg-[#6ED7A0] border-black text-black shadow-[3px_3px_0px_rgba(0,0,0,1)] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none' 
                               : 'bg-[#6ED7A0] border-transparent text-black'
                           }`}
                         >
-                          <span>{currentStepData.actionText}</span>
-                          <Icon icon="ph:caret-right-bold" width={13} />
+                          {currentStepData.actionText}
                         </motion.button>
                       </div>
                     )}
