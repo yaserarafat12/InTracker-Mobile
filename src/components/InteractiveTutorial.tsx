@@ -1022,12 +1022,12 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
   // so the SVG is not rendered until the position is confirmed.
   const pad = 8;
   const sr = (targetRect && spotlightVisible) ? {
-    top: Math.max(0, targetRect.top - pad),
-    bottom: Math.min(window.innerHeight, targetRect.bottom + pad),
-    left: Math.max(0, targetRect.left - pad),
-    right: Math.min(window.innerWidth, targetRect.right + pad),
-    height: targetRect.height + pad * 2,
-    width: targetRect.width + pad * 2,
+    top: Math.round(Math.max(0, targetRect.top - pad)),
+    bottom: Math.round(Math.min(window.innerHeight, targetRect.bottom + pad)),
+    left: Math.round(Math.max(0, targetRect.left - pad)),
+    right: Math.round(Math.min(window.innerWidth, targetRect.right + pad)),
+    height: Math.round(targetRect.height + pad * 2),
+    width: Math.round(targetRect.width + pad * 2),
   } : null;
 
   // Shared spring config — smooth movement without bouncing
@@ -1090,7 +1090,7 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
     const insideX = clientX >= sr.left - 15 && clientX <= sr.right + 15;
     const insideY = clientY >= sr.top - 15 && clientY <= sr.bottom + 15;
 
-    if (insideX && insideY) {
+    if (insideX && insideY && !currentStepData?.actionText) {
       const svg = e.currentTarget as HTMLElement;
       svg.style.pointerEvents = 'none';
 
@@ -1115,7 +1115,7 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
     const insideX = clientX >= sr.left - 15 && clientX <= sr.right + 15;
     const insideY = clientY >= sr.top - 15 && clientY <= sr.bottom + 15;
 
-    if (insideX && insideY) {
+    if (insideX && insideY && !currentStepData?.actionText) {
       // Temporarily disable pointer-events on the SVG to find the element underneath
       const svg = e.currentTarget as HTMLElement;
       const prevPointerEvents = svg.style.pointerEvents;
