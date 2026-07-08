@@ -1721,6 +1721,32 @@ const SwipeDeckScreen = ({ answers, onComplete, onBack }: { answers: Record<numb
   };
 
   const isDeckCompleted = currentIndex >= deck.length;
+
+  const [showScrollIndicator, setShowScrollIndicator] = useState(false);
+  const summaryRef = useRef<HTMLDivElement>(null);
+
+  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    const el = e.currentTarget;
+    const isAtBottom = el.scrollHeight - el.scrollTop - el.clientHeight < 20;
+    setShowScrollIndicator(!isAtBottom);
+  };
+
+  useEffect(() => {
+    if (isDeckCompleted && summaryRef.current) {
+      const timer = setTimeout(() => {
+        const el = summaryRef.current;
+        if (el) {
+          const isScrollable = el.scrollHeight > el.clientHeight;
+          const isAtBottom = el.scrollHeight - el.scrollTop - el.clientHeight < 20;
+          setShowScrollIndicator(isScrollable && !isAtBottom);
+        }
+      }, 100);
+      return () => clearTimeout(timer);
+    } else {
+      setShowScrollIndicator(false);
+    }
+  }, [isDeckCompleted, accepted.length]);
+
   // Show habits that never appeared in the swipe deck at all
   const remainingOptions = HABIT_REC_POOL.filter(
     h => h.name !== 'Hidrasi Harian' && h.name !== 'Drink Water' && !deck.some(d => d.name === h.name) && !accepted.some(acc => acc.name === h.name)
@@ -1928,7 +1954,11 @@ const SwipeDeckScreen = ({ answers, onComplete, onBack }: { answers: Record<numb
         </>
       ) : (
         /* Completed Summary View */
-        <div className="flex-1 w-full max-w-[420px] mx-auto flex flex-col justify-between py-2 relative z-10 overflow-y-auto no-scrollbar">
+        <div 
+          ref={summaryRef}
+          onScroll={handleScroll}
+          className="flex-1 w-full max-w-[420px] mx-auto flex flex-col justify-between py-2 relative z-10 overflow-y-auto no-scrollbar"
+        >
           {/* Back Button inside scrollable summary list */}
           <div className="flex justify-start w-full mb-4 px-1">
             <button 
@@ -2041,6 +2071,26 @@ const SwipeDeckScreen = ({ answers, onComplete, onBack }: { answers: Record<numb
           </CinematicButton>
         </div>
       )}
+
+      {/* Scroll Down Indicator */}
+      <AnimatePresence>
+        {showScrollIndicator && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 10 }}
+            className="absolute bottom-6 left-1/2 -translate-x-1/2 z-[40] pointer-events-none"
+          >
+            <div className={`flex items-center justify-center p-2.5 rounded-full border-2 shadow-lg backdrop-blur-md animate-bounce ${
+              isLight 
+                ? 'bg-white border-black text-black shadow-[3px_3px_0px_rgba(0,0,0,1)]' 
+                : 'bg-black border-white/20 text-[#6ED7A0] shadow-[0_4px_25px_rgba(0,0,0,0.5)]'
+            }`}>
+              <Icon icon="ph:caret-down-bold" width={20} height={20} />
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
