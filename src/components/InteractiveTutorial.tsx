@@ -274,13 +274,13 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
         currentIndex++;
       } else {
         clearInterval(timer);
-        // Auto transition to next scene after 2 seconds
+        // Auto transition to next scene after 3.5 seconds
         const transitionTimeout = setTimeout(() => {
           setIntroScene(prev => prev + 1);
-        }, 2000);
+        }, 3500);
         return () => clearTimeout(transitionTimeout);
       }
-    }, 30);
+    }, 55);
 
     return () => clearInterval(timer);
   }, [currentStep, introScene, introTexts, completed]);
@@ -1208,14 +1208,14 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
             {/* Mascot Image centered at top for step 0 */}
             {currentStep === 0 && (
               <motion.div 
-                className="absolute -top-16 left-1/2 transform -translate-x-1/2 w-28 h-28 flex justify-center items-center z-10"
-                animate={{ y: [0, -6, 0] }}
-                transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+                className="absolute top-[-57px] left-1/2 transform -translate-x-1/2 w-36 h-36 flex justify-center items-center z-10"
+                animate={{ y: [0, -5, 0] }}
+                transition={{ duration: 3.5, repeat: Infinity, ease: "easeInOut" }}
               >
                 <img 
                   src={getMascotSrc(getIntroExpression(introScene))} 
                   alt="Rise Mascot" 
-                  className="w-full h-full object-contain drop-shadow-[0_4px_10px_rgba(0,0,0,0.15)]" 
+                  className="w-full h-full object-contain drop-shadow-[0_6px_14px_rgba(0,0,0,0.18)]" 
                 />
               </motion.div>
             )}
@@ -1224,7 +1224,7 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
             <div 
               onClick={currentStep === 0 ? handleIntroCardClick : undefined}
               className={`flex flex-col relative transition-all duration-300 ${
-                currentStep === 0 ? 'pt-16 pb-12 px-8' : 'pt-5 pb-5 px-6'
+                currentStep === 0 ? 'pt-24 pb-12 px-8' : 'pt-5 pb-5 px-6'
               } ${currentStep === 0 ? 'cursor-pointer' : ''}`}
             >
               {currentStep === 0 ? (
@@ -1244,14 +1244,8 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
                       {typedText}
                     </p>
                   ) : (
-                    /* Final Greeting Scene (Scene 4) with Mulai Petualangan button */
+                    /* Final Greeting Scene (Scene 4) with Mulai Petualangan button — no text, just the CTA */
                     <div className="flex flex-col items-center">
-                      <p 
-                        style={{ color: isLight ? 'rgba(0, 0, 0, 0.85)' : 'rgba(255, 255, 255, 0.9)' }}
-                        className="text-[15.5px] font-medium leading-relaxed font-['Outfit'] mb-6"
-                      >
-                        {L.s0_desc.split('\n').slice(1).join(' ').trim()}
-                      </p>
                       <motion.button 
                         whileTap={{ scale: 0.95 }}
                         onClick={(e) => {
