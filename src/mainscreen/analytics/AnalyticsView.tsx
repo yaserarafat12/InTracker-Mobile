@@ -554,12 +554,19 @@ function HabitPattern({ habits, habitLogs, timeRange, setTimeRange, timeRanges, 
   const [selectedCategory, setSelectedCategory] = useState('Semua');
   const [expandedHabit, setExpandedHabit] = useState<string | null>(null);
 
-  // Sync expanded habit card with tutorial steps 11, 12, 13
+  // Sync expanded habit card with tutorial steps
   useEffect(() => {
     const isTutorialActive = localStorage.getItem('interactive_tutorial_active') === 'true';
     if (!isTutorialActive || tutorialStep === undefined) return;
 
-    if (tutorialStep === 11 || tutorialStep === 12 || tutorialStep === 13) {
+    if (tutorialStep === 11) {
+      // step 11: navigate to analytics tab — collapse all cards so step 12 starts fresh
+      setExpandedHabit(null);
+    } else if (tutorialStep === 12) {
+      // step 12: card is CLOSED — user must tap to open it (interactive step)
+      setExpandedHabit(null);
+    } else if (tutorialStep === 13) {
+      // step 13: card must be open to show the weekly chart
       const hidrasi = habits.find((h: any) => h.name === 'Drink Water');
       if (hidrasi) {
         setExpandedHabit(hidrasi.id);
