@@ -1256,8 +1256,14 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
                         {typedText}
                       </p>
                     ) : (
-                      /* Scene 4 — CTA button inside bubble */
-                      <div className="flex flex-col items-center py-1">
+                      /* Scene 4 — Instructional text + CTA button */
+                      <div className="flex flex-col items-center gap-3 py-1">
+                        <p
+                          style={{ color: isLight ? 'rgba(0,0,0,0.85)' : 'rgba(255,255,255,0.9)' }}
+                          className="text-[16px] font-semibold leading-snug font-['Outfit'] text-center"
+                        >
+                          Tekan tombol mulai petualangan 👇
+                        </p>
                         <motion.button
                           whileTap={{ scale: 0.95 }}
                           onClick={(e) => {
