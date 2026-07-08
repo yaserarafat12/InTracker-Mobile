@@ -1177,7 +1177,12 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
               x: sr.left + sr.width / 2 - 12,
             }}
             exit={{ opacity: 0, scale: 0.75 }}
-            transition={{ ...spotlightSpring, opacity: { duration: 0.2 } }}
+            transition={{
+              opacity: { duration: 0.2 },
+              scale: { type: 'spring', stiffness: 200, damping: 20 },
+              x: { type: 'tween', duration: 0 },
+              y: { type: 'tween', duration: 0 },
+            }}
             className={`absolute z-[1000000] pointer-events-none ${isLight ? 'text-[#6ED7A0]' : 'text-[#6ED7A0]'} drop-shadow-[0_2px_8px_rgba(0,255,133,0.3)]`}
           >
             <motion.svg
@@ -1230,7 +1235,12 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
                     width: sr.width,
                     height: sr.height,
                   }}
-                  transition={spotlightSpring}
+                  transition={{
+                    x: { type: 'tween', duration: 0 },
+                    y: { type: 'tween', duration: 0 },
+                    width: { type: 'tween', duration: 0 },
+                    height: { type: 'tween', duration: 0 },
+                  }}
                   rx="16"
                   fill="black"
                 />
