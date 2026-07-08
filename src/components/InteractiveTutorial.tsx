@@ -6,8 +6,8 @@ import { useUserStore } from '../store/useUserStore';
 import { useHabitStore } from '../store/useHabitStore';
 import { useTranslation } from '../i18n';
 
-// Mascot expressions
-type MascotExpression = 'welcome' | 'guide' | 'thinking' | 'success' | 'cheering' | 'love' | 'excited';
+// Mascot expressions (images 1 to 18)
+type MascotExpression = 1 | 2 | 3 | 4 | 5 | 6 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18;
 
 interface Step {
   selector: string | null; // target DOM query selector
@@ -45,30 +45,26 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
   const [typedText, setTypedText] = useState<string>('');
 
   const getMascotSrc = (expression: MascotExpression) => {
-    switch (expression) {
-      case 'welcome':
-        return '/all_images/antigravitybg/maskot/mas1.png';
-      case 'thinking':
-        return '/all_images/antigravitybg/maskot/mas3.png';
-      case 'success':
-        return '/all_images/antigravitybg/maskot/mas6.png';
-      case 'cheering':
-        return '/all_images/antigravitybg/maskot/mas4.png';
-      case 'love':
-        return '/all_images/antigravitybg/maskot/mas5.png';
-      case 'excited':
-        return '/all_images/antigravitybg/maskot/mas8.png';
-      case 'guide':
-      default:
-        return '/all_images/antigravitybg/maskot/mas2.png';
+    if (expression >= 1 && expression <= 6) {
+      return `/all_images/antigravitybg/maskot/mas${expression}.png`;
     }
+    if (expression === 8) {
+      return `/all_images/antigravitybg/maskot/mas8.png`;
+    }
+    if (expression === 9) {
+      return `/all_images/antigravitybg/maskot/mas9.jpg`;
+    }
+    if (expression >= 10 && expression <= 18) {
+      return `/all_images/antigravitybg/maskot/maskot${expression}.jpg`;
+    }
+    return `/all_images/antigravitybg/maskot/mas2.png`;
   };
 
   const getIntroExpression = (scene: number): MascotExpression => {
-    if (scene === 1) return 'welcome';
-    if (scene === 2) return 'excited';
-    if (scene === 3) return 'thinking';
-    return 'love';
+    if (scene === 1) return 1;
+    if (scene === 2) return 8;
+    if (scene === 3) return 3;
+    return 5;
   };
 
   // Sync maxStep with currentStep when moving forward
@@ -312,7 +308,7 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
       selector: null,
       title: L.s0_title,
       desc: L.s0_desc,
-      expression: 'welcome',
+      expression: 1,
       actionText: L.s0_action,
       tab: 'habits',
     },
@@ -321,7 +317,7 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
       selector: '#add-habit-fab',
       title: L.s2_title,
       desc: L.s2_desc,
-      expression: 'guide',
+      expression: 2,
       tab: 'habits',
     },
     // 2. Select Drink Water preset
@@ -329,7 +325,7 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
       selector: '#habit-pick-drink-water',
       title: L.s3_title,
       desc: L.s3_desc,
-      expression: 'excited',
+      expression: 9,
       tab: 'habits',
     },
     // 3. Open Intensity Picker
@@ -337,7 +333,7 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
       selector: '#habit-config-intensity-btn',
       title: L.s4_title,
       desc: L.s4_desc,
-      expression: 'guide',
+      expression: 10,
       tab: 'habits',
     },
     // 4. Done in Intensity Picker
@@ -346,7 +342,7 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
       clickTarget: '#habit-config-intensity-done-btn',
       title: L.s5_title,
       desc: L.s5_desc,
-      expression: 'thinking',
+      expression: 11,
       tab: 'habits',
     },
     // 5. Save Habit
@@ -355,7 +351,7 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
       clickTarget: '#habit-config-save-btn',
       title: L.s6_title,
       desc: L.s6_desc,
-      expression: 'success',
+      expression: 6,
       tab: 'habits',
     },
     // 6. Habit Card Double Click
@@ -363,7 +359,7 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
       selector: '#first-habit-card',
       title: L.s1_title,
       desc: L.s1_desc,
-      expression: 'love',
+      expression: 12,
       tab: 'habits',
     },
     // 7. Navigate to To-Do tab
@@ -371,7 +367,7 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
       selector: '#nav-todo',
       title: L.s7_title,
       desc: L.s7_desc,
-      expression: 'excited',
+      expression: 13,
       expectedTab: 'todo',
       tab: 'habits',
     },
@@ -381,7 +377,7 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
       clickTarget: '#todo-quick-add-submit-btn',
       title: L.s8_title,
       desc: L.s8_desc,
-      expression: 'guide',
+      expression: 14,
       tab: 'todo',
     },
     // 9. Check To-Do
@@ -389,7 +385,7 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
       selector: '#todo-checkbox-item',
       title: L.s9_title,
       desc: L.s9_desc,
-      expression: 'success',
+      expression: 15,
       tab: 'todo',
     },
     // 10. Completed Tab To-Do
@@ -397,7 +393,7 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
       selector: '#todo-tab-done',
       title: L.s10_title,
       desc: L.s10_desc,
-      expression: 'cheering',
+      expression: 16,
       tab: 'todo',
     },
     // 10a. Completed Tasks List Spotlight
@@ -405,7 +401,7 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
       selector: '#completed-todo-item',
       title: L.s10a_title,
       desc: L.s10a_desc,
-      expression: 'success',
+      expression: 17,
       actionText: L.next,
       tab: 'todo',
     },
@@ -414,7 +410,7 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
       selector: '#nav-analytics',
       title: L.s11_title,
       desc: L.s11_desc,
-      expression: 'excited',
+      expression: 18,
       expectedTab: 'analytics',
       tab: 'todo',
     },
@@ -423,7 +419,7 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
       selector: '#analytics-drink-water-card',
       title: L.s12_title,
       desc: L.s12_desc,
-      expression: 'guide',
+      expression: 1,
       tab: 'analytics',
     },
     // 13. Weekly Chart Explanation
@@ -431,7 +427,7 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
       selector: '#habit-analytics-weekly-chart',
       title: L.s13_title,
       desc: L.s13_desc,
-      expression: 'cheering',
+      expression: 2,
       actionText: L.next,
       tab: 'analytics',
     },
@@ -440,7 +436,7 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
       selector: '#habit-analytics-monthly-record',
       title: L.s14_title,
       desc: L.s14_desc,
-      expression: 'thinking',
+      expression: 3,
       actionText: L.next,
       tab: 'analytics',
     },
@@ -449,7 +445,7 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
       selector: '#analytics-tab-stats',
       title: L.s15_title,
       desc: L.s15_desc,
-      expression: 'excited',
+      expression: 4,
       tab: 'analytics',
     },
     // 15a. RPG Stats Explanation
@@ -457,7 +453,7 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
       selector: '#analytics-rpg-stats-container',
       title: L.s16_title,
       desc: L.s16_desc,
-      expression: 'success',
+      expression: 5,
       actionText: L.next,
       tab: 'analytics',
     },
@@ -466,7 +462,7 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
       selector: '#analytics-tab-recap',
       title: L.s17_title,
       desc: L.s17_desc,
-      expression: 'guide',
+      expression: 6,
       tab: 'analytics',
     },
     // 16a. Activity Recap Explanation
@@ -474,7 +470,7 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
       selector: '#analytics-activity-recap-container',
       title: L.s18_title,
       desc: L.s18_desc,
-      expression: 'cheering',
+      expression: 8,
       actionText: L.next,
       tab: 'analytics',
     },
@@ -483,7 +479,7 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
       selector: '#nav-journey',
       title: L.s19_title,
       desc: L.s19_desc,
-      expression: 'excited',
+      expression: 9,
       expectedTab: 'journey',
       tab: 'analytics',
     },
@@ -492,7 +488,7 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
       selector: '#journey-today-card',
       title: L.s20_title,
       desc: L.s20_desc,
-      expression: 'love',
+      expression: 10,
       actionText: L.next,
       tab: 'journey',
     },
@@ -501,7 +497,7 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
       selector: '#journey-mood-box',
       title: L.s21_title,
       desc: L.s21_desc,
-      expression: 'cheering',
+      expression: 11,
       actionText: L.next,
       tab: 'journey',
     },
@@ -510,7 +506,7 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
       selector: '#journey-media-btn',
       title: L.s22_title,
       desc: L.s22_desc,
-      expression: 'excited',
+      expression: 12,
       actionText: L.next,
       tab: 'journey',
     },
@@ -519,7 +515,7 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
       selector: '#journey-write-btn',
       title: L.s23_title,
       desc: L.s23_desc,
-      expression: 'thinking',
+      expression: 13,
       actionText: L.next,
       tab: 'journey',
     },
@@ -528,7 +524,7 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
       selector: '#nav-global',
       title: L.s24_title,
       desc: L.s24_desc,
-      expression: 'excited',
+      expression: 14,
       expectedTab: 'global',
       tab: 'journey',
     },
@@ -537,7 +533,7 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
       selector: '.flex-1.overflow-y-auto.py-4.no-scrollbar',
       title: L.s25_title,
       desc: L.s25_desc,
-      expression: 'love',
+      expression: 15,
       actionText: L.next,
       tab: 'global',
     },
@@ -546,7 +542,7 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
       selector: '#global-fab',
       title: L.s26_title,
       desc: L.s26_desc,
-      expression: 'guide',
+      expression: 16,
       tab: 'global',
     },
     // Habit Picker inside post modal
@@ -555,7 +551,7 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
       clickTarget: '.post-habit-option-btn',
       title: L.s27_title,
       desc: L.s27_desc,
-      expression: 'guide',
+      expression: 17,
       tab: 'global',
     },
     // Photo Upload inside post modal
@@ -563,7 +559,7 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
       selector: '#post-media-area',
       title: L.s28_title,
       desc: L.s28_desc,
-      expression: 'excited',
+      expression: 18,
       actionText: L.next,
       tab: 'global',
     },
@@ -572,7 +568,7 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
       selector: '#post-caption-input',
       title: L.s29_title,
       desc: L.s29_desc,
-      expression: 'guide',
+      expression: 1,
       actionText: L.next,
       tab: 'global',
     },
@@ -581,7 +577,7 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
       selector: '#post-share-btn',
       title: L.s30_title,
       desc: L.s30_desc,
-      expression: 'success',
+      expression: 2,
       tab: 'global',
     },
     // 18a. Post Published Confirmation Spotlight on Feed list
@@ -589,7 +585,7 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
       selector: '.flex-1.overflow-y-auto.py-4.no-scrollbar',
       title: L.s30a_title,
       desc: L.s30a_desc,
-      expression: 'cheering',
+      expression: 8,
       actionText: L.next,
       tab: 'global',
     },
@@ -598,7 +594,7 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
       selector: '#nav-features',
       title: L.s31_title,
       desc: L.s31_desc,
-      expression: 'excited',
+      expression: 3,
       expectedTab: 'features',
       tab: 'global',
     },
@@ -607,7 +603,7 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
       selector: '#nutrition',
       title: L.tool_cal_title,
       desc: L.tool_cal_desc,
-      expression: 'thinking',
+      expression: 4,
       actionText: L.next,
       tab: 'features',
     },
@@ -616,7 +612,7 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
       selector: '#pomodoro',
       title: L.tool_pomo_title,
       desc: L.tool_pomo_desc,
-      expression: 'guide',
+      expression: 5,
       actionText: L.next,
       tab: 'features',
     },
@@ -625,7 +621,7 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
       selector: '#workout',
       title: L.tool_work_title,
       desc: L.tool_work_desc,
-      expression: 'excited',
+      expression: 6,
       actionText: L.next,
       tab: 'features',
     },
@@ -634,7 +630,7 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
       selector: '#breathing',
       title: L.tool_breath_title,
       desc: L.tool_breath_desc,
-      expression: 'love',
+      expression: 10,
       actionText: L.next,
       tab: 'features',
     },
@@ -643,7 +639,7 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
       selector: '#books',
       title: L.tool_books_title,
       desc: L.tool_books_desc,
-      expression: 'thinking',
+      expression: 11,
       actionText: L.next,
       tab: 'features',
     },
@@ -652,7 +648,7 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
       selector: '#mathican',
       title: L.tool_math_title,
       desc: L.tool_math_desc,
-      expression: 'cheering',
+      expression: 12,
       actionText: L.next,
       tab: 'features',
     },
@@ -661,7 +657,7 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
       selector: '#settings-toggle-btn',
       title: L.s33_title,
       desc: L.s33_desc,
-      expression: 'guide',
+      expression: 13,
       tab: 'habits',
     },
     // 22. End of Tour
@@ -669,7 +665,7 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
       selector: null,
       title: L.s34_title,
       desc: L.s34_desc,
-      expression: 'success',
+      expression: 6,
       actionText: L.s34_action,
       tab: 'habits',
     },
