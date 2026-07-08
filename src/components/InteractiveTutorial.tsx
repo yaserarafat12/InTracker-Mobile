@@ -888,6 +888,28 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
   useEffect(() => {
     if (currentStepData?.selector !== '#first-habit-card') return;
 
+    const checkCompletion = () => {
+      const state = useHabitStore.getState();
+      return state.habits.some(
+        (h: any) => 
+          (
+            h.name === 'Drink Water' || 
+            h.name === 'Hidrasi Harian' || 
+            h.name === 'Minum Air' ||
+            h.iconName === 'ph:drop-bold' ||
+            h.iconName === 'WaterGlass'
+          ) && h.completed
+      );
+    };
+
+    // If already completed on mount, advance immediately
+    if (checkCompletion()) {
+      setTimeout(() => {
+        handleNext();
+      }, 300);
+      return;
+    }
+
     let active = true;
     const unsubscribe = useHabitStore.subscribe((state) => {
       // Check specifically if the Drink Water habit is completed (using name/icon variants)
@@ -1072,10 +1094,10 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
       const svg = e.currentTarget as HTMLElement;
       svg.style.pointerEvents = 'none';
 
-      // Restore pointer events after 350ms to cover the entire touch-to-click duration
+      // Restore pointer events after 800ms to cover the entire touch-to-click/double-tap duration
       setTimeout(() => {
         svg.style.pointerEvents = 'auto';
-      }, 350);
+      }, 800);
     } else {
       // Outside spotlight: prevent defaults to block interaction
       e.preventDefault();
