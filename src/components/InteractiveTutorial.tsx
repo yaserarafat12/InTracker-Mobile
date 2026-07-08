@@ -1228,10 +1228,10 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
         <AnimatePresence mode="wait">
           <motion.div 
             key={currentStep}
-            initial={{ scale: 0.95, opacity: 0, y: 15 }}
-            animate={{ scale: 1, opacity: 1, y: 0 }}
-            exit={{ scale: 0.95, opacity: 0, y: -15 }}
-            transition={{ type: 'spring', stiffness: 240, damping: 24 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.18, ease: 'easeInOut' }}
             className={`w-full mx-auto flex flex-col relative select-text transition-all duration-300 overflow-visible ${
               currentStep === 0 
                 ? 'max-w-[340px] bg-transparent shadow-none border-0'
