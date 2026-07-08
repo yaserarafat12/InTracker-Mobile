@@ -2126,11 +2126,13 @@ const SavingOverlay = ({ language, isUsernameCheck = false }: { language: string
               isLight ? 'border-black' : 'border-[#6ED7A0]'
             }`}
           />
-          <Icon 
-            icon={isUsernameCheck ? "solar:user-bold" : "solar:magic-stick-bold"} 
-            className={`absolute ${isLight ? 'text-black' : 'text-[#6ED7A0]'}`}
-            width={20} 
-          />
+          {isUsernameCheck && (
+            <Icon 
+              icon="solar:user-bold" 
+              className={`absolute ${isLight ? 'text-black' : 'text-[#6ED7A0]'}`}
+              width={20} 
+            />
+          )}
         </div>
 
         <div className="flex flex-col gap-2">

@@ -150,7 +150,7 @@ export default function Login() {
                 {/* GOOGLE LOGIN */}
                 <button
                   onClick={handleGoogle}
-                  className="w-full flex items-center justify-center gap-3 h-[50px] rounded-xl bg-black border-[2px] border-white shadow-[3px_3px_0px_rgba(0,0,0,1)] active:scale-[0.97] active:shadow-none transition-all"
+                  className="w-full flex items-center justify-center gap-3 h-[50px] rounded-xl bg-white border-[2px] border-black shadow-[3px_3px_0px_rgba(0,0,0,1)] active:scale-[0.97] active:shadow-none transition-all"
                 >
                   <svg width="18" height="18" viewBox="0 0 24 24">
                     <path fill="#EA4335" d="M12 5.04c1.64 0 3.12.56 4.28 1.67l3.21-3.21C17.39 1.54 14.92 1 12 1 7.31 1 3.28 3.69 1.42 7.61l3.77 2.92C6.09 7.42 8.81 5.04 12 5.04z" />
@@ -158,16 +158,16 @@ export default function Login() {
                     <path fill="#FBBC05" d="M5.19 14.54a7.28 7.28 0 0 1 0-5.08L1.42 6.54c-.81 1.62-1.42 3.42-1.42 5.46s.61 3.84 1.42 5.46l3.77-2.92z" />
                     <path fill="#34A853" d="M12 23c2.97 0 5.47-.98 7.28-2.66l-3.69-2.87c-1 .67-2.28 1.07-3.59 1.07-3.19 0-5.91-2.38-6.81-5.49l-3.77 2.92C3.28 20.31 7.31 23 12 23z" />
                   </svg>
-                  <span className="text-[14px] font-black text-white tracking-normal font-['Outfit']">Lanjutkan dengan Google</span>
+                  <span className="text-[14px] font-black text-black tracking-normal font-['Outfit']">Lanjutkan dengan Google</span>
                 </button>
 
                 {/* EMAIL LOGIN */}
                 <button
                   onClick={() => setView('email')}
-                  className="w-full flex items-center justify-center gap-3 h-[50px] rounded-xl bg-black border-[2px] border-white shadow-[3px_3px_0px_rgba(0,0,0,1)] active:scale-[0.97] active:shadow-none transition-all"
+                  className="w-full flex items-center justify-center gap-3 h-[50px] rounded-xl bg-white border-[2px] border-black shadow-[3px_3px_0px_rgba(0,0,0,1)] active:scale-[0.97] active:shadow-none transition-all"
                 >
-                  <Icon icon="solar:letter-bold" width={20} height={20} className="text-white" />
-                  <span className="text-[14px] font-black text-white tracking-normal font-['Outfit']">Lanjutkan dengan Email</span>
+                  <Icon icon="solar:letter-bold" width={20} height={20} className="text-black" />
+                  <span className="text-[14px] font-black text-black tracking-normal font-['Outfit']">Lanjutkan dengan Email</span>
                 </button>
               </div>
             </motion.div>
