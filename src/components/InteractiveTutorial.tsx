@@ -6,8 +6,25 @@ import { useUserStore } from '../store/useUserStore';
 import { useHabitStore } from '../store/useHabitStore';
 import { useTranslation } from '../i18n';
 
-// Mascot expressions (images 1 to 18)
-type MascotExpression = 1 | 2 | 3 | 4 | 5 | 6 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18;
+// Mascot expressions (based on actual filenames)
+type MascotExpression = 
+  | 'cheer'
+  | 'congrats'
+  | 'done'
+  | 'goodjob'
+  | 'grow'
+  | 'happy'
+  | 'hmmm'
+  | 'idea'
+  | 'read'
+  | 'sad'
+  | 'serious'
+  | 'set_or_system'
+  | 'suprised'
+  | 'think'
+  | 'time'
+  | 'write'
+  | 'yeay';
 
 interface Step {
   selector: string | null; // target DOM query selector
@@ -45,26 +62,51 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
   const [typedText, setTypedText] = useState<string>('');
 
   const getMascotSrc = (expression: MascotExpression) => {
-    if (expression >= 1 && expression <= 6) {
-      return `/all_images/antigravitybg/maskot/mas${expression}.png`;
+    switch (expression) {
+      case 'cheer':
+        return '/all_images/antigravitybg/maskot/cheer.png';
+      case 'congrats':
+        return '/all_images/antigravitybg/maskot/congrats.png';
+      case 'done':
+        return '/all_images/antigravitybg/maskot/done.png';
+      case 'goodjob':
+        return '/all_images/antigravitybg/maskot/goodjob.png';
+      case 'grow':
+        return '/all_images/antigravitybg/maskot/grow.png';
+      case 'happy':
+        return '/all_images/antigravitybg/maskot/happy.png';
+      case 'hmmm':
+        return '/all_images/antigravitybg/maskot/hmmm.png';
+      case 'idea':
+        return '/all_images/antigravitybg/maskot/idea.png';
+      case 'read':
+        return '/all_images/antigravitybg/maskot/read.png';
+      case 'sad':
+        return '/all_images/antigravitybg/maskot/sad.jpg';
+      case 'serious':
+        return '/all_images/antigravitybg/maskot/serious.png';
+      case 'set_or_system':
+        return '/all_images/antigravitybg/maskot/set or sistemeted.png';
+      case 'suprised':
+        return '/all_images/antigravitybg/maskot/suprised.png';
+      case 'think':
+        return '/all_images/antigravitybg/maskot/think.png';
+      case 'time':
+        return '/all_images/antigravitybg/maskot/time.png';
+      case 'write':
+        return '/all_images/antigravitybg/maskot/write.png';
+      case 'yeay':
+        return '/all_images/antigravitybg/maskot/yeay.png';
+      default:
+        return '/all_images/antigravitybg/maskot/happy.png';
     }
-    if (expression === 8) {
-      return `/all_images/antigravitybg/maskot/mas8.png`;
-    }
-    if (expression === 9) {
-      return `/all_images/antigravitybg/maskot/mas9.jpg`;
-    }
-    if (expression >= 10 && expression <= 18) {
-      return `/all_images/antigravitybg/maskot/maskot${expression}.jpg`;
-    }
-    return `/all_images/antigravitybg/maskot/mas2.png`;
   };
 
   const getIntroExpression = (scene: number): MascotExpression => {
-    if (scene === 1) return 1;
-    if (scene === 2) return 8;
-    if (scene === 3) return 3;
-    return 5;
+    if (scene === 1) return 'cheer';
+    if (scene === 2) return 'happy';
+    if (scene === 3) return 'think';
+    return 'yeay';
   };
 
   // Sync maxStep with currentStep when moving forward
@@ -308,7 +350,7 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
       selector: null,
       title: L.s0_title,
       desc: L.s0_desc,
-      expression: 1,
+      expression: 'cheer',
       actionText: L.s0_action,
       tab: 'habits',
     },
@@ -317,7 +359,7 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
       selector: '#add-habit-fab',
       title: L.s2_title,
       desc: L.s2_desc,
-      expression: 2,
+      expression: 'idea',
       tab: 'habits',
     },
     // 2. Select Drink Water preset
@@ -325,7 +367,7 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
       selector: '#habit-pick-drink-water',
       title: L.s3_title,
       desc: L.s3_desc,
-      expression: 9,
+      expression: 'happy',
       tab: 'habits',
     },
     // 3. Open Intensity Picker
@@ -333,7 +375,7 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
       selector: '#habit-config-intensity-btn',
       title: L.s4_title,
       desc: L.s4_desc,
-      expression: 10,
+      expression: 'set_or_system',
       tab: 'habits',
     },
     // 4. Done in Intensity Picker
@@ -342,7 +384,7 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
       clickTarget: '#habit-config-intensity-done-btn',
       title: L.s5_title,
       desc: L.s5_desc,
-      expression: 11,
+      expression: 'done',
       tab: 'habits',
     },
     // 5. Save Habit
@@ -351,7 +393,7 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
       clickTarget: '#habit-config-save-btn',
       title: L.s6_title,
       desc: L.s6_desc,
-      expression: 6,
+      expression: 'congrats',
       tab: 'habits',
     },
     // 6. Habit Card Double Click
@@ -359,7 +401,7 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
       selector: '#first-habit-card',
       title: L.s1_title,
       desc: L.s1_desc,
-      expression: 12,
+      expression: 'goodjob',
       tab: 'habits',
     },
     // 7. Navigate to To-Do tab
@@ -367,7 +409,7 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
       selector: '#nav-todo',
       title: L.s7_title,
       desc: L.s7_desc,
-      expression: 13,
+      expression: 'grow',
       expectedTab: 'todo',
       tab: 'habits',
     },
@@ -377,7 +419,7 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
       clickTarget: '#todo-quick-add-submit-btn',
       title: L.s8_title,
       desc: L.s8_desc,
-      expression: 14,
+      expression: 'write',
       tab: 'todo',
     },
     // 9. Check To-Do
@@ -385,7 +427,7 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
       selector: '#todo-checkbox-item',
       title: L.s9_title,
       desc: L.s9_desc,
-      expression: 15,
+      expression: 'done',
       tab: 'todo',
     },
     // 10. Completed Tab To-Do
@@ -393,7 +435,7 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
       selector: '#todo-tab-done',
       title: L.s10_title,
       desc: L.s10_desc,
-      expression: 16,
+      expression: 'yeay',
       tab: 'todo',
     },
     // 10a. Completed Tasks List Spotlight
@@ -401,7 +443,7 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
       selector: '#completed-todo-item',
       title: L.s10a_title,
       desc: L.s10a_desc,
-      expression: 17,
+      expression: 'congrats',
       actionText: L.next,
       tab: 'todo',
     },
@@ -410,7 +452,7 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
       selector: '#nav-analytics',
       title: L.s11_title,
       desc: L.s11_desc,
-      expression: 18,
+      expression: 'grow',
       expectedTab: 'analytics',
       tab: 'todo',
     },
@@ -419,7 +461,7 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
       selector: '#analytics-drink-water-card',
       title: L.s12_title,
       desc: L.s12_desc,
-      expression: 1,
+      expression: 'serious',
       tab: 'analytics',
     },
     // 13. Weekly Chart Explanation
@@ -427,7 +469,7 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
       selector: '#habit-analytics-weekly-chart',
       title: L.s13_title,
       desc: L.s13_desc,
-      expression: 2,
+      expression: 'grow',
       actionText: L.next,
       tab: 'analytics',
     },
@@ -436,7 +478,7 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
       selector: '#habit-analytics-monthly-record',
       title: L.s14_title,
       desc: L.s14_desc,
-      expression: 3,
+      expression: 'think',
       actionText: L.next,
       tab: 'analytics',
     },
@@ -445,7 +487,7 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
       selector: '#analytics-tab-stats',
       title: L.s15_title,
       desc: L.s15_desc,
-      expression: 4,
+      expression: 'idea',
       tab: 'analytics',
     },
     // 15a. RPG Stats Explanation
@@ -453,7 +495,7 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
       selector: '#analytics-rpg-stats-container',
       title: L.s16_title,
       desc: L.s16_desc,
-      expression: 5,
+      expression: 'goodjob',
       actionText: L.next,
       tab: 'analytics',
     },
@@ -462,7 +504,7 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
       selector: '#analytics-tab-recap',
       title: L.s17_title,
       desc: L.s17_desc,
-      expression: 6,
+      expression: 'time',
       tab: 'analytics',
     },
     // 16a. Activity Recap Explanation
@@ -470,7 +512,7 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
       selector: '#analytics-activity-recap-container',
       title: L.s18_title,
       desc: L.s18_desc,
-      expression: 8,
+      expression: 'read',
       actionText: L.next,
       tab: 'analytics',
     },
@@ -479,7 +521,7 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
       selector: '#nav-journey',
       title: L.s19_title,
       desc: L.s19_desc,
-      expression: 9,
+      expression: 'happy',
       expectedTab: 'journey',
       tab: 'analytics',
     },
@@ -488,7 +530,7 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
       selector: '#journey-today-card',
       title: L.s20_title,
       desc: L.s20_desc,
-      expression: 10,
+      expression: 'write',
       actionText: L.next,
       tab: 'journey',
     },
@@ -497,7 +539,7 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
       selector: '#journey-mood-box',
       title: L.s21_title,
       desc: L.s21_desc,
-      expression: 11,
+      expression: 'hmmm',
       actionText: L.next,
       tab: 'journey',
     },
@@ -506,7 +548,7 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
       selector: '#journey-media-btn',
       title: L.s22_title,
       desc: L.s22_desc,
-      expression: 12,
+      expression: 'yeay',
       actionText: L.next,
       tab: 'journey',
     },
@@ -515,7 +557,7 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
       selector: '#journey-write-btn',
       title: L.s23_title,
       desc: L.s23_desc,
-      expression: 13,
+      expression: 'write',
       actionText: L.next,
       tab: 'journey',
     },
@@ -524,7 +566,7 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
       selector: '#nav-global',
       title: L.s24_title,
       desc: L.s24_desc,
-      expression: 14,
+      expression: 'cheer',
       expectedTab: 'global',
       tab: 'journey',
     },
@@ -533,7 +575,7 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
       selector: '.flex-1.overflow-y-auto.py-4.no-scrollbar',
       title: L.s25_title,
       desc: L.s25_desc,
-      expression: 15,
+      expression: 'happy',
       actionText: L.next,
       tab: 'global',
     },
@@ -542,7 +584,7 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
       selector: '#global-fab',
       title: L.s26_title,
       desc: L.s26_desc,
-      expression: 16,
+      expression: 'idea',
       tab: 'global',
     },
     // Habit Picker inside post modal
@@ -551,7 +593,7 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
       clickTarget: '.post-habit-option-btn',
       title: L.s27_title,
       desc: L.s27_desc,
-      expression: 17,
+      expression: 'set_or_system',
       tab: 'global',
     },
     // Photo Upload inside post modal
@@ -559,7 +601,7 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
       selector: '#post-media-area',
       title: L.s28_title,
       desc: L.s28_desc,
-      expression: 18,
+      expression: 'yeay',
       actionText: L.next,
       tab: 'global',
     },
@@ -568,7 +610,7 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
       selector: '#post-caption-input',
       title: L.s29_title,
       desc: L.s29_desc,
-      expression: 1,
+      expression: 'write',
       actionText: L.next,
       tab: 'global',
     },
@@ -577,7 +619,7 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
       selector: '#post-share-btn',
       title: L.s30_title,
       desc: L.s30_desc,
-      expression: 2,
+      expression: 'goodjob',
       tab: 'global',
     },
     // 18a. Post Published Confirmation Spotlight on Feed list
@@ -585,7 +627,7 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
       selector: '.flex-1.overflow-y-auto.py-4.no-scrollbar',
       title: L.s30a_title,
       desc: L.s30a_desc,
-      expression: 8,
+      expression: 'congrats',
       actionText: L.next,
       tab: 'global',
     },
@@ -594,7 +636,7 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
       selector: '#nav-features',
       title: L.s31_title,
       desc: L.s31_desc,
-      expression: 3,
+      expression: 'happy',
       expectedTab: 'features',
       tab: 'global',
     },
@@ -603,7 +645,7 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
       selector: '#nutrition',
       title: L.tool_cal_title,
       desc: L.tool_cal_desc,
-      expression: 4,
+      expression: 'serious',
       actionText: L.next,
       tab: 'features',
     },
@@ -612,7 +654,7 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
       selector: '#pomodoro',
       title: L.tool_pomo_title,
       desc: L.tool_pomo_desc,
-      expression: 5,
+      expression: 'time',
       actionText: L.next,
       tab: 'features',
     },
@@ -621,7 +663,7 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
       selector: '#workout',
       title: L.tool_work_title,
       desc: L.tool_work_desc,
-      expression: 6,
+      expression: 'grow',
       actionText: L.next,
       tab: 'features',
     },
@@ -630,7 +672,7 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
       selector: '#breathing',
       title: L.tool_breath_title,
       desc: L.tool_breath_desc,
-      expression: 10,
+      expression: 'happy',
       actionText: L.next,
       tab: 'features',
     },
@@ -639,7 +681,7 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
       selector: '#books',
       title: L.tool_books_title,
       desc: L.tool_books_desc,
-      expression: 11,
+      expression: 'read',
       actionText: L.next,
       tab: 'features',
     },
@@ -648,7 +690,7 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
       selector: '#mathican',
       title: L.tool_math_title,
       desc: L.tool_math_desc,
-      expression: 12,
+      expression: 'idea',
       actionText: L.next,
       tab: 'features',
     },
@@ -657,7 +699,7 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
       selector: '#settings-toggle-btn',
       title: L.s33_title,
       desc: L.s33_desc,
-      expression: 13,
+      expression: 'set_or_system',
       tab: 'habits',
     },
     // 22. End of Tour
@@ -665,7 +707,7 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
       selector: null,
       title: L.s34_title,
       desc: L.s34_desc,
-      expression: 6,
+      expression: 'congrats',
       actionText: L.s34_action,
       tab: 'habits',
     },
@@ -788,6 +830,8 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
     const targetSelector = currentStepData?.clickTarget || currentStepData?.selector;
     if (!targetSelector || currentStepData.actionText) return;
     if (currentStepData?.selector === '#first-habit-card') return; // Exclude double-tap card from single-click listener
+    if (currentStepData?.selector === '#add-habit-fab') return; // Handled by checkStateAndAdvance auto-check
+    if (currentStepData?.expectedTab) return; // Handled by activeTab switch listener
 
     const handleDocumentClick = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
@@ -1292,7 +1336,7 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
                 <div className="flex flex-col items-center text-center relative w-full pt-2">
                   {/* Mascot — small icon in the top right corner, seeable */}
                   <motion.div
-                    className="absolute -top-16 -right-8 w-[92px] h-[92px] z-20 pointer-events-none"
+                    className="absolute -top-22 -right-14 w-[120px] h-[120px] z-20 pointer-events-none"
                     animate={{ y: [0, -3, 0] }}
                     transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
                   >
@@ -1306,7 +1350,7 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
                     {/* Step Title */}
                     <h4 
                       style={{ color: isLight ? '#000000' : '#ffffff' }}
-                      className="text-[15px] font-black font-['Outfit'] tracking-tight mb-2 pr-20 text-left"
+                      className="text-[15px] font-black font-['Outfit'] tracking-tight mb-2 pr-28 text-left"
                     >
                       {currentStepData.title}
                     </h4>
@@ -1320,37 +1364,22 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
                      </p>
 
                     {/* Action buttons footer for step > 0 */}
-                    <div className="flex items-center justify-center mt-4">
-                      {/* Lanjut / Next Button */}
-                      {(currentStepData.actionText || currentStep < maxStep) && (
-                        currentStepData.actionText && currentStepData.actionText !== 'Lanjut' ? (
-                          <motion.button 
-                            whileTap={{ scale: 0.95 }}
-                            onClick={handleNext}
-                            className={`px-5 py-2.5 rounded-xl border font-black uppercase text-[11px] tracking-wider transition-all flex items-center gap-1.5 font-['Outfit'] ${
-                              isLight 
-                                ? 'bg-[#6ED7A0] border-black text-black shadow-[3px_3px_0px_rgba(0,0,0,1)] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none' 
-                                : 'bg-[#6ED7A0] border-transparent text-black'
-                            }`}
-                          >
-                            <span>{currentStepData.actionText}</span>
-                            <Icon icon="ph:caret-right-bold" width={13} />
-                          </motion.button>
-                        ) : (
-                          <motion.button 
-                            whileTap={{ scale: 0.95 }}
-                            onClick={handleNext}
-                            className={`w-9 h-9 rounded-xl border flex items-center justify-center transition-all ${
-                              isLight 
-                                ? 'bg-[#6ED7A0] border-black text-black shadow-[3px_3px_0px_rgba(0,0,0,1)] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none' 
-                                : 'bg-[#6ED7A0] border-transparent text-black'
-                            }`}
-                          >
-                            <Icon icon="ph:caret-right-bold" width={16} />
-                          </motion.button>
-                        )
-                      )}
-                    </div>
+                    {currentStepData.actionText && (
+                      <div className="flex items-center justify-center mt-4">
+                        <motion.button 
+                          whileTap={{ scale: 0.95 }}
+                          onClick={handleNext}
+                          className={`px-5 py-2.5 rounded-xl border font-black uppercase text-[11px] tracking-wider transition-all flex items-center gap-1.5 font-['Outfit'] ${
+                            isLight 
+                              ? 'bg-[#6ED7A0] border-black text-black shadow-[3px_3px_0px_rgba(0,0,0,1)] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none' 
+                              : 'bg-[#6ED7A0] border-transparent text-black'
+                          }`}
+                        >
+                          <span>{currentStepData.actionText}</span>
+                          <Icon icon="ph:caret-right-bold" width={13} />
+                        </motion.button>
+                      </div>
+                    )}
                   </div>
                 </div>
               )}
