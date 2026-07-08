@@ -1279,14 +1279,13 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
         }}
       >
         <AnimatePresence mode="wait">
-          <AnimatePresence>
           {(currentStep === 0 || showDialogue) && (
           <motion.div 
             key={currentStep}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.18, ease: 'easeInOut' }}
+            transition={{ duration: 0.22, ease: 'easeInOut' }}
             onClick={currentStep > 0 ? handleDialogueTap : undefined}
             className={`w-full mx-auto flex flex-col relative select-text transition-all duration-300 overflow-visible cursor-pointer ${
               currentStep === 0 
@@ -1438,7 +1437,6 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
             </div>
           </motion.div>
           )}
-          </AnimatePresence>
         </AnimatePresence>
       </div>
     </div>,
