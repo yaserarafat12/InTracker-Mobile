@@ -199,28 +199,99 @@ function Beranda({ activeTab: initialTab = 'habits' }: { activeTab?: string }) {
     return () => window.removeEventListener('focus', handleFocus);
   }, [_checkAndResetDaily, fetchHabits]);
 
-  if (loading) return (
-    <div className="min-h-screen bg-black flex flex-col items-center justify-center p-6">
-      <motion.div 
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.1 }}
-        className="text-center"
-      >
-        <div className="flex gap-1.5 justify-center mb-6">
-          {[0, 1, 2].map((i) => (
+  if (loading) {
+    const isLight = settings.theme === 'Light';
+    const language = settings.language || 'English';
+    const LOADING_TEXTS: Record<string, string> = {
+      'English': 'Initializing your universe...',
+      'Bahasa Indonesia': 'Menyiapkan universe Anda...',
+      'Arabic': 'جارٍ تهيئة كونك...',
+      'Japanese': 'ユニバースを初期化中...',
+      'Chinese': '正在初始化您的宇宙...',
+      'French': 'Initialisation de votre univers...',
+      'German': 'Dein Universum wird initialisiert...',
+      'Spanish': 'Inicializando tu universo...',
+      'Portuguese': 'Inicializando o seu universo...',
+      'Korean': '유니버스 초기화 중...',
+    };
+    const loadingText = LOADING_TEXTS[language] || LOADING_TEXTS['English'];
+
+    return (
+      <div className={`min-h-screen flex flex-col items-center justify-center p-6 transition-colors duration-300 ${isLight ? 'bg-[#F2F2F7]' : 'bg-black'}`}>
+        <motion.div
+          initial={{ opacity: 0, scale: 0.92 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.5, ease: 'easeOut' }}
+          className="flex flex-col items-center gap-10"
+        >
+          {/* Premium Dual-Ring Spinner */}
+          <div className="relative w-24 h-24">
+            {/* Outer spinning ring */}
             <motion.div
-              key={i}
-              animate={{ opacity: [0.2, 1, 0.2], scale: [1, 1.2, 1] }}
-              transition={{ duration: 1, repeat: Infinity, delay: i * 0.2 }}
-              className="w-2 h-2 bg-[#00FF85] rounded-full shadow-[0_0_10px_rgba(0,255,133,0.6)]"
+              animate={{ rotate: 360 }}
+              transition={{ duration: 1.6, repeat: Infinity, ease: 'linear' }}
+              className="absolute inset-0 rounded-full"
+              style={{
+                background: 'transparent',
+                border: '3px solid transparent',
+                borderTopColor: '#6ED7A0',
+                borderRightColor: 'transparent',
+                borderBottomColor: '#6ED7A0',
+                borderLeftColor: 'transparent',
+                filter: 'drop-shadow(0 0 10px rgba(110,215,160,0.5))',
+              }}
             />
-          ))}
-        </div>
-        <p className="text-[11px] font-black text-[#E3DAC9]/40 tracking-[0.2em] uppercase">Initializing...</p>
-      </motion.div>
-    </div>
-  );
+            {/* Middle counter-spinning ring */}
+            <motion.div
+              animate={{ rotate: -360 }}
+              transition={{ duration: 2.4, repeat: Infinity, ease: 'linear' }}
+              className="absolute inset-[10px] rounded-full"
+              style={{
+                background: 'transparent',
+                border: '2px solid transparent',
+                borderTopColor: isLight ? 'rgba(0,0,0,0.15)' : 'rgba(110,215,160,0.3)',
+                borderRightColor: isLight ? 'rgba(0,0,0,0.08)' : 'rgba(110,215,160,0.1)',
+                borderBottomColor: 'transparent',
+                borderLeftColor: 'transparent',
+              }}
+            />
+            {/* Inner pulsing crown badge */}
+            <div className="absolute inset-0 flex items-center justify-center">
+              <motion.div
+                animate={{ scale: [0.88, 1.08, 0.88], opacity: [0.7, 1, 0.7] }}
+                transition={{ duration: 2.2, repeat: Infinity, ease: 'easeInOut' }}
+                className={`w-10 h-10 rounded-xl flex items-center justify-center border-2 ${
+                  isLight
+                    ? 'bg-[#6ED7A0] border-black shadow-[2px_2px_0px_rgba(0,0,0,1)]'
+                    : 'bg-[#6ED7A0]/15 border-[#6ED7A0]/60 shadow-[0_0_16px_rgba(110,215,160,0.25)]'
+                }`}
+              >
+                <Icon icon="ph:crown-fill" width={18} height={18} className={isLight ? 'text-black' : 'text-[#6ED7A0]'} />
+              </motion.div>
+            </div>
+          </div>
+
+          {/* Text block */}
+          <div className="flex flex-col items-center gap-2">
+            <motion.p
+              animate={{ opacity: [0.5, 1, 0.5] }}
+              transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+              className={`text-[11px] font-black tracking-[0.22em] uppercase font-['Outfit'] ${
+                isLight ? 'text-black/70' : 'text-[#6ED7A0]'
+              }`}
+            >
+              {loadingText}
+            </motion.p>
+            <p className={`text-[9px] font-bold tracking-[0.18em] uppercase font-['Outfit'] ${
+              isLight ? 'text-black/25' : 'text-white/20'
+            }`}>
+              InTracker System
+            </p>
+          </div>
+        </motion.div>
+      </div>
+    );
+  }
 
   if (error) return (
     <div className="min-h-screen bg-black flex flex-col items-center justify-center p-6 text-center">
