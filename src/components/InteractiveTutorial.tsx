@@ -105,7 +105,7 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
   const getIntroExpression = (scene: number): MascotExpression => {
     if (scene === 1) return 'cheer';
     if (scene === 2) return 'happy';
-    if (scene === 3) return 'think';
+    if (scene === 3) return 'idea';
     return 'yeay';
   };
 
@@ -812,6 +812,7 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
     if (!targetSelector || currentStepData.actionText) return;
     if (currentStepData?.selector === '#first-habit-card') return; // Exclude double-tap card from single-click listener
     if (currentStepData?.selector === '#add-habit-fab') return; // Handled by checkStateAndAdvance auto-check
+    if (currentStepData?.selector === '#analytics-drink-water-card') return; // Handled by checkStateAndAdvance auto-check
     if (currentStepData?.expectedTab) return; // Handled by activeTab switch listener
 
     const handleDocumentClick = (e: MouseEvent) => {
@@ -876,6 +877,13 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
       // 3. If we are on the Save Habit step
       // and the config modal is closed (meaning #habit-config-modal is gone)
       if (currentStepData?.selector === '#habit-config-modal' && !document.getElementById('habit-config-modal')) {
+        handleNext();
+        return;
+      }
+
+      // 4. If we are on the Analytics Drink Water Card click step
+      // and the details page is open (meaning #habit-analytics-weekly-chart is visible)
+      if (currentStepData?.selector === '#analytics-drink-water-card' && document.getElementById('habit-analytics-weekly-chart')) {
         handleNext();
         return;
       }
