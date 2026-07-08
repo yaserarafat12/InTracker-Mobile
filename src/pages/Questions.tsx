@@ -2993,7 +2993,7 @@ export default function Questions() {
             className="w-full"
           >
             <CinematicButton 
-              bg="#6ED7A0"
+              bg="#10B981"
               shadowClass="shadow-[3px_3px_0px_rgba(0,0,0,1)]"
               onClick={async () => {
                 try {
