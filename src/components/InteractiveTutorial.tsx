@@ -1196,10 +1196,10 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
             animate={{ scale: 1, opacity: 1, y: 0 }}
             exit={{ scale: 0.95, opacity: 0, y: -15 }}
             transition={{ type: 'spring', stiffness: 240, damping: 24 }}
-            className={`max-w-[280px] w-full mx-auto flex flex-col relative select-text transition-all duration-300 overflow-visible ${
+            className={`w-full mx-auto flex flex-col relative select-text transition-all duration-300 overflow-visible ${
               currentStep === 0 
-                ? 'bg-transparent shadow-none border-0'
-                : `border rounded-[24px] shadow-[0_20px_50px_rgba(0,0,0,0.35)] ${isLight ? 'bg-[#ffffff] border-black/5' : 'bg-[#252830] border-white/[0.08]'}`
+                ? 'max-w-[340px] bg-transparent shadow-none border-0'
+                : `max-w-[580px] border rounded-[24px] shadow-[0_20px_50px_rgba(0,0,0,0.35)] ${isLight ? 'bg-[#ffffff] border-black/5' : 'bg-[#252830] border-white/[0.08]'}`
             }`}
           >
 
@@ -1289,7 +1289,7 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
                 <div className="flex flex-col items-center text-center relative w-full pt-2">
                   {/* Mascot — small icon in the top right corner, seeable */}
                   <motion.div
-                    className="absolute -top-16 -right-6 w-[92px] h-[92px] z-20 pointer-events-none"
+                    className="absolute -top-16 -right-4 w-[92px] h-[92px] z-20 pointer-events-none"
                     animate={{ y: [0, -3, 0] }}
                     transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
                   >
@@ -1303,7 +1303,7 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
                     {/* Step Title */}
                     <h4 
                       style={{ color: isLight ? '#000000' : '#ffffff' }}
-                      className="text-[15px] font-black font-['Outfit'] tracking-tight mb-2 pr-6 text-left"
+                      className="text-[15px] font-black font-['Outfit'] tracking-tight mb-2 pr-20 text-left"
                     >
                       {currentStepData.title}
                     </h4>
