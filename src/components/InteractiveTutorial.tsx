@@ -1196,7 +1196,7 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
             animate={{ scale: 1, opacity: 1, y: 0 }}
             exit={{ scale: 0.95, opacity: 0, y: -15 }}
             transition={{ type: 'spring', stiffness: 240, damping: 24 }}
-            className={`max-w-[240px] w-full mx-auto border rounded-[24px] shadow-[0_20px_50px_rgba(0,0,0,0.35)] flex flex-col relative select-text transition-all duration-300 ${
+            className={`max-w-[300px] w-full mx-auto border rounded-[24px] shadow-[0_20px_50px_rgba(0,0,0,0.35)] flex flex-col relative select-text transition-all duration-300 ${
               currentStep === 0 ? 'overflow-visible' : 'overflow-hidden'
             } ${
               isLight 
