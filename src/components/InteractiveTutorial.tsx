@@ -1208,7 +1208,7 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
             {/* Mascot Image centered at top for step 0 */}
             {currentStep === 0 && (
               <motion.div 
-                className="absolute top-[-100px] left-1/2 transform -translate-x-1/2 w-[160px] h-[160px] flex justify-center items-center z-10"
+                className="absolute top-[-160px] left-1/2 transform -translate-x-1/2 w-[160px] h-[160px] flex justify-center items-center z-10"
                 animate={{ y: [0, -4, 0] }}
                 transition={{ duration: 3.5, repeat: Infinity, ease: "easeInOut" }}
               >
@@ -1224,7 +1224,7 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
             <div 
               onClick={currentStep === 0 ? handleIntroCardClick : undefined}
               className={`flex flex-col relative transition-all duration-300 ${
-                currentStep === 0 ? 'pt-[68px] pb-4 px-4' : 'pt-5 pb-5 px-6'
+                currentStep === 0 ? 'pt-6 pb-4 px-4' : 'pt-5 pb-5 px-6'
               } ${currentStep === 0 ? 'cursor-pointer' : ''}`}
             >
               {currentStep === 0 ? (
