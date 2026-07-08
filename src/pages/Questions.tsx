@@ -2941,12 +2941,12 @@ export default function Questions() {
   if (currentStep === 0) {
     const isIndo = language === 'Bahasa Indonesia';
     return (
-      <div className={`min-h-screen font-['Inter'] relative flex flex-col items-center justify-between py-12 px-6 overflow-hidden select-none transition-colors duration-300 ${isLight ? 'bg-white text-black' : 'bg-black text-white'}`}>
+      <div className={`min-h-screen font-['Inter'] relative flex flex-col items-center justify-center py-12 px-6 gap-6 overflow-hidden select-none transition-colors duration-300 ${isLight ? 'bg-white text-black' : 'bg-black text-white'}`}>
         
 
 
         {/* TOP TITLE */}
-        <div className="relative z-10 w-full max-w-[400px] text-center mt-6">
+        <div className="relative z-10 w-full max-w-[400px] text-center">
           <motion.h1 
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -2958,7 +2958,7 @@ export default function Questions() {
         </div>
 
         {/* MIDDLE SPACER & MASCOT */}
-        <div className="flex-1 flex items-center justify-center my-6 relative z-10 w-full max-w-[400px]">
+        <div className="flex items-center justify-center my-2 relative z-10 w-full max-w-[400px]">
           <motion.img 
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1, y: [0, -8, 0] }}
@@ -2974,7 +2974,7 @@ export default function Questions() {
         </div>
 
         {/* BOTTOM CONTENT */}
-        <div className="relative z-10 w-full max-w-[400px] text-center flex flex-col items-center gap-6 mb-4">
+        <div className="relative z-10 w-full max-w-[400px] text-center flex flex-col items-center gap-6">
           <motion.p 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
