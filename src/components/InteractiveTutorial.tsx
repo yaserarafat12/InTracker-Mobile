@@ -1208,7 +1208,7 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
             {/* Mascot Image centered at top for step 0 */}
             {currentStep === 0 && (
               <motion.div 
-                className="absolute top-[-80px] left-1/2 transform -translate-x-1/2 w-36 h-36 flex justify-center items-center z-10"
+                className="absolute top-[-80px] left-1/2 transform -translate-x-1/2 w-36 h-36 flex flex-col justify-center items-center z-10"
                 animate={{ y: [0, -5, 0] }}
                 transition={{ duration: 3.5, repeat: Infinity, ease: "easeInOut" }}
               >
@@ -1217,6 +1217,10 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
                   alt="Rise Mascot" 
                   className="w-full h-full object-contain drop-shadow-[0_6px_14px_rgba(0,0,0,0.18)]" 
                 />
+                {/* Rise label pinned just below mascot */}
+                <span className="text-[10px] font-black uppercase tracking-widest text-[#6ED7A0] mt-1 leading-none">
+                  Rise
+                </span>
               </motion.div>
             )}
 
@@ -1230,11 +1234,7 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
               {currentStep === 0 ? (
                 // Greeting Sub-scenes rendering
                 <div className="flex flex-col text-center items-center justify-center min-h-[140px]">
-                  {/* Speaker Label */}
-                  <span className={`text-[11px] font-black uppercase tracking-widest ${isLight ? 'text-[#6ED7A0]' : 'text-[#6ED7A0]'} -mt-2 mb-2.5`}>
-                    Rise
-                  </span>
-                  
+
                   {introScene <= 3 ? (
                     /* Typing Scene */
                     <p 
