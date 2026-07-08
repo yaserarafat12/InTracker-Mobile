@@ -64,6 +64,7 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
   // States for per-step typewriter effect (steps > 0)
   const [typedDesc, setTypedDesc] = useState<string>('');
   const [showDialogue, setShowDialogue] = useState<boolean>(false);
+  const [spotlightAllowed, setSpotlightAllowed] = useState<boolean>(false);
 
   const getMascotSrc = (expression: MascotExpression) => {
     switch (expression) {
@@ -357,7 +358,7 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
     setShowDialogue(false);
     setTypedDesc('');
 
-    // Wait for spotlight to settle, then show dialogue + start typing
+    // Wait 2000ms for spotlight to stabilize, then show dialogue + start typing
     const delayTimer = setTimeout(() => {
       setShowDialogue(true);
       let idx = 0;
@@ -370,7 +371,7 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
         }
       }, 22);
       return () => clearInterval(typeTimer);
-    }, 320);
+    }, 2000);
 
     return () => clearTimeout(delayTimer);
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -768,8 +769,9 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
     const isNewStep = prevStepRef.current !== currentStep;
     if (isNewStep) {
       prevStepRef.current = currentStep;
-      // Temporarily hide the spotlight on step transition to prevent flashing
+      // Temporarily hide the spotlight on step transition to prevent flashing/jumping
       setSpotlightVisible(false);
+      setSpotlightAllowed(false);
       setTargetRect(null);
     }
 
@@ -777,8 +779,14 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
     if (!selector) {
       setTargetRect(null);
       setSpotlightVisible(false);
+      setSpotlightAllowed(false);
       return;
     }
+
+    // Wait 350ms for page layout, scrolling, and tab changes to settle before allowing the spotlight to show
+    const delayTimer = setTimeout(() => {
+      setSpotlightAllowed(true);
+    }, 350);
 
     let animFrameId: number;
 
@@ -800,11 +808,9 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
           }
           return prev;
         });
-        setSpotlightVisible(true);
       } else {
-        // Target element is not in DOM yet (e.g. during animations)
+        // Target element is not in DOM yet
         setTargetRect(null);
-        setSpotlightVisible(false);
       }
       animFrameId = requestAnimationFrame(trackElement);
     };
@@ -813,8 +819,14 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
 
     return () => {
       cancelAnimationFrame(animFrameId);
+      clearTimeout(delayTimer);
     };
   }, [currentStep, currentStepData, activeTab]);
+
+  // Handle actual visibility of the spotlight with a clean effect
+  useEffect(() => {
+    setSpotlightVisible(spotlightAllowed && targetRect !== null);
+  }, [spotlightAllowed, targetRect]);
 
   // Auto advance if the user performs the target tab switch action
   useEffect(() => {
