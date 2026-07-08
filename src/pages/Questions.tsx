@@ -1840,26 +1840,26 @@ const SwipeDeckScreen = ({ answers, onComplete, onBack }: { answers: Record<numb
               animate={{ scale: 1, y: 0 }}
               exit={{ scale: 0.9, y: 20 }}
               transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
-              className={`relative z-10 w-full max-w-[340px] border-[3px] border-[#6ED7A0] rounded-2xl p-6 shadow-[6px_6px_0px_rgba(16, 185, 129,0.3)] flex flex-col items-center gap-5 text-center ${
+              className={`relative z-10 w-full max-w-[340px] border-[3px] border-[#6ED7A0] rounded-[24px] pt-9 pb-8 px-6 shadow-[6px_6px_0px_rgba(110,215,160,0.25)] flex flex-col items-center gap-6 text-center ${
                 isLight ? 'bg-white' : 'bg-[#111]'
               }`}
             >
-              {/* Title */}
-              <div className="flex flex-col gap-1">
-                <h3 className={`text-[18px] font-black font-['Outfit'] uppercase tracking-wide ${isLight ? 'text-black' : 'text-white'}`}>
+              {/* Title & Desc */}
+              <div className="flex flex-col items-center w-full">
+                <h3 className={`text-[16px] font-black font-['Outfit'] uppercase tracking-wider mb-2.5 ${isLight ? 'text-black' : 'text-white'}`}>
                   {trans.maxReachedTitle}
                 </h3>
-                <p className={`text-[12px] leading-relaxed font-medium ${isLight ? 'text-black/50' : 'text-white/50'}`}>
+                <p className={`text-[12.5px] leading-relaxed font-normal font-['Outfit'] px-2 ${isLight ? 'text-black/60' : 'text-white/65'}`}>
                   {trans.maxReachedDesc}
                 </p>
               </div>
 
-              {/* Continue Button */}
+              {/* Continue Button (Compact, No Arrow) */}
               <button
                 onClick={() => triggerComplete(accepted)}
-                className="w-full py-4 bg-[#6ED7A0] text-black font-black font-['Outfit'] text-[14px] uppercase tracking-widest rounded-xl border-[3px] border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-x-[4px] active:translate-y-[4px] transition-all"
+                className={`px-8 py-3 bg-[#6ED7A0] text-black font-black font-['Outfit'] text-[11px] uppercase tracking-widest rounded-xl border-[2.5px] border-black transition-all shadow-[3px_3px_0px_rgba(0,0,0,1)] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none mt-2`}
               >
-                {trans.startProgramBtn} →
+                {trans.startProgramBtn}
               </button>
             </motion.div>
           </motion.div>
