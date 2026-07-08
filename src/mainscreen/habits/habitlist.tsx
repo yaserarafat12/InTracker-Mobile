@@ -74,12 +74,12 @@ const DaftarHabit = ({
       return;
     }
     
-    // Hide if account is older than 2 days
+    // Hide if account is older than 3 days
     if (profile?.created_at) {
       const joinDate = new Date(profile.created_at);
       const now = new Date();
       const daysSinceJoin = (now.getTime() - joinDate.getTime()) / (1000 * 60 * 60 * 24);
-      if (daysSinceJoin > 2) {
+      if (daysSinceJoin > 3) {
         setShowHint(false);
       }
     }
