@@ -1196,68 +1196,85 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
             animate={{ scale: 1, opacity: 1, y: 0 }}
             exit={{ scale: 0.95, opacity: 0, y: -15 }}
             transition={{ type: 'spring', stiffness: 240, damping: 24 }}
-            className={`max-w-[300px] w-full mx-auto border rounded-[24px] shadow-[0_20px_50px_rgba(0,0,0,0.35)] flex flex-col relative select-text transition-all duration-300 ${
-              currentStep === 0 ? 'overflow-visible' : 'overflow-hidden'
-            } ${
-              isLight 
-                ? 'bg-[#ffffff] border-black/5' 
-                : 'bg-[#252830] border-white/[0.08]'
+            className={`max-w-[300px] w-full mx-auto flex flex-col relative select-text transition-all duration-300 ${
+              currentStep === 0 
+                ? 'overflow-visible bg-transparent shadow-none border-0'
+                : `overflow-hidden border rounded-[24px] shadow-[0_20px_50px_rgba(0,0,0,0.35)] ${isLight ? 'bg-[#ffffff] border-black/5' : 'bg-[#252830] border-white/[0.08]'}`
             }`}
           >
 
-            {/* Mascot Image centered at top for step 0 */}
-            {currentStep === 0 && (
-              <motion.div 
-                className="absolute top-[-160px] left-1/2 transform -translate-x-1/2 w-[160px] h-[160px] flex justify-center items-center z-10"
-                animate={{ y: [0, -4, 0] }}
-                transition={{ duration: 3.5, repeat: Infinity, ease: "easeInOut" }}
-              >
-                <img 
-                  src={getMascotSrc(getIntroExpression(introScene))} 
-                  alt="Rise Mascot" 
-                  className="w-full h-full object-contain drop-shadow-[0_6px_14px_rgba(0,0,0,0.18)]" 
-                />
-              </motion.div>
-            )}
-
             {/* Dialogue Content */}
             <div 
-              onClick={currentStep === 0 ? handleIntroCardClick : undefined}
               className={`flex flex-col relative transition-all duration-300 ${
-                currentStep === 0 ? 'pt-6 pb-4 px-4' : 'pt-5 pb-5 px-6'
-              } ${currentStep === 0 ? 'cursor-pointer' : ''}`}
+                currentStep === 0 ? 'p-0' : 'pt-5 pb-5 px-6'
+              }`}
             >
               {currentStep === 0 ? (
-                // Greeting Sub-scenes rendering
-                <div className="flex flex-col text-center items-center justify-center min-h-[60px]">
+                // Speech bubble layout: mascot left, bubble right
+                <div className="flex items-end gap-2 w-full">
 
-                  {introScene <= 3 ? (
-                    /* Typing Scene */
-                    <p 
-                      style={{ color: isLight ? 'rgba(0, 0, 0, 0.85)' : 'rgba(255, 255, 255, 0.9)' }}
-                      className="text-[17px] font-semibold leading-relaxed font-['Outfit'] min-h-[60px]"
-                    >
-                      {typedText}
-                    </p>
-                  ) : (
-                    /* Final Greeting Scene (Scene 4) with Mulai Petualangan button — no text, just the CTA */
-                    <div className="flex flex-col items-center">
-                      <motion.button 
-                        whileTap={{ scale: 0.95 }}
-                        onClick={(e) => {
-                          e.stopPropagation(); // prevent triggering handleIntroCardClick
-                          handleNext();
-                        }}
-                        className={`px-10 py-3.5 rounded-xl border font-black uppercase text-[11px] tracking-widest transition-all font-['Outfit'] ${
-                          isLight 
-                            ? 'bg-[#6ED7A0] border-black text-black shadow-[3px_3px_0px_rgba(0,0,0,1)] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none' 
-                            : 'bg-[#6ED7A0] border-transparent text-black'
-                        }`}
+                  {/* Mascot floating on the left */}
+                  <motion.div
+                    className="w-[100px] h-[100px] flex-shrink-0"
+                    animate={{ y: [0, -5, 0] }}
+                    transition={{ duration: 3.5, repeat: Infinity, ease: "easeInOut" }}
+                  >
+                    <img
+                      src={getMascotSrc(getIntroExpression(introScene))}
+                      alt="Rise Mascot"
+                      className="w-full h-full object-contain drop-shadow-[0_6px_14px_rgba(0,0,0,0.18)]"
+                    />
+                  </motion.div>
+
+                  {/* Speech bubble on the right */}
+                  <div
+                    onClick={handleIntroCardClick}
+                    className={`relative flex-1 rounded-2xl rounded-bl-sm px-4 py-3 cursor-pointer ${
+                      isLight
+                        ? 'bg-white border border-black/8 shadow-[0_4px_24px_rgba(0,0,0,0.12)]'
+                        : 'bg-[#252830] border border-white/10 shadow-[0_4px_24px_rgba(0,0,0,0.35)]'
+                    }`}
+                  >
+                    {/* Bubble tail pointing left toward mascot */}
+                    <div
+                      className="absolute -left-[8px] bottom-4"
+                      style={{
+                        width: 0,
+                        height: 0,
+                        borderTop: '7px solid transparent',
+                        borderBottom: '7px solid transparent',
+                        borderRight: `8px solid ${isLight ? 'white' : '#252830'}`,
+                      }}
+                    />
+
+                    {introScene <= 3 ? (
+                      /* Typing Scene */
+                      <p
+                        style={{ color: isLight ? 'rgba(0,0,0,0.85)' : 'rgba(255,255,255,0.9)' }}
+                        className="text-[14px] font-semibold leading-relaxed font-['Outfit'] min-h-[44px]"
                       >
-                        {L.s0_action}
-                      </motion.button>
-                    </div>
-                  )}
+                        {typedText}
+                      </p>
+                    ) : (
+                      /* Scene 4 — CTA button inside bubble */
+                      <div className="flex flex-col items-center py-1">
+                        <motion.button
+                          whileTap={{ scale: 0.95 }}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleNext();
+                          }}
+                          className={`px-6 py-2.5 rounded-xl border font-black uppercase text-[10px] tracking-widest transition-all font-['Outfit'] ${
+                            isLight
+                              ? 'bg-[#6ED7A0] border-black text-black shadow-[3px_3px_0px_rgba(0,0,0,1)] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none'
+                              : 'bg-[#6ED7A0] border-transparent text-black'
+                          }`}
+                        >
+                          {L.s0_action}
+                        </motion.button>
+                      </div>
+                    )}
+                  </div>
                 </div>
               ) : (
                 // Other steps (Step > 0)
