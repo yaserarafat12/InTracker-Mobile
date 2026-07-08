@@ -3529,83 +3529,84 @@ export default function Questions() {
   return (
     <div className={`h-[100dvh] font-['Inter'] relative flex flex-col items-center overflow-hidden select-none transition-colors duration-300 ${isLight ? 'bg-white text-black' : 'bg-black text-white'}`}>
       
-      {/* TOP HEADER */}
-      <div className="relative z-20 w-full px-6 pt-12 flex flex-col gap-4">
-        <div className="flex items-center justify-between relative">
-          {/* Back Button */}
-          <button 
-            onClick={handleBack} 
-            className={`w-10 h-10 flex items-center justify-center border-2 rounded-xl active:scale-95 transition-all ${
-              isLight 
-                ? 'bg-white border-black text-black shadow-[3px_3px_0px_rgba(0,0,0,1)]' 
-                : 'bg-[#1A1A1A] border-white/20 text-white shadow-[3px_3px_0px_rgba(255,255,255,0.15)]'
-            }`}
-          >
-            <Icon icon="ph:caret-left-bold" width={20} height={20} />
-          </button>
-          
-          {/* Language Toggle — top right, neobrutalist */}
-          <div className="relative">
+      {/* Scrollable Container */}
+      <div className="w-full max-w-[420px] flex-1 overflow-y-auto custom-scrollbar flex flex-col px-6 pt-12 pb-28">
+        
+        {/* TOP HEADER */}
+        <div className="relative z-20 w-full flex flex-col gap-4 mb-6">
+          <div className="flex items-center justify-between relative">
+            {/* Back Button */}
             <button 
-              onClick={() => setShowLangDropdown(!showLangDropdown)}
-              className={`flex items-center gap-1.5 px-3 py-1.5 border-2 rounded-lg text-[11px] font-black font-['Outfit'] shadow-[3px_3px_0px_rgba(0,0,0,1)] transition-all ${
+              onClick={handleBack} 
+              className={`w-10 h-10 flex items-center justify-center border-2 rounded-xl active:scale-95 transition-all ${
                 isLight 
                   ? 'bg-white border-black text-black shadow-[3px_3px_0px_rgba(0,0,0,1)]' 
-                  : 'bg-[#1A1A1A] border-white/20 text-white/90 shadow-[3px_3px_0px_rgba(255,255,255,0.15)]'
+                  : 'bg-[#1A1A1A] border-white/20 text-white shadow-[3px_3px_0px_rgba(255,255,255,0.15)]'
               }`}
             >
-              <span>{language === 'Bahasa Indonesia' ? 'Indonesia' : language}</span>
-              <Icon icon="solar:alt-arrow-down-bold" width={10} className={`opacity-60 transition-transform duration-150 ${showLangDropdown ? 'rotate-180' : ''}`} />
+              <Icon icon="ph:caret-left-bold" width={20} height={20} />
             </button>
             
-            {showLangDropdown && (
-              <div className={`absolute right-0 mt-1 w-32 border-2 rounded-lg overflow-hidden z-50 transition-all ${
-                isLight 
-                  ? 'bg-white border-black shadow-[4px_4px_0px_rgba(0,0,0,1)]' 
-                  : 'bg-[#1A1A1A] border-white/20 shadow-[4px_4px_0px_rgba(255,255,255,0.15)]'
-              }`}>
-                {LANGUAGES_MAP.map((lang) => (
-                  <button
-                    key={lang.name}
-                    onClick={() => {
-                      updateSettings({ language: lang.name as any });
-                      setShowLangDropdown(false);
-                    }}
-                    className={`w-full px-3 py-2.5 text-left text-[11px] font-black font-['Outfit'] transition-colors ${
-                      language === lang.name 
-                        ? isLight 
-                          ? 'text-black bg-black/5' 
-                          : 'text-white bg-white/10'
-                        : isLight 
-                          ? 'text-black/60 hover:text-black hover:bg-black/5' 
-                          : 'text-white/60 hover:text-white hover:bg-white/5'
-                    }`}
-                  >
-                    {lang.name === 'Bahasa Indonesia' ? 'Indonesia' : lang.name}
-                  </button>
-                ))}
-              </div>
-            )}
+            {/* Language Toggle — top right, neobrutalist */}
+            <div className="relative">
+              <button 
+                onClick={() => setShowLangDropdown(!showLangDropdown)}
+                className={`flex items-center gap-1.5 px-3 py-1.5 border-2 rounded-lg text-[11px] font-black font-['Outfit'] shadow-[3px_3px_0px_rgba(0,0,0,1)] transition-all ${
+                  isLight 
+                    ? 'bg-white border-black text-black shadow-[3px_3px_0px_rgba(0,0,0,1)]' 
+                    : 'bg-[#1A1A1A] border-white/20 text-white/90 shadow-[3px_3px_0px_rgba(255,255,255,0.15)]'
+                }`}
+              >
+                <span>{language === 'Bahasa Indonesia' ? 'Indonesia' : language}</span>
+                <Icon icon="solar:alt-arrow-down-bold" width={10} className={`opacity-60 transition-transform duration-150 ${showLangDropdown ? 'rotate-180' : ''}`} />
+              </button>
+              
+              {showLangDropdown && (
+                <div className={`absolute right-0 mt-1 w-32 border-2 rounded-lg overflow-hidden z-50 transition-all ${
+                  isLight 
+                    ? 'bg-white border-black shadow-[4px_4px_0px_rgba(0,0,0,1)]' 
+                    : 'bg-[#1A1A1A] border-white/20 shadow-[4px_4px_0px_rgba(255,255,255,0.15)]'
+                }`}>
+                  {LANGUAGES_MAP.map((lang) => (
+                    <button
+                      key={lang.name}
+                      onClick={() => {
+                        updateSettings({ language: lang.name as any });
+                        setShowLangDropdown(false);
+                      }}
+                      className={`w-full px-3 py-2.5 text-left text-[11px] font-black font-['Outfit'] transition-colors ${
+                        language === lang.name 
+                          ? isLight 
+                            ? 'text-black bg-black/5' 
+                            : 'text-white bg-white/10'
+                          : isLight 
+                            ? 'text-black/60 hover:text-black hover:bg-black/5' 
+                            : 'text-white/60 hover:text-white hover:bg-white/5'
+                      }`}
+                    >
+                      {lang.name === 'Bahasa Indonesia' ? 'Indonesia' : lang.name}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Progress Bar only — no counter */}
+          <div className={`relative w-full h-[2px] rounded-full overflow-hidden ${isLight ? 'bg-black/10' : 'bg-white/10'}`}>
+            <motion.div 
+              initial={{ width: 0 }} 
+              animate={{ width: `${(currentStep / STEPS.length) * 100}%` }} 
+              transition={{ duration: 0.8, ease: CUBIC_BEZIER }} 
+              className="relative h-full bg-[#6ED7A0] shadow-[0_0_12px_rgba(16, 185, 129,0.5)]"
+            >
+              <div className="absolute right-0 top-0 h-full w-2 bg-white/30 rounded-full" />
+            </motion.div>
           </div>
         </div>
- 
-        {/* Progress Bar only — no counter */}
-        <div className={`relative w-full h-[2px] rounded-full overflow-hidden ${isLight ? 'bg-black/10' : 'bg-white/10'}`}>
-          <motion.div 
-            initial={{ width: 0 }} 
-            animate={{ width: `${(currentStep / STEPS.length) * 100}%` }} 
-            transition={{ duration: 0.8, ease: CUBIC_BEZIER }} 
-            className="relative h-full bg-[#6ED7A0] shadow-[0_0_12px_rgba(16, 185, 129,0.5)]"
-          >
-            <div className="absolute right-0 top-0 h-full w-2 bg-white/30 rounded-full" />
-          </motion.div>
-        </div>
-      </div>
- 
-      <div className="relative z-10 w-full max-w-[420px] px-6 flex flex-col flex-1 pt-24 overflow-hidden">
-        
+
         {/* HEADING SECTION */}
-        <div className="h-28 flex flex-col justify-center mb-8">
+        <div className="h-28 flex flex-col justify-center mb-8 shrink-0">
           <AnimatePresence mode="wait">
             <motion.div
               key={currentStep}
@@ -3626,9 +3627,9 @@ export default function Questions() {
             </motion.div>
           </AnimatePresence>
         </div>
- 
+
         {/* INPUTS / OPTIONS AREA */}
-        <div className="flex-1 overflow-y-auto custom-scrollbar pr-1 -mr-1 pb-28">
+        <div className="w-full flex-1">
           <AnimatePresence mode="wait">
             <motion.div
               key={currentStep}
@@ -3691,40 +3692,40 @@ export default function Questions() {
             </motion.div>
           </AnimatePresence>
         </div>
- 
-        {/* BOTTOM CONTINUE BUTTON */}
-        <div className={`absolute bottom-0 left-0 w-full px-6 pb-6 pt-12 pointer-events-none ${
-          isLight 
-            ? 'bg-gradient-to-t from-white via-white/90 to-transparent' 
-            : 'bg-gradient-to-t from-black via-black/90 to-transparent'
-        }`}>
-          <div className="h-14 pointer-events-auto">
-            {isContinueEnabled() && (
-              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-                <CinematicButton 
-                  disabled={isSaving}
-                  onClick={() => {
-                    if (currentStep === 5 && showWheelMode) {
-                      if (navigator.vibrate) navigator.vibrate(10);
-                      setShowWheelMode(false);
-                    } else {
-                      handleNext();
-                    }
-                  }} 
-                  className="w-full"
-                >
-                  {currentStep === 5 && showWheelMode
-                    ? (language === 'Bahasa Indonesia' ? 'Kembali' : 'Back')
-                    : isSaving
-                      ? (language === 'Bahasa Indonesia' ? 'Menyimpan...' : 'Saving...')
-                      : (language === 'Bahasa Indonesia' ? 'Lanjutkan' : 'Continue')
+
+      </div>
+
+      {/* BOTTOM CONTINUE BUTTON */}
+      <div className={`absolute bottom-0 left-0 w-full px-6 pb-6 pt-12 pointer-events-none ${
+        isLight 
+          ? 'bg-gradient-to-t from-white via-white/90 to-transparent' 
+          : 'bg-gradient-to-t from-black via-black/90 to-transparent'
+      }`}>
+        <div className="h-14 pointer-events-auto">
+          {isContinueEnabled() && (
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+              <CinematicButton 
+                disabled={isSaving}
+                onClick={() => {
+                  if (currentStep === 5 && showWheelMode) {
+                    if (navigator.vibrate) navigator.vibrate(10);
+                    setShowWheelMode(false);
+                  } else {
+                    handleNext();
                   }
-                </CinematicButton>
-              </motion.div>
-            )}
-          </div>
+                }} 
+                className="w-full"
+              >
+                {currentStep === 5 && showWheelMode
+                  ? (language === 'Bahasa Indonesia' ? 'Kembali' : 'Back')
+                  : isSaving
+                    ? (language === 'Bahasa Indonesia' ? 'Menyimpan...' : 'Saving...')
+                    : (language === 'Bahasa Indonesia' ? 'Lanjutkan' : 'Continue')
+                }
+              </CinematicButton>
+            </motion.div>
+          )}
         </div>
- 
       </div>
       <AnimatePresence>
         {isSaving && currentStep === 3 && <SavingOverlay language={language} isUsernameCheck={true} />}
