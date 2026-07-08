@@ -2956,8 +2956,21 @@ export default function Questions() {
           </motion.h1>
         </div>
 
-        {/* MIDDLE SPACER */}
-        <div className="flex-1" />
+        {/* MIDDLE SPACER & MASCOT */}
+        <div className="flex-1 flex items-center justify-center my-6 relative z-10 w-full max-w-[400px]">
+          <motion.img 
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1, y: [0, -8, 0] }}
+            transition={{ 
+              opacity: { delay: 0.1, duration: 0.5 },
+              scale: { delay: 0.1, duration: 0.5 },
+              y: { repeat: Infinity, duration: 3.5, ease: "easeInOut" }
+            }}
+            src="/all_images/antigravitybg/maskot/mas3.png" 
+            alt="Mascot" 
+            className="w-64 h-64 object-contain drop-shadow-[0_8px_16px_rgba(0,0,0,0.08)]"
+          />
+        </div>
 
         {/* BOTTOM CONTENT */}
         <div className="relative z-10 w-full max-w-[400px] text-center flex flex-col items-center gap-6 mb-4">
