@@ -20,7 +20,7 @@ const STAT_DISPLAY: Record<string, { key: string; icon: string; color: string }>
 const CUBIC_BEZIER = "easeOut" as const;
 
 // --- COMPONENT: CINEMATIC BUTTON ---
-const CinematicButton = ({ onClick, children, className = "", disabled = false }: { onClick: () => void, children: React.ReactNode, className?: string, disabled?: boolean }) => {
+const CinematicButton = ({ onClick, children, className = "", disabled = false, bg = "#10B981" }: { onClick: () => void, children: React.ReactNode, className?: string, disabled?: boolean, bg?: string }) => {
   return (
     <motion.button
       disabled={disabled}
@@ -29,8 +29,9 @@ const CinematicButton = ({ onClick, children, className = "", disabled = false }
       className={`group relative overflow-hidden rounded-xl py-3 px-8 border-[2px] border-black transition-all ${
         disabled 
         ? 'bg-neutral-800 border-neutral-700 text-neutral-500 cursor-not-allowed' 
-        : 'bg-[#10B981] shadow-[5px_5px_0px_rgba(0,0,0,1)] active:scale-[0.98] active:shadow-none'
+        : 'shadow-[5px_5px_0px_rgba(0,0,0,1)] active:scale-[0.98] active:shadow-none'
       } ${className}`}
+      style={disabled ? undefined : { backgroundColor: bg }}
     >
       <div className={`absolute inset-0 bg-[#0F1110]/10 ${disabled ? '' : 'group-hover:bg-transparent'} transition-colors`} />
       <span className={`relative z-10 font-['Outfit'] text-[15px] font-black tracking-wide ${disabled ? 'text-neutral-500' : 'text-[#050A07]'}`}>
@@ -2992,6 +2993,7 @@ export default function Questions() {
             className="w-full"
           >
             <CinematicButton 
+              bg="#6ED7A0"
               onClick={async () => {
                 try {
                   const { data: { user } } = await supabase.auth.getUser();
