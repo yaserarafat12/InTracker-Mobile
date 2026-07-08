@@ -1567,7 +1567,7 @@ const SwipeCard = ({ habit, onSwipe, index, isTop }: { habit: any, onSwipe: (dir
       <div className="px-6 py-4 flex-1 flex flex-col justify-between overflow-y-auto no-scrollbar">
         {/* Habit Name */}
         <div className="text-left mb-4">
-          <h3 className={`text-[24px] font-black tracking-wide uppercase font-['Outfit'] leading-tight ${isLight ? 'text-black font-extrabold' : 'text-white'}`}>
+          <h3 className={`text-[24px] font-black tracking-wide uppercase font-['Outfit'] leading-tight ${isLight ? 'text-black' : 'text-white'}`}>
             {translated.name}
           </h3>
         </div>
@@ -1623,12 +1623,12 @@ const SwipeCard = ({ habit, onSwipe, index, isTop }: { habit: any, onSwipe: (dir
 
         {/* TOP 3 BENEFITS SECTION */}
         <div className="text-left w-full">
-          <span className={`text-[10px] font-black font-['Outfit'] uppercase tracking-[0.15em] block mb-2 ${isLight ? 'text-neutral-500 font-extrabold' : 'text-white/30'}`}>
+          <span className={`text-[10px] font-black font-['Outfit'] uppercase tracking-[0.15em] block mb-2 ${isLight ? 'text-neutral-500' : 'text-white/30'}`}>
             {trans.top3Benefits}
           </span>
           <ul className="space-y-1.5">
             {translatedBenefits.slice(0, 3).map((benefit, i) => (
-              <li key={i} className={`flex items-start gap-2 text-[11px] leading-relaxed font-semibold ${isLight ? 'text-black/70' : 'text-white/70'}`}>
+              <li key={i} className={`flex items-start gap-2 text-[11px] leading-relaxed font-bold font-['Outfit'] ${isLight ? 'text-black/80' : 'text-white/80'}`}>
                 <span className="w-1.5 h-1.5 rounded-full bg-[#6ED7A0] shrink-0 mt-1.5" />
                 <span>{benefit}</span>
               </li>
