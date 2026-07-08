@@ -3703,12 +3703,22 @@ export default function Questions() {
               <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
                 <CinematicButton 
                   disabled={isSaving}
-                  onClick={() => handleNext()} 
+                  onClick={() => {
+                    if (currentStep === 5 && showWheelMode) {
+                      if (navigator.vibrate) navigator.vibrate(10);
+                      setShowWheelMode(false);
+                    } else {
+                      handleNext();
+                    }
+                  }} 
                   className="w-full"
                 >
-                  {isSaving 
-                    ? (language === 'Bahasa Indonesia' ? 'Menyimpan...' : 'Saving...') 
-                    : (language === 'Bahasa Indonesia' ? 'Lanjutkan' : 'Continue')}
+                  {currentStep === 5 && showWheelMode
+                    ? (language === 'Bahasa Indonesia' ? 'Kembali' : 'Back')
+                    : isSaving
+                      ? (language === 'Bahasa Indonesia' ? 'Menyimpan...' : 'Saving...')
+                      : (language === 'Bahasa Indonesia' ? 'Lanjutkan' : 'Continue')
+                  }
                 </CinematicButton>
               </motion.div>
             )}
