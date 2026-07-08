@@ -1856,18 +1856,20 @@ const SwipeDeckScreen = ({ answers, onComplete, onBack }: { answers: Record<numb
       </AnimatePresence>
 
       {/* Header */}
-      <div className="relative z-10 w-full max-w-[420px] mx-auto flex items-center justify-start">
-        <button 
-          onClick={onBack} 
-          className={`w-10 h-10 flex items-center justify-center border-2 rounded-xl active:scale-95 transition-all ${
-            isLight 
-              ? 'bg-white border-black text-black shadow-[3px_3px_0px_rgba(0,0,0,1)]' 
-              : 'bg-[#1A1A1A] border-white/20 text-white shadow-[3px_3px_0px_rgba(255,255,255,0.15)]'
-          }`}
-        >
-          <Icon icon="ph:caret-left-bold" width={18} />
-        </button>
-      </div>
+      {!isDeckCompleted && (
+        <div className="relative z-10 w-full max-w-[420px] mx-auto flex items-center justify-start">
+          <button 
+            onClick={onBack} 
+            className={`w-10 h-10 flex items-center justify-center border-2 rounded-xl active:scale-95 transition-all ${
+              isLight 
+                ? 'bg-white border-black text-black shadow-[3px_3px_0px_rgba(0,0,0,1)]' 
+                : 'bg-[#1A1A1A] border-white/20 text-white shadow-[3px_3px_0px_rgba(255,255,255,0.15)]'
+            }`}
+          >
+            <Icon icon="ph:caret-left-bold" width={18} />
+          </button>
+        </div>
+      )}
 
       {!isDeckCompleted ? (
         <>
@@ -1927,6 +1929,20 @@ const SwipeDeckScreen = ({ answers, onComplete, onBack }: { answers: Record<numb
       ) : (
         /* Completed Summary View */
         <div className="flex-1 w-full max-w-[420px] mx-auto flex flex-col justify-between py-2 relative z-10 overflow-y-auto no-scrollbar">
+          {/* Back Button inside scrollable summary list */}
+          <div className="flex justify-start w-full mb-4 px-1">
+            <button 
+              onClick={onBack} 
+              className={`w-10 h-10 flex items-center justify-center border-2 rounded-xl active:scale-95 transition-all ${
+                isLight 
+                  ? 'bg-white border-black text-black shadow-[3px_3px_0px_rgba(0,0,0,1)]' 
+                  : 'bg-[#1A1A1A] border-white/20 text-white shadow-[3px_3px_0px_rgba(255,255,255,0.15)]'
+              }`}
+            >
+              <Icon icon="ph:caret-left-bold" width={18} />
+            </button>
+          </div>
+
           <div className="flex flex-col gap-2 text-center">
             <h2 className={`text-[28px] font-black uppercase tracking-wider leading-tight ${isLight ? 'text-black' : 'text-white'}`}>
               {trans.programFormedTitle}
