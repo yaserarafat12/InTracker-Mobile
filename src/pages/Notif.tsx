@@ -88,11 +88,11 @@ const NotificationCard = ({ item, active, onToggle, variants }: any) => {
           cursor-pointer
         `}
       >
-        <div className="flex flex-col text-left">
-          <h4 className={`text-[13px] font-bold uppercase tracking-wider ${isLight ? 'text-black font-extrabold' : 'text-white'}`}>
+        <div className="flex flex-col text-left font-['Outfit']">
+          <h4 className={`text-[13px] font-black uppercase tracking-wider ${isLight ? 'text-black' : 'text-white'}`}>
             {item.title}
           </h4>
-          <p className={`text-[11px] leading-tight mt-1 ${isLight ? 'text-black/60 font-semibold' : 'text-[#A0A0A0]'}`}>
+          <p className={`text-[11px] leading-tight mt-1 font-semibold ${isLight ? 'text-black/60' : 'text-[#A0A0A0]'}`}>
             {item.desc}
           </p>
         </div>
@@ -228,7 +228,7 @@ export default function Notif() {
   const isLight = settings.theme === 'Light';
 
   return (
-    <div className={`h-[100dvh] font-['Inter'] relative flex flex-col items-center overflow-hidden select-none transition-colors duration-300 ${
+    <div className={`h-[100dvh] font-['Outfit'] relative flex flex-col items-center overflow-hidden select-none transition-colors duration-300 ${
       isLight ? 'bg-[#F2F2F7] text-black' : 'bg-black text-white'
     }`}>
       {/* Background glow decorators — brighter */}
@@ -254,8 +254,8 @@ export default function Notif() {
             }`}>
               <Icon icon="solar:bell-bing-bold" className={isLight ? 'text-black' : 'text-[#6ED7A0]'} width={24} height={24} />
             </div>
-            <h1 className={`font-['Outfit'] text-[20px] font-bold leading-tight tracking-normal px-4 text-center ${
-              isLight ? 'text-black font-extrabold' : 'text-white'
+            <h1 className={`font-['Outfit'] text-[20px] font-black leading-tight tracking-wide px-4 text-center ${
+              isLight ? 'text-black' : 'text-white'
             }`}>
               {isIndo ? 'Nyalakan pengingat untuk tetap konsisten' : 'Turn on notifications to stay consistent'}
             </h1>
