@@ -1217,45 +1217,6 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
               className="pointer-events-none"
             />
 
-            {/* Green border outline */}
-            <motion.rect
-              animate={{
-                x: sr.left,
-                y: sr.top,
-                width: sr.width,
-                height: sr.height,
-              }}
-              transition={spotlightSpring}
-              rx="16"
-              stroke={isLight ? '#6ED7A0' : '#6ED7A0'}
-              strokeWidth="2.5"
-              fill="none"
-              filter="url(#glow-filter)"
-              className="pointer-events-none"
-            />
-
-            {/* Pulsing outer ring */}
-            <motion.rect
-              animate={{
-                x: sr.left - 3,
-                y: sr.top - 3,
-                width: sr.width + 6,
-                height: sr.height + 6,
-                opacity: [0.35, 0.08, 0.35],
-              }}
-              transition={{
-                x: spotlightSpring,
-                y: spotlightSpring,
-                width: spotlightSpring,
-                height: spotlightSpring,
-                opacity: { duration: 2.4, repeat: Infinity, ease: "easeInOut" },
-              }}
-              rx="19"
-              stroke={isLight ? '#6ED7A0' : '#6ED7A0'}
-              strokeWidth="1.5"
-              fill="none"
-              className="pointer-events-none"
-            />
           </motion.svg>
         ) : (
           /* Full backdrop for welcome / outro steps with no selector */
