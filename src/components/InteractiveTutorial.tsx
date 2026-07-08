@@ -1203,39 +1203,44 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
       {/* SVG spotlight with AnimatePresence for clean fade-in/out transitions.
            'sr' is only truthy once the element is confirmed on screen, so there
            is no more flash at position (0,0) at the start of a step. */}
-      <AnimatePresence>
-        {sr ? (
-          <motion.svg
-            key={`spotlight-svg-${currentStep}`}
-            className="absolute inset-0 w-full h-full cursor-default"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.22 }}
-            onClick={handleBackdropClick}
-            onMouseDown={handleBackdropPress}
-            onTouchStart={handleBackdropPress}
-            style={{ pointerEvents: 'auto' }}
-          >
-            <defs>
-              <mask id="spotlight-mask">
-                {/* White cover keeps backdrop visible everywhere */}
-                <rect x="0" y="0" width="100%" height="100%" fill="white" />
-                {/* Black animated rounded-rect = transparent hole in the overlay */}
+      <motion.svg
+        key="tutorial-backdrop"
+        className="absolute inset-0 w-full h-full cursor-default"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        transition={{ duration: 0.22 }}
+        onClick={handleBackdropClick}
+        onMouseDown={handleBackdropPress}
+        onTouchStart={handleBackdropPress}
+        style={{ pointerEvents: 'auto' }}
+      >
+        <defs>
+          <mask id="spotlight-mask">
+            {/* White cover keeps backdrop visible everywhere */}
+            <rect x="0" y="0" width="100%" height="100%" fill="white" />
+            {/* Black animated rounded-rect = transparent hole in the overlay */}
+            <AnimatePresence>
+              {sr && (
                 <motion.rect
+                  key={`mask-cutout-${currentStep}`}
                   initial={{
+                    opacity: 0,
                     x: sr.left,
                     y: sr.top,
                     width: sr.width,
                     height: sr.height,
                   }}
                   animate={{
+                    opacity: 1,
                     x: sr.left,
                     y: sr.top,
                     width: sr.width,
                     height: sr.height,
                   }}
+                  exit={{ opacity: 0 }}
                   transition={{
+                    opacity: { duration: 0.18 },
                     x: { type: 'tween', duration: 0 },
                     y: { type: 'tween', duration: 0 },
                     width: { type: 'tween', duration: 0 },
@@ -1244,42 +1249,22 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
                   rx="16"
                   fill="black"
                 />
-              </mask>
-              <filter id="glow-filter" x="-20%" y="-20%" width="140%" height="140%">
-                <feDropShadow
-                  dx="0"
-                  dy="0"
-                  stdDeviation="6"
-                  floodColor={isLight ? '#6ED7A0' : '#6ED7A0'}
-                  floodOpacity={isLight ? '0.45' : '0.65'}
-                />
-              </filter>
-            </defs>
+              )}
+            </AnimatePresence>
+          </mask>
+        </defs>
 
-            {/* Dark overlay with spotlight hole */}
-            <rect
-              x="0"
-              y="0"
-              width="100%"
-              height="100%"
-              fill={isLight ? 'rgba(0, 0, 0, 0.78)' : 'rgba(0, 0, 0, 0.90)'}
-              mask="url(#spotlight-mask)"
-              className="pointer-events-none"
-            />
-
-          </motion.svg>
-        ) : (
-          /* Full backdrop for welcome / outro steps with no selector */
-          <motion.div
-            key="full-backdrop"
-            className={`absolute inset-0 ${isLight ? 'bg-black/75' : 'bg-black/90'} pointer-events-auto`}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.25 }}
-          />
-        )}
-      </AnimatePresence>
+        {/* Dark overlay with spotlight hole */}
+        <rect
+          x="0"
+          y="0"
+          width="100%"
+          height="100%"
+          fill={isLight ? 'rgba(0, 0, 0, 0.78)' : 'rgba(0, 0, 0, 0.90)'}
+          mask="url(#spotlight-mask)"
+          className="pointer-events-none"
+        />
+      </motion.svg>
 
       {/* Main Dialogue Box */}
       <div 
