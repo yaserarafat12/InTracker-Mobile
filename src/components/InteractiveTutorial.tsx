@@ -1114,7 +1114,7 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
       <AnimatePresence>
         {sr ? (
           <motion.svg
-            key="spotlight-svg"
+            key={`spotlight-${currentStep}`}
             className="absolute inset-0 w-full h-full cursor-default"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -1130,14 +1130,11 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
                 {/* White cover keeps backdrop visible everywhere */}
                 <rect x="0" y="0" width="100%" height="100%" fill="white" />
                 {/* Black animated rounded-rect = transparent hole in the overlay */}
-                <motion.rect
-                  animate={{
-                    x: sr.left,
-                    y: sr.top,
-                    width: sr.width,
-                    height: sr.height,
-                  }}
-                  transition={spotlightSpring}
+                <rect
+                  x={sr.left}
+                  y={sr.top}
+                  width={sr.width}
+                  height={sr.height}
                   rx="16"
                   fill="black"
                 />
@@ -1165,14 +1162,11 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
             />
 
             {/* Green border outline */}
-            <motion.rect
-              animate={{
-                x: sr.left,
-                y: sr.top,
-                width: sr.width,
-                height: sr.height,
-              }}
-              transition={spotlightSpring}
+            <rect
+              x={sr.left}
+              y={sr.top}
+              width={sr.width}
+              height={sr.height}
               rx="16"
               stroke={isLight ? '#6ED7A0' : '#6ED7A0'}
               strokeWidth="2.5"
@@ -1183,18 +1177,14 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
 
             {/* Pulsing outer ring */}
             <motion.rect
+              x={sr.left - 3}
+              y={sr.top - 3}
+              width={sr.width + 6}
+              height={sr.height + 6}
               animate={{
-                x: sr.left - 3,
-                y: sr.top - 3,
-                width: sr.width + 6,
-                height: sr.height + 6,
                 opacity: [0.35, 0.08, 0.35],
               }}
               transition={{
-                x: spotlightSpring,
-                y: spotlightSpring,
-                width: spotlightSpring,
-                height: spotlightSpring,
                 opacity: { duration: 2.4, repeat: Infinity, ease: "easeInOut" },
               }}
               rx="19"
