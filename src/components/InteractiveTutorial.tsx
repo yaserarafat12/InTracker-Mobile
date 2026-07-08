@@ -1055,7 +1055,7 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
             }}
             exit={{ opacity: 0, scale: 0.75 }}
             transition={{ ...spotlightSpring, opacity: { duration: 0.2 } }}
-            className={`absolute z-[1000000] pointer-events-none ${isLight ? 'text-[#00b577]' : 'text-[#00f295]'} drop-shadow-[0_2px_8px_rgba(0,255,133,0.3)]`}
+            className={`absolute z-[1000000] pointer-events-none ${isLight ? 'text-[#6ED7A0]' : 'text-[#6ED7A0]'} drop-shadow-[0_2px_8px_rgba(0,255,133,0.3)]`}
           >
             <motion.svg
               width="24"
@@ -1111,7 +1111,7 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
                   dx="0"
                   dy="0"
                   stdDeviation="6"
-                  floodColor={isLight ? '#00b577' : '#00f295'}
+                  floodColor={isLight ? '#6ED7A0' : '#6ED7A0'}
                   floodOpacity={isLight ? '0.45' : '0.65'}
                 />
               </filter>
@@ -1138,7 +1138,7 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
               }}
               transition={spotlightSpring}
               rx="16"
-              stroke={isLight ? '#00b577' : '#00f295'}
+              stroke={isLight ? '#6ED7A0' : '#6ED7A0'}
               strokeWidth="2.5"
               fill="none"
               filter="url(#glow-filter)"
@@ -1162,7 +1162,7 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
                 opacity: { duration: 2.4, repeat: Infinity, ease: "easeInOut" },
               }}
               rx="19"
-              stroke={isLight ? '#00b577' : '#00f295'}
+              stroke={isLight ? '#6ED7A0' : '#6ED7A0'}
               strokeWidth="1.5"
               fill="none"
               className="pointer-events-none"
@@ -1196,7 +1196,9 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
             animate={{ scale: 1, opacity: 1, y: 0 }}
             exit={{ scale: 0.95, opacity: 0, y: -15 }}
             transition={{ type: 'spring', stiffness: 240, damping: 24 }}
-            className={`max-w-[580px] w-full mx-auto border rounded-[24px] shadow-[0_20px_50px_rgba(0,0,0,0.35)] flex flex-col relative select-text overflow-hidden transition-all duration-300 ${
+            className={`max-w-[580px] w-full mx-auto border rounded-[24px] shadow-[0_20px_50px_rgba(0,0,0,0.35)] flex flex-col relative select-text transition-all duration-300 ${
+              currentStep === 0 ? 'overflow-visible' : 'overflow-hidden'
+            } ${
               isLight 
                 ? 'bg-[#ffffff] border-black/5' 
                 : 'bg-[#252830] border-white/[0.08]'
@@ -1229,7 +1231,7 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
                 // Greeting Sub-scenes rendering
                 <div className="flex flex-col text-center items-center justify-center min-h-[140px]">
                   {/* Speaker Label */}
-                  <span className={`text-[11px] font-black uppercase tracking-widest ${isLight ? 'text-[#00b577]' : 'text-[#00f295]'} mb-2.5`}>
+                  <span className={`text-[11px] font-black uppercase tracking-widest ${isLight ? 'text-[#6ED7A0]' : 'text-[#6ED7A0]'} mb-2.5`}>
                     Rise
                   </span>
                   
@@ -1258,8 +1260,8 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
                         }}
                         className={`px-10 py-3.5 rounded-xl border font-black uppercase text-[11px] tracking-widest transition-all font-['Outfit'] ${
                           isLight 
-                            ? 'bg-[#00b577] border-black text-white shadow-[3px_3px_0px_rgba(0,0,0,1)] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none' 
-                            : 'bg-[#00f295] border-transparent text-black'
+                            ? 'bg-[#6ED7A0] border-black text-black shadow-[3px_3px_0px_rgba(0,0,0,1)] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none' 
+                            : 'bg-[#6ED7A0] border-transparent text-black'
                         }`}
                       >
                         {L.s0_action}
@@ -1322,8 +1324,8 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
                             onClick={handleNext}
                             className={`px-5 py-2.5 rounded-xl border font-black uppercase text-[11px] tracking-wider transition-all flex items-center gap-1.5 font-['Outfit'] ${
                               isLight 
-                                ? 'bg-[#00b577] border-black text-white shadow-[3px_3px_0px_rgba(0,0,0,1)] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none' 
-                                : 'bg-[#00f295] border-transparent text-black'
+                                ? 'bg-[#6ED7A0] border-black text-black shadow-[3px_3px_0px_rgba(0,0,0,1)] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none' 
+                                : 'bg-[#6ED7A0] border-transparent text-black'
                             }`}
                           >
                             <span>{currentStepData.actionText}</span>
@@ -1335,8 +1337,8 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
                             onClick={handleNext}
                             className={`w-9 h-9 rounded-xl border flex items-center justify-center transition-all ${
                               isLight 
-                                ? 'bg-[#00b577] border-black text-white shadow-[3px_3px_0px_rgba(0,0,0,1)] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none' 
-                                : 'bg-[#00f295] border-transparent text-black'
+                                ? 'bg-[#6ED7A0] border-black text-black shadow-[3px_3px_0px_rgba(0,0,0,1)] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none' 
+                                : 'bg-[#6ED7A0] border-transparent text-black'
                             }`}
                           >
                             <Icon icon="ph:caret-right-bold" width={16} />
