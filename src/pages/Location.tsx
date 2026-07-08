@@ -13,7 +13,7 @@ const CinematicButton = ({ onClick, children, className = "" }: { onClick: () =>
     <motion.button
       onClick={onClick}
       whileTap={{ scale: 0.98, x: 2, y: 2, boxShadow: "0px 0px 0px rgba(0,0,0,1)" }}
-      className={`group relative overflow-hidden rounded-xl bg-[#00FF85] py-3 px-8 border-[2px] border-black shadow-[5px_5px_0px_rgba(0,0,0,1)] transition-all ${className}`}
+      className={`group relative overflow-hidden rounded-xl bg-[#00FF85] py-3 px-8 border-[2px] border-black shadow-[3px_3px_0px_rgba(0,0,0,1)] transition-all ${className}`}
     >
       <div className="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors" />
       <span className="relative z-10 font-['Outfit'] text-[15px] font-black tracking-wide text-[#050A07]">
@@ -32,7 +32,7 @@ const LocationMap = () => {
     <div className={`relative w-full h-[200px] border-[3px] rounded-2xl overflow-hidden transition-all duration-300 ${
       isLight 
         ? 'bg-white border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] text-black' 
-        : 'bg-[#121212] border-white/[0.08] shadow-[5px_5px_0px_rgba(0,0,0,1)]'
+        : 'bg-[#121212] border-white/[0.08] shadow-[3px_3px_0px_rgba(0,0,0,1)]'
     }`}>
       {/* City blocks / water body background shape */}
       <svg className={`absolute inset-0 w-full h-full transition-opacity duration-300 ${isLight ? 'opacity-[0.25]' : 'opacity-[0.15]'}`} viewBox="0 0 340 200" fill="none">

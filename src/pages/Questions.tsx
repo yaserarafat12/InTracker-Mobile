@@ -20,7 +20,7 @@ const STAT_DISPLAY: Record<string, { key: string; icon: string; color: string }>
 const CUBIC_BEZIER = "easeOut" as const;
 
 // --- COMPONENT: CINEMATIC BUTTON ---
-const CinematicButton = ({ onClick, children, className = "", disabled = false, bg = "#6ED7A0", shadowClass = "shadow-[5px_5px_0px_rgba(0,0,0,1)]" }: { onClick: () => void, children: React.ReactNode, className?: string, disabled?: boolean, bg?: string, shadowClass?: string }) => {
+const CinematicButton = ({ onClick, children, className = "", disabled = false, bg = "#6ED7A0", shadowClass = "shadow-[3px_3px_0px_rgba(0,0,0,1)]" }: { onClick: () => void, children: React.ReactNode, className?: string, disabled?: boolean, bg?: string, shadowClass?: string }) => {
   return (
     <motion.button
       disabled={disabled}
@@ -3277,7 +3277,7 @@ export default function Questions() {
             <div className={`relative border-[2px] rounded-[28px] p-5 w-full max-w-[340px] select-none mx-auto flex flex-col gap-3 transition-colors ${
               isLight 
                 ? 'bg-[#F9F9F6] border-black text-black shadow-[4px_4px_0px_rgba(0,0,0,1)]' 
-                : 'bg-[#262626] border-white/10 text-white shadow-[5px_5px_0px_rgba(0,0,0,1)]'
+                : 'bg-[#262626] border-white/10 text-white shadow-[3px_3px_0px_rgba(0,0,0,1)]'
             }`}>
               {/* Calendar Header Row */}
               <div className="flex justify-between items-center px-1 pb-1">
@@ -3655,10 +3655,10 @@ export default function Questions() {
                           isSelected 
                           ? isLight
                             ? 'bg-[#6ED7A0]/20 border-black text-black shadow-[4px_4px_0px_rgba(0,0,0,1)]'
-                            : 'bg-[#6ED7A0]/10 border-[#6ED7A0] text-white shadow-[5px_5px_0px_rgba(0,0,0,1)]'
+                            : 'bg-[#6ED7A0]/10 border-[#6ED7A0] text-white shadow-[3px_3px_0px_rgba(0,0,0,1)]'
                           : isLight
                             ? 'bg-white border-black text-black hover:bg-neutral-50 shadow-[4px_4px_0px_rgba(0,0,0,1)]'
-                            : 'bg-[#1A1A1A] border-[#E3DAC9]/20 hover:border-[#E3DAC9]/40 text-white/80 shadow-[5px_5px_0px_rgba(0,0,0,1)]'
+                            : 'bg-[#1A1A1A] border-[#E3DAC9]/20 hover:border-[#E3DAC9]/40 text-white/80 shadow-[3px_3px_0px_rgba(0,0,0,1)]'
                         }`}
                       >
                         <div className="flex items-center justify-between gap-2">

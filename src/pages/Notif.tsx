@@ -13,7 +13,7 @@ const CinematicButton = ({ onClick, children, className = "" }: { onClick: () =>
     <motion.button
       onClick={onClick}
       whileTap={{ scale: 0.98, x: 2, y: 2, boxShadow: "0px 0px 0px rgba(0,0,0,1)" }}
-      className={`group relative overflow-hidden rounded-xl bg-[#6ED7A0] py-3 px-8 border-[2px] border-black shadow-[5px_5px_0px_rgba(0,0,0,1)] transition-all ${className}`}
+      className={`group relative overflow-hidden rounded-xl bg-[#6ED7A0] py-3 px-8 border-[2px] border-black shadow-[3px_3px_0px_rgba(0,0,0,1)] transition-all ${className}`}
     >
       <div className="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors" />
       <span className="relative z-10 font-['Outfit'] text-[15px] font-black tracking-wide text-[#050A07]">
@@ -75,14 +75,14 @@ const NotificationCard = ({ item, active, onToggle, variants }: any) => {
       <div 
         className={`
           relative flex items-center justify-between gap-4 py-5 px-6 rounded-xl border-2
-          transition-all duration-300 ease-out shadow-[5px_5px_0px_rgba(0,0,0,1)]
+          transition-all duration-300 ease-out shadow-[3px_3px_0px_rgba(0,0,0,1)]
           ${isLight 
             ? active 
               ? 'bg-[#6ED7A0]/10 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] text-black' 
               : 'bg-white border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] text-black'
             : active
-              ? 'bg-[#6ED7A0]/05 border-[#6ED7A0] shadow-[5px_5px_0px_rgba(0,0,0,1)] text-white'
-              : 'bg-[#1A1A1A] border-white/[0.08] shadow-[5px_5px_0px_rgba(0,0,0,1)] text-white'
+              ? 'bg-[#6ED7A0]/05 border-[#6ED7A0] shadow-[3px_3px_0px_rgba(0,0,0,1)] text-white'
+              : 'bg-[#1A1A1A] border-white/[0.08] shadow-[3px_3px_0px_rgba(0,0,0,1)] text-white'
           }
           group-hover:border-[#6ED7A0]/40
           cursor-pointer

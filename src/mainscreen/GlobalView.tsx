@@ -281,7 +281,7 @@ const GlobalView: React.FC = () => {
             if (navigator.vibrate) navigator.vibrate(20);
             setShowAddModal(true);
           }}
-          className="w-[60px] h-[60px] bg-[#00FF85] border-[2px] border-black rounded-2xl shadow-[5px_5px_0px_rgba(0,0,0,1)] flex items-center justify-center"
+          className="w-[60px] h-[60px] bg-[#00FF85] border-[2px] border-black rounded-2xl shadow-[3px_3px_0px_rgba(0,0,0,1)] flex items-center justify-center"
         >
           <svg width="30" height="30" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M12 5V19M5 12H19" stroke="black" strokeWidth="5" strokeLinecap="square" />

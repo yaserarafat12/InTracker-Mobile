@@ -328,7 +328,7 @@ function MenuView({ onBack, onStart, isLight }: { onBack: () => void; onStart: (
             onClick={() => onStart('exercise')}
             className={`w-full py-5 bg-[#00FF85] text-black font-black rounded-xl text-[16px] border-[2px] transition-all ${
               isLight
-                ? 'border-black shadow-[5px_5px_0px_rgba(0,0,0,1)]'
+                ? 'border-black shadow-[3px_3px_0px_rgba(0,0,0,1)]'
                 : 'border-transparent shadow-none'
             }`}
           >
