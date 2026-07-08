@@ -2429,7 +2429,13 @@ export default function Questions() {
             supabase.from('profiles').update({
               full_name: sanitizedFullName,
               nickname: computedNickname,
-              onboarding_data: { ...answers, programDuration: durationVal },
+              onboarding_data: { 
+                ...answers, 
+                programDuration: durationVal,
+                language: useUserStore.getState().settings.language || 'English',
+                theme: useUserStore.getState().settings.theme || 'System',
+                timezone: useUserStore.getState().settings.timezone || 'Asia/Jakarta',
+              },
               updated_at: new Date().toISOString()
             }).eq('id', user.id),
             new Promise<any>((_, reject) => setTimeout(() => reject(new Error("Timeout")), 2000))

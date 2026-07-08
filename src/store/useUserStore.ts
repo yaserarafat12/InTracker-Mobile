@@ -107,6 +107,24 @@ export const useUserStore = create<UserStore>()(
             ...newSettings,
           },
         }));
+
+        // Sync settings to database profile (onboarding_data) if logged in
+        const profile = get().profile;
+        if (profile && localStorage.getItem('guest_mode') !== 'true') {
+          const updatedOnboardingData = {
+            ...(profile.onboarding_data || {}),
+            ...newSettings
+          };
+          set({
+            profile: {
+              ...profile,
+              onboarding_data: updatedOnboardingData
+            }
+          });
+          void supabase.from('profiles').update({
+            onboarding_data: updatedOnboardingData
+          }).eq('id', profile.id);
+        }
       },
       setSubscriptionPlan: async (plan) => {
         set({ subscriptionPlan: plan });
@@ -246,12 +264,25 @@ export const useUserStore = create<UserStore>()(
           if (dbFullName.toLowerCase().includes('yaser') || dbFullName.toLowerCase().includes('arafat')) {
             dbFullName = 'Yaman Dien';
           }
+          const dbOnboarding = data.onboarding_data || {};
           set((state) => ({
             settings: {
               ...state.settings,
               username: data.nickname || state.settings.username || '',
               nickname: dbFullName || state.settings.nickname || '',
               avatarUrl: data.avatar_url || state.settings.avatarUrl || '',
+              language: dbOnboarding.language || state.settings.language || 'English',
+              theme: dbOnboarding.theme || state.settings.theme || 'System',
+              timezone: dbOnboarding.timezone || state.settings.timezone || 'Asia/Jakarta',
+              programDuration: dbOnboarding.programDuration || state.settings.programDuration || 90,
+              programPaused: dbOnboarding.programPaused !== undefined ? dbOnboarding.programPaused : state.settings.programPaused,
+              pausedDays: dbOnboarding.pausedDays || state.settings.pausedDays || [],
+              weightUnit: dbOnboarding.weightUnit || state.settings.weightUnit || 'Metric',
+              heightUnit: dbOnboarding.heightUnit || state.settings.heightUnit || 'Metric',
+              dailyReminder: dbOnboarding.dailyReminder !== undefined ? dbOnboarding.dailyReminder : state.settings.dailyReminder,
+              dailyReminderTime: dbOnboarding.dailyReminderTime || state.settings.dailyReminderTime || '08:00 PM',
+              weeklySummary: dbOnboarding.weeklySummary !== undefined ? dbOnboarding.weeklySummary : state.settings.weeklySummary,
+              newFeatures: dbOnboarding.newFeatures !== undefined ? dbOnboarding.newFeatures : state.settings.newFeatures,
             }
           }));
 
