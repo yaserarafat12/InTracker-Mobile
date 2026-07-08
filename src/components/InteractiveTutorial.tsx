@@ -40,6 +40,30 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
   const [currentStep, setCurrentStep] = useState<number>(0);
   const [maxStep, setMaxStep] = useState<number>(0);
 
+  // States for step 0 greeting sequence (Scene 1, 2, 3, 4)
+  const [introScene, setIntroScene] = useState<number>(1);
+  const [typedText, setTypedText] = useState<string>('');
+
+  const getMascotSrc = (expression: MascotExpression) => {
+    switch (expression) {
+      case 'welcome':
+        return '/all_images/antigravitybg/maskot/mas1.png';
+      case 'thinking':
+        return '/all_images/antigravitybg/maskot/mas3.png';
+      case 'success':
+        return '/all_images/antigravitybg/maskot/mas6.png';
+      case 'guide':
+      default:
+        return '/all_images/antigravitybg/maskot/mas2.png';
+    }
+  };
+
+  const getIntroExpression = (scene: number): MascotExpression => {
+    if (scene === 1 || scene === 2) return 'welcome';
+    if (scene === 3) return 'guide';
+    return 'success';
+  };
+
   // Sync maxStep with currentStep when moving forward
   useEffect(() => {
     if (currentStep > maxStep) {
@@ -75,6 +99,8 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
       localStorage.setItem('interactive_tutorial_active', 'true');
     }
   }, []);
+
+
 
   // ─── Localized label helper ───────────────────────────────────────────────
   // Returns the correct translation per language, falls back to English.
@@ -223,6 +249,55 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
       tool_math_desc: pick({ 'English': 'Boost your brain speed and focus by solving rapid arithmetic quizzes under time pressure.', 'Bahasa Indonesia': 'Latih kecepatan berpikir otakmu lewat permainan kuis matematika cepat berpacu dengan waktu.' }),
     };
   }, [language, programDuration]);
+
+  const introTexts = useMemo(() => {
+    const descParts = L.s0_desc.split('\n');
+    return [
+      L.s0_title,
+      descParts[0] || 'Selamat datang di InRising!',
+      descParts[1] || `Ikuti petualangan singkat untuk menguasai fitur program ${programDuration} hari pilihanmu.`
+    ];
+  }, [L, programDuration]);
+
+  // Typewriter effect for step 0 (intro scenes 1, 2, 3)
+  useEffect(() => {
+    if (currentStep !== 0 || completed) return;
+    if (introScene > 3) return;
+
+    const fullText = introTexts[introScene - 1];
+    setTypedText('');
+    let currentIndex = 0;
+    
+    const timer = setInterval(() => {
+      if (currentIndex < fullText.length) {
+        setTypedText(fullText.substring(0, currentIndex + 1));
+        currentIndex++;
+      } else {
+        clearInterval(timer);
+        // Auto transition to next scene after 2 seconds
+        const transitionTimeout = setTimeout(() => {
+          setIntroScene(prev => prev + 1);
+        }, 2000);
+        return () => clearTimeout(transitionTimeout);
+      }
+    }, 30);
+
+    return () => clearInterval(timer);
+  }, [currentStep, introScene, introTexts, completed]);
+
+  const handleIntroCardClick = () => {
+    if (currentStep !== 0) return;
+    if (introScene > 3) return;
+
+    const fullText = introTexts[introScene - 1];
+    if (typedText.length < fullText.length) {
+      // Skip typing
+      setTypedText(fullText);
+    } else {
+      // Advance immediately
+      setIntroScene(prev => prev + 1);
+    }
+  };
 
   const steps: Step[] = useMemo(() => [
     // 0. Intro
@@ -1128,94 +1203,148 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
             }`}
           >
 
+            {/* Mascot Image centered at top for step 0 */}
+            {currentStep === 0 && (
+              <motion.div 
+                className="absolute -top-16 left-1/2 transform -translate-x-1/2 w-28 h-28 flex justify-center items-center z-10"
+                animate={{ y: [0, -6, 0] }}
+                transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+              >
+                <img 
+                  src={getMascotSrc(getIntroExpression(introScene))} 
+                  alt="Rise Mascot" 
+                  className="w-full h-full object-contain drop-shadow-[0_4px_10px_rgba(0,0,0,0.15)]" 
+                />
+              </motion.div>
+            )}
+
             {/* Dialogue Content */}
-            <div className={`flex flex-col relative transition-all duration-300 ${
-              currentStep === 0 ? 'pt-14 pb-12 px-8' : 'pt-5 pb-5 px-6'
-            }`}>
-
-              {/* Step Title */}
-              <h4 
-                style={{ color: isLight ? '#000000' : '#ffffff' }}
-                className={`text-[16px] font-black font-['Outfit'] tracking-tight transition-all duration-300 ${
-                  currentStep === 0 ? 'mb-6' : 'mb-2.5'
-                }`}
-              >
-                {currentStepData.title}
-              </h4>
-
-              {/* Step Description */}
-              <p 
-                style={{ color: isLight ? 'rgba(0, 0, 0, 0.65)' : 'rgba(255, 255, 255, 0.7)' }}
-                className={`font-normal leading-relaxed font-['Outfit'] whitespace-pre-line transition-all duration-300 ${
-                  currentStep === 0 ? 'text-[15.5px] mb-9' : 'text-[13.5px] mb-5'
-                }`}
-              >
-                {/* Each sentence is placed on its own line for readability */}
-                {currentStepData.desc.replace(/\.(?= )/g, '.\n')}
-              </p>
-
-              {/* Action buttons */}
+            <div 
+              onClick={currentStep === 0 ? handleIntroCardClick : undefined}
+              className={`flex flex-col relative transition-all duration-300 ${
+                currentStep === 0 ? 'pt-16 pb-12 px-8' : 'pt-5 pb-5 px-6'
+              } ${currentStep === 0 ? 'cursor-pointer' : ''}`}
+            >
               {currentStep === 0 ? (
-                <div className="flex justify-center">
-                  <motion.button 
-                    whileTap={{ scale: 0.95 }}
-                    onClick={handleNext}
-                    className={`px-10 py-3.5 rounded-xl border font-black uppercase text-[11px] tracking-widest transition-all font-['Outfit'] ${
-                      isLight 
-                        ? 'bg-[#00b577] border-black text-white shadow-[3px_3px_0px_rgba(0,0,0,1)] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none' 
-                        : 'bg-[#00f295] border-transparent text-black'
-                    }`}
-                  >
-                    {currentStepData.actionText}
-                  </motion.button>
+                // Greeting Sub-scenes rendering
+                <div className="flex flex-col text-center items-center justify-center min-h-[140px]">
+                  {/* Speaker Label */}
+                  <span className={`text-[11px] font-black uppercase tracking-widest ${isLight ? 'text-[#00b577]' : 'text-[#00f295]'} mb-2.5`}>
+                    Rise
+                  </span>
+                  
+                  {introScene <= 3 ? (
+                    /* Typing Scene */
+                    <p 
+                      style={{ color: isLight ? 'rgba(0, 0, 0, 0.85)' : 'rgba(255, 255, 255, 0.9)' }}
+                      className="text-[17px] font-semibold leading-relaxed font-['Outfit'] min-h-[60px]"
+                    >
+                      {typedText}
+                    </p>
+                  ) : (
+                    /* Final Greeting Scene (Scene 4) with Mulai Petualangan button */
+                    <div className="flex flex-col items-center">
+                      <p 
+                        style={{ color: isLight ? 'rgba(0, 0, 0, 0.85)' : 'rgba(255, 255, 255, 0.9)' }}
+                        className="text-[15.5px] font-medium leading-relaxed font-['Outfit'] mb-6"
+                      >
+                        {L.s0_desc.replace(/\.(?= )/g, '.\n')}
+                      </p>
+                      <motion.button 
+                        whileTap={{ scale: 0.95 }}
+                        onClick={(e) => {
+                          e.stopPropagation(); // prevent triggering handleIntroCardClick
+                          handleNext();
+                        }}
+                        className={`px-10 py-3.5 rounded-xl border font-black uppercase text-[11px] tracking-widest transition-all font-['Outfit'] ${
+                          isLight 
+                            ? 'bg-[#00b577] border-black text-white shadow-[3px_3px_0px_rgba(0,0,0,1)] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none' 
+                            : 'bg-[#00f295] border-transparent text-black'
+                        }`}
+                      >
+                        {L.s0_action}
+                      </motion.button>
+                    </div>
+                  )}
                 </div>
               ) : (
-                <div className="flex items-center justify-between">
-                  {/* Back Button */}
-                  {currentStep > 0 ? (
-                    <button 
-                      onClick={handleBack}
-                      className={`w-9 h-9 rounded-xl border flex items-center justify-center transition-all ${
-                        isLight 
-                          ? 'bg-white border-black text-black shadow-[3px_3px_0px_rgba(0,0,0,1)] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none' 
-                          : 'bg-[#2a2c32] border-white/10 text-white active:scale-95'
-                      }`}
+                // Other steps (Step > 0)
+                <div className="flex gap-4 items-start">
+                  {/* Small Avatar on left for steps > 0 */}
+                  <div className="w-11 h-11 flex-shrink-0 rounded-xl overflow-hidden bg-black/5 dark:bg-white/5 p-1 border border-black/5 dark:border-white/5 shadow-sm">
+                    <img 
+                      src={getMascotSrc(currentStepData.expression)} 
+                      alt="Rise" 
+                      className="w-full h-full object-contain" 
+                    />
+                  </div>
+                  <div className="flex-1">
+                    {/* Step Title */}
+                    <h4 
+                      style={{ color: isLight ? '#000000' : '#ffffff' }}
+                      className="text-[15px] font-black font-['Outfit'] tracking-tight mb-1"
                     >
-                      <Icon icon="ph:caret-left-bold" width={16} />
-                    </button>
-                  ) : (
-                    <div />
-                  )}
+                      {currentStepData.title}
+                    </h4>
 
-                  {/* Lanjut / Next Button */}
-                  {(currentStepData.actionText || currentStep < maxStep) && (
-                    currentStepData.actionText && currentStepData.actionText !== 'Lanjut' ? (
-                      <motion.button 
-                        whileTap={{ scale: 0.95 }}
-                        onClick={handleNext}
-                        className={`px-5 py-2.5 rounded-xl border font-black uppercase text-[11px] tracking-wider transition-all flex items-center gap-1.5 font-['Outfit'] ${
-                          isLight 
-                            ? 'bg-[#00b577] border-black text-white shadow-[3px_3px_0px_rgba(0,0,0,1)] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none' 
-                            : 'bg-[#00f295] border-transparent text-black'
-                        }`}
-                      >
-                        <span>{currentStepData.actionText}</span>
-                        <Icon icon="ph:caret-right-bold" width={13} />
-                      </motion.button>
-                    ) : (
-                      <motion.button 
-                        whileTap={{ scale: 0.95 }}
-                        onClick={handleNext}
-                        className={`w-9 h-9 rounded-xl border flex items-center justify-center transition-all ${
-                          isLight 
-                            ? 'bg-[#00b577] border-black text-white shadow-[3px_3px_0px_rgba(0,0,0,1)] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none' 
-                            : 'bg-[#00f295] border-transparent text-black'
-                        }`}
-                      >
-                        <Icon icon="ph:caret-right-bold" width={16} />
-                      </motion.button>
-                    )
-                  )}
+                    {/* Step Description */}
+                    <p 
+                      style={{ color: isLight ? 'rgba(0, 0, 0, 0.65)' : 'rgba(255, 255, 255, 0.7)' }}
+                      className="text-[13px] font-normal leading-relaxed font-['Outfit'] whitespace-pre-line"
+                    >
+                      {/* Each sentence is placed on its own line for readability */}
+                      {currentStepData.desc.replace(/\.(?= )/g, '.\n')}
+                    </p>
+
+                    {/* Action buttons footer for step > 0 */}
+                    <div className="flex items-center justify-between mt-4">
+                      {/* Back Button */}
+                      {currentStep > 0 ? (
+                        <button 
+                          onClick={handleBack}
+                          className={`w-9 h-9 rounded-xl border flex items-center justify-center transition-all ${
+                            isLight 
+                              ? 'bg-white border-black text-black shadow-[3px_3px_0px_rgba(0,0,0,1)] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none' 
+                              : 'bg-[#2a2c32] border-white/10 text-white active:scale-95'
+                          }`}
+                        >
+                          <Icon icon="ph:caret-left-bold" width={16} />
+                        </button>
+                      ) : (
+                        <div />
+                      )}
+
+                      {/* Lanjut / Next Button */}
+                      {(currentStepData.actionText || currentStep < maxStep) && (
+                        currentStepData.actionText && currentStepData.actionText !== 'Lanjut' ? (
+                          <motion.button 
+                            whileTap={{ scale: 0.95 }}
+                            onClick={handleNext}
+                            className={`px-5 py-2.5 rounded-xl border font-black uppercase text-[11px] tracking-wider transition-all flex items-center gap-1.5 font-['Outfit'] ${
+                              isLight 
+                                ? 'bg-[#00b577] border-black text-white shadow-[3px_3px_0px_rgba(0,0,0,1)] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none' 
+                                : 'bg-[#00f295] border-transparent text-black'
+                            }`}
+                          >
+                            <span>{currentStepData.actionText}</span>
+                            <Icon icon="ph:caret-right-bold" width={13} />
+                          </motion.button>
+                        ) : (
+                          <motion.button 
+                            whileTap={{ scale: 0.95 }}
+                            onClick={handleNext}
+                            className={`w-9 h-9 rounded-xl border flex items-center justify-center transition-all ${
+                              isLight 
+                                ? 'bg-[#00b577] border-black text-white shadow-[3px_3px_0px_rgba(0,0,0,1)] active:translate-x-[1px] active:translate-y-[1px] active:shadow-none' 
+                                : 'bg-[#00f295] border-transparent text-black'
+                            }`}
+                          >
+                            <Icon icon="ph:caret-right-bold" width={16} />
+                          </motion.button>
+                        )
+                      )}
+                    </div>
+                  </div>
                 </div>
               )}
             </div>
