@@ -1265,16 +1265,20 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
                 </div>
               ) : (
                 // Other steps (Step > 0)
-                <div className="flex gap-4 items-start">
-                  {/* Small Avatar on left for steps > 0 */}
-                  <div className="w-11 h-11 flex-shrink-0 rounded-xl overflow-hidden bg-black/5 dark:bg-white/5 p-1 border border-black/5 dark:border-white/5 shadow-sm">
+                <div className="flex flex-col items-center text-center">
+                  {/* Mascot — shown freely, no clipping box */}
+                  <motion.div
+                    className="w-20 h-20 mb-3 flex-shrink-0"
+                    animate={{ y: [0, -4, 0] }}
+                    transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+                  >
                     <img 
                       src={getMascotSrc(currentStepData.expression)} 
                       alt="Rise" 
-                      className="w-full h-full object-contain" 
+                      className="w-full h-full object-contain drop-shadow-[0_4px_10px_rgba(0,0,0,0.15)]" 
                     />
-                  </div>
-                  <div className="flex-1">
+                  </motion.div>
+                  <div className="w-full">
                     {/* Step Title */}
                     <h4 
                       style={{ color: isLight ? '#000000' : '#ffffff' }}
@@ -1288,7 +1292,6 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
                       style={{ color: isLight ? 'rgba(0, 0, 0, 0.65)' : 'rgba(255, 255, 255, 0.7)' }}
                       className="text-[13px] font-normal leading-relaxed font-['Outfit'] whitespace-pre-line"
                     >
-                      {/* Each sentence is placed on its own line for readability */}
                       {currentStepData.desc.replace(/\.(?= )/g, '.\n')}
                     </p>
 
