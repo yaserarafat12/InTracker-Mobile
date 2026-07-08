@@ -1205,7 +1205,7 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
            is no more flash at position (0,0) at the start of a step. */}
       <motion.svg
         key="tutorial-backdrop"
-        className="absolute inset-0 w-full h-full cursor-default"
+        className="fixed inset-0 w-full h-full cursor-default"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
@@ -1217,8 +1217,8 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
       >
         <defs>
           <mask id="spotlight-mask">
-            {/* White cover keeps backdrop visible everywhere */}
-            <rect x="0" y="0" width="100%" height="100%" fill="white" />
+            {/* White cover keeps backdrop visible everywhere - expanded to prevent subpixel edge leaks */}
+            <rect x="-20%" y="-20%" width="140%" height="140%" fill="white" />
             {/* Black animated rounded-rect = transparent hole in the overlay */}
             <AnimatePresence>
               {sr && (
@@ -1254,12 +1254,12 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
           </mask>
         </defs>
 
-        {/* Dark overlay with spotlight hole */}
+        {/* Dark overlay with spotlight hole - expanded to prevent subpixel edge leaks */}
         <rect
-          x="0"
-          y="0"
-          width="100%"
-          height="100%"
+          x="-20%"
+          y="-20%"
+          width="140%"
+          height="140%"
           fill={isLight ? 'rgba(0, 0, 0, 0.78)' : 'rgba(0, 0, 0, 0.90)'}
           mask="url(#spotlight-mask)"
           className="pointer-events-none"
