@@ -1189,6 +1189,12 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
                 <rect x="0" y="0" width="100%" height="100%" fill="white" />
                 {/* Black animated rounded-rect = transparent hole in the overlay */}
                 <motion.rect
+                  initial={{
+                    x: sr.left,
+                    y: sr.top,
+                    width: sr.width,
+                    height: sr.height,
+                  }}
                   animate={{
                     x: sr.left,
                     y: sr.top,
