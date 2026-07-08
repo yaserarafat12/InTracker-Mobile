@@ -1530,7 +1530,7 @@ const SwipeCard = ({ habit, onSwipe, index, isTop }: { habit: any, onSwipe: (dir
       onDragEnd={handleDragEnd}
       animate={isTop ? undefined : { scale: 0.95 - index * 0.02, y: index * 10 }}
       transition={{ duration: 0.2 }}
-      className={`absolute w-full h-[540px] rounded-2xl flex flex-col overflow-hidden select-none cursor-grab active:cursor-grabbing border-2 ${
+      className={`absolute w-full h-[570px] rounded-2xl flex flex-col overflow-hidden select-none cursor-grab active:cursor-grabbing border-2 ${
         isLight
           ? 'bg-white border-black text-black shadow-[3px_3px_0px_rgba(0,0,0,1)]'
           : 'bg-[#141414] border-white/[0.08] text-white shadow-[0_8px_40px_rgba(0,0,0,0.6)]'
