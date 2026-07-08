@@ -1390,7 +1390,7 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
                     {/* Step Title */}
                     <h4 
                       style={{ color: isLight ? '#000000' : '#ffffff' }}
-                      className="text-[15px] font-black font-['Outfit'] tracking-tight mb-2 pr-28 text-left"
+                      className="text-[15px] font-black font-['Outfit'] tracking-tight mb-2 pr-14 text-left"
                     >
                       {currentStepData.title}
                     </h4>
