@@ -1082,16 +1082,16 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
         {arrowPath && sr && (
           <motion.div
             key={`arrow-${currentStep}`}
-            initial={{ opacity: 0, scale: 0.75 }}
-            animate={{
-              opacity: 1,
-              scale: 1,
-              y: dialogueInTop ? sr.top - 40 : sr.bottom + 8,
-              x: sr.left + sr.width / 2 - 12,
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.4, ease: 'easeInOut' }}
+            style={{
+              position: 'absolute',
+              top: dialogueInTop ? sr.top - 40 : sr.bottom + 8,
+              left: sr.left + sr.width / 2 - 12,
             }}
-            exit={{ opacity: 0, scale: 0.75 }}
-            transition={{ ...spotlightSpring, opacity: { duration: 0.2 } }}
-            className={`absolute z-[1000000] pointer-events-none ${isLight ? 'text-[#6ED7A0]' : 'text-[#6ED7A0]'} drop-shadow-[0_2px_8px_rgba(0,255,133,0.3)]`}
+            className={`z-[1000000] pointer-events-none ${isLight ? 'text-[#6ED7A0]' : 'text-[#6ED7A0]'} drop-shadow-[0_2px_8px_rgba(0,255,133,0.3)]`}
           >
             <motion.svg
               width="24"
@@ -1119,7 +1119,7 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.22 }}
+            transition={{ duration: 0.4, ease: 'easeInOut' }}
             onClick={handleBackdropClick}
             onMouseDown={handleBackdropPress}
             onTouchStart={handleBackdropPress}
@@ -1221,7 +1221,7 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.18, ease: 'easeInOut' }}
+            transition={{ duration: 0.35, ease: 'easeInOut' }}
             className={`w-full mx-auto flex flex-col relative select-text transition-all duration-300 overflow-visible ${
               currentStep === 0 
                 ? 'max-w-[340px] bg-transparent shadow-none border-0'

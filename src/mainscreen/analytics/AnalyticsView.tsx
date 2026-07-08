@@ -559,14 +559,13 @@ function HabitPattern({ habits, habitLogs, timeRange, setTimeRange, timeRanges, 
     const isTutorialActive = localStorage.getItem('interactive_tutorial_active') === 'true';
     if (!isTutorialActive || tutorialStep === undefined) return;
 
-    if (tutorialStep === 11) {
-      // step 11: navigate to analytics tab — collapse all cards so step 12 starts fresh
+    if (tutorialStep === 13) {
+      // step 13 (array index 13) = "Drink Water Analytics Card"
+      // Card must be CLOSED — user has to tap it themselves to open
       setExpandedHabit(null);
-    } else if (tutorialStep === 12) {
-      // step 12: card is CLOSED — user must tap to open it (interactive step)
-      setExpandedHabit(null);
-    } else if (tutorialStep === 13) {
-      // step 13: card must be open to show the weekly chart
+    } else if (tutorialStep === 14) {
+      // step 14 (array index 14) = "Weekly Chart Explanation"
+      // Card must be OPEN to show the chart
       const hidrasi = habits.find((h: any) => h.name === 'Drink Water');
       if (hidrasi) {
         setExpandedHabit(hidrasi.id);
