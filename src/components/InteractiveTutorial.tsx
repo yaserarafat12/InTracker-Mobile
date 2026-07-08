@@ -1210,63 +1210,61 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
               }`}
             >
               {currentStep === 0 ? (
-                // Speech bubble layout: mascot left, bubble right
+                // Speech bubble layout: bubble top (with down tail), mascot middle, button bottom
                 <div className="flex flex-col items-center gap-4 w-full">
-                  <div className="flex items-center gap-3 w-full">
-
-                    {/* Mascot floating on the left */}
-                    <motion.div
-                      className="w-[150px] h-[150px] flex-shrink-0"
-                      animate={{ y: [0, -5, 0] }}
-                      transition={{ duration: 3.5, repeat: Infinity, ease: "easeInOut" }}
-                    >
-                      <img
-                        src={getMascotSrc(getIntroExpression(introScene))}
-                        alt="Rise Mascot"
-                        className="w-full h-full object-contain drop-shadow-[0_6px_14px_rgba(0,0,0,0.18)]"
-                      />
-                    </motion.div>
-
-                    {/* Speech bubble on the right */}
+                  
+                  {/* Speech bubble on top */}
+                  <div
+                    onClick={handleIntroCardClick}
+                    className={`relative w-full rounded-2xl px-4 py-3 cursor-pointer ${
+                      isLight
+                        ? 'bg-white border border-black/8 shadow-[0_4px_24px_rgba(0,0,0,0.12)]'
+                        : 'bg-[#252830] border border-white/10 shadow-[0_4px_24px_rgba(0,0,0,0.35)]'
+                    }`}
+                  >
+                    {/* Bubble tail pointing down toward mascot */}
                     <div
-                      onClick={handleIntroCardClick}
-                      className={`relative flex-1 rounded-2xl rounded-bl-sm px-4 py-3 cursor-pointer ${
-                        isLight
-                          ? 'bg-white border border-black/8 shadow-[0_4px_24px_rgba(0,0,0,0.12)]'
-                          : 'bg-[#252830] border border-white/10 shadow-[0_4px_24px_rgba(0,0,0,0.35)]'
-                      }`}
-                    >
-                      {/* Bubble tail pointing left toward mascot */}
-                      <div
-                        className="absolute -left-[9px] top-1/2 -translate-y-1/2"
-                        style={{
-                          width: 0,
-                          height: 0,
-                          borderTop: '7px solid transparent',
-                          borderBottom: '7px solid transparent',
-                          borderRight: `8px solid ${isLight ? 'white' : '#252830'}`,
-                        }}
-                      />
+                      className="absolute -bottom-[8px] left-1/2 -translate-x-1/2"
+                      style={{
+                        width: 0,
+                        height: 0,
+                        borderLeft: '8px solid transparent',
+                        borderRight: '8px solid transparent',
+                        borderTop: `8px solid ${isLight ? 'white' : '#252830'}`,
+                      }}
+                    />
 
-                      {introScene <= 3 ? (
-                        /* Typing Scene */
-                        <p
-                          style={{ color: isLight ? 'rgba(0,0,0,0.85)' : 'rgba(255,255,255,0.9)' }}
-                          className="text-[17px] font-semibold leading-relaxed font-['Outfit'] min-h-[60px]"
-                        >
-                          {typedText}
-                        </p>
-                      ) : (
-                        /* Scene 4 — Instructional text */
-                        <p
-                          style={{ color: isLight ? 'rgba(0,0,0,0.85)' : 'rgba(255,255,255,0.9)' }}
-                          className="text-[16px] font-semibold leading-snug font-['Outfit'] text-center py-2"
-                        >
-                          Tekan tombol mulai petualangan 👇
-                        </p>
-                      )}
-                    </div>
+                    {introScene <= 3 ? (
+                      /* Typing Scene */
+                      <p
+                        style={{ color: isLight ? 'rgba(0,0,0,0.85)' : 'rgba(255,255,255,0.9)' }}
+                        className="text-[17px] font-semibold leading-relaxed font-['Outfit'] min-h-[60px] text-center"
+                      >
+                        {typedText}
+                      </p>
+                    ) : (
+                      /* Scene 4 — Instructional text */
+                      <p
+                        style={{ color: isLight ? 'rgba(0,0,0,0.85)' : 'rgba(255,255,255,0.9)' }}
+                        className="text-[16px] font-semibold leading-snug font-['Outfit'] text-center py-2"
+                      >
+                        Tekan tombol mulai petualangan 👇
+                      </p>
+                    )}
                   </div>
+
+                  {/* Mascot floating in the middle */}
+                  <motion.div
+                    className="w-[150px] h-[150px] flex-shrink-0"
+                    animate={{ y: [0, -5, 0] }}
+                    transition={{ duration: 3.5, repeat: Infinity, ease: "easeInOut" }}
+                  >
+                    <img
+                      src={getMascotSrc(getIntroExpression(introScene))}
+                      alt="Rise Mascot"
+                      className="w-full h-full object-contain drop-shadow-[0_6px_14px_rgba(0,0,0,0.18)]"
+                    />
+                  </motion.div>
 
                   {/* Scene 4 — CTA button outside bubble */}
                   {introScene > 3 && (
