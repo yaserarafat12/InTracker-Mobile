@@ -1208,7 +1208,7 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
             {/* Mascot Image centered at top for step 0 */}
             {currentStep === 0 && (
               <motion.div 
-                className="absolute top-[-80px] left-1/2 transform -translate-x-1/2 w-36 h-36 flex flex-col justify-center items-center z-10"
+                className="absolute top-[-80px] left-1/2 transform -translate-x-1/2 w-36 h-36 flex justify-center items-center z-10"
                 animate={{ y: [0, -5, 0] }}
                 transition={{ duration: 3.5, repeat: Infinity, ease: "easeInOut" }}
               >
@@ -1217,10 +1217,6 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
                   alt="Rise Mascot" 
                   className="w-full h-full object-contain drop-shadow-[0_6px_14px_rgba(0,0,0,0.18)]" 
                 />
-                {/* Rise label pinned just below mascot */}
-                <span className="text-[10px] font-black uppercase tracking-widest text-[#6ED7A0] mt-1 leading-none">
-                  Rise
-                </span>
               </motion.div>
             )}
 
@@ -1266,16 +1262,16 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
               ) : (
                 // Other steps (Step > 0)
                 <div className="flex flex-col items-center text-center">
-                  {/* Mascot — shown freely, no clipping box */}
+                  {/* Mascot — full size, truly centered */}
                   <motion.div
-                    className="w-20 h-20 mb-3 flex-shrink-0"
-                    animate={{ y: [0, -4, 0] }}
+                    className="w-60 h-60 mx-auto mb-4 flex-shrink-0"
+                    animate={{ y: [0, -6, 0] }}
                     transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
                   >
                     <img 
                       src={getMascotSrc(currentStepData.expression)} 
                       alt="Rise" 
-                      className="w-full h-full object-contain drop-shadow-[0_4px_10px_rgba(0,0,0,0.15)]" 
+                      className="w-full h-full object-contain drop-shadow-[0_6px_16px_rgba(0,0,0,0.15)]" 
                     />
                   </motion.div>
                   <div className="w-full">
