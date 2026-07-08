@@ -1135,7 +1135,12 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
         {arrowPath && sr && (
           <motion.div
             key={`arrow-${currentStep}`}
-            initial={{ opacity: 0, scale: 0.75 }}
+            initial={{
+              opacity: 0,
+              scale: 0.75,
+              y: dialogueInTop ? sr.top - 40 : sr.bottom + 8,
+              x: sr.left + sr.width / 2 - 12,
+            }}
             animate={{
               opacity: 1,
               scale: 1,
@@ -1167,7 +1172,7 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
       <AnimatePresence>
         {sr ? (
           <motion.svg
-            key="spotlight-svg"
+            key={`spotlight-svg-${currentStep}`}
             className="absolute inset-0 w-full h-full cursor-default"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
