@@ -157,49 +157,6 @@ const GlobalView: React.FC = () => {
 
   return (
     <div className="flex flex-col h-full text-[#E3DAC9] font-['Outfit']">
-      {/* Dynamic Transparent Header (Fixed) */}
-      <div className="fixed top-[80px] left-0 right-0 z-40 px-6 py-6 bg-transparent">
-        <motion.div 
-          initial={{ y: -20, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          className="flex items-center gap-3 max-w-[500px] mx-auto w-full"
-        >
-          <div className="flex-1 flex items-center gap-2">
-            {tabs.map((tab) => (
-              <motion.button
-                key={tab}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => {
-                  if (navigator.vibrate) navigator.vibrate(10);
-                  setActiveTab(tab);
-                }}
-                className={`flex-1 py-3 rounded-xl border-[1.5px] text-[11px] font-black uppercase tracking-wider transition-all ${
-                  activeTab === tab 
-                    ? 'bg-[#E3DAC9] border-[#E3DAC9] text-black' 
-                    : 'bg-[#1c1e22] border-[#E3DAC9]/15 text-[#E3DAC9]/40'
-                }`}
-              >
-                {tab === 'Publik' ? t('global.tabs.public') : tab === 'Teman' ? t('global.tabs.friends') : t('global.tabs.personal')}
-              </motion.button>
-            ))}
-          </div>
-          {/* Friends Button */}
-          <motion.button
-            whileTap={{ scale: 0.9 }}
-            onClick={() => {
-              if (navigator.vibrate) navigator.vibrate(10);
-              setShowFriendsSheet(true);
-            }}
-            className="w-11 h-11 rounded-xl border-[1.5px] border-[#E3DAC9]/15 bg-[#1c1e22] flex items-center justify-center shrink-0"
-          >
-            <Icon icon="ph:users-bold" className="text-[#E3DAC9]/60" width={20} />
-          </motion.button>
-        </motion.div>
-      </div>
-
-      {/* Placeholder to prevent content being covered by fixed tabs */}
-      <div className="h-[140px]" />
-
       {/* Feed Content */}
       <div 
         ref={containerRef}
@@ -208,6 +165,45 @@ const GlobalView: React.FC = () => {
         onTouchEnd={handleTouchEnd}
         className="flex-1 overflow-y-auto py-4 no-scrollbar"
       >
+        {/* Dynamic Header (Scrolls with page) */}
+        <div className="px-6 pt-2 pb-4 w-full">
+          <motion.div 
+            initial={{ y: -20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            className="flex items-center gap-3 max-w-[500px] mx-auto w-full"
+          >
+            <div className="flex-1 flex items-center gap-2">
+              {tabs.map((tab) => (
+                <motion.button
+                  key={tab}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => {
+                    if (navigator.vibrate) navigator.vibrate(10);
+                    setActiveTab(tab);
+                  }}
+                  className={`flex-1 py-3 rounded-xl border-[1.5px] text-[11px] font-black uppercase tracking-wider transition-all ${
+                    activeTab === tab 
+                      ? 'bg-[#E3DAC9] border-[#E3DAC9] text-black' 
+                      : 'bg-[#1c1e22] border-[#E3DAC9]/15 text-[#E3DAC9]/40'
+                  }`}
+                >
+                  {tab === 'Publik' ? t('global.tabs.public') : tab === 'Teman' ? t('global.tabs.friends') : t('global.tabs.personal')}
+                </motion.button>
+              ))}
+            </div>
+            {/* Friends Button */}
+            <motion.button
+              whileTap={{ scale: 0.9 }}
+              onClick={() => {
+                if (navigator.vibrate) navigator.vibrate(10);
+                setShowFriendsSheet(true);
+              }}
+              className="w-11 h-11 rounded-xl border-[1.5px] border-[#E3DAC9]/15 bg-[#1c1e22] flex items-center justify-center shrink-0"
+            >
+              <Icon icon="ph:users-bold" className="text-[#E3DAC9]/60" width={20} />
+            </motion.button>
+          </motion.div>
+        </div>
         {/* Pull-to-refresh spinner */}
         <AnimatePresence>
           {pullDistance > 10 && (

@@ -65,6 +65,7 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
   const [typedDesc, setTypedDesc] = useState<string>('');
   const [showDialogue, setShowDialogue] = useState<boolean>(false);
   const [spotlightAllowed, setSpotlightAllowed] = useState<boolean>(false);
+  const [preferredPosition, setPreferredPosition] = useState<'top' | 'bottom' | 'inside' | null>(null);
 
   const getMascotSrc = (expression: MascotExpression) => {
     switch (expression) {
@@ -125,6 +126,11 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
   useEffect(() => {
     onStepChange?.(currentStep);
   }, [currentStep, onStepChange]);
+
+  // Reset preferred dialogue position on step change
+  useEffect(() => {
+    setPreferredPosition(null);
+  }, [currentStep]);
   const [targetRect, setTargetRect] = useState<DOMRect | null>(null);
   // spotlightVisible gates whether the spotlight SVG is rendered.
   // We set it to false on every step change so the spotlight fades out
@@ -1165,6 +1171,25 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
   // Shared spring config — smooth movement without bouncing
   const spotlightSpring = { type: 'spring' as const, stiffness: 120, damping: 28, mass: 0.8 };
 
+  // Lock the preferred position of the dialogue box for the current step
+  // to prevent rapid flipping/flickering (hysteresis loops) during scrolls/layout updates.
+  useEffect(() => {
+    if (!sr) return;
+    if (preferredPosition !== null) return;
+
+    const spaceAbove = sr.top;
+    const spaceBelow = window.innerHeight - sr.bottom;
+    const dialogueHeightEstimate = 220;
+
+    if (spaceBelow >= dialogueHeightEstimate + 20) {
+      setPreferredPosition('bottom');
+    } else if (spaceAbove >= dialogueHeightEstimate + 20) {
+      setPreferredPosition('top');
+    } else {
+      setPreferredPosition('inside');
+    }
+  }, [sr, preferredPosition]);
+
   // Determine dialogue position using intelligent space budgeting
   let dialogueTop = 'auto';
   let dialogueBottom = 'auto';
@@ -1176,13 +1201,18 @@ export const InteractiveTutorial: React.FC<InteractiveTutorialProps> = ({
   } else {
     const spaceAbove = sr.top;
     const spaceBelow = window.innerHeight - sr.bottom;
-    const dialogueHeightEstimate = 220; // estimated max height of dialogue
+    const dialogueHeightEstimate = 220;
 
-    if (spaceBelow >= dialogueHeightEstimate + 20) {
+    const currentPos = preferredPosition || (
+      (spaceBelow >= dialogueHeightEstimate + 20) ? 'bottom' :
+      (spaceAbove >= dialogueHeightEstimate + 20) ? 'top' : 'inside'
+    );
+
+    if (currentPos === 'bottom') {
       // Place below target
       dialogueTop = `${sr.bottom + 24}px`;
       dialogueInTop = false;
-    } else if (spaceAbove >= dialogueHeightEstimate + 20) {
+    } else if (currentPos === 'top') {
       // Place above target
       dialogueBottom = `${window.innerHeight - sr.top + 24}px`;
       dialogueInTop = true;
