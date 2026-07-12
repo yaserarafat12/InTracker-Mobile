@@ -50,13 +50,7 @@ const ACTIVITY_LEVELS: { id: ActivityMultiplier; label: string; description: str
   { id: 1.9, label: 'Ekstra Aktif', description: 'Olahraga sangat berat, kerja fisik' },
 ];
 
-const DIETARY_PREFERENCES: { id: DietaryPreference; label: string }[] = [
-  { id: 'no_preference', label: 'Bebas' },
-  { id: 'vegetarian', label: 'Vegetarian' },
-  { id: 'vegan', label: 'Vegan' },
-  { id: 'keto', label: 'Keto' },
-  { id: 'paleo', label: 'Paleo' },
-];
+
 
 // --- Main Component ---
 
@@ -188,17 +182,17 @@ export const OnboardingWizard = ({ onExit }: OnboardingWizardProps) => {
   // --- Step Renderers ---
 
   const renderStep1 = () => (
-    <div className="space-y-6">
+    <div className="space-y-5">
       <div>
-        <p className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em] mb-3 ml-1">Jenis Kelamin</p>
-        <div className="flex gap-3">
+        <p className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em] mb-2.5 ml-1">Jenis Kelamin</p>
+        <div className="flex gap-3 justify-center">
           {([{ id: 'male', label: 'Pria' }, { id: 'female', label: 'Wanita' }] as const).map(({ id, label }) => (
             <motion.button
               key={id}
               whileTap={{ scale: 0.95 }}
               onClick={() => { setBodyMetrics(prev => ({ ...prev, sex: id })); if (errors.sex) setErrors(prev => ({ ...prev, sex: undefined })); }}
-              className={`flex-1 h-14 rounded-2xl font-bold font-['Outfit'] text-[14px] transition-all ${
-                bodyMetrics.sex === id ? 'bg-[#00FF85] text-black border-2 border-black' : 'bg-[#2a2c32] text-white/60 border border-white/10'
+              className={`w-[130px] h-11 rounded-lg font-black font-['Outfit'] text-[13px] uppercase tracking-wider transition-all ${
+                bodyMetrics.sex === id ? 'bg-[#7BE495] text-black' : 'bg-[#2a2c32] text-white/60 border border-white/10'
               }`}
             >
               {label}
@@ -209,28 +203,28 @@ export const OnboardingWizard = ({ onExit }: OnboardingWizardProps) => {
       </div>
 
       <div>
-        <p className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em] mb-3 ml-1">Tinggi Badan</p>
-        <div className={`h-14 bg-[#2a2c32] rounded-2xl border px-5 flex items-center transition-all ${errors.height ? 'border-red-400/60' : 'border-white/10 focus-within:border-[#00FF85]/50'}`}>
-          <input type="text" inputMode="numeric" value={bodyMetrics.height} onChange={(e) => handleNumericInput(e.target.value, (v) => { setBodyMetrics(prev => ({ ...prev, height: v })); if (errors.height) setErrors(prev => ({ ...prev, height: undefined })); })} placeholder="170" className="w-full bg-transparent border-none outline-none text-[16px] font-bold font-['Outfit'] text-white placeholder:text-white/20" />
-          <span className="text-[12px] font-bold text-white/40 ml-2">cm</span>
+        <p className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em] mb-2.5 ml-1">Tinggi Badan</p>
+        <div className={`h-12 bg-[#2a2c32] rounded-lg border px-4 flex items-center transition-all ${errors.height ? 'border-red-400/60' : 'border-white/10 focus-within:border-[#7BE495]/50'}`}>
+          <input type="text" inputMode="numeric" value={bodyMetrics.height} onChange={(e) => handleNumericInput(e.target.value, (v) => { setBodyMetrics(prev => ({ ...prev, height: v })); if (errors.height) setErrors(prev => ({ ...prev, height: undefined })); })} placeholder="170" className="w-full bg-transparent border-none outline-none text-[15px] font-bold font-['Outfit'] text-white placeholder:text-white/20" />
+          <span className="text-[11px] font-bold text-white/40 ml-2">cm</span>
         </div>
         {errors.height && <p className="text-[11px] text-red-400 mt-2 ml-1">{errors.height}</p>}
       </div>
 
       <div>
-        <p className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em] mb-3 ml-1">Berat Badan</p>
-        <div className={`h-14 bg-[#2a2c32] rounded-2xl border px-5 flex items-center transition-all ${errors.weight ? 'border-red-400/60' : 'border-white/10 focus-within:border-[#00FF85]/50'}`}>
-          <input type="text" inputMode="decimal" value={bodyMetrics.weight} onChange={(e) => handleNumericInput(e.target.value, (v) => { setBodyMetrics(prev => ({ ...prev, weight: v })); if (errors.weight) setErrors(prev => ({ ...prev, weight: undefined })); }, true)} placeholder="70.0" className="w-full bg-transparent border-none outline-none text-[16px] font-bold font-['Outfit'] text-white placeholder:text-white/20" />
-          <span className="text-[12px] font-bold text-white/40 ml-2">kg</span>
+        <p className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em] mb-2.5 ml-1">Berat Badan</p>
+        <div className={`h-12 bg-[#2a2c32] rounded-lg border px-4 flex items-center transition-all ${errors.weight ? 'border-red-400/60' : 'border-white/10 focus-within:border-[#7BE495]/50'}`}>
+          <input type="text" inputMode="decimal" value={bodyMetrics.weight} onChange={(e) => handleNumericInput(e.target.value, (v) => { setBodyMetrics(prev => ({ ...prev, weight: v })); if (errors.weight) setErrors(prev => ({ ...prev, weight: undefined })); }, true)} placeholder="70.0" className="w-full bg-transparent border-none outline-none text-[15px] font-bold font-['Outfit'] text-white placeholder:text-white/20" />
+          <span className="text-[11px] font-bold text-white/40 ml-2">kg</span>
         </div>
         {errors.weight && <p className="text-[11px] text-red-400 mt-2 ml-1">{errors.weight}</p>}
       </div>
 
       <div>
-        <p className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em] mb-3 ml-1">Usia</p>
-        <div className={`h-14 bg-[#2a2c32] rounded-2xl border px-5 flex items-center transition-all ${errors.age ? 'border-red-400/60' : 'border-white/10 focus-within:border-[#00FF85]/50'}`}>
-          <input type="text" inputMode="numeric" value={bodyMetrics.age} onChange={(e) => handleNumericInput(e.target.value, (v) => { setBodyMetrics(prev => ({ ...prev, age: v })); if (errors.age) setErrors(prev => ({ ...prev, age: undefined })); })} placeholder="25" className="w-full bg-transparent border-none outline-none text-[16px] font-bold font-['Outfit'] text-white placeholder:text-white/20" />
-          <span className="text-[12px] font-bold text-white/40 ml-2">tahun</span>
+        <p className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em] mb-2.5 ml-1">Usia</p>
+        <div className={`h-12 bg-[#2a2c32] rounded-lg border px-4 flex items-center transition-all ${errors.age ? 'border-red-400/60' : 'border-white/10 focus-within:border-[#7BE495]/50'}`}>
+          <input type="text" inputMode="numeric" value={bodyMetrics.age} onChange={(e) => handleNumericInput(e.target.value, (v) => { setBodyMetrics(prev => ({ ...prev, age: v })); if (errors.age) setErrors(prev => ({ ...prev, age: undefined })); })} placeholder="25" className="w-full bg-transparent border-none outline-none text-[15px] font-bold font-['Outfit'] text-white placeholder:text-white/20" />
+          <span className="text-[11px] font-bold text-white/40 ml-2">tahun</span>
         </div>
         {errors.age && <p className="text-[11px] text-red-400 mt-2 ml-1">{errors.age}</p>}
       </div>
@@ -242,13 +236,13 @@ export const OnboardingWizard = ({ onExit }: OnboardingWizardProps) => {
       {errors.goal && <p className="text-[11px] text-red-400 ml-1">{errors.goal}</p>}
       {FITNESS_GOALS.map((goal) => (
         <motion.button key={goal.id} whileTap={{ scale: 0.97 }} onClick={() => { setSelectedGoal(goal.id); if (errors.goal) setErrors(prev => ({ ...prev, goal: undefined })); }}
-          className={`w-full p-4 rounded-2xl text-left transition-all ${selectedGoal === goal.id ? 'bg-[#00FF85]/10 border-2 border-[#00FF85]' : 'bg-[#2a2c32] border border-white/10'}`}>
+          className={`w-full p-4 rounded-lg text-left transition-all ${selectedGoal === goal.id ? 'bg-[#7BE495]/10 border-2 border-[#7BE495]' : 'bg-[#2a2c32] border border-white/10'}`}>
           <div className="flex items-center justify-between">
             <div>
-              <p className={`text-[14px] font-bold font-['Outfit'] ${selectedGoal === goal.id ? 'text-[#00FF85]' : 'text-white'}`}>{goal.label}</p>
+              <p className={`text-[14px] font-bold font-['Outfit'] ${selectedGoal === goal.id ? 'text-[#7BE495]' : 'text-white'}`}>{goal.label}</p>
               <p className="text-[11px] text-white/40 mt-0.5">{goal.description}</p>
             </div>
-            {selectedGoal === goal.id && <Icon icon="ph:check-circle-fill" width={22} className="text-[#00FF85]" />}
+            {selectedGoal === goal.id && <Icon icon="ph:check-circle-fill" width={22} className="text-[#7BE495]" />}
           </div>
         </motion.button>
       ))}
@@ -259,9 +253,9 @@ export const OnboardingWizard = ({ onExit }: OnboardingWizardProps) => {
     <div className="space-y-6">
       <div>
         <p className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em] mb-3 ml-1">Berat Target (opsional)</p>
-        <div className={`h-14 bg-[#2a2c32] rounded-2xl border px-5 flex items-center transition-all ${errors.targetWeight ? 'border-red-400/60' : 'border-white/10 focus-within:border-[#00FF85]/50'}`}>
-          <input type="text" inputMode="decimal" value={targetWeight} onChange={(e) => handleNumericInput(e.target.value, (v) => { setTargetWeight(v); if (errors.targetWeight) setErrors(prev => ({ ...prev, targetWeight: undefined })); }, true)} placeholder="65.0" className="w-full bg-transparent border-none outline-none text-[16px] font-bold font-['Outfit'] text-white placeholder:text-white/20" />
-          <span className="text-[12px] font-bold text-white/40 ml-2">kg</span>
+        <div className={`h-12 bg-[#2a2c32] rounded-lg border px-4 flex items-center transition-all ${errors.targetWeight ? 'border-red-400/60' : 'border-white/10 focus-within:border-[#7BE495]/50'}`}>
+          <input type="text" inputMode="decimal" value={targetWeight} onChange={(e) => handleNumericInput(e.target.value, (v) => { setTargetWeight(v); if (errors.targetWeight) setErrors(prev => ({ ...prev, targetWeight: undefined })); }, true)} placeholder="65.0" className="w-full bg-transparent border-none outline-none text-[15px] font-bold font-['Outfit'] text-white placeholder:text-white/20" />
+          <span className="text-[11px] font-bold text-white/40 ml-2">kg</span>
         </div>
         {errors.targetWeight && <p className="text-[11px] text-red-400 mt-2 ml-1">{errors.targetWeight}</p>}
       </div>
@@ -271,7 +265,7 @@ export const OnboardingWizard = ({ onExit }: OnboardingWizardProps) => {
         <div className="grid grid-cols-4 gap-2">
           {DURATION_OPTIONS.map((weeks) => (
             <motion.button key={weeks} whileTap={{ scale: 0.95 }} onClick={() => { setDurationWeeks(weeks); if (errors.duration) setErrors(prev => ({ ...prev, duration: undefined })); }}
-              className={`h-12 rounded-xl font-bold font-['Outfit'] text-[13px] transition-all ${durationWeeks === weeks ? 'bg-[#00FF85] text-black border-2 border-black' : 'bg-[#2a2c32] text-white/60 border border-white/10'}`}>
+              className={`h-11 rounded-lg font-bold font-['Outfit'] text-[13px] transition-all ${durationWeeks === weeks ? 'bg-[#7BE495] text-black' : 'bg-[#2a2c32] text-white/60 border border-white/10'}`}>
               {weeks} mgg
             </motion.button>
           ))}
@@ -279,21 +273,21 @@ export const OnboardingWizard = ({ onExit }: OnboardingWizardProps) => {
         {errors.duration && <p className="text-[11px] text-red-400 mt-2 ml-1">{errors.duration}</p>}
       </div>
 
-      <div className="bg-[#2a2c32] rounded-2xl border border-white/10 p-4 space-y-2">
+      <div className="bg-[#2a2c32] rounded-lg border border-white/10 p-4 space-y-2">
         <div className="flex justify-between">
           <span className="text-[12px] text-white/40">Berat Saat Ini</span>
-          <span className="text-[13px] font-bold text-white">{bodyMetrics.weight ? `${bodyMetrics.weight} kg` : '—'}</span>
+          <span className="text-[13px] font-bold text-white font-['Outfit']">{bodyMetrics.weight ? `${bodyMetrics.weight} kg` : '—'}</span>
         </div>
         {targetWeight && (
           <div className="flex justify-between">
             <span className="text-[12px] text-white/40">Berat Target</span>
-            <span className="text-[13px] font-bold text-white">{targetWeight} kg</span>
+            <span className="text-[13px] font-bold text-white font-['Outfit']">{targetWeight} kg</span>
           </div>
         )}
         {weeklyRate && (
           <div className="flex justify-between">
             <span className="text-[12px] text-white/40">Perubahan/Minggu</span>
-            <span className={`text-[13px] font-bold ${weeklyRate.isAggressive ? 'text-[#FF4D00]' : 'text-[#00FF85]'}`}>
+            <span className={`text-[13px] font-bold font-['Outfit'] ${weeklyRate.isAggressive ? 'text-[#FF4D00]' : 'text-[#7BE495]'}`}>
               {weeklyRate.ratePerWeek > 0 ? '+' : ''}{weeklyRate.ratePerWeek} kg/minggu
             </span>
           </div>
@@ -301,9 +295,9 @@ export const OnboardingWizard = ({ onExit }: OnboardingWizardProps) => {
       </div>
 
       {weeklyRate?.isAggressive && (
-        <div className="flex items-start gap-3 bg-[#FF4D00]/10 border border-[#FF4D00]/30 rounded-2xl p-4">
+        <div className="flex items-start gap-3 bg-[#FF4D00]/10 border border-[#FF4D00]/30 rounded-lg p-4">
           <Icon icon="ph:warning-fill" width={20} className="text-[#FF4D00] shrink-0 mt-0.5" />
-          <p className="text-[12px] text-[#FF4D00]/80 leading-relaxed">
+          <p className="text-[12px] text-[#FF4D00]/80 leading-relaxed font-['Outfit']">
             Laju ini terlalu agresif. Pertimbangkan durasi lebih lama untuk hasil yang lebih aman.
           </p>
         </div>
@@ -319,21 +313,9 @@ export const OnboardingWizard = ({ onExit }: OnboardingWizardProps) => {
         <div className="space-y-2">
           {ACTIVITY_LEVELS.map((level) => (
             <motion.button key={level.id} whileTap={{ scale: 0.97 }} onClick={() => { setActivityLevel(level.id); if (errors.activityLevel) setErrors(prev => ({ ...prev, activityLevel: undefined })); }}
-              className={`w-full p-3.5 rounded-2xl text-left transition-all ${activityLevel === level.id ? 'bg-[#00FF85]/10 border-2 border-[#00FF85]' : 'bg-[#2a2c32] border border-white/10'}`}>
-              <p className={`text-[13px] font-bold font-['Outfit'] ${activityLevel === level.id ? 'text-[#00FF85]' : 'text-white'}`}>{level.label}</p>
+              className={`w-full p-3.5 rounded-lg text-left transition-all ${activityLevel === level.id ? 'bg-[#7BE495]/10 border-2 border-[#7BE495]' : 'bg-[#2a2c32] border border-white/10'}`}>
+              <p className={`text-[13px] font-bold font-['Outfit'] ${activityLevel === level.id ? 'text-[#7BE495]' : 'text-white'}`}>{level.label}</p>
               <p className="text-[11px] text-white/40 mt-0.5">{level.description}</p>
-            </motion.button>
-          ))}
-        </div>
-      </div>
-
-      <div>
-        <p className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em] mb-3 ml-1">Preferensi Diet</p>
-        <div className="flex flex-wrap gap-2">
-          {DIETARY_PREFERENCES.map((pref) => (
-            <motion.button key={pref.id} whileTap={{ scale: 0.95 }} onClick={() => setDietaryPreference(pref.id)}
-              className={`px-4 py-2.5 rounded-xl font-bold font-['Outfit'] text-[12px] transition-all ${dietaryPreference === pref.id ? 'bg-[#00FF85] text-black border-2 border-black' : 'bg-[#2a2c32] text-white/60 border border-white/10'}`}>
-              {pref.label}
             </motion.button>
           ))}
         </div>
@@ -351,7 +333,7 @@ export const OnboardingWizard = ({ onExit }: OnboardingWizardProps) => {
   // --- Render ---
 
   return (
-    <div className="nutrition-overlay fixed inset-0 bg-[#16181c] z-[100] flex flex-col">
+    <div className="nutrition-overlay fixed inset-0 bg-[#16181c] z-[100] flex flex-col font-['Outfit']">
       {/* Header */}
       <div className="pt-14 pb-4 px-6">
         <div className="flex items-center justify-center relative mb-6">
@@ -359,27 +341,33 @@ export const OnboardingWizard = ({ onExit }: OnboardingWizardProps) => {
           <motion.button
             whileTap={{ scale: 0.9 }}
             onClick={onExit}
-            className="absolute left-0 w-9 h-9 rounded-xl bg-[#2a2c32] border border-white/10 flex items-center justify-center"
+            className="absolute left-0 w-9 h-9 rounded-[10px] bg-white/10 border-[1.5px] border-white/25 backdrop-blur-md flex items-center justify-center transition-all hover:bg-white/15 hover:border-white/35"
             aria-label="Keluar"
           >
-            <Icon icon="ph:x-bold" width={16} className="text-white/60" />
+            <svg 
+              viewBox="0 0 24 24" 
+              fill="none" 
+              stroke="currentColor" 
+              strokeWidth="3.5" 
+              strokeLinecap="round" 
+              strokeLinejoin="round" 
+              className="w-[13px] h-[13px] text-white hover:text-white/90 transition-colors"
+            >
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
           </motion.button>
 
           {/* Centered title */}
           <h2 className="text-[20px] font-black font-['Outfit'] text-white">
             {stepTitles[currentStep]}
           </h2>
-
-          {/* Step indicator */}
-          <span className="absolute right-0 text-[12px] font-bold text-white/30 font-['Outfit']">
-            {currentStep}/4
-          </span>
         </div>
 
         {/* Progress Bar */}
         <div className="flex gap-2">
           {[1, 2, 3, 4].map((step) => (
-            <div key={step} className={`h-1 flex-1 rounded-full transition-all duration-300 ${step <= currentStep ? 'bg-[#00FF85]' : 'bg-white/10'}`} />
+            <div key={step} className={`h-1 flex-1 rounded-full transition-all duration-300 ${step <= currentStep ? '' : 'bg-white/10'}`} style={step <= currentStep ? { backgroundColor: '#7BE495' } : undefined} />
           ))}
         </div>
       </div>
@@ -399,28 +387,28 @@ export const OnboardingWizard = ({ onExit }: OnboardingWizardProps) => {
       {/* Footer Navigation */}
       <div className="fixed bottom-0 left-0 right-0 bg-[#16181c] border-t border-white/5 px-6 py-5 pb-8">
         {planError && (
-          <div className="flex items-center gap-2 bg-red-500/10 border border-red-500/30 rounded-xl p-3 mb-4">
+          <div className="flex items-center gap-2 bg-red-500/10 border border-red-500/30 rounded-lg p-3 mb-4">
             <Icon icon="ph:warning-circle-fill" width={18} className="text-red-400 shrink-0" />
-            <p className="text-[12px] text-red-400 flex-1">Gagal membuat rencana. Coba lagi.</p>
+            <p className="text-[12px] text-red-400 flex-1 font-['Outfit']">Gagal membuat rencana. Coba lagi.</p>
           </div>
         )}
 
         <div className="flex gap-3">
           {currentStep > 1 && (
             <motion.button whileTap={{ scale: 0.95 }} onClick={handleBack}
-              className="h-14 px-6 rounded-2xl bg-[#2a2c32] border border-white/10 text-white/80 font-bold font-['Outfit'] text-[13px] uppercase tracking-wider">
+              className="h-12 px-6 rounded-lg bg-[#2a2c32] border border-white/10 text-white/80 font-bold font-['Outfit'] text-[13px] uppercase tracking-wider">
               Kembali
             </motion.button>
           )}
 
           {currentStep < 4 ? (
             <motion.button whileTap={{ scale: 0.95 }} onClick={handleNext}
-              className="flex-1 h-14 rounded-2xl bg-[#00FF85] text-black font-black font-['Outfit'] text-[14px] uppercase tracking-wider">
+              className="flex-1 h-12 rounded-lg bg-[#7BE495] text-black font-black font-['Outfit'] text-[14px] uppercase tracking-wider">
               Lanjut
             </motion.button>
           ) : (
             <motion.button whileTap={!loading ? { scale: 0.95 } : {}} onClick={handleGeneratePlan} disabled={loading}
-              className={`flex-1 h-14 rounded-2xl font-black font-['Outfit'] text-[14px] uppercase tracking-wider flex items-center justify-center gap-2 transition-all ${loading ? 'bg-[#00FF85]/50 text-black/50' : 'bg-[#00FF85] text-black'}`}>
+              className={`flex-1 h-12 rounded-lg font-black font-['Outfit'] text-[14px] uppercase tracking-wider flex items-center justify-center gap-2 transition-all ${loading ? 'bg-[#7BE495]/50 text-black/50' : 'bg-[#7BE495] text-black'}`}>
               {loading ? (<><Icon icon="ph:spinner" width={20} className="animate-spin" />Memproses...</>) : 'Buat Rencana'}
             </motion.button>
           )}

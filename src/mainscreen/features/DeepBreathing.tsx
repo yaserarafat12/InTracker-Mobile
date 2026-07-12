@@ -212,7 +212,7 @@ export function DeepBreathing({ onBack }: DeepBreathingProps) {
                             : 'bg-white/5 text-white/60 border border-white/10'
                       }`}
                     >
-                      {opt.label}
+                      {opt.value / 60} {t('units.Menit').toLowerCase()}
                     </motion.button>
                   ))}
                 </div>

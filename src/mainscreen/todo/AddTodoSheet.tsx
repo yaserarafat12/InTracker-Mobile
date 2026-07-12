@@ -138,7 +138,10 @@ export const AddTodoSheet = ({ isOpen, onClose, targetToEdit }: AddTodoSheetProp
                       value={title}
                       onChange={(e) => setTitle(e.target.value)}
                       placeholder={t('todo.inputAddPlaceholder')}
-                      className="w-full bg-transparent border-none outline-none text-[17px] font-bold font-['Outfit'] text-[#E3DAC9] placeholder:text-[#E3DAC9]/30"
+                      className="w-full bg-transparent border-none outline-none text-[17px] font-bold font-['Outfit'] text-[#E3DAC9] placeholder:text-[#E3DAC9]/45"
+                      autoCapitalize="none"
+                      autoComplete="off"
+                      autoCorrect="off"
                     />
                   </div>
                 </div>

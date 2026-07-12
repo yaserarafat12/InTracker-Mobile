@@ -8,6 +8,7 @@ import { useProgressionStore } from '../store/useProgressionStore';
 import { useHabitStore } from '../store/useHabitStore';
 import { getDefaultHabitStatsMap } from '../engines/statsEngine';
 import { getHabitBenefitData } from '../data/habitBenefitsData';
+import { getGenderedImageUrl } from '../utils/imageHelpers';
 
 const STAT_DISPLAY: Record<string, { key: string; icon: string; color: string }> = {
   kebijaksanaan: { key: 'rpg.stats.wisdom', icon: 'ph:brain-bold', color: '#A855F7' },
@@ -1539,7 +1540,7 @@ const SwipeCard = ({ habit, onSwipe, index, isTop }: { habit: any, onSwipe: (dir
       {/* Image header */}
       <div className={`relative h-[200px] bg-black overflow-hidden shrink-0 border-b-2 ${isLight ? 'border-black' : 'border-white/[0.08]'}`}>
         <img
-          src={habit.imageUrl}
+          src={getGenderedImageUrl(habit.imageUrl, settings.gender || 'Male')}
           alt={translated.name}
           className={`w-full h-full object-cover ${habit.imagePosition || 'object-center'}`}
         />
@@ -1643,6 +1644,7 @@ const SwipeCard = ({ habit, onSwipe, index, isTop }: { habit: any, onSwipe: (dir
 // --- SUB-SCREEN: HABITS SWIPE DECK ---
 const SwipeDeckScreen = ({ answers, onComplete, onBack }: { answers: Record<number, string[]>, onComplete: (acceptedHabits: any[]) => void, onBack: () => void }) => {
   const { settings } = useUserStore();
+  const gender = settings?.gender || 'Male';
   const language = settings.language || 'English';
   const trans = ONBOARDING_SCREEN_TRANSLATIONS[language] || ONBOARDING_SCREEN_TRANSLATIONS['English'];
   const isLight = settings.theme === 'Light';
@@ -2000,7 +2002,7 @@ const SwipeDeckScreen = ({ answers, onComplete, onBack }: { answers: Record<numb
                       : 'bg-black border-white/10 shadow-[2px_2px_0px_rgba(255,255,255,0.1)] text-white'
                   }`}>
                     <div className="flex items-center gap-3">
-                      <img src={h.imageUrl} className="w-8 h-8 rounded-lg object-cover border border-black" />
+                      <img src={getGenderedImageUrl(h.imageUrl, gender || 'Male')} className="w-8 h-8 rounded-lg object-cover border border-black" />
                       <div className="text-left">
                         <h4 className={`text-[13px] font-black uppercase tracking-wide ${isLight ? 'text-black font-extrabold' : 'text-white'}`}>{translated.name}</h4>
                         <span className={`text-[9px] font-bold tracking-wider uppercase ${isLight ? 'text-neutral-500' : 'text-white/40'}`}>{h.category}</span>
@@ -2040,7 +2042,7 @@ const SwipeDeckScreen = ({ answers, onComplete, onBack }: { answers: Record<numb
                         : 'bg-black border-white/10 shadow-[2px_2px_0px_rgba(255,255,255,0.1)] text-white'
                     }`}>
                       <div className="flex items-center gap-3">
-                        <img src={h.imageUrl} className="w-8 h-8 rounded-lg object-cover border border-black" />
+                        <img src={getGenderedImageUrl(h.imageUrl, gender || 'Male')} className="w-8 h-8 rounded-lg object-cover border border-black" />
                         <div>
                           <h5 className={`text-[12px] font-black uppercase tracking-wide ${isLight ? 'text-black font-extrabold' : 'text-white'}`}>{translated.name}</h5>
                           <span className={`text-[9px] font-bold uppercase tracking-wider ${isLight ? 'text-neutral-500' : 'text-white/40'}`}>{h.category}</span>

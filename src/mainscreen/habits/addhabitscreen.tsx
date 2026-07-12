@@ -15,7 +15,7 @@ const categoryKeys: Record<string, string> = {
   'Latihan Fisik': 'habits.categories.exercise'
 };
 
-const PickerItem = ({ value, unit, itemPos, containerScrollY, isActive }: any) => {
+const PickerItem = ({ value, unit, itemPos, containerScrollY, isActive, isLight }: any) => {
   const relativeY = useTransform(containerScrollY, [itemPos - 130, itemPos, itemPos + 130], [-1, 0, 1]);
   const rotateX = useTransform(relativeY, [-1, 0, 1], [60, 0, -60]);
   const opacity = useTransform(relativeY, [-1, -0.6, 0, 0.6, 1], [0.05, 0.3, 1, 0.3, 0.05]);
@@ -29,10 +29,10 @@ const PickerItem = ({ value, unit, itemPos, containerScrollY, isActive }: any) =
       className="picker-item snap-center h-[52px] flex items-center justify-center flex-shrink-0 w-full"
     >
       <div className="flex items-baseline gap-2 font-['Outfit']">
-        <span className={`text-[32px] font-black tracking-normal transition-all duration-300 ${isActive ? 'text-white' : 'text-[#E3DAC9]/40'}`}>
+        <span className={`text-[32px] font-black tracking-normal transition-all duration-300 ${isActive ? (isLight ? 'text-black' : 'text-white') : (isLight ? 'text-black/25' : 'text-[#E3DAC9]/30')}`}>
           {value}
         </span>
-        <span className={`text-[12px] font-black uppercase tracking-[0.2em] transition-all duration-300 ${isActive ? 'text-white/60' : 'text-white/10'}`}>
+        <span className={`text-[12px] font-black uppercase tracking-[0.2em] transition-all duration-300 ${isActive ? (isLight ? 'text-black/60' : 'text-white/60') : (isLight ? 'text-black/15' : 'text-white/10')}`}>
           {unit}
         </span>
       </div>
@@ -534,13 +534,13 @@ export const TambahHabitModal = ({
             id="habit-config-intensity-modal"
             initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }}
             transition={{ type: 'spring', damping: 28, stiffness: 220 }}
-            className="fixed bottom-0 left-0 right-0 bg-[#16181c] z-[240] rounded-t-[32px] border-t border-white/5 p-6 pb-10 flex flex-col h-[55vh]"
+            className={`fixed bottom-0 left-0 right-0 z-[240] rounded-t-[32px] p-6 pb-10 flex flex-col h-[55vh] border-t-[3px] ${isLight ? 'bg-white border-black shadow-[0_-10px_30px_rgba(0,0,0,0.12)]' : 'bg-[#16181c] border-white/10 shadow-[0_-10px_30px_rgba(0,0,0,0.5)]'}`}
           >
-            <div className="w-10 h-1 bg-white/10 rounded-full mx-auto mb-5" />
-            <h3 className="text-[16px] font-black font-['Outfit'] text-[#E3DAC9] text-center mb-6">{t('addHabit.selectIntensityTitle')}</h3>
+            <div className={`w-10 h-1 rounded-full mx-auto mb-5 ${isLight ? 'bg-black/15' : 'bg-white/10'}`} />
+            <h3 className={`text-[16px] font-black font-['Outfit'] text-center mb-6 ${isLight ? 'text-black' : 'text-[#E3DAC9]'}`}>{t('addHabit.selectIntensityTitle')}</h3>
 
             <div className="relative w-full h-[300px] overflow-hidden flex items-center justify-center">
-              <div className="absolute inset-x-4 h-[52px] bg-[#6ED7A0]/8 border border-[#6ED7A0]/20 pointer-events-none z-0 rounded-2xl" />
+              <div className={`absolute inset-x-4 h-[52px] pointer-events-none z-0 rounded-xl border-[2px] ${isLight ? 'bg-[#6ED7A0]/12 border-black shadow-[2px_2px_0px_rgba(0,0,0,1)]' : 'bg-[#6ED7A0]/8 border-[#6ED7A0]/25'}`} />
               <div 
                 ref={pickerRef}
                 onScroll={handlePickerScroll}
@@ -548,11 +548,11 @@ export const TambahHabitModal = ({
                 className="w-full h-full overflow-y-auto no-scrollbar snap-y snap-mandatory px-4 py-[124px] flex flex-col items-center scroll-smooth relative z-10"
               >
                 {selectedHabitForConfig.intensity.options.map((opt: number, idx: number) => (
-                  <PickerItem key={opt} value={opt} unit={selectedHabitForConfig.intensity.unit} idx={idx} itemPos={idx * 52} containerScrollY={containerScrollY} isActive={intensityValue === opt} />
+                  <PickerItem key={opt} value={opt} unit={selectedHabitForConfig.intensity.unit} idx={idx} itemPos={idx * 52} containerScrollY={containerScrollY} isActive={intensityValue === opt} isLight={isLight} />
                 ))}
               </div>
-              <div className="absolute top-0 inset-x-0 h-16 bg-gradient-to-b from-[#16181c] to-transparent pointer-events-none z-20" />
-              <div className="absolute bottom-0 inset-x-0 h-16 bg-gradient-to-t from-[#16181c] to-transparent pointer-events-none z-20" />
+              <div className={`absolute top-0 inset-x-0 h-20 bg-gradient-to-b to-transparent pointer-events-none z-20 ${isLight ? 'from-white' : 'from-[#16181c]'}`} />
+              <div className={`absolute bottom-0 inset-x-0 h-20 bg-gradient-to-t to-transparent pointer-events-none z-20 ${isLight ? 'from-white' : 'from-[#16181c]'}`} />
             </div>
 
             <div className="flex gap-4 mt-6">

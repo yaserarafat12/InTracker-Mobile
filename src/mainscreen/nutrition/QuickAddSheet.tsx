@@ -311,36 +311,36 @@ export function QuickAddSheet({ isOpen, onClose }: QuickAddSheetProps) {
                 <div className="flex gap-2">
                   {MEAL_TYPES.map((meal) => (
                     <motion.button key={meal.id} whileTap={{ scale: 0.95 }} onClick={() => setMealType(meal.id)}
-                      className={`flex-1 py-2.5 rounded-xl font-bold font-['Outfit'] text-[11px] transition-all ${mealType === meal.id ? 'bg-[#00FF85] text-black border-2 border-black' : 'bg-[#2a2c32] text-white/60 border border-white/10'}`}>{meal.label}</motion.button>
+                      className={`flex-1 py-2.5 rounded-lg font-bold font-['Outfit'] text-[11px] transition-all ${mealType === meal.id ? 'bg-[#7BE495] text-black border-2 border-black' : 'bg-[#2a2c32] text-white/60 border border-white/10'}`}>{meal.label}</motion.button>
                   ))}
                 </div>
               </div>
               <div>
                 <p className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em] mb-2 ml-1">Cari Makanan</p>
-                <div className="h-12 bg-[#2a2c32] rounded-2xl border border-white/10 px-4 flex items-center gap-3 focus-within:border-[#00FF85]/50">
+                <div className="h-12 bg-[#2a2c32] rounded-lg border border-white/10 px-4 flex items-center gap-3 focus-within:border-[#7BE495]/50">
                   <Icon icon="ph:magnifying-glass" width={18} className="text-white/30 shrink-0" />
                   <input type="text" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder="Cari makanan..." className="w-full bg-transparent border-none outline-none text-[14px] font-['Outfit'] text-white placeholder:text-white/20" />
                   {searchQuery && <motion.button whileTap={{ scale: 0.9 }} onClick={() => { setSearchQuery(''); setSearchResults([]); }}><Icon icon="ph:x-circle-fill" width={18} className="text-white/30" /></motion.button>}
                 </div>
-                {isSearching && <div className="flex items-center gap-2 mt-3 ml-1"><Icon icon="ph:spinner" width={16} className="text-[#00FF85] animate-spin" /><span className="text-[12px] text-white/40">Mencari...</span></div>}
-                {searchError && <div className="flex items-center gap-2 mt-3 ml-1 bg-[#FF4D00]/10 border border-[#FF4D00]/20 rounded-xl p-3"><Icon icon="ph:warning-circle-fill" width={16} className="text-[#FF4D00] shrink-0" /><span className="text-[11px] text-[#FF4D00]/80">Pencarian tidak tersedia. Tambah manual di bawah.</span></div>}
-                {isOffline && searchResults.length > 0 && <div className="flex items-center gap-2 mt-3 ml-1 bg-[#FFB800]/10 border border-[#FFB800]/20 rounded-xl p-2.5"><Icon icon="ph:wifi-slash" width={14} className="text-[#FFB800] shrink-0" /><span className="text-[10px] text-[#FFB800]/80">Offline — hanya hasil lokal</span></div>}
+                {isSearching && <div className="flex items-center gap-2 mt-3 ml-1"><Icon icon="ph:spinner" width={16} className="text-[#7BE495] animate-spin" /><span className="text-[12px] text-white/40">Mencari...</span></div>}
+                {searchError && <div className="flex items-center gap-2 mt-3 ml-1 bg-[#FF4D00]/10 border border-[#FF4D00]/20 rounded-lg p-3"><Icon icon="ph:warning-circle-fill" width={16} className="text-[#FF4D00] shrink-0" /><span className="text-[11px] text-[#FF4D00]/80">Pencarian tidak tersedia. Tambah manual di bawah.</span></div>}
+                {isOffline && searchQuery.length > 0 && <div className="flex items-center gap-2 mt-3 ml-1 bg-[#FFB800]/10 border border-[#FFB800]/20 rounded-lg p-2.5"><Icon icon="ph:wifi-slash" width={14} className="text-[#FFB800] shrink-0" /><span className="text-[10px] text-[#FFB800]/80">Offline — hanya hasil lokal</span></div>}
                 {searchResults.length > 0 && (
                   <div className="mt-3 space-y-2 max-h-[200px] overflow-y-auto">
                     {searchResults.map((result, index) => (
-                      <div key={`${result.name}-${index}`} className="bg-[#2a2c32] rounded-xl border border-white/5 p-3 flex items-center justify-between gap-3">
+                      <div key={`${result.name}-${index}`} className="bg-[#2a2c32] rounded-lg border border-white/5 p-3 flex items-center justify-between gap-3">
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2"><p className="text-[13px] font-bold font-['Outfit'] text-white truncate">{result.name}</p>{result.source === 'usda' && <span className="shrink-0 px-1.5 py-0.5 rounded bg-[#4A90D9]/20 border border-[#4A90D9]/30 text-[9px] font-bold text-[#4A90D9] uppercase">USDA</span>}</div>
                           <p className="text-[11px] text-white/30">{result.serving}</p>
                           <p className="text-[10px] font-['Outfit'] font-semibold tracking-normal mt-0.5">
-                            <span className="text-[#00FF85]">P: {result.protein}g</span>
+                            <span className="text-[#7BE495]">P: {result.protein}g</span>
                             <span className="text-white/20">  </span>
                             <span className="text-[#FFB800]">C: {result.carbs}g</span>
                             <span className="text-white/20">  </span>
                             <span className="text-[#FF6B6B]">F: {result.fat}g</span>
                           </p>
                         </div>
-                        <motion.button whileTap={{ scale: 0.9 }} onClick={() => handleApplyResult(result)} className="px-3 py-1.5 rounded-lg bg-[#00FF85]/10 border border-[#00FF85]/30 text-[11px] font-bold text-[#00FF85] shrink-0">Pakai</motion.button>
+                        <motion.button whileTap={{ scale: 0.9 }} onClick={() => handleApplyResult(result)} className="px-3 py-1.5 rounded-lg bg-[#7BE495]/10 border border-[#7BE495]/30 text-[11px] font-bold text-[#7BE495] shrink-0">Pakai</motion.button>
                       </div>
                     ))}
                   </div>
@@ -355,25 +355,25 @@ export function QuickAddSheet({ isOpen, onClose }: QuickAddSheetProps) {
                           const displayName = localizeFoodName(entry.foodName, language);
                           return (
                             <motion.button key={`freq-${i}`} whileTap={{ scale: 0.98 }} onClick={() => handleApplyResult({ name: displayName, serving: '', calories: entry.calories, protein: entry.protein, carbs: entry.carbs, fat: entry.fat, source: 'local' })}
-                              className="w-full flex items-center justify-between bg-[#2a2c32]/50 border border-white/5 rounded-xl px-4 py-3 text-left">
+                              className="w-full flex items-center justify-between bg-[#2a2c32]/50 border border-white/5 rounded-lg px-4 py-3 text-left">
                               <div>
                                 <p className="text-[13px] font-bold text-white font-['Outfit']">{displayName}</p>
                                 <p className="text-[10px] font-['Outfit'] font-semibold tracking-normal mt-0.5">
                                   <span className="text-white/50">{entry.calories} kcal</span>
                                   <span className="text-white/20"> · </span>
-                                  <span className="text-[#00FF85]">P: {Math.round(entry.protein)}g</span>
+                                  <span className="text-[#7BE495]">P: {Math.round(entry.protein)}g</span>
                                   <span className="text-white/20">  </span>
                                   <span className="text-[#FFB800]">C: {Math.round(entry.carbs)}g</span>
                                   <span className="text-white/20">  </span>
                                   <span className="text-[#FF6B6B]">F: {Math.round(entry.fat)}g</span>
                                 </p>
                               </div>
-                              <Icon icon="ph:plus-circle-bold" width={20} className="text-[#00FF85]/60" />
+                              <Icon icon="ph:plus-circle-bold" width={20} className="text-[#7BE495]/60" />
                             </motion.button>
                           );
                         })}
                         {!showAllFrequent && frequentFoods.length > 4 && (
-                          <motion.button whileTap={{ scale: 0.97 }} onClick={() => setShowAllFrequent(true)} className="w-full py-2.5 text-center text-[11px] font-bold text-[#00FF85]/70 font-['Outfit']">
+                          <motion.button whileTap={{ scale: 0.97 }} onClick={() => setShowAllFrequent(true)} className="w-full py-2.5 text-center text-[11px] font-bold text-[#7BE495]/70 font-['Outfit']">
                             Lihat Selengkapnya ({frequentFoods.length - 4} lagi)
                           </motion.button>
                         )}
@@ -384,34 +384,34 @@ export function QuickAddSheet({ isOpen, onClose }: QuickAddSheetProps) {
               <div className="space-y-4">
                 <p className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em] ml-1">Detail Makanan</p>
                 <div>
-                  <div className={`h-12 bg-[#2a2c32] rounded-2xl border px-4 flex items-center ${errors.foodName ? 'border-red-400/60' : 'border-white/10 focus-within:border-[#00FF85]/50'}`}>
+                  <div className={`h-12 bg-[#2a2c32] rounded-lg border px-4 flex items-center ${errors.foodName ? 'border-red-400/60' : 'border-white/10 focus-within:border-[#7BE495]/50'}`}>
                     <input type="text" value={foodName} onChange={(e) => { if (e.target.value.length <= 100) { setFoodName(e.target.value); if (errors.foodName) setErrors(prev => ({ ...prev, foodName: undefined })); } }} placeholder="Nama makanan" className="w-full bg-transparent border-none outline-none text-[14px] font-['Outfit'] text-white placeholder:text-white/20" />
                   </div>
                   {errors.foodName && <p className="text-[11px] text-red-400 mt-1.5 ml-1">{errors.foodName}</p>}
                 </div>
                 <div>
-                  <div className={`h-12 bg-[#2a2c32] rounded-2xl border px-4 flex items-center ${errors.calories ? 'border-red-400/60' : 'border-white/10 focus-within:border-[#00FF85]/50'}`}>
+                  <div className={`h-12 bg-[#2a2c32] rounded-lg border px-4 flex items-center ${errors.calories ? 'border-red-400/60' : 'border-white/10 focus-within:border-[#7BE495]/50'}`}>
                     <input type="text" inputMode="numeric" value={calories} onChange={(e) => { handleNumericInput(e.target.value, setCalories, 99999); if (errors.calories) setErrors(prev => ({ ...prev, calories: undefined })); }} placeholder="Kalori" className="w-full bg-transparent border-none outline-none text-[14px] font-['Outfit'] text-white placeholder:text-white/20" />
                     <span className="text-[11px] font-bold text-white/40 ml-2">kcal</span>
                   </div>
                   {errors.calories && <p className="text-[11px] text-red-400 mt-1.5 ml-1">{errors.calories}</p>}
                 </div>
                 <div className="grid grid-cols-3 gap-2">
-                  <div className="h-12 bg-[#2a2c32] rounded-2xl border border-white/10 px-3 flex items-center focus-within:border-[#00FF85]/50">
+                  <div className="h-12 bg-[#2a2c32] rounded-lg border border-white/10 px-3 flex items-center focus-within:border-[#7BE495]/50">
                     <input type="text" inputMode="decimal" value={protein} onChange={(e) => handleNumericInput(e.target.value, setProtein, 9999, true)} placeholder="Protein" className="w-full bg-transparent border-none outline-none text-[13px] font-['Outfit'] text-white placeholder:text-white/20" />
                     <span className="text-[10px] font-bold text-white/40 ml-1">g</span>
                   </div>
-                  <div className="h-12 bg-[#2a2c32] rounded-2xl border border-white/10 px-3 flex items-center focus-within:border-[#00FF85]/50">
+                  <div className="h-12 bg-[#2a2c32] rounded-lg border border-white/10 px-3 flex items-center focus-within:border-[#7BE495]/50">
                     <input type="text" inputMode="decimal" value={carbs} onChange={(e) => handleNumericInput(e.target.value, setCarbs, 9999, true)} placeholder="Karbo" className="w-full bg-transparent border-none outline-none text-[13px] font-['Outfit'] text-white placeholder:text-white/20" />
                     <span className="text-[10px] font-bold text-white/40 ml-1">g</span>
                   </div>
-                  <div className="h-12 bg-[#2a2c32] rounded-2xl border border-white/10 px-3 flex items-center focus-within:border-[#00FF85]/50">
+                  <div className="h-12 bg-[#2a2c32] rounded-lg border border-white/10 px-3 flex items-center focus-within:border-[#7BE495]/50">
                     <input type="text" inputMode="decimal" value={fat} onChange={(e) => handleNumericInput(e.target.value, setFat, 9999, true)} placeholder="Lemak" className="w-full bg-transparent border-none outline-none text-[13px] font-['Outfit'] text-white placeholder:text-white/20" />
                     <span className="text-[10px] font-bold text-white/40 ml-1">g</span>
                   </div>
                 </div>
               </div>
-              <motion.button whileTap={{ scale: 0.95 }} onClick={handleAddEntry} className="w-full h-14 rounded-2xl bg-[#00FF85] text-black font-black font-['Outfit'] text-[14px] uppercase tracking-wider flex items-center justify-center gap-2 mt-2">
+              <motion.button whileTap={{ scale: 0.95 }} onClick={handleAddEntry} className="w-full h-12 rounded-lg bg-[#7BE495] text-black font-black font-['Outfit'] text-[14px] uppercase tracking-wider flex items-center justify-center gap-2 mt-2">
                 <Icon icon="ph:plus-bold" width={18} />Tambah
               </motion.button>
             </div>

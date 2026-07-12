@@ -6,6 +6,8 @@ import { useUserStore } from '../store/useUserStore';
 import { useHabitStore } from '../store/useHabitStore';
 import { useUIStore } from '../store/useUIStore';
 
+import { Plus } from 'lucide-react';
+
 interface NavigasiAtasProps {
   activeTab: string;
 }
@@ -19,7 +21,7 @@ export const NavigasiAtas = ({ activeTab }: NavigasiAtasProps) => {
   const isLight = settings?.theme === 'Light';
 
   return (
-    <div className={`relative w-full z-[100] px-6 flex justify-between items-center h-[80px] transition-colors duration-300 border-b ${
+    <div className={`relative w-full z-[100] px-4 flex justify-between items-center h-[64px] transition-colors duration-300 border-b ${
       isLight 
         ? 'bg-white border-neutral-200 text-black shadow-[0_2px_15px_rgba(0,0,0,0.05)]' 
         : 'bg-[#0d0f12] border-white/[0.08] text-white shadow-[0_4px_30px_rgba(0,0,0,0.3)]'
@@ -28,28 +30,32 @@ export const NavigasiAtas = ({ activeTab }: NavigasiAtasProps) => {
         <>
           <motion.div 
             id="streak-counter-widget"
-            whileTap={{ x: 2, y: 2, boxShadow: "0px 0px 0px black" }}
-            className="flex items-center justify-center gap-[6px] bg-[#FF4D00] w-[75px] h-11 rounded-xl border-[2px] border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] transition-all"
+            whileTap={{ scale: 0.95 }}
+            className={`flex items-center justify-center gap-[6px] w-[75px] h-10 rounded-[10px] border-2 transition-all ${
+              isLight 
+                ? 'border-[#FF4D00]/50 bg-[#FFF0EB] text-[#FF4D00] shadow-[0_4px_12px_rgba(255,77,0,0.1)]' 
+                : 'border-[#FF4D00]/30 bg-[#FF4D00]/12 text-[#FF7A45] shadow-[0_6px_16px_rgba(255,77,0,0.15)]'
+            }`}
           >
-            <Icon icon="solar:fire-bold" width={22} height={22} className="text-white" />
-            <span className="text-[20px] font-black font-['Outfit'] text-white tracking-normal leading-none">{totalStreak || profile?.streak_count || 0}</span>
+            <Icon icon="solar:fire-bold" width={20} height={20} className={isLight ? 'text-[#FF4D00]' : 'text-[#FF7A45]'} />
+            <span className={`text-[18px] font-black font-['Outfit'] tracking-normal leading-none ${isLight ? 'text-[#FF4D00]' : 'text-[#FF7A45]'}`}>{totalStreak || profile?.streak_count || 0}</span>
           </motion.div>
  
           <div id="focus-tools-row" className="flex items-center gap-3">
             <AmbientPlayer />
             <motion.button
-              whileTap={{ x: 2, y: 2, boxShadow: "0px 0px 0px black" }}
+              whileTap={{ scale: 0.95 }}
               id="settings-toggle-btn"
               onClick={toggleSettings}
-              className={`w-11 h-11 rounded-xl shadow-[4px_4px_0px_rgba(0,0,0,1)] flex items-center justify-center transition-all border-[1.5px] ${
+              className={`w-10 h-10 rounded-[10px] flex items-center justify-center transition-all border-2 ${
                 isSettingsOpen 
-                  ? 'bg-[#6ED7A0] border-black' 
+                  ? 'bg-[#6ED7A0]/15 border-[#6ED7A0] shadow-[2px_2px_0px_rgba(110,215,160,0.3)] text-[#6ED7A0]' 
                   : isLight 
-                    ? 'bg-white border-black text-black' 
-                    : 'bg-[#1A1A1A] border-white/10 text-white'
+                    ? 'bg-neutral-50 border-black/15 text-black/60 shadow-[2px_2px_0px_rgba(0,0,0,0.06)]' 
+                    : 'bg-[#1A1A1A]/40 border-white/10 text-white/60 shadow-[2px_2px_0px_rgba(255,255,255,0.05)]'
               }`}
             >
-              <Icon icon="solar:settings-bold" width={22} className={isSettingsOpen ? 'text-black' : isLight ? 'text-black' : 'text-[#8E8E8E]'} />
+              <Icon icon="solar:settings-bold" width={20} className={isSettingsOpen ? 'text-[#6ED7A0]' : isLight ? 'text-black/60' : 'text-white/60'} />
             </motion.button>
           </div>
         </>
@@ -58,7 +64,7 @@ export const NavigasiAtas = ({ activeTab }: NavigasiAtasProps) => {
           {/* KIRI: Judul + Superscript Icon */}
           <div className="flex items-center h-full">
             <div className="flex items-center">
-              <h2 className={`text-[31px] font-black font-['Outfit'] tracking-normal leading-none ${isLight ? 'text-black' : 'text-white'}`}>
+              <h2 className={`text-[26px] font-black font-['Outfit'] tracking-normal leading-none ${isLight ? 'text-black' : 'text-white'}`}>
                 {activeTab === 'todo' && 'To-Do List'}
                 {activeTab === 'analytics' && 'Analytics'}
                 {activeTab === 'journey' && 'Journey'}
@@ -69,24 +75,39 @@ export const NavigasiAtas = ({ activeTab }: NavigasiAtasProps) => {
           </div>
  
           <div className="flex items-center gap-3">
+            {activeTab === 'global' && (
+              <motion.button
+                whileTap={{ scale: 0.95 }}
+                onClick={() => {
+                  if (navigator.vibrate) navigator.vibrate(10);
+                  window.dispatchEvent(new CustomEvent('open-friends-sheet'));
+                }}
+                className={`w-10 h-10 rounded-[10px] flex items-center justify-center transition-all border-2 ${
+                  isLight 
+                    ? 'bg-neutral-50 border-black/15 text-black shadow-[2px_2px_0px_rgba(0,0,0,0.06)]' 
+                    : 'bg-[#1A1A1A]/40 border-white/10 text-white/60 shadow-[2px_2px_0px_rgba(255,255,255,0.05)]'
+                }`}
+              >
+                <Icon icon="ph:users-bold" width={20} className={isLight ? 'text-black' : 'text-white/60'} />
+              </motion.button>
+            )}
             <AmbientPlayer />
             <motion.button
-              whileTap={{ x: 2, y: 2, boxShadow: "0px 0px 0px black" }}
+              whileTap={{ scale: 0.95 }}
               onClick={toggleSettings}
-              className={`w-11 h-11 rounded-xl shadow-[4px_4px_0px_rgba(0,0,0,1)] flex items-center justify-center transition-all border-[1.5px] ${
+              className={`w-10 h-10 rounded-[10px] flex items-center justify-center transition-all border-2 ${
                 isSettingsOpen 
-                  ? 'bg-[#6ED7A0] border-black' 
+                  ? 'bg-[#6ED7A0]/15 border-[#6ED7A0] shadow-[2px_2px_0px_rgba(110,215,160,0.3)] text-[#6ED7A0]' 
                   : isLight 
-                    ? 'bg-white border-black text-black' 
-                    : 'bg-[#1A1A1A] border-white/10 text-white'
+                    ? 'bg-neutral-50 border-black/15 text-black/60 shadow-[2px_2px_0px_rgba(0,0,0,0.06)]' 
+                    : 'bg-[#1A1A1A]/40 border-white/10 text-white/60 shadow-[2px_2px_0px_rgba(255,255,255,0.05)]'
               }`}
             >
-              <Icon icon="solar:settings-bold" width={22} className={isSettingsOpen ? 'text-black' : isLight ? 'text-black' : 'text-[#8E8E8E]'} />
+              <Icon icon="solar:settings-bold" width={20} className={isSettingsOpen ? 'text-[#6ED7A0]' : isLight ? 'text-black/60' : 'text-white/60'} />
             </motion.button>
           </div>
         </div>
       )}
- 
     </div>
   );
 };

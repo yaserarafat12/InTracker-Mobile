@@ -95,7 +95,7 @@ const TargetCard = ({ target, index, onOpen }: { target: TargetItem; index: numb
         onDragEnd={handleDragEnd}
         className={`
           w-full rounded-[8px] flex flex-col justify-center transition-all relative overflow-hidden cursor-pointer prevent-blur
-          border-[2px] shadow-[4px_4px_0px_rgba(0,0,0,1)] bg-os-card-bg border-border-theme
+          border-[2px] shadow-[2px_2px_0px_rgba(0,0,0,0.35)] bg-os-card-bg border-border-theme
         `}
       >
         {/* NOISE TEXTURE LAYER */}
@@ -107,7 +107,7 @@ const TargetCard = ({ target, index, onOpen }: { target: TargetItem; index: numb
         />
 
         {/* Card Content Row */}
-        <div className="px-4 py-4 relative z-10 flex items-center gap-3">
+        <div className="pl-3 pr-4.5 py-3.5 relative z-10 flex items-center gap-3">
           {/* Square Checklist with bounce animation */}
           <motion.div
             whileTap={{ scale: 0.85 }}
@@ -132,7 +132,7 @@ const TargetCard = ({ target, index, onOpen }: { target: TargetItem; index: numb
               }
             }}
             id={index === 0 ? "todo-checkbox-item" : undefined}
-            className={`w-[35px] h-[35px] rounded-[7px] border-[2px] flex items-center justify-center transition-all shrink-0 ${
+            className={`w-[28px] h-[28px] rounded-[6px] border-[2px] flex items-center justify-center transition-all shrink-0 ${
               (target.completed || justCompleted) 
                 ? 'bg-os-green border-black shadow-[2px_2px_0px_rgba(0,0,0,0.3)]' 
                 : 'todo-checkbox'
@@ -144,7 +144,7 @@ const TargetCard = ({ target, index, onOpen }: { target: TargetItem; index: numb
                 animate={{ scale: 1, rotate: 0 }}
                 transition={{ type: 'spring', stiffness: 500, damping: 15 }}
               >
-                <Icon icon="ph:check-bold" width={22} height={22} className="todo-checkmark-icon text-black" />
+                <Icon icon="ph:check-bold" width={16} height={16} className="todo-checkmark-icon text-black" />
               </motion.div>
             )}
           </motion.div>
@@ -152,7 +152,7 @@ const TargetCard = ({ target, index, onOpen }: { target: TargetItem; index: numb
           {/* Title Container */}
           <div className="flex-1 text-left min-w-0 prevent-blur">
             <h3
-              className={`text-[16px] font-semibold font-['Outfit'] leading-tight tracking-normal prevent-blur text-white ${
+              className={`text-[14px] font-semibold font-['Outfit'] leading-tight tracking-normal prevent-blur text-white ${
                 (target.completed || justCompleted) ? 'opacity-30 line-through' : ''
               }`}
               style={{
@@ -179,7 +179,7 @@ const TargetCard = ({ target, index, onOpen }: { target: TargetItem; index: numb
                 <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
               </svg>
             ) : (
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="todo-star-icon">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="todo-star-icon">
                 <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
               </svg>
             )}
@@ -521,12 +521,19 @@ const DelayedClarificationSheet = ({ target, onClose }: { target: TargetItem; on
 export default function TodoTargetView({ initialFilter }: { initialFilter?: TargetFilter }) {
   const { targets, loading } = useTargetStore();
   const { t } = useTranslation();
+  const { settings } = useUserStore();
+  const isLight = settings?.theme === 'Light';
   const [activeFilter, setActiveFilter] = useState<TargetFilter>(initialFilter || 'today');
+  const [dropdownFilter, setDropdownFilter] = useState<Exclude<TargetFilter, 'done'>>('today');
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   // Sync with initialFilter if it changes externally
   useEffect(() => {
     if (initialFilter) {
       setActiveFilter(initialFilter);
+      if (initialFilter !== 'done') {
+        setDropdownFilter(initialFilter);
+      }
     }
   }, [initialFilter]);
   const [isAddOpen, setIsAddOpen] = useState(false);
@@ -649,90 +656,148 @@ export default function TodoTargetView({ initialFilter }: { initialFilter?: Targ
 
 
 
-      {/* Filter Tabs - Premium Habit Style */}
-      <div className="mt-8 -mx-5 px-5 relative">
-        <div 
-          ref={scrollRef}
-          onScroll={handleScroll}
-          className="overflow-x-auto no-scrollbar"
-        >
-          <div className="flex gap-2 min-w-max pb-4">
-          {[
-            { id: 'today', count: (targets || []).filter(t => !t.completed && t.window === 'today').length },
-            { id: 'upcoming', count: (targets || []).filter(t => !t.completed && t.window === 'upcoming').length },
-            { id: 'someday', count: (targets || []).filter(t => !t.completed && t.window === 'someday').length },
-            { id: 'delayed', count: (targets || []).filter(t => !t.completed && t.window === 'delayed').length },
-            { id: 'done', count: (targets || []).filter(t => {
-              if (!t.completed || !t.completedAt) return false;
-              const todayStr = new Date().toLocaleDateString('en-CA');
-              return new Date(t.completedAt).toLocaleDateString('en-CA') === todayStr;
-            }).length }
-          ].map((item) => (
+      {/* Filter Tabs - Dropdown and Selesai */}
+      <div className="mt-8 relative z-30">
+        <div className="flex items-center gap-2 max-w-[500px] w-full">
+          {/* Dropdown Selector for Today/Upcoming/Someday/Delayed */}
+          <div className="relative">
             <motion.button
-              key={item.id}
-              id={`todo-tab-${item.id}`}
-              whileTap={{ x: 2, y: 2, boxShadow: "0px 0px 0px rgba(0,0,0,1)" }}
-              onClick={() => {
-                setActiveFilter(item.id as TargetFilter);
-                if (navigator.vibrate) navigator.vibrate(8);
-              }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => setIsDropdownOpen(!isDropdownOpen)}
               className={`
-                px-4 py-2.5 rounded-xl flex items-start relative overflow-hidden z-10
-                border-[2px] shadow-[4px_4px_0px_rgba(0,0,0,1)]
-                ${activeFilter === item.id ? 'border-black font-black' : 'border-border-theme bg-os-card-bg'}
+                px-4 py-2.5 rounded-[8px] flex items-center justify-between gap-2.5 transition-all min-w-[190px]
+                ${activeFilter !== 'done' ? 'sheen-active-tab transform scale-[1.06] border-2 shadow-md z-10 opacity-100' : 'border-[1.5px] scale-[0.94] opacity-45'}
+                ${
+                  activeFilter !== 'done'
+                    ? dropdownFilter === 'delayed'
+                      ? isLight
+                        ? 'border-[#FEB2B2] bg-gradient-to-br from-[#FFE5E5] to-[#FED7D7] text-[#742A2A] shadow-[0_6px_16px_rgba(116,42,42,0.15)]'
+                        : 'border-[#611E1E] bg-gradient-to-br from-[#3D1414] to-[#260C0C] text-[#EF4444] shadow-[0_6px_16px_rgba(239,68,68,0.18)]'
+                      : dropdownFilter === 'today'
+                        ? isLight
+                          ? 'border-[#A8C7FA] bg-gradient-to-br from-[#EBF3FF] to-[#D0E2FF] text-[#0B57D0] shadow-[0_6px_16px_rgba(11,87,208,0.15)]'
+                          : 'border-[#2E4378] bg-gradient-to-br from-[#1E2B4C] to-[#141C33] text-[#8AB4F8] shadow-[0_6px_16px_rgba(138,180,248,0.18)]'
+                        : dropdownFilter === 'upcoming'
+                          ? isLight
+                            ? 'border-[#D8B4FE] bg-gradient-to-br from-[#F3E8FF] to-[#E9D5FF] text-[#7E22CE] shadow-[0_6px_16px_rgba(126,34,206,0.15)]'
+                            : 'border-[#4E2D7F] bg-gradient-to-br from-[#2E1B4E] to-[#1D1033] text-[#C084FC] shadow-[0_6px_16px_rgba(192,132,252,0.18)]'
+                          : isLight // someday
+                            ? 'border-[#FFB74D] bg-gradient-to-br from-[#FFF4E5] to-[#FFE0B2] text-[#E65100] shadow-[0_6px_16px_rgba(230,81,0,0.15)]'
+                            : 'border-[#663C0F] bg-gradient-to-br from-[#3B2610] to-[#26180A] text-[#F5A623] shadow-[0_6px_16px_rgba(245,166,35,0.18)]'
+                    : isLight
+                      ? 'bg-white border-2 border-neutral-200 text-neutral-400 shadow-[0_4px_12px_rgba(0,0,0,0.03)] hover:text-neutral-600'
+                      : 'bg-[#1C1E22]/50 border border-white/[0.07] text-[#E3DAC9]/40 shadow-[0_4px_12px_rgba(0,0,0,0.1)] hover:text-[#E3DAC9]/60'
+                }
               `}
             >
-              {/* SLIDING HIGHLIGHT CAPSULE */}
-              {activeFilter === item.id && (
-                <motion.div
-                  layoutId="todoActivePill"
-                  className={`absolute inset-0 z-0 ${
-                    item.id === 'done'
-                      ? 'bg-os-green'
-                      : item.id === 'delayed'
-                        ? 'bg-[#EF4444]'
-                        : 'bg-[#E3DAC9]'
-                  }`}
-                  transition={{ type: "spring", stiffness: 380, damping: 30 }}
+              <div className="flex items-start gap-0.5">
+                <span className="text-[13px] font-bold font-['Outfit'] tracking-tight">
+                  {t('todo.filters.' + dropdownFilter)}
+                </span>
+                <span className="text-[9px] font-black font-['Outfit'] -mt-1 opacity-65">
+                  {(targets || []).filter(t => !t.completed && t.window === dropdownFilter).length}
+                </span>
+              </div>
+              <motion.div
+                animate={{ rotate: isDropdownOpen ? 180 : 0 }}
+                transition={{ duration: 0.2 }}
+                className="flex items-center"
+              >
+                <Icon 
+                  icon="lucide:chevron-down" 
+                  width={14} 
+                  className={activeFilter !== 'done' ? '' : (isLight ? 'text-neutral-400' : 'text-[#E3DAC9]/40')} 
                 />
-              )}
-
-              {activeFilter !== item.id && (
-                <div 
-                  className="absolute inset-0 z-0 opacity-[0.15] mix-blend-overlay pointer-events-none" 
-                  style={{
-                    backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`
-                  }}
-                />
-              )}
-              <span className={`text-[13px] font-black font-['Outfit'] tracking-normal relative z-10 transition-colors duration-300 ${
-                activeFilter === item.id 
-                  ? (item.id === 'delayed' || item.id === 'done' ? 'text-force-white' : 'text-black') 
-                  : 'text-white/40'
-              }`}>
-                {t('todo.filters.' + item.id)}
-              </span>
-              <span className={`text-[9px] font-black font-['Outfit'] ml-0.5 mt-[-2px] relative z-10 transition-colors duration-300 ${
-                activeFilter === item.id 
-                  ? (item.id === 'delayed' || item.id === 'done' ? 'text-force-white-muted' : 'text-black/40') 
-                  : 'text-white/20'
-              }`}>
-                {item.count}
-              </span>
+              </motion.div>
             </motion.button>
-          ))}
-        </div>
-        </div>
-        {/* Custom Scroll Indicator - thin & premium */}
-        {showScrollIndicator && (
-          <div className="mx-auto mt-1 w-24 h-[3px] rounded-full bg-white/[0.06] overflow-hidden">
-            <motion.div 
-              className="h-full rounded-full bg-white/25 shadow-[0_0_6px_rgba(255,255,255,0.15)]"
-              style={{ width: `${scrollProgress}%`, marginLeft: `${scrollLeft}%` }}
-              transition={{ duration: 0.1 }}
-            />
+
+            <AnimatePresence>
+              {isDropdownOpen && (
+                <>
+                  <div className="fixed inset-0 z-40" onClick={() => setIsDropdownOpen(false)} />
+                  <motion.div
+                    initial={{ opacity: 0, y: -10, scale: 0.95 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: -10, scale: 0.95 }}
+                    transition={{ duration: 0.15 }}
+                    className={`absolute left-0 mt-2 w-full rounded-[8px] border-[1.5px] p-1.5 z-50 shadow-[0_10px_25px_rgba(0,0,0,0.5)] ${
+                      isLight 
+                        ? 'bg-white border-black/15 text-black' 
+                        : 'bg-[#1c1e22]/98 backdrop-blur-md border-[#E3DAC9]/15 text-[#E3DAC9]'
+                    }`}
+                  >
+                    {(['today', 'upcoming', 'someday', 'delayed'] as const).map((windowId) => {
+                      const count = (targets || []).filter(t => !t.completed && t.window === windowId).length;
+                      return (
+                        <button
+                          key={windowId}
+                          onClick={() => {
+                            if (navigator.vibrate) navigator.vibrate(8);
+                            setActiveFilter(windowId);
+                            setDropdownFilter(windowId);
+                            setIsDropdownOpen(false);
+                          }}
+                          className={`w-full py-2 px-3 rounded-[6px] text-left text-[11px] font-black uppercase tracking-wider flex items-center justify-between transition-colors ${
+                            activeFilter === windowId
+                              ? (isLight ? 'bg-neutral-100 text-black' : 'bg-white/10 text-white')
+                              : (isLight ? 'hover:bg-neutral-50 text-neutral-600' : 'hover:bg-white/5 text-[#E3DAC9]/60')
+                          }`}
+                        >
+                          <div className="flex items-center gap-1.5">
+                            <span>{t('todo.filters.' + windowId)}</span>
+                            <span className="text-[9px] opacity-60">({count})</span>
+                          </div>
+                          {activeFilter === windowId && (
+                            <Icon 
+                              icon="lucide:check" 
+                              width={12} 
+                              className={isLight ? 'text-black' : 'text-[#00FF85]'} 
+                            />
+                          )}
+                        </button>
+                      );
+                    })}
+                  </motion.div>
+                </>
+              )}
+            </AnimatePresence>
           </div>
-        )}
+
+          {/* Selesai (Done) Button */}
+          <motion.button
+            whileTap={{ scale: 0.95 }}
+            onClick={() => {
+              setActiveFilter('done');
+              if (navigator.vibrate) navigator.vibrate(8);
+            }}
+            className={`
+              px-4 py-2.5 rounded-[8px] flex items-center justify-center gap-1.5 transition-all flex-1
+              ${activeFilter === 'done' ? 'sheen-active-tab transform scale-[1.06] border-2 shadow-md z-10 opacity-100' : 'border-[1.5px] scale-[0.94] opacity-45'}
+              ${
+                activeFilter === 'done'
+                  ? isLight
+                    ? 'border-[#81E6D9] bg-gradient-to-br from-[#E6FFFA] to-[#C6F6D5] text-[#22543D] shadow-[0_6px_16px_rgba(34,84,61,0.15)]'
+                    : 'border-[#1C4D38] bg-gradient-to-br from-[#102A1E] to-[#0A1A12] text-[#00FF85] shadow-[0_6px_16px_rgba(0,255,133,0.18)]'
+                  : isLight
+                    ? 'bg-white border-2 border-neutral-200 text-neutral-400 shadow-[0_4px_12px_rgba(0,0,0,0.03)] hover:text-neutral-600'
+                    : 'bg-[#1C1E22]/50 border border-white/[0.07] text-[#E3DAC9]/40 shadow-[0_4px_12px_rgba(0,0,0,0.1)] hover:text-[#E3DAC9]/60'
+              }
+            `}
+          >
+            <div className="flex items-start gap-0.5">
+              <span className={`text-[13px] font-bold font-['Outfit'] tracking-tight`}>
+                {t('todo.filters.done')}
+              </span>
+              <span className={`text-[9px] font-black font-['Outfit'] -mt-1 opacity-65`}>
+                {targets.filter(t => {
+                  if (!t.completed || !t.completedAt) return false;
+                  const todayStr = new Date().toLocaleDateString('en-CA');
+                  return new Date(t.completedAt).toLocaleDateString('en-CA') === todayStr;
+                }).length}
+              </span>
+            </div>
+          </motion.button>
+        </div>
       </div>
 
       {/* QUICK ADD BAR - PREMIUM & CONSISTENT */}
@@ -744,8 +809,8 @@ export default function TodoTargetView({ initialFilter }: { initialFilter?: Targ
               borderColor: isAdding || inputValue ? 'rgba(255,255,255,0.4)' : 'rgba(255,255,255,0.15)',
             }}
             className={`
-              w-full rounded-[8px] flex items-center gap-3 px-4 py-4 transition-all relative overflow-hidden
-              border-[2px] shadow-[4px_4px_0px_rgba(0,0,0,1)] bg-os-card-bg border-border-theme
+              w-full rounded-[8px] flex items-center gap-3 px-3 py-3.5 transition-all relative overflow-hidden
+              border-[2px] shadow-[2px_2px_0px_rgba(0,0,0,0.35)] bg-os-card-bg border-border-theme
             `}
             onClick={() => {
               if (!isAdding) {
@@ -783,7 +848,7 @@ export default function TodoTargetView({ initialFilter }: { initialFilter?: Targ
               }}
               className={`
                 flex-1 bg-transparent border-none outline-none text-[16px] font-semibold font-['Outfit'] 
-                text-white placeholder:text-neutral-400 dark:placeholder:text-white/20 tracking-normal relative z-10
+                text-white placeholder:text-neutral-500 dark:placeholder:text-white/40 tracking-normal relative z-10
               `}
               onKeyDown={(e) => {
                 if (e.key === 'Enter') handleQuickAdd();
@@ -792,6 +857,9 @@ export default function TodoTargetView({ initialFilter }: { initialFilter?: Targ
                   quickAddRef.current?.blur();
                 }
               }}
+              autoCapitalize="none"
+              autoComplete="off"
+              autoCorrect="off"
             />
 
             {/* DYNAMIC CHECKMARK SUBMIT */}
@@ -807,7 +875,7 @@ export default function TodoTargetView({ initialFilter }: { initialFilter?: Targ
                     e.stopPropagation();
                     handleQuickAdd();
                   }}
-                  className="w-10 h-10 rounded-xl bg-os-green border border-black flex items-center justify-center shadow-[3px_3px_0px_rgba(0,0,0,1)] active:shadow-none active:translate-x-[1px] active:translate-y-[1px] relative z-10"
+                  className="w-10 h-10 rounded-xl bg-os-green border-[2px] border-black flex items-center justify-center shadow-[1.5px_1.5px_0px_rgba(0,0,0,0.35)] active:shadow-none active:translate-x-[1px] active:translate-y-[1px] relative z-10"
                 >
                   <Icon icon="ph:check-bold" width={18} height={18} className="text-black" />
                 </motion.button>
@@ -834,7 +902,7 @@ export default function TodoTargetView({ initialFilter }: { initialFilter?: Targ
                     : t('todo.filters.someday');
               
               return (
-                <div key={windowId} className="space-y-3">
+                <div key={windowId} className="space-y-4">
                   <div className="flex items-center justify-between">
                     <span className="text-[10px] font-black font-['Outfit'] text-white/30 uppercase tracking-[0.15em]">
                       {label}
@@ -843,7 +911,7 @@ export default function TodoTargetView({ initialFilter }: { initialFilter?: Targ
                       {windowTargets.length} {t('todo.doneLabel')}
                     </span>
                   </div>
-                  <motion.div layout className="space-y-3">
+                  <motion.div layout className="space-y-4">
                     {windowTargets.map((target, idx) => (
                       <motion.div layout key={target.id}>
                         <TargetCard target={target} index={idx} onOpen={handleOpenTarget} />
@@ -865,7 +933,7 @@ export default function TodoTargetView({ initialFilter }: { initialFilter?: Targ
           )
         ) : (
           targets.filter(t => !t.completed && t.window === activeFilter).length > 0 ? (
-            <motion.div layout className="space-y-3">
+            <motion.div layout className="space-y-4">
               {targets
                 .filter(t => !t.completed && t.window === activeFilter)
                 .map((target, index) => (
@@ -889,22 +957,7 @@ export default function TodoTargetView({ initialFilter }: { initialFilter?: Targ
           )
         )}
 
-        {/* Floating Add Button - Consistent with Habits */}
-        <motion.button
-          id="todo-add-fab"
-          initial={{ scale: 0, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          whileTap={{ scale: 0.9, x: 4, y: 4, boxShadow: '0px 0px 0px rgba(0,0,0,1)' }}
-          onClick={() => {
-            if (navigator.vibrate) navigator.vibrate(20);
-            setIsAddOpen(true);
-          }}
-          className="fixed bottom-24 right-6 w-[60px] h-[60px] bg-os-green border-[2px] border-black rounded-2xl shadow-[3px_3px_0px_rgba(0,0,0,1)] flex items-center justify-center z-[60]"
-        >
-          <svg width="30" height="30" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M12 5V19M5 12H19" stroke="black" strokeWidth="5" strokeLinecap="square" />
-          </svg>
-        </motion.button>
+
       </div>
 
       <AnimatePresence>

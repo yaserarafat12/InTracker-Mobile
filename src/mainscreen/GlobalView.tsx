@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import FeedCard from '../components/FeedCard';
-import { Plus, Loader2, Send } from 'lucide-react';
+import { Plus, Loader2, Send, ChevronDown } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useUserStore } from '../store/useUserStore';
 import { useSocialStore } from '../store/useSocialStore';
@@ -14,10 +14,12 @@ import { useTranslation } from '../i18n';
 
 type TabType = 'Publik' | 'Teman' | 'Personal';
 
-const GlobalView: React.FC = () => {
-  const { profile } = useUserStore();
+const GlobalView: React.FC<{ onNavigate?: (tab: string) => void }> = ({ onNavigate }) => {
+  const { profile, settings } = useUserStore();
+  const isLight = settings?.theme === 'Light';
   const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState<TabType>('Publik');
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [posts, setPosts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [showAddModal, setShowAddModal] = useState(false);
@@ -65,7 +67,7 @@ const GlobalView: React.FC = () => {
         }
       }
 
-      const { data, error } = await query.limit(20);
+      const { data, error } = await query.limit(activeTab === 'Publik' ? 100 : 25);
 
       if (error) throw error;
       let finalPosts = data || [];
@@ -77,6 +79,36 @@ const GlobalView: React.FC = () => {
           const postRegion = p.user?.location?.region || 'ID';
           return postRegion.toLowerCase() === userRegion.toLowerCase();
         });
+
+        // Smart ranking algorithm (combines engagement, time decay, and random discovery boost)
+        const rankedPosts = finalPosts.map(post => {
+          // Calculate total reactions count
+          const totalReactions = Object.values(post.reactions || {}).reduce((a: number, b: any) => a + Number(b || 0), 0);
+          
+          // Calculate age in hours
+          const postTime = new Date(post.created_at).getTime();
+          const ageHours = (Date.now() - postTime) / (1000 * 60 * 60);
+
+          // 1. Engagement score (weighted)
+          // 2. Time decay: older posts get lower scores
+          const decayFactor = Math.pow(ageHours + 1, 1.2);
+          const engagementScore = (totalReactions * 5) / decayFactor;
+
+          // 3. Recency opportunity: fresh posts (< 3 hours old) get a base opportunity boost to help users discover them
+          const recencyOpportunity = ageHours < 3 ? (12 / (ageHours + 0.5)) : 0;
+
+          // 4. Random shuffle factor (0 - 8): adds diversity to the feed, giving other posts an opportunity to rotate in
+          const randomFactor = Math.random() * 8;
+
+          const rankScore = engagementScore + recencyOpportunity + randomFactor;
+          return { ...post, rankScore };
+        });
+
+        // Sort posts by their calculated rankScore descending, and limit to top 25
+        finalPosts = rankedPosts
+          .sort((a, b) => b.rankScore - a.rankScore)
+          .map(({ rankScore, ...post }) => post)
+          .slice(0, 25);
       }
       setPosts(finalPosts);
     } catch (err) {
@@ -90,6 +122,17 @@ const GlobalView: React.FC = () => {
     fetchFriends();
     fetchRequests();
   }, [profile]);
+
+  useEffect(() => {
+    const handleOpenFriends = () => setShowFriendsSheet(true);
+    const handleOpenAddPost = () => setShowAddModal(true);
+    window.addEventListener('open-friends-sheet', handleOpenFriends);
+    window.addEventListener('open-add-post-modal', handleOpenAddPost);
+    return () => {
+      window.removeEventListener('open-friends-sheet', handleOpenFriends);
+      window.removeEventListener('open-add-post-modal', handleOpenAddPost);
+    };
+  }, []);
 
   useEffect(() => {
     fetchPosts();
@@ -166,41 +209,88 @@ const GlobalView: React.FC = () => {
         className="flex-1 overflow-y-auto py-4 no-scrollbar"
       >
         {/* Dynamic Header (Scrolls with page) */}
-        <div className="px-6 pt-2 pb-4 w-full">
+        <div className="px-4 pt-2 pb-18 w-full">
           <motion.div 
             initial={{ y: -20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
-            className="flex items-center gap-3 max-w-[500px] mx-auto w-full"
+            className="flex items-center justify-between max-w-[500px] mx-auto w-full px-2"
           >
-            <div className="flex-1 flex items-center gap-2">
-              {tabs.map((tab) => (
-                <motion.button
-                  key={tab}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={() => {
-                    if (navigator.vibrate) navigator.vibrate(10);
-                    setActiveTab(tab);
-                  }}
-                  className={`flex-1 py-3 rounded-xl border-[1.5px] text-[11px] font-black uppercase tracking-wider transition-all ${
-                    activeTab === tab 
-                      ? 'bg-[#E3DAC9] border-[#E3DAC9] text-black' 
-                      : 'bg-[#1c1e22] border-[#E3DAC9]/15 text-[#E3DAC9]/40'
-                  }`}
+            {/* Dropdown Selector */}
+            <div className="relative">
+              <motion.button
+                whileTap={{ scale: 0.97 }}
+                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                className={`flex items-center justify-between min-w-[135px] px-5 py-2.5 rounded-[8px] border-2 text-[11px] font-black uppercase tracking-wider transition-all sheen-active-tab ${
+                  isLight 
+                    ? 'border-[#A8C7FA] bg-gradient-to-br from-[#EBF3FF] to-[#D0E2FF] text-[#0B57D0] shadow-[0_6px_16px_rgba(11,87,208,0.15)]' 
+                    : 'border-[#2E4378] bg-gradient-to-br from-[#1E2B4C] to-[#141C33] text-[#8AB4F8] shadow-[0_6px_16px_rgba(138,180,248,0.18)]'
+                }`}
+              >
+                <span>{activeTab === 'Publik' ? t('global.tabs.public') : activeTab === 'Teman' ? t('global.tabs.friends') : t('global.tabs.personal')}</span>
+                <motion.div
+                  animate={{ rotate: isDropdownOpen ? 180 : 0 }}
+                  transition={{ duration: 0.2 }}
+                  className="flex items-center ml-2"
                 >
-                  {tab === 'Publik' ? t('global.tabs.public') : tab === 'Teman' ? t('global.tabs.friends') : t('global.tabs.personal')}
-                </motion.button>
-              ))}
+                  <ChevronDown size={14} className={isLight ? 'text-[#0B57D0]/60' : 'text-[#8AB4F8]/60'} />
+                </motion.div>
+              </motion.button>
+              
+              <AnimatePresence>
+                {isDropdownOpen && (
+                  <>
+                    {/* Backdrop overlay to close when clicking outside */}
+                    <div className="fixed inset-0 z-40" onClick={() => setIsDropdownOpen(false)} />
+                    
+                    <motion.div
+                      initial={{ opacity: 0, y: -10, scale: 0.95 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: -10, scale: 0.95 }}
+                      transition={{ duration: 0.15 }}
+                      className={`absolute left-0 mt-2 w-full min-w-[135px] rounded-[8px] border-[1.5px] p-1.5 z-50 shadow-[0_10px_25px_rgba(0,0,0,0.5)] ${
+                        isLight 
+                          ? 'bg-white border-black/15 text-black' 
+                          : 'bg-[#1c1e22]/98 backdrop-blur-md border-[#E3DAC9]/15 text-[#E3DAC9]'
+                      }`}
+                    >
+                      {tabs.map((tab) => (
+                        <button
+                          key={tab}
+                          onClick={() => {
+                            if (navigator.vibrate) navigator.vibrate(10);
+                            setActiveTab(tab);
+                            setIsDropdownOpen(false);
+                          }}
+                          className={`w-full py-2 px-3 rounded-[6px] text-left text-[10px] font-black uppercase tracking-wider flex items-center justify-between transition-colors ${
+                            activeTab === tab
+                              ? (isLight ? 'bg-neutral-100 text-black' : 'bg-white/10 text-white')
+                              : (isLight ? 'hover:bg-neutral-50 text-neutral-600' : 'hover:bg-white/5 text-[#E3DAC9]/60')
+                          }`}
+                        >
+                          <span>{tab === 'Publik' ? t('global.tabs.public') : tab === 'Teman' ? t('global.tabs.friends') : t('global.tabs.personal')}</span>
+                          {activeTab === tab && <Check size={12} className={isLight ? 'text-black' : 'text-[#00FF85]'} />}
+                        </button>
+                      ))}
+                    </motion.div>
+                  </>
+                )}
+              </AnimatePresence>
             </div>
-            {/* Friends Button */}
+
+            {/* Add Post Button */}
             <motion.button
-              whileTap={{ scale: 0.9 }}
+              whileTap={{ scale: 0.95 }}
               onClick={() => {
-                if (navigator.vibrate) navigator.vibrate(10);
-                setShowFriendsSheet(true);
+                if (navigator.vibrate) navigator.vibrate(20);
+                setShowAddModal(true);
               }}
-              className="w-11 h-11 rounded-xl border-[1.5px] border-[#E3DAC9]/15 bg-[#1c1e22] flex items-center justify-center shrink-0"
+              className={`w-9 h-9 rounded-[8px] border-[1.5px] flex items-center justify-center shrink-0 transition-all ${
+                isLight 
+                  ? 'border-[#81E6D9] bg-gradient-to-br from-[#E6FFFA] to-[#C6F6D5] text-[#22543D] shadow-[0_4px_10px_rgba(34,84,61,0.1)]' 
+                  : 'border-[#1C4D38] bg-gradient-to-br from-[#102A1E] to-[#0A1A12] text-[#00FF85] shadow-[0_4px_10px_rgba(0,255,133,0.12)]'
+              }`}
             >
-              <Icon icon="ph:users-bold" className="text-[#E3DAC9]/60" width={20} />
+              <Plus size={18} />
             </motion.button>
           </motion.div>
         </div>
@@ -268,22 +358,7 @@ const GlobalView: React.FC = () => {
         </AnimatePresence>
       </div>
 
-      {/* Floating Add Button */}
-      <div className="fixed bottom-24 right-6 z-[60]">
-        <motion.button
-          id="global-fab"
-          whileTap={{ scale: 0.9, x: 4, y: 4, boxShadow: '0px 0px 0px rgba(0,0,0,1)' }}
-          onClick={() => {
-            if (navigator.vibrate) navigator.vibrate(20);
-            setShowAddModal(true);
-          }}
-          className="w-[60px] h-[60px] bg-[#00FF85] border-[2px] border-black rounded-2xl shadow-[3px_3px_0px_rgba(0,0,0,1)] flex items-center justify-center"
-        >
-          <svg width="30" height="30" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M12 5V19M5 12H19" stroke="black" strokeWidth="5" strokeLinecap="square" />
-          </svg>
-        </motion.button>
-      </div>
+
 
       {/* Share Progress Modal */}
       <AddGlobalPost 

@@ -6,6 +6,7 @@ import { getDefaultHabitStatsMap } from '../../engines/statsEngine';
 import { XP_VALUES } from '../../engines/types';
 import { getHabitBenefitData } from '../../data/habitBenefitsData';
 import { useTranslation } from '../../i18n';
+import { useGenderedImageUrl } from '../../utils/imageHelpers';
 
 // ============================================================
 // HabitInfoModal Component
@@ -52,7 +53,7 @@ const HabitInfoModal = ({ isOpen, onClose, habit }: HabitInfoModalProps) => {
   const xp = XP_VALUES[(habit.difficulty as 1 | 2 | 3) || 1];
 
   const habitOption = HABIT_OPTIONS.find((h) => h.name === habit.name);
-  const imageUrl = habitOption?.imageUrl || '/all_images/custom_habit_bg.png';
+  const imageUrl = useGenderedImageUrl(habitOption?.imageUrl);
 
   return (
     <AnimatePresence>

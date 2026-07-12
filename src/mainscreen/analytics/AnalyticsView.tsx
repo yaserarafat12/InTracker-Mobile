@@ -13,6 +13,7 @@ import { isScheduledDay } from '../../utils/scheduleHelpers';
 import { getLevelInfo } from '../../engines/levelSystem';
 import LoadingScreen from '../../components/LoadingScreen';
 import { useTranslation } from '../../i18n';
+import { getGenderedImageUrl } from '../../utils/imageHelpers';
 
 // --- Types ---
 type MainTab = 'recap' | 'pattern' | 'stats';
@@ -134,6 +135,7 @@ export const AnalyticsView = ({ tutorialStep }: { tutorialStep?: number }) => {
   const { t } = useTranslation();
   const { habits, fetchHabits } = useHabitStore();
   const { profile, settings } = useUserStore();
+  const gender = settings?.gender || 'Male';
   const { targets } = useTargetStore();
   const { entries: journeyEntries, fetchEntries } = useJourneyStore();
 
@@ -236,14 +238,18 @@ export const AnalyticsView = ({ tutorialStep }: { tutorialStep?: number }) => {
           <motion.button
             key={tab.id}
             id={`analytics-tab-${tab.id}`}
-            whileTap={{ x: 2, y: 2, boxShadow: "0px 0px 0px rgba(0,0,0,1)" }}
+            whileTap={{ scale: 0.96 }}
             onClick={() => setMainTab(tab.id)}
-            className={`flex-1 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all border-[2px] ${
+            className={`flex-1 py-2.5 rounded-[8px] text-[10px] font-black uppercase tracking-wider transition-all border-2 ${
+              mainTab === tab.id ? 'sheen-active-tab transform scale-[1.05]' : 'transform scale-100'
+            } ${
               mainTab === tab.id
-                ? 'bg-[#E3DAC9] text-black border-black shadow-[4px_4px_0px_rgba(0,0,0,1)]'
-                : (isLight
-                    ? 'bg-white text-black/55 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)]'
-                    : 'bg-os-card-bg dark:bg-[#22252a] text-[#E3DAC9]/50 dark:text-white/45 border-black dark:border-white/15 shadow-[4px_4px_0px_rgba(0,0,0,1)] dark:shadow-none')
+                ? isLight
+                  ? 'border-neutral-300 bg-gradient-to-br from-white to-[#F2F4F7] text-neutral-900 shadow-[0_6px_16px_rgba(0,0,0,0.12)]'
+                  : 'border-white/15 bg-gradient-to-br from-[#2D3035] to-[#1C1E22] text-white shadow-[0_6px_16px_rgba(0,0,0,0.15)]'
+                : isLight
+                  ? 'bg-white text-neutral-400 border-neutral-200 shadow-[0_4px_12px_rgba(0,0,0,0.03)] hover:text-neutral-600'
+                  : 'bg-[#1C1E22]/50 border-white/[0.07] text-[#E3DAC9]/40 shadow-[0_4px_12px_rgba(0,0,0,0.1)] hover:text-[#E3DAC9]/60'
             }`}
           >
             {tab.label}
@@ -483,8 +489,8 @@ function ActivityRecap({ habits, habitLogs, targets, journeyEntries, timeRange, 
   return (
     <div id="analytics-activity-recap-container" className="space-y-4">
       {/* Time Range Toggle - compact */}
-      <div className={`border-[2px] rounded-[10px] px-2 py-2 flex items-center gap-3 w-fit transition-all ${
-        isLight ? 'bg-white border-black shadow-[2px_2px_0px_rgba(0,0,0,1)]' : 'bg-[#1c1e22] border-white/15'
+      <div className={`border-[1.5px] border-white/10 rounded-[14px] px-2 py-2 flex items-center gap-3 w-fit transition-all ${
+        isLight ? 'bg-[#1c1e22]/60' : 'bg-[#1c1e22] '
       }`}>
         {timeRanges.map((r) => (
           <button
@@ -493,8 +499,8 @@ function ActivityRecap({ habits, habitLogs, targets, journeyEntries, timeRange, 
             className={`px-2.5 py-1 rounded-md text-[8px] font-black uppercase tracking-wider transition-all ${
               timeRange === r.id
                 ? (isLight
-                    ? 'bg-[#00FF85] text-black border border-black shadow-[1px_1px_0px_rgba(0,0,0,1)]'
-                    : 'bg-[#00FF85]/15 text-[#00FF85] border border-[#00FF85]/30')
+                    ? 'bg-[#7BE495] text-black border border-black shadow-[1px_1px_0px_rgba(0,0,0,1)]'
+                    : 'bg-[#7BE495]/15 text-[#7BE495] border border-[#7BE495]/30')
                 : (isLight
                     ? 'text-black/55 border border-transparent'
                     : 'text-[#E3DAC9]/30 border border-transparent')
@@ -506,10 +512,8 @@ function ActivityRecap({ habits, habitLogs, targets, journeyEntries, timeRange, 
       </div>
 
       {/* Dot Calendar */}
-      <div className={`backdrop-blur-md rounded-[20px] p-5 border-[2.5px] transition-all ${
-        isLight
-          ? 'bg-white border-black shadow-[4px_4px_0px_rgba(0,0,0,0.65)]'
-          : 'bg-[#1c1e22]/70 border-white/10'
+      <div className={`backdrop-blur-md rounded-[20px] p-5 border-[1.5px] border-white/10 transition-all ${
+        isLight ? 'bg-[#1c1e22]/60' : 'bg-[#1c1e22]/70'
       }`}>
 
         {timeRange === 'weekly' && <WeeklyGrid days={dayStatuses} />}
@@ -519,9 +523,9 @@ function ActivityRecap({ habits, habitLogs, targets, journeyEntries, timeRange, 
 
       {/* Summary Cards */}
       <div className="grid grid-cols-3 gap-3">
-        <SummaryCard icon="solar:checklist-minimalistic-bold" value={`${habitRate}%`} label={t('analytics.summary.habitRate')} color="#00FF85" />
-        <SummaryCard icon="solar:target-bold" value={`${todosCompleted}`} label={t('analytics.summary.todoCompleted')} color="#00FF85" />
-        <SummaryCard icon="solar:notebook-bold" value={`${journalDays}`} label={t('analytics.summary.journalDays')} color="#00FF85" />
+        <SummaryCard icon="solar:checklist-minimalistic-bold" value={`${habitRate}%`} label={t('analytics.summary.habitRate')} color="#7BE495" />
+        <SummaryCard icon="solar:target-bold" value={`${todosCompleted}`} label={t('analytics.summary.todoCompleted')} color="#7BE495" />
+        <SummaryCard icon="solar:notebook-bold" value={`${journalDays}`} label={t('analytics.summary.journalDays')} color="#7BE495" />
       </div>
 
       {/* Empty state */}
@@ -550,9 +554,36 @@ function HabitPattern({ habits, habitLogs, timeRange, setTimeRange, timeRanges, 
 }) {
   const { t } = useTranslation();
   const { settings } = useUserStore();
+  const gender = settings?.gender || 'Male';
   const isLight = !document.documentElement.classList.contains('dark');
   const [selectedCategory, setSelectedCategory] = useState('Semua');
   const [expandedHabit, setExpandedHabit] = useState<string | null>(null);
+
+  const getCategoryStyles = (cat: string) => {
+    switch (cat) {
+      case 'Rutinitas':
+        return isLight
+          ? 'border-[#90CDF4] bg-gradient-to-br from-[#EBF8FF] to-[#BEE3F8] text-[#2A4365] shadow-[0_4px_12px_rgba(42,67,101,0.08)]'
+          : 'border-[#1A365D] bg-gradient-to-br from-[#0F1E36] to-[#0A1424] text-[#4299E1] shadow-[0_6px_16px_rgba(66,153,225,0.12)]';
+      case 'Ketenangan Diri':
+        return isLight
+          ? 'border-[#9AE6B4] bg-gradient-to-br from-[#F0FFF4] to-[#C6F6D5] text-[#22543D] shadow-[0_4px_12px_rgba(34,84,61,0.08)]'
+          : 'border-[#1C4D38] bg-gradient-to-br from-[#102A1E] to-[#0A1A12] text-[#48BB78] shadow-[0_6px_16px_rgba(72,187,120,0.12)]';
+      case 'Perkembangan Diri':
+        return isLight
+          ? 'border-[#FBD38D] bg-gradient-to-br from-[#FFFDF5] to-[#FEEBC8] text-[#744210] shadow-[0_4px_12px_rgba(116,66,16,0.08)]'
+          : 'border-[#5F370E] bg-gradient-to-br from-[#36220F] to-[#24160A] text-[#ECC94B] shadow-[0_6px_16px_rgba(236,201,75,0.12)]';
+      case 'Latihan Fisik':
+        return isLight
+          ? 'border-[#FEB2B2] bg-gradient-to-br from-[#FFF5F5] to-[#FED7D7] text-[#742A2A] shadow-[0_4px_12px_rgba(116,42,42,0.08)]'
+          : 'border-[#742A2A]/50 bg-gradient-to-br from-[#3A1414] to-[#260D0D] text-[#FC8181] shadow-[0_6px_16px_rgba(252,129,129,0.12)]';
+      case 'Semua':
+      default:
+        return isLight
+          ? 'border-neutral-300 bg-gradient-to-br from-white to-[#F2F4F7] text-neutral-900 shadow-[0_4px_12px_rgba(0,0,0,0.08)]'
+          : 'border-white/15 bg-gradient-to-br from-[#2D3035] to-[#1C1E22] text-white shadow-[0_6px_16px_rgba(0,0,0,0.15)]';
+    }
+  };
 
   // Sync expanded habit card with tutorial steps
   useEffect(() => {
@@ -675,14 +706,16 @@ function HabitPattern({ habits, habitLogs, timeRange, setTimeRange, timeRanges, 
           {categories.map((cat) => (
             <motion.button
               key={cat}
-              whileTap={{ x: 2, y: 2, boxShadow: "0px 0px 0px rgba(0,0,0,1)" }}
+              whileTap={{ scale: 0.96 }}
               onClick={() => setSelectedCategory(cat)}
-              className={`px-4 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all whitespace-nowrap border-[2px] ${
+              className={`px-4 py-2.5 rounded-[8px] text-[10px] font-black uppercase tracking-wider transition-all whitespace-nowrap border-2 shrink-0 ${
+                selectedCategory === cat ? 'transform scale-[1.05]' : 'transform scale-100'
+              } ${
                 selectedCategory === cat
-                  ? 'bg-[#E3DAC9] text-black border-black shadow-[4px_4px_0px_rgba(0,0,0,1)]'
-                  : (isLight
-                      ? 'bg-white text-black/55 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)]'
-                      : 'bg-os-card-bg dark:bg-[#22252a] text-[#E3DAC9]/40 dark:text-white/45 border-black dark:border-white/15 shadow-[4px_4px_0px_rgba(0,0,0,1)] dark:shadow-none')
+                  ? getCategoryStyles(cat)
+                  : isLight
+                    ? 'bg-white text-neutral-400 border-neutral-200 shadow-[0_4px_12px_rgba(0,0,0,0.03)] hover:text-neutral-600'
+                    : 'bg-[#1C1E22]/50 border-white/[0.07] text-[#E3DAC9]/40 shadow-[0_4px_12px_rgba(0,0,0,0.1)] hover:text-[#E3DAC9]/60'
               }`}
             >
               {getCategoryLabel(cat)}
@@ -715,26 +748,33 @@ function HabitPattern({ habits, habitLogs, timeRange, setTimeRange, timeRanges, 
                   id={h.name === 'Drink Water' ? 'analytics-drink-water-card' : undefined}
                   whileTap={{ scale: 0.97 }}
                   onClick={() => setExpandedHabit(isExpanded ? null : h.id)}
-                  className={`w-full relative overflow-visible border-[3px] text-left h-[120px] habit-analytics-card transition-all ${
+                  className={`w-full relative overflow-visible border-2 text-left h-[120px] habit-analytics-card transition-all ${
                     isLight 
-                      ? 'border-black shadow-[4px_4px_0px_rgba(0,0,0,0.65)]' 
-                      : 'border-white/30 shadow-[0_8px_25px_rgba(0,0,0,0.8)]'
+                      ? 'border-neutral-200/90 shadow-[0_4px_12px_rgba(0,0,0,0.08)]' 
+                      : 'border-white/15 shadow-[0_8px_25px_rgba(0,0,0,0.3)]'
                   } ${
-                    isExpanded ? 'rounded-t-[14px] rounded-b-none border-b-0' : 'rounded-[14px]'
+                    isExpanded ? 'rounded-t-[8px] rounded-b-none border-b-0' : 'rounded-[8px]'
                   }`}
                 >
-                  {/* Streak Badge - outside top right like habits */}
+                  {/* Streak Badge - matching displaycardhabit style */}
                   {h.streak > 0 && (
-                    <div className="absolute top-[-10px] right-[-5px] z-20 flex items-center gap-1.5 px-[14px] py-[6px] bg-[#FF4D00] border-[1.5px] border-black shadow-[3.5px_3.5px_0px_rgba(0,0,0,1)] rounded-full">
-                      <Icon icon="solar:fire-bold" className="text-white w-4 h-4" />
-                      <span className="text-white text-[13px] font-black font-['Outfit'] leading-none mt-[1px]">{h.streak}</span>
+                    <div 
+                      className={`
+                        absolute top-[-6px] right-[-5px] z-20 flex items-center gap-1 px-[10px] py-[5px] rounded-[8px] border-2 w-fit whitespace-nowrap
+                        ${isLight 
+                          ? 'border-[#FF4D00] bg-[#FFF0EB] text-[#FF4D00] shadow-[0_4px_12px_rgba(255,77,0,0.12)]' 
+                          : 'border-[#FF4D00]/30 bg-[#FF4D00]/12 text-[#FF7A45] shadow-[0_6px_16px_rgba(255,77,0,0.15)]'}
+                      `}
+                    >
+                      <Icon icon="solar:fire-bold" className={`w-3.5 h-3.5 ${isLight ? 'text-[#FF4D00]' : 'text-[#FF7A45]'}`} />
+                      <span className={`text-[12px] font-black font-['Outfit'] leading-none mt-[1px] ${isLight ? 'text-[#FF4D00]' : 'text-[#FF7A45]'}`}>{h.streak}</span>
                     </div>
                   )}
 
-                  <div className={`absolute inset-0 overflow-hidden ${isExpanded ? 'rounded-t-[11px]' : 'rounded-[11px]'}`}>
+                  <div className={`absolute inset-0 overflow-hidden ${isExpanded ? 'rounded-t-[6px]' : 'rounded-[6px]'}`}>
                     {/* Background Image */}
                     {option && option.imageUrl ? (
-                      <img src={option.imageUrl} alt="" className={`absolute inset-0 w-full h-full object-cover ${option.imagePosition || 'object-center'} opacity-[0.85]`} />
+                      <img src={getGenderedImageUrl(option.imageUrl, gender)} alt="" className={`absolute inset-0 w-full h-full object-cover ${option.imagePosition || 'object-center'} opacity-[0.85]`} />
                     ) : (
                       <img src="/all_images/custom_habit_bg.png" alt="" className="absolute inset-0 w-full h-full object-cover opacity-[0.7]" />
                     )}
@@ -1081,6 +1121,7 @@ function HabitInlineDetail({ habit, habitLogs }: { habit: any; habitLogs: HabitL
 function HabitDetailModal({ habit, habitLogs, onClose }: { habit: any; habitLogs: HabitLog[]; onClose: () => void }) {
   const { t, language } = useTranslation();
   const { settings } = useUserStore();
+  const gender = settings?.gender || 'Male';
   const isLight = !document.documentElement.classList.contains('dark');
   const [recordMonth, setRecordMonth] = useState<1 | 2 | 3>(1);
 
@@ -1228,7 +1269,7 @@ function HabitDetailModal({ habit, habitLogs, onClose }: { habit: any; habitLogs
         }`}>
           {habitOption && (
             <img
-              src={habitOption.imageUrl}
+              src={getGenderedImageUrl(habitOption.imageUrl, gender)}
               alt=""
               className={`absolute inset-0 w-full h-full object-cover ${habitOption.imagePosition || 'object-center'} opacity-90`}
             />
@@ -1395,6 +1436,7 @@ function StatsRPG({ profile, habits, habitLogs }: {
 }) {
   const { t, language } = useTranslation();
   const streakCount = profile?.streak_count || 0;
+  const isLight = !document.documentElement.classList.contains('dark');
 
   // Use persistent progression store values
   const { totalXP, level, stats: progressionStats, dailyXPEarned } = useProgressionStore();
@@ -1405,7 +1447,7 @@ function StatsRPG({ profile, habits, habitLogs }: {
 
   const statsList = [
     { name: t('rpg.stats.wisdom'), value: progressionStats.kebijaksanaan, icon: 'ph:brain-bold', color: '#A855F7' },
-    { name: t('rpg.stats.confidence'), value: progressionStats.kepercayaanDiri, icon: 'ph:crown-bold', color: '#00FF85' },
+    { name: t('rpg.stats.confidence'), value: progressionStats.kepercayaanDiri, icon: 'ph:crown-bold', color: '#7BE495' },
     { name: t('rpg.stats.strength'), value: progressionStats.kekuatan, icon: 'ph:lightning-bold', color: '#FF4D00' },
     { name: t('rpg.stats.discipline'), value: progressionStats.disiplin, icon: 'ph:sword-bold', color: '#3B82F6' },
     { name: t('rpg.stats.focus'), value: progressionStats.fokus, icon: 'ph:crosshair-bold', color: '#F59E0B' },
@@ -1421,13 +1463,17 @@ function StatsRPG({ profile, habits, habitLogs }: {
       <div className="relative z-10 space-y-6">
 
       {/* Level Card - Bold style */}
-      <div className="relative bg-[#1a1a1a] border-[2.5px] border-[#00FF85]/40 rounded-[20px] p-5 overflow-hidden shadow-[0_0_30px_rgba(0,255,133,0.08)]">
+      <div className={`relative border-2 rounded-[8px] p-5 overflow-hidden transition-all ${
+        isLight 
+          ? 'bg-white border-neutral-200/90 shadow-[0_4px_12px_rgba(0,0,0,0.04)]' 
+          : 'bg-[#1C1E22]/70 border-white/15 shadow-[0_8px_25px_rgba(0,0,0,0.3)]'
+      }`}>
         {/* Subtle glow behind */}
-        <div className="absolute top-0 left-0 w-32 h-32 bg-[#00FF85]/10 blur-[60px] rounded-full pointer-events-none" />
+        <div className={`absolute top-0 left-0 w-32 h-32 blur-[60px] rounded-full pointer-events-none ${isLight ? 'bg-[#7BE495]/5' : 'bg-[#7BE495]/10'}`} />
         
         <div className="relative flex items-center gap-4 mb-5">
           {/* Level Badge */}
-          <div className="w-[72px] h-[72px] bg-[#00FF85] rounded-2xl flex flex-col items-center justify-center shadow-[0_4px_20px_rgba(0,255,133,0.3)]">
+          <div className="w-[72px] h-[72px] bg-[#7BE495] rounded-[8px] flex flex-col items-center justify-center shadow-[0_4px_20px_rgba(123,228,149,0.25)] border-[1.5px] border-[#7BE495]/40">
             <span className="text-[28px] font-black text-black leading-none">{level}</span>
             <span className="text-[8px] font-black text-black/60 uppercase tracking-wider">{t('rpg.level')}</span>
           </div>
@@ -1435,8 +1481,8 @@ function StatsRPG({ profile, habits, habitLogs }: {
           {/* XP Info */}
           <div className="flex-1">
             <div className="flex items-baseline gap-2">
-              <span className="text-[32px] font-black text-white leading-none">{totalXP}</span>
-              <span className="text-[11px] font-bold text-[#E3DAC9]/40 uppercase">{t('rpg.xpEarned')}</span>
+              <span className={`text-[32px] font-black leading-none ${isLight ? 'text-neutral-900' : 'text-white'}`}>{totalXP}</span>
+              <span className={`text-[11px] font-bold uppercase ${isLight ? 'text-neutral-400' : 'text-[#E3DAC9]/40'}`}>XP</span>
             </div>
           </div>
 
@@ -1446,7 +1492,7 @@ function StatsRPG({ profile, habits, habitLogs }: {
               <Icon icon="solar:fire-bold" className="text-[#FF4D00]" width={16} />
               <span className="text-[18px] font-black text-[#FF4D00]">{streakCount}</span>
             </div>
-            <span className="text-[7px] text-[#E3DAC9]/30 font-bold uppercase">{t('rpg.streakDays')}</span>
+            <span className={`text-[7px] font-bold uppercase ${isLight ? 'text-neutral-400' : 'text-[#E3DAC9]/30'}`}>{t('rpg.streakDays')}</span>
           </div>
         </div>
 
@@ -1457,30 +1503,36 @@ function StatsRPG({ profile, habits, habitLogs }: {
             return (
               <div
                 key={i}
-                className={`flex-1 h-[10px] rounded-[2px] ${
-                  filled ? 'bg-[#00FF85] shadow-[0_0_4px_rgba(0,255,133,0.4)]' : 'bg-[#2a2c32]'
+                className={`flex-1 h-[10px] rounded-[2px] transition-all ${
+                  filled 
+                    ? 'bg-[#7BE495]' 
+                    : isLight ? 'bg-neutral-200' : 'bg-[#2a2c32]'
                 }`}
               />
             );
           })}
         </div>
-        <p className="text-[12px] font-black text-[#E3DAC9]/50 text-center mt-1">
+        <p className={`text-[12px] font-black text-center mt-1 ${isLight ? 'text-neutral-500' : 'text-[#E3DAC9]/50'}`}>
           {language === 'Bahasa Indonesia'
-            ? `${xpForNext - levelInfo.xpIntoCurrentLevel} XP ke Lvl ${level < 100 ? level + 1 : 'MAX'}`
-            : `${xpForNext - levelInfo.xpIntoCurrentLevel} XP to Lvl ${level < 100 ? level + 1 : 'MAX'}`}
+            ? `${xpForNext - levelInfo.xpIntoCurrentLevel} XP tersisa untuk Level Up`
+            : `${xpForNext - levelInfo.xpIntoCurrentLevel} XP remaining for Level Up`}
         </p>
       </div>
 
       {/* Stats List - Big numbers, glass container */}
-      <div className="bg-[#1c1e22]/50 backdrop-blur-md border-[2px] border-[#00FF85]/25 rounded-[20px] px-5 py-4 space-y-0">
+      <div className={`border-2 rounded-[8px] px-5 py-2 transition-all ${
+        isLight 
+          ? 'bg-white border-neutral-200/90 shadow-[0_4px_12px_rgba(0,0,0,0.04)]' 
+          : 'bg-[#1C1E22]/70 border-white/15 shadow-[0_8px_25px_rgba(0,0,0,0.3)]'
+      }`}>
         {statsList.map((stat, idx) => (
-          <div key={stat.name} className={`flex items-center gap-4 py-4 ${idx < statsList.length - 1 ? 'border-b-[1.5px] border-white/15' : ''}`}>
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ backgroundColor: `${stat.color}15` }}>
+          <div key={stat.name} className={`flex items-center gap-4 py-4 ${idx < statsList.length - 1 ? (isLight ? 'border-b border-neutral-100' : 'border-b border-white/10') : ''}`}>
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 border-[1.5px]" style={{ backgroundColor: `${stat.color}12`, borderColor: `${stat.color}35` }}>
               <Icon icon={stat.icon} style={{ color: stat.color }} width={22} />
             </div>
-            <span className="text-[15px] font-bold text-[#E3DAC9] flex-1">{stat.name}</span>
-            <span className="text-[11px] font-bold text-[#00FF85]">▲</span>
-            <span className="text-[28px] font-black text-white leading-none">{stat.value}</span>
+            <span className={`text-[15px] font-bold flex-1 ${isLight ? 'text-neutral-700' : 'text-[#E3DAC9]'}`}>{stat.name}</span>
+            <span className="text-[11px] font-bold text-[#7BE495] mr-1">▲</span>
+            <span className={`text-[28px] font-black leading-none ${isLight ? 'text-neutral-900' : 'text-white'}`}>{stat.value}</span>
           </div>
         ))}
       </div>
@@ -1631,7 +1683,7 @@ function CompactGrid({ days }: { days: DayStatus[] }) {
               onClick={() => setProgramMonth(m)}
               className={`w-6 h-6 rounded-md text-[9px] font-black transition-all flex items-center justify-center ${
                 programMonth === m
-                  ? 'bg-[#00FF85]/15 text-[#00FF85] border border-[#00FF85]/30'
+                  ? 'bg-[#7BE495]/15 text-[#7BE495] border border-[#7BE495]/30'
                   : 'text-[#E3DAC9]/30 border border-[#E3DAC9]/10'
               }`}
             >
@@ -1678,7 +1730,7 @@ function DayCell({ day, size, showDayNumber }: { day: DayStatus; size: 'sm' | 'm
       border = 'border border-dashed border-black/10';
       textColor = 'text-black/25';
     } else if (day.active) {
-      bg = 'bg-[#00FF85]/80 shadow-[0_2px_8px_rgba(0,255,133,0.25)]';
+      bg = 'bg-[#7BE495]/80 shadow-[0_2px_8px_rgba(123,228,149,0.25)]';
       textColor = 'text-black/80';
     } else {
       bg = 'bg-white';
@@ -1690,7 +1742,7 @@ function DayCell({ day, size, showDayNumber }: { day: DayStatus; size: 'sm' | 'm
       bg = 'bg-[#E3DAC9]/5';
       textColor = 'text-[#E3DAC9]/10';
     } else if (day.active) {
-      bg = 'bg-[#00FF85]/80 shadow-[0_2px_8px_rgba(0,255,133,0.25)]';
+      bg = 'bg-[#7BE495]/80 shadow-[0_2px_8px_rgba(123,228,149,0.25)]';
       textColor = 'text-black/45';
     } else {
       bg = 'bg-[#3a3a3a]';
@@ -1698,8 +1750,8 @@ function DayCell({ day, size, showDayNumber }: { day: DayStatus; size: 'sm' | 'm
     }
   }
 
-  const ring = day.isToday 
-    ? (day.active ? 'ring-[2px] ring-black/30' : `ring-1 ${isLight ? 'ring-black/45' : 'ring-[#E3DAC9]/30'}`) 
+  const ring = day.isToday && !day.active
+    ? (isLight ? 'ring-1 ring-black/45' : 'ring-1 ring-[#E3DAC9]/30')
     : '';
 
   const displayNumber = showDayNumber && day.dayNumber ? day.dayNumber : day.dayOfMonth;

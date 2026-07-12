@@ -102,10 +102,7 @@ export function WorkoutStats({ isOpen, onClose }: WorkoutStatsProps) {
                 <div>
                   <span className="text-[11px] text-white/40">{t('features.workout.favoriteExercise')}</span>
                   <p className="text-[14px] font-bold text-white">
-                    {(() => {
-                      const translated = t(`presets.${favoriteExercise[0]}`);
-                      return translated === `presets.${favoriteExercise[0]}` ? favoriteExercise[0] : translated;
-                    })()}
+                    {t(favoriteExercise[0])}
                   </p>
                 </div>
                 <span className="text-[12px] text-[#00FF85] font-bold">{favoriteExercise[1]}x</span>

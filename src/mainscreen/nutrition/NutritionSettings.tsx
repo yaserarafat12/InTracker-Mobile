@@ -211,7 +211,7 @@ export function NutritionSettings({ onBack }: NutritionSettingsProps) {
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <span className="text-[11px] text-white/40">Daily Calories</span>
-                  <p className="text-[15px] font-bold text-[#00FF85] font-['Outfit']">
+                  <p className="text-[15px] font-bold text-[#A3E635] font-['Outfit']">
                     {targets.dailyCalories} kcal
                   </p>
                 </div>
@@ -239,20 +239,20 @@ export function NutritionSettings({ onBack }: NutritionSettingsProps) {
 
           {/* Sex Toggle */}
           <div>
-            <p className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em] mb-3 ml-1">Sex</p>
-            <div className="flex gap-3">
+            <p className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em] mb-2.5 ml-1">Sex</p>
+            <div className="flex gap-3 justify-center">
               {(['male', 'female'] as const).map((s) => (
                 <motion.button
                   key={s}
                   whileTap={{ scale: 0.95 }}
                   onClick={() => setSex(s)}
-                  className={`flex-1 h-14 rounded-2xl font-bold font-['Outfit'] text-[14px] capitalize transition-all ${
+                  className={`w-[130px] h-11 rounded-lg font-black font-['Outfit'] text-[13px] uppercase tracking-wider transition-all ${
                     sex === s
-                      ? 'bg-[#00FF85] text-black border-2 border-black'
+                      ? 'bg-[#7BE495] text-black'
                       : 'bg-[#2a2c32] text-[#E3DAC9]/60 border border-white/10'
                   }`}
                 >
-                  {s}
+                  {s === 'male' ? 'Pria' : 'Wanita'}
                 </motion.button>
               ))}
             </div>
@@ -260,9 +260,9 @@ export function NutritionSettings({ onBack }: NutritionSettingsProps) {
 
           {/* Height */}
           <div>
-            <p className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em] mb-3 ml-1">Height (cm)</p>
-            <div className={`h-14 bg-[#2a2c32] rounded-2xl border px-5 flex items-center transition-all ${
-              errors.height ? 'border-red-400/60' : 'border-white/10 focus-within:border-[#00FF85]/50'
+            <p className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em] mb-2.5 ml-1">Height (cm)</p>
+            <div className={`h-12 bg-[#2a2c32] rounded-lg border px-4 flex items-center transition-all ${
+              errors.height ? 'border-red-400/60' : 'border-white/10 focus-within:border-[#7BE495]/50'
             }`}>
               <input
                 type="text"
@@ -270,18 +270,18 @@ export function NutritionSettings({ onBack }: NutritionSettingsProps) {
                 value={height}
                 onChange={(e) => handleNumericInput(e.target.value, setHeight)}
                 placeholder="170"
-                className="w-full bg-transparent border-none outline-none text-[16px] font-bold font-['Outfit'] text-[#E3DAC9] placeholder:text-[#E3DAC9]/20"
+                className="w-full bg-transparent border-none outline-none text-[15px] font-bold font-['Outfit'] text-[#E3DAC9] placeholder:text-[#E3DAC9]/20"
               />
-              <span className="text-[12px] font-bold text-white/30 ml-2">cm</span>
+              <span className="text-[11px] font-bold text-white/30 ml-2">cm</span>
             </div>
             {errors.height && <p className="text-[11px] text-red-400 mt-2 ml-1">{errors.height}</p>}
           </div>
 
           {/* Weight */}
           <div>
-            <p className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em] mb-3 ml-1">Weight (kg)</p>
-            <div className={`h-14 bg-[#2a2c32] rounded-2xl border px-5 flex items-center transition-all ${
-              errors.weight ? 'border-red-400/60' : 'border-white/10 focus-within:border-[#00FF85]/50'
+            <p className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em] mb-2.5 ml-1">Weight (kg)</p>
+            <div className={`h-12 bg-[#2a2c32] rounded-lg border px-4 flex items-center transition-all ${
+              errors.weight ? 'border-red-400/60' : 'border-white/10 focus-within:border-[#7BE495]/50'
             }`}>
               <input
                 type="text"
@@ -289,18 +289,18 @@ export function NutritionSettings({ onBack }: NutritionSettingsProps) {
                 value={weight}
                 onChange={(e) => handleNumericInput(e.target.value, setWeight, true)}
                 placeholder="70.0"
-                className="w-full bg-transparent border-none outline-none text-[16px] font-bold font-['Outfit'] text-[#E3DAC9] placeholder:text-[#E3DAC9]/20"
+                className="w-full bg-transparent border-none outline-none text-[15px] font-bold font-['Outfit'] text-[#E3DAC9] placeholder:text-[#E3DAC9]/20"
               />
-              <span className="text-[12px] font-bold text-white/30 ml-2">kg</span>
+              <span className="text-[11px] font-bold text-white/30 ml-2">kg</span>
             </div>
             {errors.weight && <p className="text-[11px] text-red-400 mt-2 ml-1">{errors.weight}</p>}
           </div>
 
           {/* Age */}
           <div>
-            <p className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em] mb-3 ml-1">Age</p>
-            <div className={`h-14 bg-[#2a2c32] rounded-2xl border px-5 flex items-center transition-all ${
-              errors.age ? 'border-red-400/60' : 'border-white/10 focus-within:border-[#00FF85]/50'
+            <p className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em] mb-2.5 ml-1">Age</p>
+            <div className={`h-12 bg-[#2a2c32] rounded-lg border px-4 flex items-center transition-all ${
+              errors.age ? 'border-red-400/60' : 'border-white/10 focus-within:border-[#7BE495]/50'
             }`}>
               <input
                 type="text"
@@ -308,39 +308,39 @@ export function NutritionSettings({ onBack }: NutritionSettingsProps) {
                 value={age}
                 onChange={(e) => handleNumericInput(e.target.value, setAge)}
                 placeholder="25"
-                className="w-full bg-transparent border-none outline-none text-[16px] font-bold font-['Outfit'] text-[#E3DAC9] placeholder:text-[#E3DAC9]/20"
+                className="w-full bg-transparent border-none outline-none text-[15px] font-bold font-['Outfit'] text-[#E3DAC9] placeholder:text-[#E3DAC9]/20"
               />
-              <span className="text-[12px] font-bold text-white/30 ml-2">years</span>
+              <span className="text-[11px] font-bold text-white/30 ml-2">years</span>
             </div>
             {errors.age && <p className="text-[11px] text-red-400 mt-2 ml-1">{errors.age}</p>}
           </div>
 
           {/* Fitness Goal */}
           <div>
-            <p className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em] mb-3 ml-1">Fitness Goal</p>
+            <p className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em] mb-2.5 ml-1">Fitness Goal</p>
             <div className="space-y-2">
               {FITNESS_GOALS.map((g) => (
                 <motion.button
                   key={g.id}
                   whileTap={{ scale: 0.97 }}
                   onClick={() => setGoal(g.id)}
-                  className={`w-full p-3.5 rounded-2xl text-left transition-all ${
+                  className={`w-full p-3.5 rounded-lg text-left transition-all ${
                     goal === g.id
-                      ? 'bg-[#00FF85]/10 border-2 border-[#00FF85]'
+                      ? 'bg-[#7BE495]/10 border-2 border-[#7BE495]'
                       : 'bg-[#2a2c32] border border-white/10'
                   }`}
                 >
                   <div className="flex items-center justify-between">
                     <div>
                       <p className={`text-[13px] font-bold font-['Outfit'] ${
-                        goal === g.id ? 'text-[#00FF85]' : 'text-[#E3DAC9]'
+                        goal === g.id ? 'text-[#7BE495]' : 'text-[#E3DAC9]'
                       }`}>
                         {g.label}
                       </p>
                       <p className="text-[11px] text-white/40 mt-0.5">{g.description}</p>
                     </div>
                     {goal === g.id && (
-                      <Icon icon="ph:check-circle-fill" width={20} className="text-[#00FF85]" />
+                      <Icon icon="ph:check-circle-fill" width={20} className="text-[#7BE495]" />
                     )}
                   </div>
                 </motion.button>
@@ -350,30 +350,30 @@ export function NutritionSettings({ onBack }: NutritionSettingsProps) {
 
           {/* Activity Level */}
           <div>
-            <p className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em] mb-3 ml-1">Activity Level</p>
+            <p className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em] mb-2.5 ml-1">Activity Level</p>
             <div className="space-y-2">
               {ACTIVITY_LEVELS.map((level) => (
                 <motion.button
                   key={level.id}
                   whileTap={{ scale: 0.97 }}
                   onClick={() => setActivityLevel(level.id)}
-                  className={`w-full p-3.5 rounded-2xl text-left transition-all ${
+                  className={`w-full p-3.5 rounded-lg text-left transition-all ${
                     activityLevel === level.id
-                      ? 'bg-[#00FF85]/10 border-2 border-[#00FF85]'
+                      ? 'bg-[#7BE495]/10 border-2 border-[#7BE495]'
                       : 'bg-[#2a2c32] border border-white/10'
                   }`}
                 >
                   <div className="flex items-center justify-between">
                     <div>
                       <p className={`text-[13px] font-bold font-['Outfit'] ${
-                        activityLevel === level.id ? 'text-[#00FF85]' : 'text-[#E3DAC9]'
+                        activityLevel === level.id ? 'text-[#7BE495]' : 'text-[#E3DAC9]'
                       }`}>
                         {level.label}
                       </p>
                       <p className="text-[11px] text-white/40 mt-0.5">{level.description}</p>
                     </div>
                     {activityLevel === level.id && (
-                      <Icon icon="ph:check-circle-fill" width={20} className="text-[#00FF85]" />
+                      <Icon icon="ph:check-circle-fill" width={20} className="text-[#7BE495]" />
                     )}
                   </div>
                 </motion.button>
@@ -383,16 +383,16 @@ export function NutritionSettings({ onBack }: NutritionSettingsProps) {
 
           {/* Dietary Preference */}
           <div>
-            <p className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em] mb-3 ml-1">Dietary Preference</p>
+            <p className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em] mb-2.5 ml-1">Dietary Preference</p>
             <div className="flex flex-wrap gap-2">
               {DIETARY_PREFERENCES.map((pref) => (
                 <motion.button
                   key={pref.id}
                   whileTap={{ scale: 0.95 }}
                   onClick={() => setDietaryPreference(pref.id)}
-                  className={`px-4 py-2.5 rounded-xl font-bold font-['Outfit'] text-[12px] transition-all ${
+                  className={`px-4 py-2.5 rounded-lg font-bold font-['Outfit'] text-[12px] transition-all ${
                     dietaryPreference === pref.id
-                      ? 'bg-[#00FF85] text-black border-2 border-black'
+                      ? 'bg-[#7BE495] text-black'
                       : 'bg-[#2a2c32] text-[#E3DAC9]/60 border border-white/10'
                   }`}
                 >
@@ -404,11 +404,11 @@ export function NutritionSettings({ onBack }: NutritionSettingsProps) {
 
           {/* Target Weight (optional) */}
           <div>
-            <p className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em] mb-3 ml-1">
+            <p className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em] mb-2.5 ml-1">
               Target Weight (optional)
             </p>
-            <div className={`h-14 bg-[#2a2c32] rounded-2xl border px-5 flex items-center transition-all ${
-              errors.targetWeight ? 'border-red-400/60' : 'border-white/10 focus-within:border-[#00FF85]/50'
+            <div className={`h-12 bg-[#2a2c32] rounded-lg border px-4 flex items-center transition-all ${
+              errors.targetWeight ? 'border-red-400/60' : 'border-white/10 focus-within:border-[#7BE495]/50'
             }`}>
               <input
                 type="text"
@@ -416,20 +416,20 @@ export function NutritionSettings({ onBack }: NutritionSettingsProps) {
                 value={targetWeight}
                 onChange={(e) => handleNumericInput(e.target.value, setTargetWeight, true)}
                 placeholder="65.0"
-                className="w-full bg-transparent border-none outline-none text-[16px] font-bold font-['Outfit'] text-[#E3DAC9] placeholder:text-[#E3DAC9]/20"
+                className="w-full bg-transparent border-none outline-none text-[15px] font-bold font-['Outfit'] text-[#E3DAC9] placeholder:text-[#E3DAC9]/20"
               />
-              <span className="text-[12px] font-bold text-white/30 ml-2">kg</span>
+              <span className="text-[11px] font-bold text-white/30 ml-2">kg</span>
             </div>
             {errors.targetWeight && <p className="text-[11px] text-red-400 mt-2 ml-1">{errors.targetWeight}</p>}
           </div>
 
           {/* Duration */}
           <div>
-            <p className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em] mb-3 ml-1">
+            <p className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em] mb-2.5 ml-1">
               Duration (optional)
             </p>
-            <div className={`h-14 bg-[#2a2c32] rounded-2xl border px-5 flex items-center transition-all ${
-              errors.duration ? 'border-red-400/60' : 'border-white/10 focus-within:border-[#00FF85]/50'
+            <div className={`h-12 bg-[#2a2c32] rounded-lg border px-4 flex items-center transition-all ${
+              errors.duration ? 'border-red-400/60' : 'border-white/10 focus-within:border-[#7BE495]/50'
             }`}>
               <input
                 type="text"
@@ -437,9 +437,9 @@ export function NutritionSettings({ onBack }: NutritionSettingsProps) {
                 value={duration}
                 onChange={(e) => handleNumericInput(e.target.value, setDuration)}
                 placeholder="12"
-                className="w-full bg-transparent border-none outline-none text-[16px] font-bold font-['Outfit'] text-[#E3DAC9] placeholder:text-[#E3DAC9]/20"
+                className="w-full bg-transparent border-none outline-none text-[15px] font-bold font-['Outfit'] text-[#E3DAC9] placeholder:text-[#E3DAC9]/20"
               />
-              <span className="text-[12px] font-bold text-white/30 ml-2">weeks</span>
+              <span className="text-[11px] font-bold text-white/30 ml-2">weeks</span>
             </div>
             {errors.duration && <p className="text-[11px] text-red-400 mt-2 ml-1">{errors.duration}</p>}
           </div>
@@ -453,10 +453,10 @@ export function NutritionSettings({ onBack }: NutritionSettingsProps) {
           whileTap={!saving ? { scale: 0.95 } : {}}
           onClick={handleSave}
           disabled={saving}
-          className={`w-full h-14 rounded-2xl font-black font-['Outfit'] text-[14px] uppercase tracking-wider flex items-center justify-center gap-2 transition-all ${
+          className={`w-full h-12 rounded-lg font-black font-['Outfit'] text-[14px] uppercase tracking-wider flex items-center justify-center gap-2 transition-all ${
             saving
-              ? 'bg-[#00FF85]/50 text-black/50'
-              : 'bg-[#00FF85] text-black'
+              ? 'bg-[#7BE495]/50 text-black/50'
+              : 'bg-[#7BE495] text-black'
           }`}
         >
           {saving ? (

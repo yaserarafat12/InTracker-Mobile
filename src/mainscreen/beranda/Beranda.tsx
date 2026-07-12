@@ -30,7 +30,7 @@ import { DateNavigator } from './components/DateNavigator';
 import { AdminDashboard } from '../admin/AdminDashboard';
 
 const TodoList = ({ filter }: { filter?: TargetFilter }) => <TodoTargetView initialFilter={filter} />;
-const Global = () => <GlobalView />;
+const Global = ({ onNavigate }: { onNavigate?: (tab: string) => void }) => <GlobalView onNavigate={onNavigate} />;
 const Journey = () => <JourneyView />;
 
 function Beranda({ activeTab: initialTab = 'habits' }: { activeTab?: string }) {
@@ -296,6 +296,10 @@ function Beranda({ activeTab: initialTab = 'habits' }: { activeTab?: string }) {
                 activeFilter={statsTab}
                 setActiveFilter={setStatsTab}
                 habits={habits}
+                onAddHabit={() => {
+                  setEditingHabit(null);
+                  setIsAddModalOpen(true);
+                }}
               />
             )}
 
@@ -327,7 +331,7 @@ function Beranda({ activeTab: initialTab = 'habits' }: { activeTab?: string }) {
                 {activeTab === 'todo' && <TodoList filter={todoFilter} />}
                 {activeTab === 'analytics' && <AnalyticsView tutorialStep={tutorialStep} />}
                 {activeTab === 'journey' && <Journey />}
-                {activeTab === 'global' && <Global />}
+                {activeTab === 'global' && <Global onNavigate={setActiveTab} />}
                 {activeTab === 'features' && <ToolsHub />}
                 {activeTab === 'summary' && <WeeklySummaryRecap />}
               </motion.div>

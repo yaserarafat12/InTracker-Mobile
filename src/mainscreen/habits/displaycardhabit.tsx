@@ -4,6 +4,7 @@ import { Icon } from '@iconify/react';
 import { HABIT_ICONS, HABIT_COLORS, CATEGORY_COLORS, isCustomIcon, getCustomIconKey, HABIT_OPTIONS } from './icons';
 import { CUSTOM_SVGS } from '../../utils/icons';
 import { useHabitStore } from '../../store/useHabitStore';
+import { useUserStore } from '../../store/useUserStore';
 import { getPrismStyle } from '../../utils/design';
 import { formatIntensityLabel, shouldShowIntensityPicker, getIntensityConfig } from '../../utils/intensityHelpers';
 import { getScheduleLabel } from '../../utils/scheduleHelpers';
@@ -12,6 +13,7 @@ import IntensityPicker from './IntensityPicker';
 import ScheduleEditor from './ScheduleEditor';
 import HabitInfoModal from './HabitInfoModal';
 import { playNotifSfx } from '../../utils/sfx';
+import { useGenderedImageUrl } from '../../utils/imageHelpers';
 
 // DifficultyDots removed as per user request
 
@@ -67,7 +69,12 @@ interface KartuTugasProps {
 
 const KartuTugas = ({ habit, index, activeFilter, onDoubleTap, onEdit, isDraggable, dragControls, selectedDate, onHistoricalUpdate }: KartuTugasProps) => {
   const { deleteHabit, toggleHabit, updateHabit, setCompletingHabitId, completeWithIntensity } = useHabitStore();
+  const { settings } = useUserStore();
   const { t } = useTranslation();
+  const isLight = settings?.theme === 'Light';
+  const option = HABIT_OPTIONS.find(o => o.name.toLowerCase() === habit.name?.toLowerCase()) 
+    || HABIT_OPTIONS.find(o => o.iconName === habit.iconName);
+  const imageUrl = useGenderedImageUrl(option?.imageUrl);
   const [lastTap, setLastTap] = useState(0);
   const [isCompleting, setIsCompleting] = useState(false);
   const [showPicker, setShowPicker] = useState(false);
@@ -312,10 +319,15 @@ const KartuTugas = ({ habit, index, activeFilter, onDoubleTap, onEdit, isDraggab
               initial={{ scale: 0, x: 20 }}
               animate={{ scale: 1, x: 0 }}
               exit={{ scale: 0, opacity: 0, transition: { duration: 0.1 } }}
-              className="absolute top-[-6px] right-[-5px] z-20 flex items-center gap-1.5 px-[14px] py-[6px] bg-[#FF4D00] border-[1.5px] border-black shadow-[3.5px_3.5px_0px_rgba(0,0,0,1)] rounded-full"
+              className={`
+                absolute top-[-6px] right-[-5px] z-20 flex items-center gap-1 px-[10px] py-[5px] rounded-[8px] border-2 w-fit whitespace-nowrap
+                ${isLight 
+                  ? 'border-[#FF4D00] bg-[#FFF0EB] text-[#FF4D00] shadow-[0_4px_12px_rgba(255,77,0,0.12)]' 
+                  : 'border-[#FF7A45]/40 bg-[#FF4D00]/12 text-[#FF7A45] shadow-[0_6px_16px_rgba(255,77,0,0.15)]'}
+              `}
             >
-              <Icon icon="solar:fire-bold" className="text-white w-4 h-4" />
-              <span className="text-white text-[13px] font-black font-['Outfit'] leading-none mt-[1px]">
+              <Icon icon="solar:fire-bold" className={`w-3.5 h-3.5 ${isLight ? 'text-[#FF4D00]' : 'text-[#FF7A45]'}`} />
+              <span className={`text-[12px] font-black font-['Outfit'] leading-none mt-[1px] ${isLight ? 'text-[#FF4D00]' : 'text-[#FF7A45]'}`}>
                 {habit.streak || 0}
               </span>
             </motion.div>
@@ -384,30 +396,20 @@ const KartuTugas = ({ habit, index, activeFilter, onDoubleTap, onEdit, isDraggab
           )}
         </AnimatePresence>
 
-        <div className={`absolute inset-0 rounded-[10px] overflow-hidden border-[2px] border-white/15 shadow-[8px_8px_0px_rgba(0,0,0,1)] bg-[#1c1e22] group cursor-pointer transition-all duration-300 ${isCompleting ? 'opacity-0 scale-[0.95]' : ''} ${!isEditable ? 'opacity-65' : ''}`}>
-          {/* Background Image from HABIT_OPTIONS */}
-          {(() => {
-            const option = HABIT_OPTIONS.find(o => o.name.toLowerCase() === habit.name?.toLowerCase()) 
-              || HABIT_OPTIONS.find(o => o.iconName === habit.iconName);
-            if (option && option.imageUrl) {
-              return (
-                <img 
-                  src={option.imageUrl} 
-                  alt=""
-                  className={`absolute inset-0 w-full h-full object-cover ${option.imagePosition || 'object-center'} opacity-[0.95] z-0 transition-transform duration-500 group-hover:scale-110`}
-                />
-              );
-            }
-            // Gradient fallback for custom habits
-            const catColor = habit.color || '#00FF85';
-            return (
-              <img 
-                src="/all_images/custom_habit_bg.png" 
-                alt=""
-                className="absolute inset-0 w-full h-full object-cover opacity-[0.85] z-0"
-              />
-            );
-          })()}
+        <div className={`absolute inset-0 rounded-[10px] overflow-hidden border-[2px] border-white/15 bg-[#1c1e22] group cursor-pointer transition-all duration-300 ${isCompleting ? 'opacity-0 scale-[0.95]' : ''} ${!isEditable ? 'opacity-65' : ''}`}>
+          {option && option.imageUrl ? (
+            <img 
+              src={imageUrl} 
+              alt=""
+              className={`absolute inset-0 w-full h-full object-cover ${option.imagePosition || 'object-center'} opacity-[0.95] z-0 transition-transform duration-500 group-hover:scale-110`}
+            />
+          ) : (
+            <img 
+              src="/all_images/custom_habit_bg.png" 
+              alt=""
+              className="absolute inset-0 w-full h-full object-cover opacity-[0.85] z-0"
+            />
+          )}
           
           <div className="absolute inset-0 bg-black/25 z-[1]" />
           <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent z-[2]" />
@@ -421,9 +423,9 @@ const KartuTugas = ({ habit, index, activeFilter, onDoubleTap, onEdit, isDraggab
               e.stopPropagation();
               setShowInfoModal(true);
             }}
-            className="absolute top-3 left-3 z-20 w-7 h-7 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center border border-white/5 active:scale-95 transition-all"
+            className="absolute top-3 left-3 z-20 w-[22px] h-[22px] rounded-full bg-white/10 backdrop-blur-md flex items-center justify-center border border-white/30 opacity-85 active:scale-95 transition-all"
           >
-            <span className="font-['Times_New_Roman',Times,serif] font-bold text-[16px] text-white/90 leading-none select-none">i</span>
+            <span className="font-['Times_New_Roman',Times,serif] font-bold text-[13px] text-white/90 leading-none select-none mt-[-0.5px]">i</span>
           </button>
           
           <div className="absolute inset-0 px-5 pt-5 pb-3 flex flex-col justify-end z-10">

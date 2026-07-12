@@ -382,7 +382,7 @@ export function WorkoutCounter({ onBack }: WorkoutCounterProps) {
                           : 'bg-black/50 border border-white/10 text-white/80'
                     }`}
                   >
-                    <span>{exercise.name}</span>
+                    <span>{t(exercise.name)}</span>
                     <div className="flex items-center gap-2">
                       <span className={`text-[10px] uppercase font-bold ${isSelected ? (isLight ? 'text-black/60' : 'text-[#00FF85]/80') : (isLight ? 'text-black/35' : 'text-white/30')}`}>
                         {exercise.type === 'reps' ? t('features.workout.typeReps') : exercise.type === 'duration' ? t('features.workout.typeDuration') : t('features.workout.typeDistance')}
@@ -430,7 +430,7 @@ export function WorkoutCounter({ onBack }: WorkoutCounterProps) {
               <p className={`text-[13px] mb-1 font-bold ${isLight ? 'text-black/50' : 'text-white/40'}`}>
                 {t('features.workout.exerciseLabel')} {currentExerciseIndex + 1}/{activeExercises.length}
               </p>
-              <h2 className={`text-[28px] font-black ${isLight ? 'text-black' : 'text-white'}`}>{currentExercise.name}</h2>
+              <h2 className={`text-[28px] font-black ${isLight ? 'text-black' : 'text-white'}`}>{t(currentExercise.name)}</h2>
               {currentExercise.sets > 1 && (
                 <p className={`text-[15px] font-black mt-2 ${isLight ? 'text-black' : 'text-[#00FF85]'}`}>
                   {t('features.workout.setLabel')} {currentSet}/{currentExercise.sets}
@@ -532,7 +532,7 @@ export function WorkoutCounter({ onBack }: WorkoutCounterProps) {
                             : 'bg-[#00FF85]/10 text-[#00FF85] border-transparent'
                         }`}
                       >
-                        {ex.name}
+                        {t(ex.name)}
                       </span>
                     ))}
                   </div>

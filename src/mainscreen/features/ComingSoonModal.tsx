@@ -45,10 +45,12 @@ export function ComingSoonModal({ isOpen, onClose }: ComingSoonModalProps) {
 
               {/* Text */}
               <h3 className={`text-[20px] font-bold font-['Outfit'] ${isLight ? 'text-black' : 'text-white'}`}>
-                Segera Hadir!
+                {settings.language === 'Bahasa Indonesia' ? 'Segera Hadir!' : 'Coming Soon!'}
               </h3>
               <p className={`text-[14px] max-w-[280px] leading-relaxed ${isLight ? 'text-black/60' : 'text-white/50'}`}>
-                Fitur ini sedang dalam pengembangan. Kami sedang bekerja keras untuk menghadirkannya untukmu!
+                {settings.language === 'Bahasa Indonesia' 
+                  ? 'Fitur ini sedang dalam pengembangan. Kami sedang bekerja keras untuk menghadirkannya untukmu!' 
+                  : 'This feature is currently under development. We are working hard to bring it to you soon!'}
               </p>
 
               {/* Close button */}
@@ -57,7 +59,7 @@ export function ComingSoonModal({ isOpen, onClose }: ComingSoonModalProps) {
                 onClick={onClose}
                 className="mt-4 w-full py-3.5 bg-[#00FF85] text-black font-black rounded-xl text-[14px] border-[2px] border-black shadow-[3px_3px_0px_rgba(0,0,0,1)]"
               >
-                Mengerti
+                {settings.language === 'Bahasa Indonesia' ? 'Mengerti' : 'Got It'}
               </motion.button>
             </div>
           </motion.div>

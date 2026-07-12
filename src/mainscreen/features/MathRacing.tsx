@@ -500,11 +500,25 @@ function PlayView({ mode, question, score, wrongCount, streak, timeLeft, feedbac
   );
 }
 
+const LABELS: Record<string, { correct: string; wrong: string; combo: string }> = {
+  'English': { correct: 'Correct', wrong: 'Wrong', combo: 'Combo' },
+  'Bahasa Indonesia': { correct: 'Benar', wrong: 'Salah', combo: 'Combo' },
+  'Español': { correct: 'Correctas', wrong: 'Incorrectas', combo: 'Combo' },
+  'Chinese': { correct: '正确', wrong: '错误', combo: '连击' },
+  'Hindi': { correct: 'सही', wrong: 'गलत', combo: 'कॉम्बो' },
+  'Arabic': { correct: 'صحيح', wrong: 'خاطئ', combo: 'كومبو' },
+  'Portuguese': { correct: 'Correto', wrong: 'Incorreto', combo: 'Combo' },
+  'Français': { correct: 'Correct', wrong: 'Faux', combo: 'Combo' },
+  'Japanese': { correct: '正解', wrong: '不正解', combo: 'コンボ' },
+  'Deutsch': { correct: 'Richtig', wrong: 'Falsch', combo: 'Combo' }
+};
+
 function ResultView({ score, wrongCount, totalQuestions, bestStreak, onRestart, onBack, isLight }: {
   score: number; wrongCount: number; totalQuestions: number; bestStreak: number; onRestart: () => void; onBack: () => void; isLight: boolean;
 }) {
-  const { t } = useTranslation();
+  const { t, language } = useTranslation();
   const percentage = totalQuestions > 0 ? Math.round((score / totalQuestions) * 100) : 0;
+  const labels = LABELS[language] || LABELS['English'];
 
   return (
     <div className="min-h-full flex flex-col px-6 pt-10 pb-10 relative overflow-hidden">
@@ -543,21 +557,21 @@ function ResultView({ score, wrongCount, totalQuestions, bestStreak, onRestart, 
           {/* Score details */}
           <div className="grid grid-cols-3 gap-2">
             <div className="flex flex-col items-center">
-              <span className="text-[10px] text-white/40 uppercase font-black tracking-wider mb-1">Benar</span>
+              <span className="text-[10px] text-white/40 uppercase font-black tracking-wider mb-1">{labels.correct}</span>
               <div className="flex items-center gap-1">
                 <Icon icon="solar:check-circle-bold" className="text-[#00FF85]" width={16} />
                 <span className={`text-[16px] font-black ${isLight ? 'text-black' : 'text-white'}`}>{score}</span>
               </div>
             </div>
             <div className="flex flex-col items-center border-x border-white/10">
-              <span className="text-[10px] text-white/40 uppercase font-black tracking-wider mb-1">Salah</span>
+              <span className="text-[10px] text-white/40 uppercase font-black tracking-wider mb-1">{labels.wrong}</span>
               <div className="flex items-center gap-1">
                 <Icon icon="solar:close-circle-bold" className="text-red-400" width={16} />
                 <span className={`text-[16px] font-black ${isLight ? 'text-black' : 'text-white'}`}>{wrongCount}</span>
               </div>
             </div>
             <div className="flex flex-col items-center">
-              <span className="text-[10px] text-white/40 uppercase font-black tracking-wider mb-1">Combo</span>
+              <span className="text-[10px] text-white/40 uppercase font-black tracking-wider mb-1">{labels.combo}</span>
               <div className="flex items-center gap-1">
                 <Icon icon="solar:fire-bold" className="text-amber-400" width={16} />
                 <span className={`text-[16px] font-black ${isLight ? 'text-black' : 'text-white'}`}>{bestStreak}</span>

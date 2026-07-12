@@ -702,7 +702,7 @@ body::after {
   -webkit-backdrop-filter: none !important;
 }
 
-/* Cards & buttons inside overlay — white in light mode */
+/* Cards & buttons inside overlay — white in light mode with modern styling */
 :root:not(.dark) .nutrition-overlay .bg-\[\#2a2c32\],
 :root:not(.dark) .nutrition-overlay .bg-\[\#2a2c32\]\/50,
 :root:not(.dark) .nutrition-overlay .bg-\[\#252830\],
@@ -711,8 +711,8 @@ body::after {
   background-color: #ffffff !important;
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
-  border: 2px solid #111111 !important;
-  box-shadow: 3px 3px 0px rgba(0,0,0,0.65) !important;
+  border: 1.5px solid rgba(0, 0, 0, 0.08) !important;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03) !important;
 }
 
 /* Active state for cards — light mode */
@@ -721,14 +721,15 @@ body::after {
   background-color: #f5f5f5 !important;
 }
 
-/* Inputs — light mode */
+/* Inputs — light mode (no inner borders to prevent double-box appearance) */
 :root:not(.dark) .nutrition-overlay input[type="text"],
 :root:not(.dark) .nutrition-overlay input[type="number"],
 :root:not(.dark) .nutrition-overlay select,
 :root:not(.dark) .nutrition-overlay textarea {
-  background-color: #ffffff !important;
-  border-color: #111111 !important;
-  color: #111111 !important;
+  background-color: transparent !important;
+  border: none !important;
+  color: #000000 !important;
+  font-family: 'Outfit', sans-serif !important;
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
 }
@@ -737,14 +738,19 @@ body::after {
   color: rgba(0, 0, 0, 0.3) !important;
 }
 
-/* Green action button — same as dark mode */
+/* Brand green action button & toggles — modern soft borders and shadows */
 :root:not(.dark) .nutrition-overlay .bg-\[\#00FF85\],
+:root:not(.dark) .nutrition-overlay .bg-\[\#A8FF35\],
+:root:not(.dark) .nutrition-overlay .bg-\[\#A3E635\],
+:root:not(.dark) .nutrition-overlay .bg-\[\#8EA685\],
 :root:not(.dark) .nutrition-overlay .bg-\[\#7BE495\] {
-  background-color: #00FF85 !important;
+  background-color: #7BE495 !important;
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
   color: #000000 !important;
-  border: 2px solid #000000 !important;
+  font-family: 'Outfit', sans-serif !important;
+  border: none !important;
+  box-shadow: 0 4px 12px rgba(123, 228, 149, 0.15) !important;
 }
 
 /* bg-white opacities — dark equivalents */
@@ -1050,3 +1056,43 @@ textarea.bg-journal-transparent,
   background-image: none !important;
   border-color: transparent !important;
 }
+
+/* Premium Glossy Sheen Effect for Active Tabs */
+.sheen-active-tab {
+  position: relative;
+  overflow: hidden;
+}
+
+.sheen-active-tab::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 220%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.4) 40%,
+    rgba(255, 255, 255, 0.65) 50%,
+    rgba(255, 255, 255, 0.4) 60%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  transform: translateX(-160%) skewX(-25deg);
+  animation: shine-animation 4.5s infinite ease-in-out;
+  pointer-events: none;
+  z-index: 5;
+}
+
+@keyframes shine-animation {
+  0% {
+    transform: translateX(-160%) skewX(-25deg);
+  }
+  28% {
+    transform: translateX(130%) skewX(-25deg);
+  }
+  100% {
+    transform: translateX(130%) skewX(-25deg);
+  }
+}
+

@@ -63,6 +63,7 @@ const DaftarHabit = ({
   const [lastTap, setLastTap] = useState(0);
   const { toggleHabit, reorderHabits } = useHabitStore();
   const { profile, settings } = useUserStore();
+  const isLight = settings?.theme === 'Light';
   const [showHint, setShowHint] = useState(true);
   const { t, language } = useTranslation();
 
@@ -437,24 +438,7 @@ const DaftarHabit = ({
           : renderDisplay(skippedHabits, 'dilewati')}
       </AnimatePresence>
 
-      {/* FAB - Tambah Habit (pojok kanan bawah) */}
-      {onAddHabit && (
-        <motion.button
-          id="add-habit-fab"
-          initial={{ scale: 0, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          whileTap={{ scale: 0.9, x: 4, y: 4, boxShadow: '0px 0px 0px rgba(0,0,0,1)' }}
-          onClick={() => {
-            if (navigator.vibrate) navigator.vibrate(20);
-            onAddHabit();
-          }}
-          className="fixed bottom-24 right-6 w-[60px] h-[60px] bg-os-green border-[2px] border-black rounded-2xl shadow-[3px_3px_0px_rgba(0,0,0,1)] flex items-center justify-center z-[60]"
-        >
-          <svg width="30" height="30" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M12 5V19M5 12H19" stroke="black" strokeWidth="5" strokeLinecap="square" />
-          </svg>
-        </motion.button>
-      )}
+
     </div>
   );
 };

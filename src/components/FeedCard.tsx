@@ -6,6 +6,7 @@ import { Icon } from '@iconify/react';
 import { supabase } from '../lib/supabase';
 import { useSocialStore } from '../store/useSocialStore';
 import { Loader2, Send, Trash2 } from 'lucide-react';
+import { useTranslation } from '../i18n';
 
 interface FeedCardProps {
   id: string;
@@ -47,6 +48,7 @@ const getFlagEmoji = (regionCode?: string) => {
 
 const FeedCard: React.FC<FeedCardProps> = ({ id, user, type, content, metadata, created_at, initialReactions, onProfileClick, onDelete }) => {
   const { profile } = useUserStore();
+  const { t, language } = useTranslation();
   const [showReportDialog, setShowReportDialog] = useState(false);
   // Normalize reactions to new format
   const normalizeReactions = (r: Record<string, number> | undefined) => {
@@ -78,14 +80,137 @@ const FeedCard: React.FC<FeedCardProps> = ({ id, user, type, content, metadata, 
   const { fetchComments, addComment, deleteComment } = useSocialStore();
 
   // Time ago helper
-  const timeAgo = (dateStr: string) => {
+  const timeAgo = (dateStr: string, currentLang: string) => {
     const diff = Date.now() - new Date(dateStr).getTime();
-    const mins = Math.floor(diff / 60000);
-    if (mins < 60) return `${mins}m ago`;
+    const mins = Math.max(1, Math.floor(diff / 60000));
     const hours = Math.floor(mins / 60);
-    if (hours < 24) return `${hours}h ago`;
     const days = Math.floor(hours / 24);
+
+    const isIndo = currentLang === 'Bahasa Indonesia';
+    const isChinese = currentLang === 'Chinese';
+    const isArabic = currentLang === 'Arabic';
+    const isKorean = currentLang === 'Korean';
+    const isJapanese = currentLang === 'Japanese';
+    const isSpanish = currentLang === 'Español';
+    const isFrench = currentLang === 'Français';
+    const isPortuguese = currentLang === 'Portuguese';
+    const isGerman = currentLang === 'Deutsch';
+    const isHindi = currentLang === 'Hindi';
+
+    if (mins < 60) {
+      if (isIndo) return `${mins}m lalu`;
+      if (isChinese) return `${mins}分钟前`;
+      if (isArabic) return `منذ ${mins} د`;
+      if (isKorean) return `${mins}분 전`;
+      if (isJapanese) return `${mins}分前`;
+      if (isSpanish) return `hace ${mins} min`;
+      if (isFrench) return `il y a ${mins} min`;
+      if (isPortuguese) return `há ${mins} min`;
+      if (isGerman) return `vor ${mins} Min.`;
+      if (isHindi) return `${mins} मिनट पहले`;
+      return `${mins}m ago`;
+    }
+    
+    if (hours < 24) {
+      if (isIndo) return `${hours}j lalu`;
+      if (isChinese) return `${hours}小时前`;
+      if (isArabic) return `منذ ${hours} س`;
+      if (isKorean) return `${hours}시간 전`;
+      if (isJapanese) return `${hours}時間前`;
+      if (isSpanish) return `hace ${hours} h`;
+      if (isFrench) return `il y a ${hours} h`;
+      if (isPortuguese) return `há ${hours} h`;
+      if (isGerman) return `vor ${hours} Std.`;
+      if (isHindi) return `${hours} घंटे पहले`;
+      return `${hours}h ago`;
+    }
+
+    if (isIndo) return `${days}h lalu`;
+    if (isChinese) return `${days}天前`;
+    if (isArabic) return `منذ ${days} ي`;
+    if (isKorean) return `${days}일 전`;
+    if (isJapanese) return `${days}日前`;
+    if (isSpanish) return `hace ${days} d`;
+    if (isFrench) return `il y a ${days} j`;
+    if (isPortuguese) return `há ${days} d`;
+    if (isGerman) return `vor ${days} Tag.`;
+    if (isHindi) return `${days} दिन पहले`;
     return `${days}d ago`;
+  };
+
+  const getLocalizedDayOf = (streak: number, habitName: string, currentLang: string) => {
+    const isIndo = currentLang === 'Bahasa Indonesia';
+    const isChinese = currentLang === 'Chinese';
+    const isArabic = currentLang === 'Arabic';
+    const isKorean = currentLang === 'Korean';
+    const isJapanese = currentLang === 'Japanese';
+    const isSpanish = currentLang === 'Español';
+    const isFrench = currentLang === 'Français';
+    const isPortuguese = currentLang === 'Portuguese';
+    const isGerman = currentLang === 'Deutsch';
+    const isHindi = currentLang === 'Hindi';
+
+    if (isIndo) return `Hari ke-${streak} dari ${habitName}`;
+    if (isChinese) return `${habitName} 第 ${streak} 天`;
+    if (isArabic) return `اليوم ${streak} من ${habitName}`;
+    if (isKorean) return `${habitName} ${streak}일차`;
+    if (isJapanese) return `${habitName} ${streak}日目`;
+    if (isSpanish) return `Día ${streak} de ${habitName}`;
+    if (isFrench) return `Jour ${streak} de ${habitName}`;
+    if (isPortuguese) return `Dia ${streak} de ${habitName}`;
+    if (isGerman) return `Tag ${streak} von ${habitName}`;
+    if (isHindi) return `${habitName} का दिन ${streak}`;
+    return `Day ${streak} of ${habitName}`;
+  };
+
+  const getLocalizedStreak = (count: number, currentLang: string) => {
+    const isIndo = currentLang === 'Bahasa Indonesia';
+    const isChinese = currentLang === 'Chinese';
+    const isArabic = currentLang === 'Arabic';
+    const isKorean = currentLang === 'Korean';
+    const isJapanese = currentLang === 'Japanese';
+    const isSpanish = currentLang === 'Español';
+    const isFrench = currentLang === 'Français';
+    const isPortuguese = currentLang === 'Portuguese';
+    const isGerman = currentLang === 'Deutsch';
+    const isHindi = currentLang === 'Hindi';
+
+    if (isIndo) return `🔥 Streak ${count} Hari`;
+    if (isChinese) return `🔥 连续 ${count} 天`;
+    if (isArabic) return `🔥 سلسلة نشاط ${count} يوم`;
+    if (isKorean) return `🔥 ${count}일 연속 스트릭`;
+    if (isJapanese) return `🔥 ${count}日連続ストリーク`;
+    if (isSpanish) return `🔥 Racha de ${count} días`;
+    if (isFrench) return `🔥 Série de ${count} jours`;
+    if (isPortuguese) return `🔥 Racha de ${count} dias`;
+    if (isGerman) return `🔥 ${count} Tage Streak`;
+    if (isHindi) return `🔥 लगातार ${count} दिन`;
+    return `🔥 Streak of ${count} days`;
+  };
+
+  const getLocalizedMilestone = (currentLang: string) => {
+    const isIndo = currentLang === 'Bahasa Indonesia';
+    const isChinese = currentLang === 'Chinese';
+    const isArabic = currentLang === 'Arabic';
+    const isKorean = currentLang === 'Korean';
+    const isJapanese = currentLang === 'Japanese';
+    const isSpanish = currentLang === 'Español';
+    const isFrench = currentLang === 'Français';
+    const isPortuguese = currentLang === 'Portuguese';
+    const isGerman = currentLang === 'Deutsch';
+    const isHindi = currentLang === 'Hindi';
+
+    if (isIndo) return `🏆 Pencapaian`;
+    if (isChinese) return `🏆 里程碑`;
+    if (isArabic) return `🏆 إنجاز هام`;
+    if (isKorean) return `🏆 마일스톤`;
+    if (isJapanese) return `🏆 マイルストーン`;
+    if (isSpanish) return `🏆 Hito`;
+    if (isFrench) return `🏆 Étape Jalons`;
+    if (isPortuguese) return `🏆 Marco`;
+    if (isGerman) return `🏆 Meilenstein`;
+    if (isHindi) return `🏆 मील का पत्थर`;
+    return `🏆 Milestone`;
   };
   
   const handleReact = async (emoji: string) => {
@@ -186,12 +311,11 @@ const FeedCard: React.FC<FeedCardProps> = ({ id, user, type, content, metadata, 
             <div className="flex flex-col gap-0.5">
               <h4 
                 onClick={onProfileClick}
-                className="font-black text-[#E3DAC9] text-[14px] tracking-normal cursor-pointer hover:text-[#00FF85] transition-colors leading-tight flex items-center gap-1.5"
+                className="font-bold text-[#E3DAC9] text-[14.5px] tracking-tight cursor-pointer hover:text-[#00FF85] transition-colors leading-tight flex items-center gap-1.5"
               >
                 <span>{user.nickname}</span>
-                <span className="text-[14px]">{getFlagEmoji(user.region)}</span>
               </h4>
-              <span className="text-[10px] text-[#E3DAC9]/40 font-bold leading-none">{timeAgo(created_at)}</span>
+              <span className="text-[10px] text-[#E3DAC9]/40 font-medium leading-none">{timeAgo(created_at, language)}</span>
             </div>
           </div>
           <div className="relative">
@@ -241,17 +365,17 @@ const FeedCard: React.FC<FeedCardProps> = ({ id, user, type, content, metadata, 
         {/* Subtitle rendered below the avatar/name row */}
         {type === 'habit_completion' && metadata?.habit_name && (
           <p className="text-[14px] font-black text-[#00FF85] px-1 font-['Outfit'] uppercase tracking-wide">
-            Day {metadata?.streak || 0} of {metadata.habit_name}
+            {getLocalizedDayOf(metadata?.streak || 0, metadata.habit_name, language)}
           </p>
         )}
         {type === 'streak' && (
           <p className="text-[14px] font-black text-[#FF4D00] px-1 font-['Outfit'] uppercase tracking-wide">
-            🔥 Streak {metadata?.count} Hari
+            {getLocalizedStreak(metadata?.count || 0, language)}
           </p>
         )}
         {type === 'milestone' && (
           <p className="text-[14px] font-black text-[#E3DAC9]/80 px-1 font-['Outfit'] uppercase tracking-wide">
-            🏆 Milestone
+            {getLocalizedMilestone(language)}
           </p>
         )}
       </div>

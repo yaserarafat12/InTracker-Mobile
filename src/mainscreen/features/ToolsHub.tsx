@@ -207,14 +207,24 @@ export function ToolsHub() {
                 if (navigator.vibrate) navigator.vibrate(10);
                 setIsFeedbackOpen(true);
               }}
-              className="suggestion-card-lime mt-4 p-4 rounded-[20px] flex items-center gap-3 cursor-pointer"
+              className={`mt-4 p-4 rounded-[10px] border-[2px] flex items-center gap-3 cursor-pointer transition-all duration-300 hover:scale-[1.01] ${
+                isLight
+                  ? 'bg-white border-black/10 text-black shadow-[0_8px_24px_rgba(0,0,0,0.06)]'
+                  : 'bg-black border-[#00FF85]/30 text-[#00FF85] shadow-[0_8px_24px_rgba(0,0,0,0.4)]'
+              }`}
             >
-              <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0">
-                <Icon icon="ph:lightbulb-bold" className="text-black" width={20} />
+              <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${
+                isLight ? 'bg-black/5' : 'bg-[#00FF85]/15'
+              }`}>
+                <Icon icon="ph:lightbulb-bold" className={isLight ? 'text-black' : 'text-[#00FF85]'} width={20} />
               </div>
               <div>
-                <p className="text-[13px] font-black text-black">{settings.language === 'Bahasa Indonesia' ? 'Kirim Saran & Lapor Bug' : 'Send Suggestion / Report Bug'}</p>
-                <p className="text-[11px] font-bold text-black/60">{settings.language === 'Bahasa Indonesia' ? 'Punya ide fitur baru atau menemukan kendala? Beritahu kami!' : 'Have a new feature idea or encountered a bug? Tell us!'}</p>
+                <p className={`text-[13px] font-black ${isLight ? 'text-black' : 'text-[#00FF85]'}`}>
+                  {settings.language === 'Bahasa Indonesia' ? 'Kirim Saran & Lapor Bug' : 'Send Suggestion / Report Bug'}
+                </p>
+                <p className={`text-[11px] font-bold ${isLight ? 'text-black/60' : 'text-white/60'}`}>
+                  {settings.language === 'Bahasa Indonesia' ? 'Punya ide fitur baru atau menemukan kendala? Beritahu kami!' : 'Have a new feature idea or encountered a bug? Tell us!'}
+                </p>
               </div>
             </motion.div>
           </motion.div>
@@ -330,7 +340,7 @@ export function ToolsHub() {
               animate={{ scale: 1, y: 0 }}
               exit={{ scale: 0.9, y: 20 }}
               transition={{ type: 'spring', damping: 25, stiffness: 350 }}
-              className="relative z-10 w-full max-w-[360px] bg-[#111] border-[3px] border-black rounded-3xl p-6 shadow-[6px_6px_0px_rgba(0,255,133,0.3)] flex flex-col gap-4 text-left"
+              className="relative z-10 w-full max-w-[360px] bg-black border-[2px] border-white/10 rounded-[16px] p-6 shadow-[0_16px_48px_rgba(0,0,0,0.8)] flex flex-col gap-4 text-left"
             >
               {/* Header */}
               <div className="flex items-center justify-between">
@@ -339,7 +349,7 @@ export function ToolsHub() {
                 </h3>
                 <button 
                   onClick={() => setIsFeedbackOpen(false)}
-                  className="w-9 h-9 rounded-xl border-[2px] border-white/10 bg-[#2a2c32] flex items-center justify-center active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all"
+                  className="w-9 h-9 rounded-[10px] border-[2px] border-white/10 bg-[#2a2c32] flex items-center justify-center active:scale-95 transition-all"
                 >
                   <Icon icon="ph:x-bold" className="text-white" width={16} />
                 </button>
@@ -349,9 +359,9 @@ export function ToolsHub() {
               <div className="grid grid-cols-2 gap-2 mt-2">
                 <button
                   onClick={() => setFeedbackType('suggestion')}
-                  className={`py-3 rounded-xl border text-xs font-black uppercase tracking-wider transition-all ${
+                  className={`py-3 rounded-[10px] border-[2px] text-xs font-black uppercase tracking-wider transition-all ${
                     feedbackType === 'suggestion'
-                      ? 'bg-[#00FF85] text-black border-black shadow-[2px_2px_0px_rgba(0,0,0,1)]'
+                      ? 'bg-[#00FF85] text-[#050A07] border-[#00FF85] shadow-sm'
                       : 'bg-black/40 border-white/10 text-white/50'
                   }`}
                 >
@@ -359,9 +369,9 @@ export function ToolsHub() {
                 </button>
                 <button
                   onClick={() => setFeedbackType('bug')}
-                  className={`py-3 rounded-xl border text-xs font-black uppercase tracking-wider transition-all ${
+                  className={`py-3 rounded-[10px] border-[2px] text-xs font-black uppercase tracking-wider transition-all ${
                     feedbackType === 'bug'
-                      ? 'bg-red-500 text-white border-black shadow-[2px_2px_0px_rgba(0,0,0,1)]'
+                      ? 'bg-rose-500 text-white border-rose-500 shadow-sm'
                       : 'bg-black/40 border-white/10 text-white/50'
                   }`}
                 >
@@ -379,7 +389,7 @@ export function ToolsHub() {
                   placeholder={feedbackType === 'bug' ? 'e.g. Calorie tracker error' : 'e.g. Add dark mode to journeys'}
                   value={feedbackSubject}
                   onChange={(e) => setFeedbackSubject(e.target.value)}
-                  className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-xs font-bold text-white placeholder:text-white/20 focus:outline-none focus:border-[#00FF85] transition-all"
+                  className="w-full bg-black/60 border border-white/10 rounded-[10px] px-4 py-3 text-xs font-bold text-white placeholder:text-white/20 focus:outline-none focus:border-[#00FF85] transition-all"
                 />
               </div>
 
@@ -393,7 +403,7 @@ export function ToolsHub() {
                   value={feedbackMessage}
                   onChange={(e) => setFeedbackMessage(e.target.value)}
                   rows={4}
-                  className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-xs font-bold text-white placeholder:text-white/20 focus:outline-none focus:border-[#00FF85] transition-all resize-none"
+                  className="w-full bg-black/60 border border-white/10 rounded-[10px] px-4 py-3 text-xs font-bold text-white placeholder:text-white/20 focus:outline-none focus:border-[#00FF85] transition-all resize-none"
                 />
               </div>
 
@@ -401,7 +411,7 @@ export function ToolsHub() {
               <button
                 disabled={isSubmittingFeedback}
                 onClick={handleSubmitFeedback}
-                className="w-full py-4 mt-2 bg-[#00FF85] text-black font-black text-sm rounded-xl border border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-[2px_2px_0px_rgba(0,0,0,1)] transition-all flex items-center justify-center gap-2"
+                className="w-full py-4 mt-2 bg-[#00FF85] text-[#050A07] font-black text-sm rounded-[10px] border-[2px] border-[#00FF85] shadow-[0_8px_20px_rgba(0,255,133,0.15)] active:scale-[0.98] transition-all flex items-center justify-center gap-2"
               >
                 {isSubmittingFeedback ? (
                   <>
@@ -427,7 +437,7 @@ export function ToolsHub() {
             initial={{ opacity: 0, y: 30, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 30, scale: 0.95 }}
-            className="fixed bottom-24 left-6 right-6 z-[300] bg-[#00FF85] text-black font-['Outfit'] font-black text-xs text-center px-4 py-3.5 rounded-2xl border-2 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] flex items-center justify-center gap-2"
+            className="fixed bottom-24 left-6 right-6 z-[300] bg-[#00FF85] text-black font-['Outfit'] font-black text-xs text-center px-4 py-3.5 rounded-[10px] border-[2px] border-[#00FF85]/20 shadow-[0_8px_24px_rgba(0,255,133,0.2)] flex items-center justify-center gap-2"
           >
             <Icon icon="ph:check-circle-bold" width={16} height={16} />
             <span>{toastMessage}</span>

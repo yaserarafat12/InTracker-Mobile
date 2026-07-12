@@ -35,15 +35,15 @@ export const NavigasiBawah: React.FC<NavigasiBawahProps> = ({ activeTab, setActi
   const isLight = settings?.theme === 'Light';
 
   return (
-    <nav className={`fixed bottom-0 left-0 right-0 z-50 h-[calc(80px+env(safe-area-inset-bottom,0px))] rounded-t-[24px] px-2 transition-colors duration-300 border-t ${
+    <nav className={`fixed bottom-0 left-0 right-0 z-50 h-[calc(72px+env(safe-area-inset-bottom,0px))] rounded-t-[24px] px-2 transition-colors duration-300 border-t ${
       isLight 
         ? 'bg-white border-neutral-300 shadow-[0_-2px_15px_rgba(0,0,0,0.05)]' 
         : 'bg-[#0d0f12] border-white/[0.08] shadow-[0_-4px_30px_rgba(0,0,0,0.3)]'
     }`}>
       {/* Center ambient glow - wider spread */}
-      <div className="absolute -top-6 left-1/2 -translate-x-1/2 w-[280px] h-[80px] bg-os-green/5 blur-[50px] rounded-full pointer-events-none" />
-      <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[350px] h-[40px] bg-os-green/3 blur-[30px] rounded-full pointer-events-none" />
-      <div className="flex items-center justify-around h-[80px] w-full max-w-[500px] mx-auto">
+      <div className="absolute -top-6 left-1/2 -translate-x-1/2 w-[280px] h-[72px] bg-[#7BE495]/5 blur-[50px] rounded-full pointer-events-none" />
+      <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[350px] h-[36px] bg-[#7BE495]/3 blur-[30px] rounded-full pointer-events-none" />
+      <div className="flex items-center justify-around h-[72px] w-full max-w-[500px] mx-auto">
         {navItems.map((item) => (
           <motion.button
             key={item.id}
@@ -57,7 +57,7 @@ export const NavigasiBawah: React.FC<NavigasiBawahProps> = ({ activeTab, setActi
           >
             <div className={`relative z-10 transition-all duration-500 ${
               activeTab === item.id 
-              ? 'text-os-green scale-125' 
+              ? 'text-[#7BE495] scale-125' 
               : 'text-neutral-500 dark:text-[#E3DAC9]/60 hover:text-neutral-700 dark:hover:text-[#E3DAC9]/80'
             }`}>
               <Icon 
@@ -70,7 +70,7 @@ export const NavigasiBawah: React.FC<NavigasiBawahProps> = ({ activeTab, setActi
             {activeTab === item.id && (
               <motion.div 
                 layoutId="nav-indicator"
-                className="absolute -bottom-1.5 w-6 h-1 bg-os-green rounded-full shadow-[0_0_15px_rgba(0,242,149,0.4)]"
+                className="absolute -bottom-1 w-6 h-1 bg-[#7BE495] rounded-full shadow-[0_0_15px_rgba(123,228,149,0.4)]"
                 transition={{ type: "spring", stiffness: 300, damping: 30 }}
               />
             )}
@@ -78,7 +78,7 @@ export const NavigasiBawah: React.FC<NavigasiBawahProps> = ({ activeTab, setActi
             {activeTab === item.id && (
               <motion.div 
                 layoutId="nav-glow-bg"
-                className="absolute inset-0 bg-os-green/20 blur-xl rounded-full scale-[1.3] -translate-y-2"
+                className="absolute inset-0 bg-[#7BE495]/20 blur-xl rounded-full scale-[1.2] -translate-y-1.5"
               />
             )}
           </motion.button>

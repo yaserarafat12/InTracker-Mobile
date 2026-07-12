@@ -14,13 +14,24 @@ export function ToolCard({ id, title, description, backgroundImage, comingSoon, 
   const { settings } = useUserStore();
   const isLight = !document.documentElement.classList.contains('dark');
 
+  // Dynamic font size class to keep titles in a single line
+  const getFontSizeClass = (text: string) => {
+    const len = text.length;
+    if (len <= 12) return 'text-[15px]';
+    if (len <= 16) return 'text-[13px]';
+    if (len <= 20) return 'text-[11.5px]';
+    return 'text-[10px]';
+  };
+
   return (
     <motion.div
       id={id}
-      whileTap={{ scale: 0.96, boxShadow: "0px 0px 0px rgba(0,0,0,1)" }}
+      whileTap={{ scale: 0.96 }}
       onClick={onPress}
-      className={`relative aspect-[4/5] rounded-[16px] border-[2px] overflow-hidden cursor-pointer select-none shadow-[4px_4px_0px_rgba(0,0,0,1)] ${
-        isLight ? 'border-black' : 'border-white/15'
+      className={`relative aspect-[4/5] rounded-[10px] border-[2px] overflow-hidden cursor-pointer select-none transition-all duration-300 hover:scale-[1.02] ${
+        isLight 
+          ? 'border-black/20 bg-white shadow-[0_8px_24px_rgba(0,0,0,0.06)]' 
+          : 'border-white/25 bg-[#1c1e22] shadow-[0_8px_24px_rgba(0,0,0,0.25)]'
       }`}
       style={{
         background: backgroundImage
@@ -28,12 +39,15 @@ export function ToolCard({ id, title, description, backgroundImage, comingSoon, 
           : 'linear-gradient(135deg, #1c1e22 0%, #141518 100%)',
       }}
     >
-      {/* Gradient overlay for text readability */}
-      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent" />
+      {/* Gradient overlays for text readability & premium depth */}
+      <div className="absolute inset-0 bg-black/25 z-[1]" />
+      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent z-[2]" />
 
       {/* Content */}
       <div className="absolute bottom-0 left-0 right-0 p-4 z-10">
-        <h3 className="text-[15px] font-black text-force-white leading-tight font-['Outfit']">{title}</h3>
+        <h3 className={`font-black text-force-white leading-tight font-['Outfit'] whitespace-nowrap truncate ${getFontSizeClass(title)}`}>
+          {title}
+        </h3>
       </div>
 
       {/* Coming Soon overlay */}

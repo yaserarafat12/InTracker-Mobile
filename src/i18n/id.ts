@@ -1,11 +1,11 @@
 export const id = {
   nav: {
-    habits: 'Habits',
-    todo: 'To-Do',
-    analytics: 'Analytics',
-    journey: 'Journey',
+    habits: 'Habit',
+    todo: 'Tugas',
+    analytics: 'Analisis',
+    journey: 'Jurnal',
     global: 'Global',
-    features: 'Features'
+    features: 'Fitur'
   },
   analytics: {
     loading: 'Memuat analytics...',
@@ -452,19 +452,19 @@ export const id = {
       sendSuggestion: 'Kirim Saran',
       suggestionDesc: 'Punya ide fitur baru? Beritahu kami!',
       cards: {
-        calorieTracker: 'Calorie Tracker',
+        calorieTracker: 'Penghitung Kalori',
         calorieTrackerDesc: 'Lacak kalori & makro harian',
-        pomodoroTimer: 'Pomodoro Timer',
+        pomodoroTimer: 'Timer Pomodoro',
         pomodoroTimerDesc: 'Timer fokus dengan durasi kustom',
-        workoutCounter: 'Workout Counter',
+        workoutCounter: 'Penghitung Workout',
         workoutCounterDesc: 'Latihan terstruktur & tracking',
-        deepBreathing: 'Deep Breathing',
+        deepBreathing: 'Pernapasan Dalam',
         deepBreathingDesc: 'Latihan napas box breathing',
-        library: 'Library',
+        library: 'Perpustakaan',
         libraryDesc: 'Ringkasan buku pilihan',
         mathican: 'Mathican',
         mathicanDesc: 'Math racing game',
-        screenBlocker: 'Screen Blocker',
+        screenBlocker: 'Pemblokir Layar',
         screenBlockerDesc: 'Blokir distraksi digital'
       }
     },
@@ -475,7 +475,7 @@ export const id = {
       totalSessions: 'Total Sesi',
       totalDuration: 'Total Durasi',
       favoriteExercise: 'Latihan Terfavorit',
-      counterTitle: 'Workout Counter',
+      counterTitle: 'Penghitung Workout',
       counterSubtitle: 'Latihan terstruktur, progres terukur',
       startNewSession: 'Mulai Sesi Baru',
       allWorkouts: 'Semua Workout',
@@ -504,7 +504,7 @@ export const id = {
       minutes: 'menit',
       sessions: 'sesi',
       days: 'hari',
-      timerTitle: 'Pomodoro Timer',
+      timerTitle: 'Timer Pomodoro',
       stateBreak: 'Istirahat',
       statePaused: 'Dijeda',
       stateFocus: 'Fokus',
@@ -520,7 +520,7 @@ export const id = {
       doneBtn: 'Selesai'
     },
     breathing: {
-      title: 'Deep Breathing',
+      title: 'Pernapasan Dalam',
       subtitle: 'Box breathing 4-4-4-4',
       readyPrompt: 'Siap untuk bernapas?',
       sessionCompleted: 'Sesi Selesai! 🧘',
@@ -532,7 +532,7 @@ export const id = {
       exhale: 'Buang Napas'
     },
     library: {
-      title: 'Library',
+      title: 'Perpustakaan',
       allFilter: 'Semua',
       startReading: 'Mulai Baca',
       whyRead: 'Mengapa Harus Membaca?',
