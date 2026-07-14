@@ -139,23 +139,25 @@ export const CustomHabitForm = ({ isOpen, category, onClose, onSubmit, currentHa
             <div className="px-6 pt-14 pb-4 flex items-center justify-between">
               <button 
                 onClick={onClose}
-                className={`w-9 h-9 rounded-xl border-2 flex items-center justify-center transition-all active:translate-x-[2px] active:translate-y-[2px] active:shadow-none ${
+                className={`w-10 h-10 rounded-xl border-2 flex items-center justify-center transition-all active:translate-x-[2px] active:translate-y-[2px] active:shadow-none ${
                   isLight 
                     ? 'bg-white border-black text-black shadow-[3px_3px_0px_rgba(0,0,0,1)]' 
-                    : 'border-white/10 bg-[#2a2c32] text-white shadow-none'
+                    : 'border-2 border-white/10 bg-[#2a2c32] text-white shadow-none'
                 }`}
               >
-                <Icon icon="ph:x-bold" width={16} />
+                <Icon icon="ph:x-bold" width={18} />
               </button>
               <h3 className="text-[15px] font-bold font-['Outfit'] text-[#E3DAC9]">{t('addHabit.customHabit')}</h3>
               <button
                 onClick={handleSubmit}
                 disabled={!name.trim()}
-                className={`w-9 h-9 rounded-full flex items-center justify-center transition-all ${
-                  name.trim() ? 'bg-[#00FF85]' : 'bg-[#2a2c32]'
+                className={`w-10 h-10 rounded-full flex items-center justify-center transition-all ${
+                  name.trim() 
+                    ? (isLight ? 'bg-black text-white' : 'bg-white text-black') 
+                    : (isLight ? 'bg-neutral-100 text-neutral-400' : 'bg-[#2a2c32] text-white/20')
                 }`}
               >
-                <Icon icon="ph:check-bold" width={16} className={name.trim() ? 'text-black' : 'text-white/20'} />
+                <Icon icon="ph:check-bold" width={18} />
               </button>
             </div>
 

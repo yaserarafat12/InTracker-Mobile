@@ -317,7 +317,7 @@ export const StreakRecoveryModal = () => {
                   onClick={() => setScreen('main')}
                   className="w-full py-3 text-[#E3DAC9]/50 text-[11px] font-bold font-['Outfit'] uppercase tracking-wider hover:text-[#E3DAC9]/70 transition-colors flex items-center justify-center gap-2"
                 >
-                  <Icon icon="solar:alt-arrow-left-bold" width={14} />
+                  <Icon icon="ph:caret-left-bold" width={14} />
                   Kembali
                 </button>
               </motion.div>

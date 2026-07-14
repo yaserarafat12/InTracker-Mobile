@@ -398,7 +398,7 @@ export const useHabitStore = create<HabitStore>()(
             });
           }
 
-          const isNumeric = shouldShowIntensityPicker(habit.name);
+          const isNumeric = shouldShowIntensityPicker(habit.name) || (habit.target_intensity || 0) > 0;
           const finalIntensityValue = field === 'completed'
             ? (isNumeric ? (habit.target_intensity || 1) : null)
             : null;
@@ -480,7 +480,7 @@ export const useHabitStore = create<HabitStore>()(
           const newValue = currentValue !== undefined ? !currentValue : true;
           const dateStr = date.toLocaleDateString('en-CA');
 
-          const isNumeric = shouldShowIntensityPicker(habit.name);
+          const isNumeric = shouldShowIntensityPicker(habit.name) || (habit.target_intensity || 0) > 0;
           const finalIntensityValue = field === 'completed'
             ? (isNumeric ? (habit.target_intensity || 1) : null)
             : null;

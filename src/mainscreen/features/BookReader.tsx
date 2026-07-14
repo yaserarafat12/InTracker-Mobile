@@ -89,21 +89,21 @@ function IntroView({ book, intro, onBack, onStartReading, isLight }: {
 }) {
   const { t } = useTranslation();
   return (
-    <div className={`h-full flex flex-col transition-all ${isLight ? 'bg-[#f0fdf4] text-black' : 'bg-[#16181c] text-white'}`}>
+    <div className={`h-full flex flex-col transition-all ${isLight ? 'bg-[#f2faf5] text-black' : 'bg-[#16181c] text-white'}`}>
       {/* Scrollable content */}
       <div className="flex-1 overflow-y-auto">
         {/* Back button */}
         <div className="px-5 pt-6 pb-2">
           <motion.button
-            whileTap={{ scale: 0.9 }}
+            whileTap={{ scale: 0.95 }}
             onClick={onBack}
-            className={`w-10 h-10 rounded-xl border-[2px] flex items-center justify-center active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all ${
+            className={`w-10 h-10 rounded-[10px] border-2 flex items-center justify-center transition-all ${
               isLight
-                ? 'border-black bg-white shadow-[3px_3px_0px_rgba(0,0,0,0.65)]'
-                : 'border-white/10 bg-[#2a2c32] shadow-none'
+                ? 'border-black/50 bg-white text-black shadow-none'
+                : 'border-white/40 bg-[#2a2c32] text-white shadow-none'
             }`}
           >
-            <Icon icon="ph:arrow-left-bold" className={isLight ? 'text-black' : 'text-white'} width={18} />
+            <Icon icon="ph:caret-left-bold" className={isLight ? 'text-black' : 'text-white'} width={18} />
           </motion.button>
         </div>
 
@@ -111,8 +111,8 @@ function IntroView({ book, intro, onBack, onStartReading, isLight }: {
           {/* Cover + Title */}
           <div className="text-center mb-10 mt-4">
             {intro?.coverImage && (
-              <div className={`w-[150px] h-[210px] mx-auto mb-6 rounded-2xl overflow-hidden border transition-all ${
-                isLight ? 'border-black shadow-[4px_4px_0px_rgba(0,0,0,0.65)] bg-white' : 'border-white/10 shadow-lg'
+              <div className={`w-[150px] h-[210px] mx-auto mb-6 rounded-lg overflow-hidden border transition-all ${
+                isLight ? 'border-black/12 bg-white shadow-sm' : 'border-white/10 shadow-lg'
               }`}>
                 <img
                   src={intro.coverImage}
@@ -140,9 +140,9 @@ function IntroView({ book, intro, onBack, onStartReading, isLight }: {
               </div>
 
               {/* You'll Learn */}
-              <div className={`p-5 border rounded-2xl transition-all ${
+              <div className={`p-5 border rounded-lg transition-all ${
                 isLight
-                  ? 'bg-[#fbfbfb] border-black shadow-[3.5px_3.5px_0px_rgba(0,0,0,0.65)] text-black'
+                  ? 'bg-white border-black/10 shadow-sm text-black'
                   : 'bg-white/5 border border-white/10 text-white'
               }`}>
                 <h3 className={`text-[15px] font-black mb-4 ${isLight ? 'text-black' : 'text-white'}`}>{t('features.library.whatYouWillLearn')}</h3>
@@ -173,9 +173,9 @@ function IntroView({ book, intro, onBack, onStartReading, isLight }: {
           <motion.button
             whileTap={{ scale: 0.96 }}
             onClick={onStartReading}
-            className={`w-full py-4 font-black rounded-2xl text-[16px] font-['Outfit'] border-[2px] transition-all uppercase tracking-wide ${
+            className={`w-full py-4 font-bold rounded-lg text-[16px] font-['Outfit'] border transition-all uppercase tracking-wide ${
               isLight
-                ? 'bg-[#00FF85] text-black border-black shadow-[3.5px_3.5px_0px_rgba(0,0,0,1)]'
+                ? 'bg-[#00FF85] text-black border-black/12 shadow-none'
                 : 'bg-[#00FF85] text-black border-transparent shadow-none'
             }`}
           >
@@ -214,10 +214,10 @@ function ReadingView({ page, currentPage, totalPages, darkMode, onToggleDark, on
       {/* Header */}
       <div className={`px-6 pt-5 pb-3 flex items-center gap-4 border-b ${borderColor}`}>
         <motion.button whileTap={{ scale: 0.9 }} onClick={onClose}
-          className={`w-9 h-9 rounded-xl border-[2px] flex items-center justify-center transition-all active:translate-x-[2px] active:translate-y-[2px] active:shadow-none ${
+          className={`w-9 h-9 rounded-lg border flex items-center justify-center transition-all ${
             darkMode 
-              ? 'border-white/10 bg-[#2a2c32] text-white shadow-none' 
-              : 'bg-white border-black text-black shadow-[3px_3px_0px_rgba(0,0,0,1)]'
+              ? 'border-white/10 bg-white/5 text-white shadow-sm' 
+              : 'border-black/12 bg-white text-black shadow-sm'
           }`}
         >
           <Icon icon="ph:x-bold" width={16} />
@@ -291,13 +291,13 @@ function ReadingView({ page, currentPage, totalPages, darkMode, onToggleDark, on
           whileTap={{ scale: 0.85 }}
           onClick={onPrev}
           disabled={isFirst}
-          className={`w-10 h-10 rounded-xl border-[2px] flex items-center justify-center transition-all active:translate-x-[2px] active:translate-y-[2px] active:shadow-none ${isFirst ? 'opacity-20 cursor-not-allowed' : ''} ${
+          className={`w-10 h-10 rounded-lg border flex items-center justify-center transition-all ${isFirst ? 'opacity-20 cursor-not-allowed' : ''} ${
             darkMode 
-              ? 'border-white/10 bg-[#2a2c32] text-white shadow-none' 
-              : 'bg-white border-black text-black shadow-[3px_3px_0px_rgba(0,0,0,1)]'
+              ? 'border-white/10 bg-white/5 text-white shadow-sm' 
+              : 'border-black/12 bg-white text-black shadow-sm'
           }`}
         >
-          <Icon icon="ph:arrow-left-bold" width={18} />
+          <Icon icon="ph:caret-left-bold" width={18} />
         </motion.button>
 
         <span className={`text-[14px] font-medium ${textMuted}`}>
@@ -307,17 +307,15 @@ function ReadingView({ page, currentPage, totalPages, darkMode, onToggleDark, on
         <motion.button
           whileTap={{ scale: 0.85 }}
           onClick={isLast ? onClose : onNext}
-          className={`w-10 h-10 rounded-xl border-[2px] flex items-center justify-center transition-all active:translate-x-[2px] active:translate-y-[2px] active:shadow-none ${
+          className={`w-10 h-10 rounded-lg border flex items-center justify-center transition-all ${
             isLast
-              ? darkMode
-                ? 'bg-[#00FF85] border-transparent text-black shadow-none'
-                : 'bg-[#00FF85] border-black text-black shadow-[3px_3px_0px_rgba(0,0,0,1)]'
+              ? 'bg-[#00FF85] border-transparent text-black shadow-sm'
               : darkMode 
-                ? 'border-white/10 bg-[#2a2c32] text-white shadow-none' 
-                : 'bg-white border-black text-black shadow-[3px_3px_0px_rgba(0,0,0,1)]'
+                ? 'border-white/10 bg-white/5 text-white shadow-sm' 
+                : 'border-black/12 bg-white text-black shadow-sm'
           }`}
         >
-          <Icon icon={isLast ? 'ph:check-bold' : 'ph:arrow-right-bold'} width={18} />
+          <Icon icon={isLast ? 'ph:check-bold' : 'ph:caret-right-bold'} width={18} />
         </motion.button>
       </div>
     </div>

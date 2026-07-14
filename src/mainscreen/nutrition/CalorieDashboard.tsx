@@ -131,14 +131,14 @@ export function CalorieDashboard({ onBack }: CalorieDashboardProps) {
         <motion.button
           whileTap={{ scale: 0.9 }}
           onClick={onBack}
-          className={`w-9 h-9 rounded-xl border-[2px] flex items-center justify-center transition-all ${
+          className={`w-10 h-10 rounded-[10px] border-2 flex items-center justify-center transition-all ${
             isLight
-              ? 'border-black bg-white text-black shadow-[3px_3px_0px_rgba(0,0,0,0.65)]'
-              : 'border-white/10 bg-[#2a2c32] text-white shadow-none'
+              ? 'border-black/50 bg-white text-black shadow-none'
+              : 'border-white/40 bg-[#2a2c32] text-white shadow-none'
           }`}
           aria-label="Go back"
         >
-          <Icon icon="ph:arrow-left-bold" width={18} className={isLight ? 'text-black' : 'text-white'} />
+          <Icon icon="ph:caret-left-bold" width={18} className={isLight ? 'text-black/80' : 'text-white'} />
         </motion.button>
 
         <h1 className={`absolute left-1/2 -translate-x-1/2 text-[20px] font-black font-['Outfit'] ${
@@ -150,14 +150,14 @@ export function CalorieDashboard({ onBack }: CalorieDashboardProps) {
         <motion.button
           whileTap={{ scale: 0.9 }}
           onClick={() => setActiveView('settings')}
-          className={`w-9 h-9 rounded-xl border-[2px] flex items-center justify-center transition-all ${
+          className={`w-10 h-10 rounded-[10px] border-2 flex items-center justify-center transition-all ${
             isLight
-              ? 'border-black bg-white text-black shadow-[3px_3px_0px_rgba(0,0,0,0.65)]'
-              : 'border-white/10 bg-[#2a2c32] text-white shadow-none'
+              ? 'border-black/50 bg-white text-black shadow-none'
+              : 'border-white/40 bg-[#2a2c32] text-white shadow-none'
           }`}
           aria-label="Nutrition settings"
         >
-          <Icon icon="ph:gear-six-bold" width={18} className={isLight ? 'text-black' : 'text-white'} />
+          <Icon icon="solar:settings-bold" width={20} className={isLight ? 'text-black/80' : 'text-white'} />
         </motion.button>
       </div>
 
@@ -206,14 +206,14 @@ export function CalorieDashboard({ onBack }: CalorieDashboardProps) {
               <motion.button
                 whileTap={{ scale: 0.95 }}
                 onClick={() => setActiveView('scanner')}
-                className={`flex-1 h-14 rounded-2xl border-[2px] flex items-center justify-center gap-2 transition-all ${
+                className={`flex-1 h-14 rounded-xl border flex items-center justify-center gap-2 transition-all ${
                   isLight
-                    ? 'bg-white border-black text-black shadow-[3px_3px_0px_rgba(0,0,0,0.65)]'
-                    : 'bg-[#2a2c32] border-white/10 text-white shadow-none'
+                    ? 'bg-white border-black/12 text-black shadow-sm hover:border-black/25'
+                    : 'bg-[#2a2c32] border-white/10 text-white shadow-sm hover:border-white/20'
                 }`}
               >
-                <Icon icon="ph:camera-bold" width={20} className={isLight ? 'text-black' : 'text-[#00FF85]'} />
-                <span className={`text-[13px] font-bold font-['Outfit'] ${isLight ? 'text-black' : 'text-white'}`}>
+                <Icon icon="ph:camera-bold" width={20} className={isLight ? 'text-black/80' : 'text-[#00FF85]'} />
+                <span className={`text-[13px] font-bold font-['Outfit'] ${isLight ? 'text-black/80' : 'text-white'}`}>
                   {t('nutrition.scanFood')}
                 </span>
               </motion.button>
@@ -221,14 +221,13 @@ export function CalorieDashboard({ onBack }: CalorieDashboardProps) {
               <motion.button
                 whileTap={{ scale: 0.95 }}
                 onClick={() => setActiveView('quick-add')}
-                className={`flex-1 h-14 rounded-2xl bg-[#00FF85] border-[2px] flex items-center justify-center gap-2 transition-all ${
+                className={`flex-1 h-14 rounded-xl border-2 transition-all flex items-center justify-center gap-1.5 ${
                   isLight
-                    ? 'border-black text-black shadow-[3px_3px_0px_rgba(0,0,0,0.65)]'
-                    : 'border-transparent text-black shadow-none'
+                    ? 'border-[#81E6D9] bg-gradient-to-br from-[#E6FFFA] to-[#C6F6D5] text-[#22543D] shadow-sm'
+                    : 'border-[#1C4D38] bg-gradient-to-br from-[#102A1E] to-[#0A1A12] text-[#00FF85] shadow-sm'
                 }`}
               >
-                <Icon icon="ph:plus-bold" width={18} className="text-black" />
-                <span className="text-[13px] font-black font-['Outfit'] text-black">
+                <span className={`text-[13px] font-bold font-['Outfit'] ${isLight ? 'text-[#22543D]' : 'text-[#00FF85]'}`}>
                   {t('nutrition.quickAdd')}
                 </span>
               </motion.button>

@@ -297,14 +297,15 @@ const FeedCard: React.FC<FeedCardProps> = ({ id, user, type, content, metadata, 
           <div className="flex items-center gap-3">
             <div 
               onClick={onProfileClick}
-              className="w-10 h-10 bg-[#c4c4c4] flex items-center justify-center overflow-hidden rounded-full active:scale-95 transition-transform cursor-pointer"
+              className="w-10 h-10 bg-transparent flex items-center justify-center overflow-hidden rounded-full active:scale-95 transition-transform cursor-pointer"
             >
               {user.avatar_url ? (
                 <img src={user.avatar_url} alt={user.nickname} className="w-full h-full object-cover" />
               ) : (
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                  <circle cx="12" cy="9" r="4" fill="#8a8a8a"/>
-                  <path d="M4 20c0-3.5 3.5-6 8-6s8 2.5 8 6" fill="#8a8a8a"/>
+                <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <circle cx="20" cy="20" r="20" fill="#E2E8F0"/>
+                  <circle cx="20" cy="14" r="8" fill="#FFFFFF"/>
+                  <ellipse cx="20" cy="33" rx="15" ry="8" fill="#FFFFFF"/>
                 </svg>
               )}
             </div>

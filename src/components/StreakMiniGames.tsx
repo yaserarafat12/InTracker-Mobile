@@ -127,7 +127,7 @@ export const MathMatchGame: React.FC<MiniGameProps> = ({ onWin, onBack }) => {
       {/* Header */}
       <div className="flex items-center justify-between w-full mb-3">
         <button onClick={onBack} className="w-8 h-8 flex items-center justify-center text-[#E3DAC9]/40 hover:text-white transition-colors">
-          <Icon icon="solar:alt-arrow-left-bold" width={20} />
+          <Icon icon="ph:caret-left-bold" width={20} />
         </button>
         <span className={`text-[12px] font-black font-['Outfit'] ${timeLeft <= 10 ? 'text-[#FF4D00]' : 'text-[#E3DAC9]/60'}`}>{timeLeft}s</span>
       </div>
@@ -280,7 +280,7 @@ export const TypeRaceGame: React.FC<MiniGameProps> = ({ onWin, onBack }) => {
       {/* Header - same as MathMatch */}
       <div className="flex items-center justify-between w-full mb-3">
         <button onClick={onBack} className="w-8 h-8 flex items-center justify-center text-[#E3DAC9]/40 hover:text-white transition-colors">
-          <Icon icon="solar:alt-arrow-left-bold" width={20} />
+          <Icon icon="ph:caret-left-bold" width={20} />
         </button>
         <span className={`text-[12px] font-black font-['Outfit'] ${timeLeft <= 5 ? 'text-[#FF4D00]' : 'text-[#E3DAC9]/60'}`}>{timeLeft}s</span>
       </div>

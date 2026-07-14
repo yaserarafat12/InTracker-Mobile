@@ -58,22 +58,23 @@ const getDateLabel = (date: Date, t: any) => {
 };
 
 const getProgramDayLabel = (dayNum: number, currentLanguage: string) => {
-  if (currentLanguage === 'Bahasa Indonesia') return `Hari  ${dayNum}`;
-  if (currentLanguage === 'Deutsch') return `Tag ${dayNum}`;
-  if (currentLanguage === 'Español') return `Día ${dayNum}`;
-  if (currentLanguage === 'Français') return `Jour ${dayNum}`;
-  if (currentLanguage === 'Portuguese') return `Dia ${dayNum}`;
+  if (currentLanguage === 'Bahasa Indonesia') return `Hari\u00A0\u00A0${dayNum}`;
+  if (currentLanguage === 'Deutsch') return `Tag\u00A0\u00A0${dayNum}`;
+  if (currentLanguage === 'Español') return `Día\u00A0\u00A0${dayNum}`;
+  if (currentLanguage === 'Français') return `Jour\u00A0\u00A0${dayNum}`;
+  if (currentLanguage === 'Portuguese') return `Dia\u00A0\u00A0${dayNum}`;
   if (currentLanguage === 'Japanese') return `${dayNum}日目`;
-  if (currentLanguage === 'Chinese') return `第 ${dayNum} 天`;
-  if (currentLanguage === 'Arabic') return `اليوم ${dayNum}`;
-  if (currentLanguage === 'Hindi') return `दिन ${dayNum}`;
+  if (currentLanguage === 'Chinese') return `第\u00A0${dayNum}\u00A0天`;
+  if (currentLanguage === 'Arabic') return `اليوم\u00A0\u00A0${dayNum}`;
+  if (currentLanguage === 'Hindi') return `दिन\u00A0\u00A0${dayNum}`;
   if (currentLanguage === 'Korean') return `${dayNum}일차`;
-  return `Day ${dayNum}`;
+  return `Day\u00A0\u00A0${dayNum}`;
 };
 
 const JourneyItem: React.FC<JourneyItemProps> = ({ date, isCurrent, isLast, isCompact, day }) => {
   const { entries, saveEntry, uploadMedia } = useJourneyStore();
   const { t, language } = useTranslation();
+  const isLight = !document.documentElement.classList.contains('dark');
   
   // Format date to local YYYY-MM-DD to avoid timezone shifts
   const dateKey = `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')}`;
@@ -191,15 +192,15 @@ const JourneyItem: React.FC<JourneyItemProps> = ({ date, isCurrent, isLast, isCo
             <div className="flex items-center gap-4 flex-1 min-w-0">
               {/* Date Column - One Line */}
               <div className="flex items-center gap-2 leading-none min-w-[75px]">
-                <span className="text-lg font-black text-[#E3DAC9] tracking-normal">{dayOfMonth}</span>
-                <span className="text-lg font-black text-[#E3DAC9] tracking-normal">{monthName}</span>
+                <span className="text-lg font-black text-[#E3DAC9] tracking-normal font-['Outfit']">{dayOfMonth}</span>
+                <span className="text-lg font-black text-[#E3DAC9] tracking-normal font-['Outfit']">{monthName}</span>
               </div>
 
               <div className="h-6 w-[1.5px] bg-white/20" />
 
               {/* Mood Column */}
               <div className="flex items-center gap-2">
-                <span className="text-[8px] font-bold text-white/20 uppercase tracking-widest hidden sm:block">{t('journey.mood')}</span>
+                <span className="text-[8px] font-bold text-white/20 uppercase tracking-widest hidden sm:block font-['Outfit']">{t('journey.mood')}</span>
                 <span className="text-lg">{currentMood !== null ? moods[currentMood].emoji : '—'}</span>
               </div>
 
@@ -207,10 +208,10 @@ const JourneyItem: React.FC<JourneyItemProps> = ({ date, isCurrent, isLast, isCo
 
               {/* Media Column */}
               <div className="flex items-center gap-2">
-                <span className="text-[8px] font-bold text-white/20 uppercase tracking-widest hidden sm:block">{t('journey.media')}</span>
+                <span className="text-[8px] font-bold text-white/20 uppercase tracking-widest hidden sm:block font-['Outfit']">{t('journey.media')}</span>
                 <div className="flex items-center gap-1">
                   <Icon icon="solar:gallery-bold" className="text-[#00FF85]/40" width={12} />
-                  <span className="text-[9px] font-black text-[#00FF85]/60">{currentMedia.length}</span>
+                  <span className="text-[9px] font-black text-[#00FF85]/60 font-['Outfit']">{currentMedia.length}</span>
                 </div>
               </div>
 
@@ -218,8 +219,8 @@ const JourneyItem: React.FC<JourneyItemProps> = ({ date, isCurrent, isLast, isCo
 
               {/* Note Column - Stretching to fill space */}
               <div className="flex items-center gap-2 flex-1 min-w-0 overflow-hidden">
-                <span className="text-[8px] font-bold text-white/20 uppercase tracking-widest hidden sm:block">{t('journey.notes')}</span>
-                <span className={`text-[10px] font-black truncate ${entry?.journal_text ? 'text-[#00FF85]' : 'text-white/20'}`}>
+                <span className="text-[8px] font-bold text-white/20 uppercase tracking-widest hidden sm:block font-['Outfit']">{t('journey.notes')}</span>
+                <span className={`text-[10px] font-black truncate font-['Outfit'] ${entry?.journal_text ? 'text-[#00FF85]' : 'text-white/20'}`}>
                   {entry?.journal_text || t('journey.noNotes')}
                 </span>
               </div>
@@ -255,10 +256,10 @@ const JourneyItem: React.FC<JourneyItemProps> = ({ date, isCurrent, isLast, isCo
           }}
           transition={{ duration: 4, repeat: Infinity }}
           className={`
-            w-12 h-12 rounded-[10px] flex items-center justify-center z-10 border-[2.5px] transition-all mt-0.5 relative journey-day-node
+            w-12 h-12 rounded-[10px] flex items-center justify-center z-10 border-[1.5px] transition-all mt-0.5 relative journey-day-node
             ${isCurrent 
-              ? 'bg-os-green border-black dark:border-black shadow-[2px_2px_0px_rgba(0,0,0,1)]' 
-              : 'bg-neutral-100 dark:bg-[#2e3240] border-black dark:border-white/60 shadow-[2px_2px_0px_rgba(0,0,0,0.8)] dark:shadow-none'}
+              ? (isLight ? 'bg-[#00FF85]/20 border-transparent' : 'bg-os-green border-black dark:border-black shadow-none') 
+              : (isLight ? 'bg-white border-black/10' : 'bg-neutral-100 dark:bg-[#2e3240] border-black dark:border-white/60 shadow-none')}
           `}
         >
           {isTomorrow && (
@@ -266,8 +267,9 @@ const JourneyItem: React.FC<JourneyItemProps> = ({ date, isCurrent, isLast, isCo
           )}
           <Icon 
             icon={isCurrent ? "solar:star-bold" : (isFuture ? "solar:lock-bold" : "solar:check-circle-bold")} 
-            className={isCurrent ? "text-white dark:text-black" : (isTomorrow ? "text-os-green" : (isFuture ? "text-[#E3DAC9]/30" : "text-os-green"))} 
-            width={isCurrent ? 24 : 24} 
+            className={isCurrent ? (isLight ? 'text-[#00B570]' : 'text-black') : (isTomorrow ? (isLight ? 'text-[#00B570]' : 'text-os-green') : (isFuture ? (isLight ? 'text-black/15' : 'text-[#E3DAC9]/30') : (isLight ? 'text-[#00B570]' : 'text-os-green')))} 
+            width={24} 
+            height={24} 
           />
         </motion.div>
 
@@ -280,8 +282,8 @@ const JourneyItem: React.FC<JourneyItemProps> = ({ date, isCurrent, isLast, isCo
             <div className={`
               absolute inset-0 h-full w-full border-l-[2px] 
               ${isFuture 
-                ? 'border-dashed border-white/20' 
-                : 'border-solid border-os-green/50 shadow-[0_0_10px_rgba(0,255,133,0.2)]'
+                ? (isLight ? 'border-dashed border-black/10' : 'border-dashed border-white/20')
+                : (isLight ? 'border-solid border-[#00B570]/30 shadow-none' : 'border-solid border-os-green/50 shadow-[0_0_10px_rgba(0,255,133,0.2)]')
               }
             `} />
           </div>
@@ -289,7 +291,7 @@ const JourneyItem: React.FC<JourneyItemProps> = ({ date, isCurrent, isLast, isCo
       </div>
 
       {/* --- CONTENT AREA (MODULAR 4-GRID) --- */}
-      <div id={isCurrent ? "journey-today-card" : undefined} className="flex-1 mt-0">
+      <div id={isCurrent ? "journey-today-card" : undefined} className={`flex-1 mt-0 ${isFuture ? 'opacity-40 grayscale-[35%] pointer-events-none' : ''}`}>
         <div className={`
           relative bg-transparent rounded-[32px] pb-4
           group transition-all duration-300
@@ -298,11 +300,11 @@ const JourneyItem: React.FC<JourneyItemProps> = ({ date, isCurrent, isLast, isCo
             {/* Header */}
             <div className="flex justify-between items-end px-1 pb-2">
               <div className="flex flex-col">
-                <p className="text-[10px] font-black font-['Outfit'] text-os-green tracking-widest uppercase mb-0.5">
+                <p className={`text-[10px] font-black font-['Outfit'] tracking-widest uppercase mb-0.5 ${isLight ? 'text-[#00B570]' : 'text-os-green'}`}>
                    {dayOfMonth} {monthName}
                 </p>
                 <div className="flex items-center gap-2">
-                  <h2 className="text-[28px] font-black font-['Outfit'] text-white/95 tracking-tight leading-none">
+                  <h2 className={`text-[28px] font-black font-['Outfit'] tracking-tight leading-none ${isLight ? 'text-black/90' : 'text-white/95'}`} style={{ whiteSpace: 'pre-wrap' }}>
                     {getProgramDayLabel(day, language)}
                   </h2>
                 </div>
@@ -313,8 +315,8 @@ const JourneyItem: React.FC<JourneyItemProps> = ({ date, isCurrent, isLast, isCo
             <div className="grid grid-cols-2 gap-2">
               
               {/* BOX 1: MOOD (FULL WIDTH - TOP) */}
-              <div id={isCurrent ? "journey-mood-box" : undefined} className={`col-span-2 bg-[#1c1e22]/60 backdrop-blur-md journey-card border-[1.5px] border-white/10 rounded-[20px] p-4 transition-all duration-300 ${isMoodDisabled ? 'opacity-30 grayscale blur-[0.8px] cursor-default pointer-events-none' : ''}`}>
-                <span className="text-[11px] font-black font-['Outfit'] text-white/80 tracking-normal text-center block mb-3">
+              <div id={isCurrent ? "journey-mood-box" : undefined} className={`col-span-2 backdrop-blur-md journey-card rounded-[20px] p-4 transition-all duration-300 ${isMoodDisabled ? 'opacity-30 grayscale blur-[0.8px] cursor-default pointer-events-none' : ''} ${isLight ? 'bg-white border-[1px] border-black/10' : 'bg-[#1c1e22]/60 border-[1.5px] border-white/10'}`}>
+                <span className={`text-[12px] font-black font-['Outfit'] tracking-[0.03em] text-center block mb-3 ${isLight ? 'text-black/85' : 'text-white/90'}`}>
                   {isEditable ? t('journey.whatFelt') : t('journey.moodToday')}
                 </span>
                 <div className="flex items-center justify-center gap-3">
@@ -326,10 +328,10 @@ const JourneyItem: React.FC<JourneyItemProps> = ({ date, isCurrent, isLast, isCo
                         if (isEditable) handleMoodSelect(idx);
                       }}
                       className={`
-                        w-11 h-11 rounded-2xl flex items-center justify-center text-xl transition-all border-[1.5px] border-black dark:border-white/40 journey-mood-btn
-                        ${displayMood === idx 
-                          ? 'bg-os-green scale-125 shadow-[3px_3px_0px_rgba(0,0,0,1)]' 
-                          : 'bg-neutral-100 dark:bg-transparent'}
+                        w-11 h-11 rounded-2xl flex items-center justify-center text-xl transition-all journey-mood-btn
+                        ${isLight 
+                          ? (displayMood === idx ? 'bg-[#00FF85]/20 border-[1.5px] border-[#00B570] scale-125' : 'bg-neutral-50 border-[1px] border-black/10')
+                          : (displayMood === idx ? 'bg-os-green scale-125 border-[1.5px] border-black shadow-[3px_3px_0px_rgba(0,0,0,1)]' : 'bg-[#212121] border-[1.5px] border-white/20')}
                         ${!isEditable && displayMood !== idx ? 'opacity-35' : ''}
                       `}
                     >
@@ -337,8 +339,8 @@ const JourneyItem: React.FC<JourneyItemProps> = ({ date, isCurrent, isLast, isCo
                     </motion.button>
                   ))}
                 </div>
-                {displayMood !== null && (
-                  <p className="text-[9px] font-black font-['Outfit'] text-os-green uppercase tracking-widest text-center mt-3">
+                 {displayMood !== null && (
+                  <p className={`text-[9px] font-black font-['Outfit'] uppercase tracking-widest text-center mt-3 ${isLight ? 'text-[#00B570]' : 'text-os-green'}`}>
                     {moods[displayMood].label}
                   </p>
                 )}
@@ -347,18 +349,18 @@ const JourneyItem: React.FC<JourneyItemProps> = ({ date, isCurrent, isLast, isCo
 
               {/* BOX 2: JOURNAL (LEFT SQUARE) */}
               <motion.button 
-                whileTap={isEditable ? { x: 4, y: 4, boxShadow: "0px 0px 0px rgba(0,0,0,1)" } : {}}
+                whileTap={isEditable ? { scale: 0.98 } : {}}
                 id={isCurrent ? "journey-write-btn" : undefined}
                 onClick={() => { if (isEditable || entry?.journal_text) { setIsJournalOpen(true); handleVibrate(); } }}
-                className={`aspect-square bg-[#1c1e22]/60 backdrop-blur-md journey-card border-[1.5px] border-white/10 rounded-[20px] flex flex-col items-center justify-between p-4 group/journal transition-all duration-300 ${isJournalDisabled ? 'opacity-30 grayscale blur-[0.8px] cursor-default pointer-events-none' : ''}`}
+                className={`aspect-square backdrop-blur-md journey-card rounded-[20px] flex flex-col items-center justify-between p-4 group/journal transition-all duration-300 ${isJournalDisabled ? 'opacity-30 grayscale blur-[0.8px] cursor-default pointer-events-none' : ''} ${isLight ? 'bg-white border-[1px] border-black/10' : 'bg-[#1c1e22]/60 border-[1.5px] border-white/10'}`}
               >
-                <span className="text-[11px] font-black font-['Outfit'] text-white/80 tracking-normal text-center leading-tight">
+                <span className={`text-[12px] font-black font-['Outfit'] tracking-[0.03em] text-center leading-tight ${isLight ? 'text-black/85' : 'text-white/90'}`}>
                   {t('journey.tellDay')}
                 </span>
-                <div className="h-14 w-14 bg-neutral-100 dark:bg-transparent journey-icon-box border-[1.5px] border-black dark:border-white/40 rounded-2xl flex items-center justify-center transition-all">
-                  <Icon icon="solar:pen-new-square-bold" className="text-[#00FF85]" width={28} />
+                <div className={`h-14 w-14 rounded-2xl flex items-center justify-center transition-all journey-icon-box ${isLight ? 'bg-neutral-50 border-[1px] border-black/10' : 'bg-transparent border-[1.5px] border-white/20'}`}>
+                  <Icon icon="solar:pen-new-square-bold" className={isLight ? 'text-[#00B570]' : 'text-[#00FF85]'} width={28} />
                 </div>
-                <span className={`text-[9px] font-black font-['Outfit'] uppercase tracking-widest ${entry?.journal_text ? 'text-os-green' : 'text-white/75'}`}>
+                <span className={`text-[11px] font-black font-['Outfit'] tracking-[0.03em] ${entry?.journal_text ? (isLight ? 'text-[#00B570]' : 'text-os-green') : (isLight ? 'text-black/85' : 'text-white/60')}`}>
                   {entry?.journal_text ? t('journey.alreadyWritten') : t('journey.writeNow')}
                 </span>
               </motion.button>
@@ -367,16 +369,16 @@ const JourneyItem: React.FC<JourneyItemProps> = ({ date, isCurrent, isLast, isCo
               {/* BOX 3: MEDIA (RIGHT SQUARE) */}
               <motion.button 
                 id={isCurrent ? "journey-media-btn" : undefined}
-                whileTap={isEditable || currentMedia.length > 0 ? { x: 4, y: 4, boxShadow: "0px 0px 0px rgba(0,0,0,1)" } : {}}
+                whileTap={isEditable || currentMedia.length > 0 ? { scale: 0.98 } : {}}
                 onClick={() => { if (isEditable || currentMedia.length > 0) { setIsMediaOpen(true); handleVibrate(); } }}
-                className={`aspect-square bg-[#1c1e22]/60 backdrop-blur-md journey-card border-[1.5px] border-white/10 rounded-[20px] flex flex-col items-center justify-between p-4 group/media transition-all duration-300 ${isMediaDisabled ? 'opacity-30 grayscale blur-[0.8px] cursor-default pointer-events-none' : ''}`}
+                className={`aspect-square backdrop-blur-md journey-card rounded-[20px] flex flex-col items-center justify-between p-4 group/media transition-all duration-300 ${isMediaDisabled ? 'opacity-30 grayscale blur-[0.8px] cursor-default pointer-events-none' : ''} ${isLight ? 'bg-white border-[1px] border-black/10' : 'bg-[#1c1e22]/60 border-[1.5px] border-white/10'}`}
               >
-                <span className="text-[11px] font-black font-['Outfit'] text-white/80 tracking-normal text-center leading-tight">
+                <span className={`text-[12px] font-black font-['Outfit'] tracking-[0.03em] text-center leading-tight ${isLight ? 'text-black/85' : 'text-white/90'}`}>
                   {t('journey.captureMoment')}
                 </span>
 
                 {currentMedia.length > 0 ? (
-                  <div className="w-14 h-14 grid grid-cols-2 grid-rows-2 gap-[1px] rounded-xl overflow-hidden border-[1.5px] border-black dark:border-white/40">
+                  <div className={`w-14 h-14 grid grid-cols-2 grid-rows-2 gap-[1px] rounded-xl overflow-hidden border-[1.5px] ${isLight ? 'border-black/10' : 'border-white/20'}`}>
                     {[0, 1, 2, 3].map((idx) => (
                       <div key={idx} className="w-full h-full bg-[#383c4a] overflow-hidden">
                         {currentMedia[idx] && (
@@ -386,21 +388,21 @@ const JourneyItem: React.FC<JourneyItemProps> = ({ date, isCurrent, isLast, isCo
                     ))}
                   </div>
                 ) : (
-                  <div className="h-14 w-14 bg-neutral-100 dark:bg-transparent journey-icon-box border-[1.5px] border-black dark:border-white/40 rounded-2xl flex items-center justify-center">
+                  <div className={`h-14 w-14 rounded-2xl flex items-center justify-center journey-icon-box ${isLight ? 'bg-neutral-50 border-[1px] border-black/10' : 'bg-transparent border-[1.5px] border-white/20'}`}>
                     {isUploading ? (
                       <motion.div 
                         animate={{ rotate: 360 }}
                         transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
                       >
-                        <Icon icon="solar:refresh-bold" className="text-[#00FF85]" width={26} />
+                        <Icon icon="solar:refresh-bold" className={isLight ? 'text-[#00B570]' : 'text-[#00FF85]'} width={26} />
                       </motion.div>
                     ) : (
-                      <Icon icon="solar:camera-bold" className="text-[#00FF85]" width={26} />
+                      <Icon icon="solar:camera-bold" className={isLight ? 'text-[#00B570]' : 'text-[#00FF85]'} width={26} />
                     )}
                   </div>
                 )}
 
-                <span className={`text-[9px] font-black font-['Outfit'] uppercase tracking-widest ${currentMedia.length > 0 ? 'text-os-green' : 'text-white/75'}`}>
+                <span className={`text-[11px] font-black font-['Outfit'] tracking-[0.03em] ${currentMedia.length > 0 ? (isLight ? 'text-[#00B570]' : 'text-os-green font-bold') : (isLight ? 'text-black/85' : 'text-white/60')}`}>
                   {currentMedia.length > 0 ? `${currentMedia.length} ${language === 'Bahasa Indonesia' ? 'Foto' : 'Photos'}` : t('journey.addPhoto')}
                 </span>
               </motion.button>
@@ -503,24 +505,24 @@ const JourneyItem: React.FC<JourneyItemProps> = ({ date, isCurrent, isLast, isCo
               <div className="flex justify-between items-start mb-6">
                 <div className="flex flex-col">
                    <p className={`text-[10px] font-black font-['Outfit'] uppercase tracking-widest mb-1 ${!document.documentElement.classList.contains('dark') ? 'text-[#00B570]' : 'text-[#00FF85]'}`}>{dayOfMonth} {monthName}</p>
-                   <h3 className={`text-[28px] font-black font-['Outfit'] tracking-tight leading-none ${!document.documentElement.classList.contains('dark') ? 'text-black' : 'text-white'}`}>{getProgramDayLabel(day, language)}</h3>
+                   <h3 className={`text-[28px] font-black font-['Outfit'] tracking-tight leading-none ${!document.documentElement.classList.contains('dark') ? 'text-black' : 'text-white'}`} style={{ whiteSpace: 'pre-wrap' }}>{getProgramDayLabel(day, language)}</h3>
                 </div>
                 <motion.button 
-                  whileTap={{ scale: 0.9 }}
+                  whileTap={{ scale: 0.95 }}
                   onClick={async () => {
                     if (localJournal !== (entry?.journal_text || '')) {
-                      await handleJournalSave();
+                       await handleJournalSave();
                     } else {
-                      setIsJournalOpen(false);
+                       setIsJournalOpen(false);
                     }
                   }}
-                  className={`w-10 h-10 rounded-xl flex items-center justify-center border-2 border-black shadow-[2px_2px_0px_rgba(0,0,0,1)] transition-all ${
-                    !document.documentElement.classList.contains('dark') ? 'bg-white text-black' : 'bg-[#1c1e22] text-[#E3DAC9]'
+                  className={`w-10 h-10 rounded-[10px] border-2 flex items-center justify-center transition-all ${
+                    !document.documentElement.classList.contains('dark') 
+                      ? 'border-black/50 bg-white text-black shadow-none' 
+                      : 'border-white/40 bg-[#2a2c32] text-white shadow-none'
                   }`}
                 >
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" strokeWidth="4.5" strokeLinecap="round" strokeLinejoin="round"/>
-                  </svg>
+                  <Icon icon="ph:x-bold" width={18} className={!document.documentElement.classList.contains('dark') ? 'text-black/80' : 'text-white'} />
                 </motion.button>
               </div>
 
@@ -531,7 +533,7 @@ const JourneyItem: React.FC<JourneyItemProps> = ({ date, isCurrent, isLast, isCo
                     ? {
                         backgroundColor: '#faf8f4',
                         backgroundImage: `
-                          linear-gradient(rgba(0, 0, 0, 0.08) 1px, transparent 1px),
+                          linear-gradient(rgba(0, 0, 0, 0.15) 1px, transparent 1px),
                           url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.025'/%3E%3C/svg%3E")
                         `,
                         backgroundSize: '100% 32px, 120px 120px',
@@ -539,16 +541,18 @@ const JourneyItem: React.FC<JourneyItemProps> = ({ date, isCurrent, isLast, isCo
                     : {
                         backgroundColor: '#161720',
                         backgroundImage: `
-                          linear-gradient(rgba(255, 255, 255, 0.08) 1px, transparent 1px),
+                          linear-gradient(rgba(255, 255, 255, 0.15) 1px, transparent 1px),
                           url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.015'/%3E%3C/svg%3E")
                         `,
                         backgroundSize: '100% 32px, 120px 120px',
                       }
                 }
-                className={`flex-1 rounded-[24px] border-2 border-black p-6 shadow-[4px_4px_0px_rgba(0,0,0,1)] flex flex-col relative overflow-hidden`}
+                className={`flex-1 border-t-2 border-b-2 border-x-0 rounded-none p-6 shadow-none flex flex-col relative overflow-hidden ${
+                  !document.documentElement.classList.contains('dark') ? 'border-black' : 'border-white/60'
+                }`}
               >
                 {/* Red margin line to simulate notebook paper */}
-                <div className={`absolute top-0 bottom-0 left-[36px] w-[1px] ${!document.documentElement.classList.contains('dark') ? 'bg-[#e86c6c]/40' : 'bg-red-500/25'}`} />
+                <div className={`absolute top-0 bottom-0 left-[24px] w-[1px] ${!document.documentElement.classList.contains('dark') ? 'bg-[#e86c6c]/60' : 'bg-red-500/50'}`} />
 
                 <textarea 
                   autoFocus={isEditable}
@@ -556,7 +560,7 @@ const JourneyItem: React.FC<JourneyItemProps> = ({ date, isCurrent, isLast, isCo
                   onChange={(e) => setLocalJournal(e.target.value)}
                   readOnly={!isEditable}
                   placeholder={isEditable ? t('journey.textareaPlaceholder') : t('journey.noNotesForToday')}
-                  className={`flex-1 bg-transparent bg-journal-transparent text-[15px] font-semibold font-['Outfit'] focus:outline-none resize-none leading-[32px] pt-[8px] pl-8 z-10 ${
+                  className={`flex-1 bg-transparent bg-journal-transparent text-[15px] font-semibold font-['Outfit'] focus:outline-none resize-none leading-[32px] pt-[8px] pl-8 z-10 selection:bg-[#86efac] selection:text-black dark:selection:bg-[#00FF85] dark:selection:text-black ${
                     !document.documentElement.classList.contains('dark') 
                       ? 'text-black/85 placeholder:text-black/25' 
                       : 'text-[#E3DAC9]/95 placeholder:text-[#E3DAC9]/20'
@@ -566,16 +570,20 @@ const JourneyItem: React.FC<JourneyItemProps> = ({ date, isCurrent, isLast, isCo
               </div>
 
               {/* Bottom Info & Action Bar */}
-              <div className="pt-4 pb-10 flex flex-col items-center gap-3">
+              <div className="pt-2 pb-6 flex flex-col items-center gap-2.5">
                 <span className={`text-[11px] font-black font-['Outfit'] tracking-wider uppercase ${!document.documentElement.classList.contains('dark') ? 'text-black/35' : 'text-[#E3DAC9]/30'}`}>
                   {localJournal.length} {t('journey.characters')}
                 </span>
                 {isEditable && (
                   <motion.button 
-                    whileTap={{ x: 4, y: 4, boxShadow: "0px 0px 0px rgba(0,0,0,1)" }}
+                    whileTap={{ scale: 0.95 }}
                     id="journey-save-btn"
                     onClick={handleJournalSave}
-                    className="w-full bg-[#00FF85] text-black py-4 rounded-[16px] font-black font-['Outfit'] uppercase tracking-wider text-[13px] border-2 border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] transition-all"
+                    className={`w-full py-4 rounded-[12px] font-black font-['Outfit'] uppercase tracking-wider text-[13px] border-[1.5px] transition-all text-center ${
+                      !document.documentElement.classList.contains('dark')
+                        ? 'border-black bg-black text-white shadow-[3px_3px_0px_rgba(0,0,0,1)] hover:opacity-90'
+                        : 'border-transparent bg-white text-black shadow-none hover:opacity-90'
+                    }`}
                   >
                     {t('journey.saveJournal')}
                   </motion.button>
@@ -642,7 +650,7 @@ export const JourneyView: React.FC = () => {
   }, []);
 
   return (
-    <div className="px-6 pt-8 pb-32">
+    <div className="px-6 pt-8 pb-32 font-['Outfit']">
       {/* Timeline List */}
       <div className="relative pt-6">
         {journeyDays.map((d, idx) => (

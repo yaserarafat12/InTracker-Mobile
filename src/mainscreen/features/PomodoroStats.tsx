@@ -11,12 +11,15 @@ interface PomodoroStatsProps {
 export function PomodoroStats({ isOpen, onClose }: PomodoroStatsProps) {
   const { getTodaySessions, getTodayFocusMinutes, getWeekFocusMinutes, getStreak, getTotalFocusMinutes } = usePomodoroStore();
   const { t } = useTranslation();
+  const isLight = !document.documentElement.classList.contains('dark');
 
   const todaySessions = getTodaySessions().length;
   const todayMinutes = getTodayFocusMinutes();
   const weekMinutes = getWeekFocusMinutes();
   const streak = getStreak();
   const totalHours = Math.floor(getTotalFocusMinutes() / 60);
+
+  const digitalFont = '"Chivo", sans-serif';
 
   return (
     <AnimatePresence>
@@ -36,59 +39,86 @@ export function PomodoroStats({ isOpen, onClose }: PomodoroStatsProps) {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -20, scale: 0.95 }}
             transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-            className="fixed top-16 right-5 left-5 z-[260] bg-[#1c1e22] border-[2px] border-[#00FF85]/40 rounded-2xl shadow-[6px_6px_0px_rgba(0,255,133,0.35)] p-5 overflow-hidden text-white"
+            className={`fixed top-20 right-5 left-5 z-[260] border rounded-2xl p-5 overflow-hidden transition-all ${
+              isLight
+                ? 'bg-[#f2faf5] border-black/12 text-black shadow-lg'
+                : 'bg-[#1c1e22] border-white/10 text-white'
+            }`}
           >
             {/* Header */}
             <div className="flex items-center justify-between mb-5">
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 bg-[#00FF85] rounded-lg border-[2px] border-black shadow-[2px_2px_0px_rgba(0,0,0,0.65)] flex items-center justify-center">
-                  <Icon icon="solar:chart-square-bold" className="text-black" width={16} />
-                </div>
-                <h3 className="text-[16px] font-black text-white font-['Outfit']">{t('features.pomodoro.statsTitle')}</h3>
-              </div>
+              <h3 className={`text-[16px] font-black font-['Outfit'] ${isLight ? 'text-black' : 'text-white'}`}>
+                {t('features.pomodoro.statsTitle')}
+              </h3>
               <motion.button
                 whileTap={{ scale: 0.9 }}
                 onClick={onClose}
-                className="w-8 h-8 rounded-xl border-[2px] border-white/10 bg-[#2a2c32] flex items-center justify-center active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all"
+                className={`w-8 h-8 rounded-lg border flex items-center justify-center transition-all ${
+                  isLight
+                    ? 'border-black/12 bg-white text-black shadow-sm'
+                    : 'border-white/10 bg-[#2a2c32] text-white shadow-none'
+                }`}
               >
-                <Icon icon="ph:x-bold" className="text-white" width={14} />
+                <Icon icon="ph:x-bold" width={14} />
               </motion.button>
             </div>
 
-            {/* Stats Grid — neobrutalist cards */}
+            {/* Stats Grid */}
             <div className="grid grid-cols-2 gap-3">
               <StatCard
                 label={t('features.pomodoro.today')}
                 value={`${todayMinutes}`}
                 unit={t('units.Menit').toLowerCase()}
-                accent="#00FF85"
+                fontFamily={digitalFont}
               />
               <StatCard
                 label={t('features.pomodoro.todaySessions')}
                 value={`${todaySessions}`}
                 unit={t('units.Sesi').toLowerCase()}
-                accent="#00FF85"
+                fontFamily={digitalFont}
               />
               <StatCard
                 label={t('features.pomodoro.thisWeek')}
                 value={`${weekMinutes}`}
                 unit={t('units.Menit').toLowerCase()}
-                accent="#60A5FA"
+                fontFamily={digitalFont}
               />
               <StatCard
                 label={t('features.pomodoro.streak')}
                 value={`${streak}`}
                 unit={t('features.pomodoro.days')}
-                accent="#FBBF24"
+                fontFamily={digitalFont}
               />
             </div>
 
-            {/* Total */}
-            <div className="mt-4 p-3 bg-white/5 border border-white/10 rounded-xl text-center">
-              <span className="text-[11px] text-white/40">{t('features.pomodoro.totalFocus')}</span>
-              <span className="text-[13px] font-bold text-white">
-                {totalHours} {t('features.pomodoro.hours')} {getTotalFocusMinutes() % 60} {t('features.pomodoro.minutes')}
-              </span>
+            {/* Total Focus */}
+            <div className={`mt-4 p-4 border rounded-xl text-center transition-all ${
+              isLight
+                ? 'bg-white border-black/12 shadow-sm text-black'
+                : 'bg-white/5 border border-white/10 text-white'
+            }`}>
+              <p className={`text-[9.5px] font-bold font-space uppercase tracking-wider mb-1.5 ${
+                isLight ? 'text-black/50' : 'text-white/50'
+              }`}>
+                {t('features.pomodoro.totalFocus')}
+              </p>
+              
+              <div className="text-[15px] font-bold leading-none">
+                <span 
+                  style={{ fontFamily: digitalFont }}
+                  className={`text-[17px] ${isLight ? 'text-[#22543D]' : 'text-[#00FF85]'}`}
+                >
+                  {totalHours}
+                </span>
+                <span className={`text-[12px] font-medium font-space px-1 ${isLight ? 'text-black/60' : 'text-white/50'}`}>{t('features.pomodoro.hours')}</span>
+                <span 
+                  style={{ fontFamily: digitalFont }}
+                  className={`text-[17px] ${isLight ? 'text-[#22543D]' : 'text-[#00FF85]'}`}
+                >
+                  {getTotalFocusMinutes() % 60}
+                </span>
+                <span className={`text-[12px] font-medium font-space px-1 ${isLight ? 'text-black/60' : 'text-white/50'}`}>{t('features.pomodoro.minutes')}</span>
+              </div>
             </div>
           </motion.div>
         </>
@@ -97,18 +127,30 @@ export function PomodoroStats({ isOpen, onClose }: PomodoroStatsProps) {
   );
 }
 
-function StatCard({ label, value, unit, accent }: { label: string; value: string; unit: string; accent: string }) {
+function StatCard({ label, value, unit, fontFamily }: { label: string; value: string; unit: string; fontFamily: string }) {
+  const isLight = !document.documentElement.classList.contains('dark');
   return (
-    <div
-      className="p-3 rounded-xl border-[2px] border-white/10 shadow-[3px_3px_0px_rgba(0,0,0,0.8)]"
-      style={{ background: `${accent}08` }}
-    >
-      <p className="text-[10px] text-white/40 font-medium uppercase tracking-wide mb-1">{label}</p>
+    <div className={`p-3.5 rounded-xl border flex flex-col justify-between transition-all ${
+      isLight
+        ? 'bg-white border-black/12 shadow-sm'
+        : 'bg-white/[0.02] border-white/10'
+    }`}>
+      <p className={`text-[9.5px] font-bold font-space uppercase tracking-wider mb-2 ${
+        isLight ? 'text-black/50' : 'text-white/40'
+      }`}>{label}</p>
       <div className="flex items-baseline gap-1">
-        <span className="text-[28px] font-black font-['Outfit'] leading-none" style={{ color: accent }}>
+        <span 
+          style={{ 
+            fontFamily: fontFamily,
+            color: isLight ? '#22543D' : '#00FF85'
+          }}
+          className="text-[28px] font-black leading-none"
+        >
           {value}
         </span>
-        <span className="text-[11px] text-white/40">{unit}</span>
+        <span className={`text-[11px] font-medium font-space ${
+          isLight ? 'text-black/50' : 'text-white/40'
+        }`}>{unit}</span>
       </div>
     </div>
   );

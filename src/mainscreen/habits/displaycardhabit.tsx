@@ -71,7 +71,7 @@ const KartuTugas = ({ habit, index, activeFilter, onDoubleTap, onEdit, isDraggab
   const { deleteHabit, toggleHabit, updateHabit, setCompletingHabitId, completeWithIntensity } = useHabitStore();
   const { settings } = useUserStore();
   const { t } = useTranslation();
-  const isLight = settings?.theme === 'Light';
+  const isLight = !document.documentElement.classList.contains('dark');
   const option = HABIT_OPTIONS.find(o => o.name.toLowerCase() === habit.name?.toLowerCase()) 
     || HABIT_OPTIONS.find(o => o.iconName === habit.iconName);
   const imageUrl = useGenderedImageUrl(option?.imageUrl);
@@ -234,27 +234,34 @@ const KartuTugas = ({ habit, index, activeFilter, onDoubleTap, onEdit, isDraggab
 
   return (
     <div className="relative w-full habit-card-item" id={index === 0 ? 'first-habit-card' : undefined}>
-      {/* BACKGROUND ACTIONS */}
       <div className="absolute inset-0 overflow-hidden">
         <motion.div 
           style={{ opacity: leftActionOpacity, scale: scaleAction, x: leftActionX }}
           className="absolute left-0 top-[5%] bottom-[5%] w-[115px] flex flex-col gap-2 justify-center"
         >
           <motion.button 
-            whileTap={{ x: 2, y: 2, boxShadow: "0px 0px 0px black" }}
+            whileTap={{ scale: 0.96 }}
             onClick={() => handleAction('log')}
-            className="flex flex-col items-center justify-center gap-1 h-full bg-[#00FF85] border-[1.5px] border-black shadow-[3px_3px_0px_rgba(0,0,0,1)] rounded-[24px] text-black transition-all w-full py-1"
+            className={`flex flex-col items-center justify-center gap-1.5 h-full border-[1.5px] rounded-[24px] transition-all w-full py-1.5 ${
+              isLight 
+                ? 'bg-[#E6FFFA] text-[#22543D] border-[#81E6D9] shadow-sm' 
+                : 'bg-[#102A1E] text-[#00FF85] border-[#1C4D38] shadow-none'
+            }`}
           >
             <Icon icon="solar:history-bold" width={22} height={22} />
-            <span className="text-[10px] font-black font-['Outfit'] uppercase tracking-widest">{t('habits.cardActions.log')}</span>
+            <span className="text-[9px] font-bold font-['Outfit'] uppercase tracking-wider">{t('habits.cardActions.log')}</span>
           </motion.button>
           <motion.button 
-            whileTap={{ x: 2, y: 2, boxShadow: "0px 0px 0px black" }}
+            whileTap={{ scale: 0.96 }}
             onClick={() => handleAction('edit')}
-            className="flex flex-col items-center justify-center gap-1 h-full bg-[#E3DAC9] border-[1.5px] border-black shadow-[3px_3px_0px_rgba(0,0,0,1)] rounded-[24px] text-black transition-all w-full py-1"
+            className={`flex flex-col items-center justify-center gap-1.5 h-full border-[1.5px] rounded-[24px] transition-all w-full py-1.5 ${
+              isLight 
+                ? 'bg-neutral-50 text-neutral-700 border-neutral-200 shadow-sm' 
+                : 'bg-[#1C1E22] text-[#E3DAC9]/85 border-white/10 shadow-none'
+            }`}
           >
             <Icon icon="solar:pen-new-square-bold" width={22} height={22} />
-            <span className="text-[10px] font-black font-['Outfit'] uppercase tracking-widest">{t('habits.cardActions.edit')}</span>
+            <span className="text-[9px] font-bold font-['Outfit'] uppercase tracking-wider">{t('habits.cardActions.edit')}</span>
           </motion.button>
         </motion.div>
 
@@ -263,20 +270,28 @@ const KartuTugas = ({ habit, index, activeFilter, onDoubleTap, onEdit, isDraggab
           className="absolute right-0 top-[5%] bottom-[5%] w-[115px] flex flex-col gap-2 justify-center"
         >
           <motion.button 
-            whileTap={{ x: 2, y: 2, boxShadow: "0px 0px 0px black" }}
+            whileTap={{ scale: 0.96 }}
             onClick={() => handleAction('skip')}
-            className="flex flex-col items-center justify-center gap-1 h-full bg-[#FFB800] border-[1.5px] border-black shadow-[3px_3px_0px_rgba(0,0,0,1)] rounded-[24px] text-black transition-all w-full py-1"
+            className={`flex flex-col items-center justify-center gap-1.5 h-full border-[1.5px] rounded-[24px] transition-all w-full py-1.5 ${
+              isLight 
+                ? 'bg-[#FDE68A] text-[#78350F] border-[#F59E0B] shadow-sm' 
+                : 'bg-[#2D220C] text-[#FBBF24] border-[#614513] shadow-none'
+            }`}
           >
             <Icon icon="solar:skip-next-bold" width={22} height={22} />
-            <span className="text-[10px] font-black font-['Outfit'] uppercase tracking-widest">{t('habits.cardActions.skip')}</span>
+            <span className="text-[9px] font-bold font-['Outfit'] uppercase tracking-wider">{t('habits.cardActions.skip')}</span>
           </motion.button>
           <motion.button 
-            whileTap={{ x: 2, y: 2, boxShadow: "0px 0px 0px black" }}
+            whileTap={{ scale: 0.96 }}
             onClick={() => handleAction('delete')}
-            className="flex flex-col items-center justify-center gap-1 h-full bg-[#FF3B30] border-[1.5px] border-black shadow-[3px_3px_0px_rgba(0,0,0,1)] rounded-[24px] text-white transition-all w-full py-1"
+            className={`flex flex-col items-center justify-center gap-1.5 h-full border-[1.5px] rounded-[24px] transition-all w-full py-1.5 ${
+              isLight 
+                ? 'bg-[#FFF5F5] text-[#C53030] border-[#FED7D7] shadow-sm' 
+                : 'bg-[#2E1414] text-[#FC8181] border-[#742A2A] shadow-none'
+            }`}
           >
             <Icon icon="solar:trash-bin-trash-bold" width={22} height={22} />
-            <span className="text-[10px] font-black font-['Outfit'] uppercase tracking-widest">{t('habits.cardActions.delete')}</span>
+            <span className="text-[9px] font-bold font-['Outfit'] uppercase tracking-wider">{t('habits.cardActions.delete')}</span>
           </motion.button>
         </motion.div>
       </div>

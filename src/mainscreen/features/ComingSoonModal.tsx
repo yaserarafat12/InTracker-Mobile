@@ -30,8 +30,8 @@ export function ComingSoonModal({ isOpen, onClose }: ComingSoonModalProps) {
             animate={{ y: 0 }}
             exit={{ y: '100%' }}
             transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-            className={`fixed bottom-0 left-0 right-0 z-[270] rounded-t-[24px] p-6 pb-10 border-t-[2px] border-black transition-colors duration-300 ${
-              isLight ? 'bg-[#F2F2F7] text-black' : 'bg-[#1c1e22] text-white'
+            className={`fixed bottom-0 left-0 right-0 z-[270] rounded-t-[24px] p-6 pb-10 border-t-[1.5px] transition-colors duration-300 ${
+              isLight ? 'bg-[#f2faf5] border-black/10 text-black' : 'bg-[#1c1e22] border-white/10 text-white'
             }`}
           >
             <div className="flex flex-col items-center text-center gap-4">
@@ -47,17 +47,31 @@ export function ComingSoonModal({ isOpen, onClose }: ComingSoonModalProps) {
               <h3 className={`text-[20px] font-bold font-['Outfit'] ${isLight ? 'text-black' : 'text-white'}`}>
                 {settings.language === 'Bahasa Indonesia' ? 'Segera Hadir!' : 'Coming Soon!'}
               </h3>
-              <p className={`text-[14px] max-w-[280px] leading-relaxed ${isLight ? 'text-black/60' : 'text-white/50'}`}>
-                {settings.language === 'Bahasa Indonesia' 
-                  ? 'Fitur ini sedang dalam pengembangan. Kami sedang bekerja keras untuk menghadirkannya untukmu!' 
-                  : 'This feature is currently under development. We are working hard to bring it to you soon!'}
-              </p>
+              <div className={`text-[14px] max-w-[280px] leading-relaxed font-medium ${isLight ? 'text-black/60' : 'text-white/50'}`}>
+                {settings.language === 'Bahasa Indonesia' ? (
+                  <>
+                    Fitur ini sedang dalam pengembangan.
+                    <div className="h-2" />
+                    Kami sedang bekerja keras untuk menghadirkannya untukmu!
+                  </>
+                ) : (
+                  <>
+                    This feature is currently under development.
+                    <div className="h-2" />
+                    We are working hard to bring it to you soon!
+                  </>
+                )}
+              </div>
 
               {/* Close button */}
               <motion.button
                 whileTap={{ scale: 0.95 }}
                 onClick={onClose}
-                className="mt-4 w-full py-3.5 bg-[#00FF85] text-black font-black rounded-xl text-[14px] border-[2px] border-black shadow-[3px_3px_0px_rgba(0,0,0,1)]"
+                className={`mt-4 w-full py-3 rounded-lg text-[13px] font-black font-['Outfit'] border-2 transition-all uppercase tracking-wider sheen-active-tab ${
+                  isLight
+                    ? 'border-[#48BB78]/30 bg-gradient-to-br from-[#E6FFFA] to-[#C6F6D5] border-[#81E6D9] shadow-[0_6px_16px_rgba(34,84,61,0.15)] text-[#22543D]'
+                    : 'border-[#00FF85]/30 bg-gradient-to-br from-[#102A1E] to-[#0A1A12] border-[#1C4D38] shadow-[0_6px_16px_rgba(0,255,133,0.18)] text-[#00FF85]'
+                }`}
               >
                 {settings.language === 'Bahasa Indonesia' ? 'Mengerti' : 'Got It'}
               </motion.button>

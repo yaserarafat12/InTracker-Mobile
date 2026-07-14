@@ -183,7 +183,7 @@ export default function Login() {
                 onClick={() => setView('initial')}
                 className="flex items-center gap-2 text-white/40 mb-6 hover:text-white transition-colors"
               >
-                <Icon icon="solar:alt-arrow-left-bold" width={20} height={20} />
+                <Icon icon="ph:caret-left-bold" width={20} height={20} />
                 <span className="text-[14px] font-medium">Kembali</span>
               </button>
 

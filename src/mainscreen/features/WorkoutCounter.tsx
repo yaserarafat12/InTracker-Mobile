@@ -186,7 +186,7 @@ export function WorkoutCounter({ onBack }: WorkoutCounterProps) {
               onChange={(e) => updateConfig(name, 'reps', Math.max(1, parseInt(e.target.value) || 1))}
               className={`w-full py-2 px-3 border rounded-lg text-[13px] text-center transition-all ${
                 isLight
-                  ? 'bg-white border-black text-black'
+                  ? 'bg-white border-black/15 text-black'
                   : 'bg-black/40 backdrop-blur-sm border-white/10 text-white'
               }`}
             />
@@ -208,7 +208,7 @@ export function WorkoutCounter({ onBack }: WorkoutCounterProps) {
               }}
               className={`w-full py-2 px-3 border rounded-lg text-[13px] text-center transition-all ${
                 isLight
-                  ? 'bg-white border-black text-black'
+                  ? 'bg-white border-black/15 text-black'
                   : 'bg-black/40 backdrop-blur-sm border-white/10 text-white'
               }`}
             />
@@ -224,7 +224,7 @@ export function WorkoutCounter({ onBack }: WorkoutCounterProps) {
               onChange={(e) => updateConfig(name, 'sets', Math.max(1, parseInt(e.target.value) || 1))}
               className={`w-full py-2 px-3 border rounded-lg text-[13px] text-center transition-all ${
                 isLight
-                  ? 'bg-white border-black text-black'
+                  ? 'bg-white border-black/15 text-black'
                   : 'bg-black/40 backdrop-blur-sm border-white/10 text-white'
               }`}
             />
@@ -235,8 +235,8 @@ export function WorkoutCounter({ onBack }: WorkoutCounterProps) {
   };
 
   return (
-    <div className={`fixed inset-0 flex flex-col px-6 py-8 pb-10 z-[200] overflow-hidden transition-all ${
-      isLight ? 'bg-[#f0fdf4] text-black' : 'bg-[#16181c] text-white'
+    <div className={`fixed inset-0 flex flex-col px-4 py-8 pb-10 z-[200] overflow-hidden transition-all ${
+      isLight ? 'bg-[#f2faf5] text-black' : 'bg-[#16181c] text-white'
     }`}>
       {/* Background image */}
       {isLight ? (
@@ -250,51 +250,63 @@ export function WorkoutCounter({ onBack }: WorkoutCounterProps) {
 
       {/* All content above overlay */}
       <div className="relative z-10 flex flex-col flex-1 overflow-y-auto scrollbar-hide">
-        {/* Back button */}
-        <motion.button
-          whileTap={{ scale: 0.9 }}
-          onClick={() => {
-            if (view === 'configure' || view === 'history') setView('menu');
-            else if (view === 'active') {
-              timer.stop();
-              setView('menu');
-            } else onBack();
-          }}
-          className={`absolute top-0 left-0 w-10 h-10 rounded-xl border-[2px] flex items-center justify-center z-20 active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all ${
-            isLight
-              ? 'border-black bg-white shadow-[3px_3px_0px_rgba(0,0,0,0.65)]'
-              : 'border-white/10 bg-[#2a2c32] shadow-none'
-          }`}
-        >
-          <Icon icon="ph:arrow-left-bold" className={isLight ? 'text-black' : 'text-white'} width={18} />
-        </motion.button>
+        {/* Header Row */}
+        <div className="relative w-full flex items-center justify-between mb-8 h-10">
+          {/* Back button */}
+          <motion.button
+            whileTap={{ scale: 0.9 }}
+            onClick={() => {
+              if (view === 'configure' || view === 'history') setView('menu');
+              else if (view === 'active') {
+                timer.stop();
+                setView('menu');
+              } else onBack();
+            }}
+            className={`w-10 h-10 rounded-[10px] border-[1.5px] flex items-center justify-center transition-all ${
+              isLight
+                ? 'border-black/50 bg-white text-black shadow-none'
+                : 'border-white/40 bg-[#2a2c32] text-white shadow-none'
+            }`}
+          >
+            <Icon icon="ph:caret-left-bold" className={isLight ? 'text-black/80' : 'text-white/80'} width={18} />
+          </motion.button>
 
-        {/* Stats button — top right */}
-        <motion.button
-          whileTap={{ scale: 0.9, x: 2, y: 2, boxShadow: '0px 0px 0px rgba(0,0,0,1)' }}
-          onClick={() => setShowStats(true)}
-          className={`absolute top-0 right-0 w-10 h-10 rounded-lg flex items-center justify-center z-20 border-[2px] transition-all bg-[#FF6B35] ${
-            isLight
-              ? 'border-black shadow-[3px_3px_0px_rgba(0,0,0,0.65)]'
-              : 'border-transparent shadow-none'
-          }`}
-        >
-          <Icon icon="solar:chart-square-bold" className="text-black" width={20} />
-        </motion.button>
+          {/* Title in the center */}
+          <h1 className={`text-[19px] font-bold font-['Outfit'] tracking-wide text-center flex-1 mx-2 truncate ${
+            isLight ? 'text-black/85' : 'text-white/90'
+          }`}>
+            {t('features.workout.counterTitle')}
+          </h1>
+
+          {/* Stats button — top right */}
+          <motion.button
+            whileTap={{ scale: 0.9 }}
+            onClick={() => setShowStats(true)}
+            className={`w-10 h-10 rounded-[10px] border-[1.5px] flex items-center justify-center transition-all ${
+              isLight
+                ? 'border-black/50 bg-white text-black shadow-none'
+                : 'border-white/40 bg-[#2a2c32] text-white shadow-none'
+            }`}
+          >
+            <Icon icon="solar:chart-square-bold" className={isLight ? 'text-black/80' : 'text-white/80'} width={20} />
+          </motion.button>
+        </div>
 
         {/* Stats Panel */}
         <WorkoutStats isOpen={showStats} onClose={() => setShowStats(false)} />
 
-        {/* Title */}
-        <div className="mt-12 text-center mb-6">
-          <h1 className={`text-[24px] font-black font-['Outfit'] ${isLight ? 'text-black' : 'text-white'}`}>{t('features.workout.counterTitle')}</h1>
-          <p className={`text-[13px] mt-1 font-bold ${isLight ? 'text-black/50' : 'text-white/40'}`}>{t('features.workout.counterSubtitle')}</p>
-        </div>
-
-        {/* Weekly Progress Grid — moved to bottom area */}
+        <AnimatePresence mode="wait">
+        {/* MENU VIEW */}
         {view === 'menu' && (
-          <div className="flex-1 flex flex-col justify-end">
-            <div className="flex justify-center gap-2 mb-6">
+          <motion.div
+            key="menu"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            className="flex-1 flex flex-col justify-end max-w-[450px] mx-auto w-full gap-8 pb-4"
+          >
+            {/* Weekly Progress Grid */}
+            <div className="flex justify-center gap-2">
               {dayLabels.map((label, i) => (
                 <div key={label} className="flex flex-col items-center gap-1">
                   <span className={`text-[10px] font-bold ${isLight ? 'text-black/50' : 'text-white/40'}`}>{label}</span>
@@ -302,10 +314,10 @@ export function WorkoutCounter({ onBack }: WorkoutCounterProps) {
                     className={`w-8 h-8 rounded-lg flex items-center justify-center border transition-all ${
                       weeklyProgress[i]
                         ? isLight
-                          ? 'bg-[#00FF85] border-[2px] border-black text-black shadow-[2px_2px_0px_rgba(0,0,0,1)]'
+                          ? 'bg-[#00FF85] border-black/10 text-black shadow-none'
                           : 'bg-[#00FF85]/20 border-[#00FF85]/30 text-[#00FF85]'
                         : isLight
-                          ? 'bg-white border-[2px] border-black/25 text-black/10 shadow-[1.5px_1.5px_0px_rgba(0,0,0,0.05)]'
+                          ? 'bg-white border-black/10 text-black/10 shadow-none'
                           : 'bg-white/5 border-transparent'
                     }`}
                   >
@@ -316,41 +328,32 @@ export function WorkoutCounter({ onBack }: WorkoutCounterProps) {
                 </div>
               ))}
             </div>
-          </div>
-        )}
 
-        <AnimatePresence mode="wait">
-        {/* MENU VIEW */}
-        {view === 'menu' && (
-          <motion.div
-            key="menu"
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            className="flex flex-col gap-3"
-          >
-            <motion.button
-              whileTap={{ scale: 0.95 }}
-              onClick={() => setView('configure')}
-              className={`w-full py-4 font-black rounded-xl text-[15px] border uppercase tracking-wide transition-all ${
-                isLight
-                  ? 'bg-[#00FF85] text-black border-black shadow-[3.5px_3.5px_0px_rgba(0,0,0,1)]'
-                  : 'bg-[#00FF85] text-black border-transparent'
-              }`}
-            >
-              {t('features.workout.startNewSession')}
-            </motion.button>
-            <motion.button
-              whileTap={{ scale: 0.95 }}
-              onClick={() => setView('history')}
-              className={`w-full py-4 font-bold rounded-xl text-[15px] border transition-all ${
-                isLight
-                  ? 'bg-white text-black border-black shadow-[3.5px_3.5px_0px_rgba(0,0,0,0.65)]'
-                  : 'bg-white/10 backdrop-blur-sm text-white/70 border border-white/10'
-              }`}
-            >
-              {t('features.workout.allWorkouts')}
-            </motion.button>
+            {/* Action Buttons */}
+            <div className="flex flex-col gap-3">
+              <motion.button
+                whileTap={{ scale: 0.98 }}
+                onClick={() => setView('configure')}
+                className={`w-full py-3 px-5 font-black rounded-lg text-[13px] border-[1.5px] uppercase tracking-wide transition-all relative flex items-center justify-center ${
+                  isLight
+                    ? 'border-[#81E6D9] bg-gradient-to-br from-[#E6FFFA] to-[#C6F6D5] text-[#22543D] shadow-sm'
+                    : 'border-[#1C4D38] bg-gradient-to-br from-[#102A1E] to-[#0A1A12] text-[#00FF85] shadow-none'
+                }`}
+              >
+                <span>{t('features.workout.startNewSession')}</span>
+              </motion.button>
+              <motion.button
+                whileTap={{ scale: 0.98 }}
+                onClick={() => setView('history')}
+                className={`w-full py-3 px-5 font-bold rounded-lg text-[13px] border-[1.5px] transition-all relative flex items-center justify-center ${
+                  isLight
+                    ? 'bg-white text-black border-black/10 shadow-sm'
+                    : 'bg-white/10 backdrop-blur-sm text-white/70 border border-white/10 shadow-none'
+                }`}
+              >
+                <span>{t('features.workout.allWorkouts')}</span>
+              </motion.button>
+            </div>
           </motion.div>
         )}
 
@@ -368,26 +371,39 @@ export function WorkoutCounter({ onBack }: WorkoutCounterProps) {
               const isSelected = selectedExercises.includes(exercise.name);
               const config = configs[exercise.name];
               return (
-                <div key={exercise.name} className="space-y-2">
+                <div
+                  key={exercise.name}
+                  className={`rounded-2xl transition-all ${
+                    isSelected
+                      ? isLight
+                        ? 'bg-[#00FF85]/12 border border-[#00FF85]/40 shadow-none'
+                        : 'bg-[#00FF85]/8 border border-[#00FF85]/25 shadow-none'
+                      : ''
+                  }`}
+                >
                   <motion.button
                     whileTap={{ scale: 0.98 }}
                     onClick={() => toggleExercise(exercise.name)}
-                    className={`w-full py-3 px-4 rounded-xl text-left text-[14px] font-bold flex items-center justify-between transition-all ${
+                    className={`w-full py-3 px-4 rounded-2xl text-left text-[14px] font-bold flex items-center justify-between transition-all ${
                       isSelected
                         ? isLight
-                          ? 'bg-[#00FF85]/20 border-[2px] border-black text-black shadow-[2px_2px_0px_rgba(0,0,0,1)]'
-                          : 'bg-[#00FF85]/15 border border-[#00FF85]/30 text-[#00FF85]'
+                          ? 'text-black'
+                          : 'text-white'
                         : isLight
-                          ? 'bg-white border-[2px] border-black/25 text-black shadow-[2px_2px_0px_rgba(0,0,0,0.05)] hover:border-black/50'
-                          : 'bg-black/50 border border-white/10 text-white/80'
+                          ? 'bg-white/70 backdrop-blur-sm border border-black/8 text-black/80 hover:border-black/15'
+                          : 'bg-white/6 backdrop-blur-sm border border-white/8 text-white/80'
                     }`}
                   >
-                    <span>{t(exercise.name)}</span>
+                    <span className={isSelected ? 'font-black' : ''}>{t(exercise.name)}</span>
                     <div className="flex items-center gap-2">
-                      <span className={`text-[10px] uppercase font-bold ${isSelected ? (isLight ? 'text-black/60' : 'text-[#00FF85]/80') : (isLight ? 'text-black/35' : 'text-white/30')}`}>
+                      <span className={`text-[10px] uppercase font-bold ${
+                        isSelected
+                          ? isLight ? 'text-black/50' : 'text-[#00FF85]/70'
+                          : isLight ? 'text-black/35' : 'text-white/30'
+                      }`}>
                         {exercise.type === 'reps' ? t('features.workout.typeReps') : exercise.type === 'duration' ? t('features.workout.typeDuration') : t('features.workout.typeDistance')}
                       </span>
-                      {isSelected && <Icon icon="ph:check-bold" width={16} />}
+                      {isSelected && <Icon icon="ph:check-bold" width={16} className={isLight ? 'text-black/70' : 'text-[#00FF85]'} />}
                     </div>
                   </motion.button>
 
@@ -401,14 +417,14 @@ export function WorkoutCounter({ onBack }: WorkoutCounterProps) {
               whileTap={{ scale: 0.95 }}
               onClick={startWorkout}
               disabled={!canStart}
-              className={`mt-4 w-full py-4 rounded-xl text-[15px] font-black border transition-all uppercase tracking-wide ${
+              className={`mt-4 w-full py-4 rounded-2xl text-[15px] font-black transition-all uppercase tracking-wide ${
                 canStart
                   ? isLight
-                    ? 'bg-[#00FF85] text-black border-black shadow-[3.5px_3.5px_0px_rgba(0,0,0,1)]'
-                    : 'bg-[#00FF85] text-black border-transparent'
+                    ? 'bg-black text-white shadow-none'
+                    : 'bg-white text-black shadow-none'
                   : isLight
-                    ? 'bg-black/5 border-black/10 text-black/25 border-[2px] cursor-not-allowed'
-                    : 'bg-white/5 text-white/30 cursor-not-allowed'
+                    ? 'bg-black/10 text-black/25 cursor-not-allowed'
+                    : 'bg-white/8 text-white/30 cursor-not-allowed'
               }`}
             >
               {t('features.workout.startWorkout')}
@@ -459,7 +475,7 @@ export function WorkoutCounter({ onBack }: WorkoutCounterProps) {
             )}
 
             {/* Progress bar */}
-            <div className={`w-full h-3.5 rounded-full overflow-hidden border ${isLight ? 'bg-black/5 border-black' : 'bg-white/10 border-transparent'}`}>
+            <div className={`w-full h-2.5 rounded-full overflow-hidden ${isLight ? 'bg-black/8' : 'bg-white/10'}`}>
               <motion.div
                 className="h-full bg-[#00FF85] rounded-full"
                 animate={{
@@ -475,10 +491,10 @@ export function WorkoutCounter({ onBack }: WorkoutCounterProps) {
                 timer.stop();
                 setView('menu');
               }}
-              className={`mt-4 py-3 px-8 font-bold rounded-xl text-[14px] border ${
+              className={`mt-4 py-3 px-8 font-bold rounded-xl text-[14px] border transition-all ${
                 isLight
-                  ? 'bg-rose-400 text-black border-black shadow-[3px_3px_0px_rgba(0,0,0,1)]'
-                  : 'bg-red-500/20 border border-red-500/30 text-red-400 font-bold'
+                  ? 'bg-rose-50 text-rose-600 border-rose-150/40 hover:bg-rose-100/60 shadow-none'
+                  : 'bg-red-500/10 border border-red-500/20 text-red-400 font-bold'
               }`}
             >
               {t('features.workout.stopBtn')}
@@ -504,10 +520,10 @@ export function WorkoutCounter({ onBack }: WorkoutCounterProps) {
               [...sessions].reverse().map((session) => (
                 <div
                   key={session.id}
-                  className={`p-4 border rounded-xl transition-all ${
+                  className={`p-4 rounded-2xl transition-all ${
                     isLight
-                      ? 'bg-[#fbfbfb] border-black shadow-[3px_3px_0px_rgba(0,0,0,0.65)] text-black'
-                      : 'bg-white/5 border border-white/10 text-white'
+                      ? 'bg-white/70 backdrop-blur-sm border border-black/8 text-black'
+                      : 'bg-white/6 backdrop-blur-sm border border-white/8 text-white'
                   }`}
                 >
                   <div className="flex justify-between items-start mb-2">
@@ -526,10 +542,10 @@ export function WorkoutCounter({ onBack }: WorkoutCounterProps) {
                     {session.exercises.map((ex, i) => (
                       <span
                         key={i}
-                        className={`px-2 py-0.5 text-[10px] font-bold rounded-md border ${
+                        className={`px-2.5 py-0.5 text-[10px] font-bold rounded-full ${
                           isLight
-                            ? 'bg-[#00FF85]/20 text-black border-black/30'
-                            : 'bg-[#00FF85]/10 text-[#00FF85] border-transparent'
+                            ? 'bg-black/8 text-black/70'
+                            : 'bg-white/10 text-white/60'
                         }`}
                       >
                         {t(ex.name)}

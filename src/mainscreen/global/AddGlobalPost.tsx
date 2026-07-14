@@ -306,11 +306,11 @@ export const AddGlobalPost = ({ isOpen, onClose, onPosted }: AddGlobalPostProps)
               className={`w-full h-[48px] rounded-xl font-black font-['Outfit'] uppercase tracking-wider text-[12px] border transition-all flex items-center justify-center gap-2 ${
                 !selectedHabit 
                   ? isLight
-                    ? 'bg-[#6ED7A0]/15 border-black/10 text-black/25 cursor-not-allowed shadow-none'
-                    : 'bg-[#6ED7A0]/10 border-white/5 text-white/20 cursor-not-allowed shadow-none'
+                    ? 'bg-neutral-100 border-black/10 text-neutral-400 cursor-not-allowed shadow-none'
+                    : 'bg-[#2a2c32] border-white/5 text-[#E3DAC9]/20 cursor-not-allowed shadow-none'
                   : isLight
-                    ? 'bg-[#6ED7A0] border-black text-black shadow-[3px_3px_0px_rgba(0,0,0,1)]'
-                    : 'bg-[#6ED7A0] border-transparent text-black shadow-none'
+                    ? 'bg-black border-black text-white shadow-[3px_3px_0px_rgba(0,0,0,1)] hover:bg-black/90'
+                    : 'bg-white border-transparent text-black shadow-none hover:bg-white/90'
               }`}
             >
               {isPosting ? (

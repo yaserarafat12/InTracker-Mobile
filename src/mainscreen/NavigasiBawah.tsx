@@ -23,7 +23,7 @@ export const NavigasiBawah: React.FC<NavigasiBawahProps> = ({ activeTab, setActi
         { id: 'analytics', icon: 'solar:document-text-bold', label: 'Questions', path: '/analytics' },
         { id: 'journey', icon: 'solar:letter-bold', label: 'Inbox', path: '/journey' },
       ]
-    : [
+      : [
         { id: 'habits', icon: 'solar:target-bold', label: t('nav.habits'), path: '/habits' },
         { id: 'todo', icon: 'solar:checklist-minimalistic-bold', label: t('nav.todo'), path: '/todolist' },
         { id: 'analytics', icon: 'mingcute:chart-bar-fill', label: t('nav.analytics'), path: '/analytics' },

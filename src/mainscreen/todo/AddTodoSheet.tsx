@@ -169,7 +169,7 @@ export const AddTodoSheet = ({ isOpen, onClose, targetToEdit }: AddTodoSheetProp
                           : 'bg-[#2a2c32] border-white/10 text-[#E3DAC9]/40 shadow-none'
                       }`}
                     >
-                      <span className="text-[11px] font-black font-['Outfit'] uppercase tracking-wider">{t('todo.filters.' + cat.id)}</span>
+                      <span className="text-[11px] font-semibold font-['Outfit']">{t('todo.filters.' + cat.id)}</span>
                     </motion.button>
                   ))}
                 </div>
@@ -189,7 +189,7 @@ export const AddTodoSheet = ({ isOpen, onClose, targetToEdit }: AddTodoSheetProp
                       setIsPenting(false);
                       if (navigator.vibrate) navigator.vibrate(5);
                     }}
-                    className={`flex-1 py-2.5 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all flex items-center justify-center gap-2 border-[2px] ${
+                    className={`flex-1 py-2.5 rounded-lg text-[11px] font-semibold transition-all flex items-center justify-center gap-2 border-[2px] ${
                       !isPenting 
                       ? 'bg-[#6ED7A0] border-black text-black shadow-[1.5px_1.5px_0px_rgba(0,0,0,1)]' 
                       : 'bg-transparent border-transparent text-[#E3DAC9]/40'
@@ -206,7 +206,7 @@ export const AddTodoSheet = ({ isOpen, onClose, targetToEdit }: AddTodoSheetProp
                       setIsPenting(true);
                       if (navigator.vibrate) navigator.vibrate(5);
                     }}
-                    className={`flex-1 py-2.5 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all flex items-center justify-center gap-2 border-[2px] ${
+                    className={`flex-1 py-2.5 rounded-lg text-[11px] font-semibold transition-all flex items-center justify-center gap-2 border-[2px] ${
                       isPenting 
                       ? 'bg-[#FF4D00] border-black text-white shadow-[1.5px_1.5px_0px_rgba(0,0,0,1)]' 
                       : 'bg-transparent border-transparent text-[#E3DAC9]/40'

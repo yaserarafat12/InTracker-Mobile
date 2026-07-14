@@ -801,13 +801,13 @@ export const SettingsOverlay = () => {
                     if (navigator.vibrate) navigator.vibrate(10);
                     setCurrentView('menu');
                   }}
-                  className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all ${
+                  className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all ${
                     isLight
                       ? 'border-2 border-black bg-white text-black shadow-[3px_3px_0px_rgba(0,0,0,1)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none'
-                      : 'border border-white/10 bg-[#2a2c32] text-white shadow-none'
+                      : 'border-2 border-white/10 bg-[#2a2c32] text-white shadow-none'
                   }`}
                 >
-                  <Icon icon="ph:arrow-left-bold" width={18} height={18} />
+                  <Icon icon="ph:caret-left-bold" width={18} height={18} />
                 </motion.button>
               )}
             </div>
@@ -836,13 +836,13 @@ export const SettingsOverlay = () => {
                   setCurrentView('menu');
                   setSettingsOpen(false);
                 }}
-                className={`w-9 h-9 rounded-xl flex items-center justify-center transition-all ${
+                className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all ${
                   isLight
                     ? 'border-2 border-black bg-white text-black shadow-[3px_3px_0px_rgba(0,0,0,1)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none'
-                    : 'border border-white/10 bg-[#2a2c32] text-white shadow-none'
+                    : 'border-2 border-white/10 bg-[#2a2c32] text-white shadow-none'
                 }`}
               >
-                <Icon icon="ph:x-bold" width={16} height={16} />
+                <Icon icon="ph:x-bold" width={18} height={18} />
               </motion.button>
             </div>
           </div>
@@ -2586,13 +2586,13 @@ function AvatarCropModal({ src, onCrop, onCancel, language }: AvatarCropModalPro
           </h3>
           <button 
             onClick={onCancel} 
-            className={`w-8 h-8 rounded-xl border-2 flex items-center justify-center transition-all active:translate-x-[2px] active:translate-y-[2px] active:shadow-none ${
+            className={`w-10 h-10 rounded-xl border-2 flex items-center justify-center transition-all active:translate-x-[2px] active:translate-y-[2px] active:shadow-none ${
               settings.theme === 'Light'
                 ? 'bg-white border-black text-black shadow-[3px_3px_0px_rgba(0,0,0,1)]'
-                : 'bg-black border-white text-white shadow-[3px_3px_0px_rgba(255,255,255,1)]'
+                : 'border-2 border-white/10 bg-[#2a2c32] text-white shadow-none'
             }`}
           >
-            <Icon icon="ph:x-bold" width={14} />
+            <Icon icon="ph:x-bold" width={18} />
           </button>
         </div>
 

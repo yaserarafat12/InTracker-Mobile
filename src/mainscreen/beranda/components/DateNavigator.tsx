@@ -133,9 +133,10 @@ export const DateNavigator = ({
       <div className="flex items-center justify-between">
         <div className="flex flex-col">
           <h1 className="font-black text-white leading-none tracking-normal" style={{ fontVariantNumeric: 'tabular-nums', fontFeatureSettings: '"tnum"' }}>
-            <span className="font-['Outfit'] text-[32px]">{t('analytics.day')}</span>
-            <span className="font-['Outfit'] text-[28px] ml-2.5">{dayCount}</span>
-            <span className="text-white font-['Outfit'] text-[28px]"> / {settings.programDuration || 90}</span>
+            <span className="font-['Rajdhani'] text-[32px] font-bold" style={{ WebkitTextStroke: '1px currentColor' }}>{t('analytics.day')}</span>
+            <span className="font-['Rajdhani'] text-[32px] ml-5 font-bold" style={{ WebkitTextStroke: '1px currentColor' }}>{dayCount}</span>
+            <span className="font-['Rajdhani'] text-[32px] font-bold px-3" style={{ WebkitTextStroke: '1px currentColor' }}>/</span>
+            <span className="font-['Rajdhani'] text-[32px] font-bold" style={{ WebkitTextStroke: '1px currentColor' }}>{settings.programDuration || 90}</span>
           </h1>
         </div>
         
@@ -143,24 +144,24 @@ export const DateNavigator = ({
           <motion.button 
             whileTap={{ scale: 0.95 }}
             onClick={handlePrevDate}
-            className={`w-10 h-10 rounded-[10px] flex items-center justify-center border-2 transition-all ${
+            className={`w-10 h-10 rounded-[10px] flex items-center justify-center border-[1.5px] transition-all ${
               isLight 
-                ? 'bg-neutral-50 border-black/15 text-black/60 shadow-[2px_2px_0px_rgba(0,0,0,0.06)]' 
-                : 'bg-[#1A1A1A]/40 border-white/10 text-white/60 shadow-[2px_2px_0px_rgba(255,255,255,0.05)]'
+                ? 'bg-neutral-50 border-black/15 text-black shadow-sm' 
+                : 'bg-[#1A1A1A]/40 border-white/10 text-white shadow-none'
             }`}
           >
-            <Icon icon="solar:play-bold" width={14} height={14} className={`rotate-180 ${isLight ? 'text-black/60' : 'text-[#E3DAC9]/60'}`} />
+            <Icon icon="ph:caret-left-bold" width={20} height={20} className={isLight ? 'text-black' : 'text-white'} />
           </motion.button>
           <motion.button 
             whileTap={{ scale: 0.95 }}
             onClick={handleNextDate}
-            className={`w-10 h-10 rounded-[10px] flex items-center justify-center border-2 transition-all ${
+            className={`w-10 h-10 rounded-[10px] flex items-center justify-center border-[1.5px] transition-all ${
               isLight 
-                ? 'bg-neutral-50 border-black/15 text-black/60 shadow-[2px_2px_0px_rgba(0,0,0,0.06)]' 
-                : 'bg-[#1A1A1A]/40 border-white/10 text-white/60 shadow-[2px_2px_0px_rgba(255,255,255,0.05)]'
+                ? 'bg-neutral-50 border-black/15 text-black shadow-sm' 
+                : 'bg-[#1A1A1A]/40 border-white/10 text-white shadow-none'
             }`}
           >
-            <Icon icon="solar:play-bold" width={14} height={14} className={isLight ? 'text-black/60' : 'text-[#E3DAC9]/60'} />
+            <Icon icon="ph:caret-right-bold" width={20} height={20} className={isLight ? 'text-black' : 'text-white'} />
           </motion.button>
         </div>
       </div>
@@ -184,26 +185,26 @@ export const DateNavigator = ({
                   w-full px-2 py-2.5 rounded-[8px] transition-all flex flex-col items-center justify-center
                   ${activeFilter === item.id ? 'sheen-active-tab transform scale-[1.05]' : 'transform scale-100'}
                   ${activeFilter === item.id 
-                    ? (item.id === 'selesai' 
+                    ? (item.id === 'selesai' || item.id === 'berjalan'
                         ? isLight
-                          ? 'border-2 border-[#48BB78]/30 bg-gradient-to-br from-[#E6FFFA] to-[#C6F6D5] border-[#81E6D9] shadow-[0_6px_16px_rgba(34,84,61,0.15)]'
-                          : 'border-2 border-[#00FF85]/30 bg-gradient-to-br from-[#102A1E] to-[#0A1A12] border-[#1C4D38] shadow-[0_6px_16px_rgba(0,255,133,0.18)]'
+                          ? 'border-[1.5px] border-[#81E6D9] bg-gradient-to-br from-[#E6FFFA] to-[#C6F6D5] text-[#22543D] shadow-sm'
+                          : 'border-[1.5px] border-[#1C4D38] bg-gradient-to-br from-[#102A1E] to-[#0A1A12] text-[#00FF85] shadow-none'
                         : item.id === 'dilewati' 
                           ? isLight
-                            ? 'border-2 border-[#F56565]/30 bg-gradient-to-br from-[#FFE5E5] to-[#FED7D7] border-[#FEB2B2] shadow-[0_6px_16px_rgba(116,42,42,0.15)]'
-                            : 'border-2 border-[#EF4444]/30 bg-gradient-to-br from-[#3D1414] to-[#260C0C] border-[#611E1E] shadow-[0_6px_16px_rgba(239,68,68,0.18)]'
+                            ? 'border-[1.5px] border-[#FEB2B2] bg-gradient-to-br from-[#FFE5E5] to-[#FED7D7] text-[#742A2A] shadow-sm'
+                            : 'border-[1.5px] border-[#611E1E] bg-gradient-to-br from-[#3D1414] to-[#260C0C] text-[#EF4444] shadow-none'
                           : isLight
-                            ? 'border-2 border-[#3B82F6]/30 bg-gradient-to-br from-[#EBF3FF] to-[#D0E2FF] border-[#A8C7FA] shadow-[0_6px_16px_rgba(11,87,208,0.15)]'
-                            : 'border-2 border-[#3B82F6]/30 bg-gradient-to-br from-[#1E2B4C] to-[#141C33] border-[#2E4378] shadow-[0_6px_16px_rgba(138,180,248,0.18)]')
+                            ? 'border-[1.5px] border-[#A8C7FA] bg-gradient-to-br from-[#EBF3FF] to-[#D0E2FF] text-[#0B57D0] shadow-sm'
+                            : 'border-[1.5px] border-[#2E4378] bg-gradient-to-br from-[#1E2B4C] to-[#141C33] text-[#8AB4F8] shadow-none')
                     : (isLight 
-                        ? 'bg-white border-2 border-neutral-200 text-neutral-400 shadow-[0_4px_12px_rgba(0,0,0,0.03)] hover:text-neutral-600' 
-                        : 'bg-[#1C1E22]/50 border-2 border-white/[0.07] text-[#E3DAC9]/40 shadow-[0_4px_12px_rgba(0,0,0,0.1)] hover:text-[#E3DAC9]/60')}
+                        ? 'bg-white border-[1.5px] border-neutral-200 text-neutral-400 shadow-sm hover:text-neutral-600' 
+                        : 'bg-[#1C1E22]/50 border-[1.5px] border-white/[0.07] text-[#E3DAC9]/40 shadow-none hover:text-[#E3DAC9]/60')}
                 `}
               >
                 <div className="flex items-start justify-center gap-0.5">
                   <span className={`text-[14px] font-bold font-['Outfit'] tracking-tight transition-colors duration-300 ${
                     activeFilter === item.id 
-                      ? item.id === 'selesai'
+                      ? item.id === 'selesai' || item.id === 'berjalan'
                         ? (isLight ? 'text-[#22543D]' : 'text-[#00FF85]')
                         : item.id === 'dilewati'
                           ? (isLight ? 'text-[#742A2A]' : 'text-[#EF4444]')
@@ -214,7 +215,7 @@ export const DateNavigator = ({
                   </span>
                   <span className={`text-[10px] font-black mt-[-2px] transition-colors duration-300 ${
                     activeFilter === item.id 
-                      ? item.id === 'selesai'
+                      ? item.id === 'selesai' || item.id === 'berjalan'
                         ? (isLight ? 'text-[#22543D]/60' : 'text-[#00FF85]/60')
                         : item.id === 'dilewati'
                           ? (isLight ? 'text-[#742A2A]/60' : 'text-[#EF4444]/60')
@@ -235,17 +236,24 @@ export const DateNavigator = ({
                 onAddHabit();
               }}
               className={`
-                w-[42px] h-[42px] shrink-0 rounded-[8px] transition-all flex items-center justify-center border-2
+                w-[44px] h-[44px] shrink-0 rounded-[8px] transition-all flex items-center justify-center border-0
                 ${isLight 
-                  ? 'border-[#81E6D9] bg-gradient-to-br from-[#E6FFFA] to-[#C6F6D5] text-[#22543D] shadow-[0_6px_16px_rgba(34,84,61,0.15)] hover:from-[#C6F6D5] hover:to-[#B2F5EA]' 
-                  : 'border-[#1C4D38] bg-gradient-to-br from-[#102A1E] to-[#0A1A12] text-[#00FF85] shadow-[0_6px_16px_rgba(0,255,133,0.18)] hover:from-[#133224] hover:to-[#0F261B]'}
+                  ? 'bg-white text-black shadow-sm hover:bg-neutral-50' 
+                  : 'bg-[#1C1E22]/50 text-white shadow-none hover:bg-[#1C1E22]/80'}
               `}
             >
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path 
-                  d="M10 4H14V10H20V14H14V20H10V14H4V10H10V4Z" 
-                  fill="currentColor" 
-                />
+              <svg 
+                width="18" 
+                height="18" 
+                viewBox="0 0 24 24" 
+                fill="none" 
+                stroke="currentColor" 
+                strokeWidth="3.8" 
+                strokeLinecap="round" 
+                strokeLinejoin="round"
+              >
+                <line x1="12" y1="5" x2="12" y2="19" />
+                <line x1="5" y1="12" x2="19" y2="12" />
               </svg>
             </motion.button>
           )}

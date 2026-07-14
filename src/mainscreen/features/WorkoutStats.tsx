@@ -11,6 +11,7 @@ interface WorkoutStatsProps {
 export function WorkoutStats({ isOpen, onClose }: WorkoutStatsProps) {
   const { sessions } = useWorkoutStore();
   const { t } = useTranslation();
+  const isLight = !document.documentElement.classList.contains('dark');
 
   const now = new Date();
   const dayOfWeek = now.getDay();
@@ -51,61 +52,76 @@ export function WorkoutStats({ isOpen, onClose }: WorkoutStatsProps) {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -20, scale: 0.95 }}
             transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-            className="fixed top-16 right-5 left-5 z-[260] bg-[#1c1e22] border-[2px] border-[#FF6B35]/40 rounded-2xl shadow-[6px_6px_0px_rgba(255,107,53,0.35)] p-5 overflow-hidden text-white"
+            className={`fixed top-20 right-5 left-5 z-[260] border rounded-2xl p-5 overflow-hidden transition-all ${
+              isLight
+                ? 'bg-[#f2faf5] border-black/12 text-black shadow-lg'
+                : 'bg-[#1c1e22] border-white/10 text-white'
+            }`}
           >
             {/* Header */}
             <div className="flex items-center justify-between mb-5">
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 bg-[#FF6B35] rounded-lg border-[2px] border-black shadow-[2px_2px_0px_rgba(0,0,0,0.65)] flex items-center justify-center">
-                  <Icon icon="solar:chart-square-bold" className="text-black" width={16} />
-                </div>
-                <h3 className="text-[16px] font-black text-white font-['Outfit']">{t('features.workout.statsTitle')}</h3>
-              </div>
+              <h3 className={`text-[16px] font-black font-['Outfit'] ${isLight ? 'text-black' : 'text-white'}`}>
+                {t('features.workout.statsTitle')}
+              </h3>
               <motion.button
                 whileTap={{ scale: 0.9 }}
                 onClick={onClose}
-                className="w-8 h-8 rounded-xl border-[2px] border-white/10 bg-[#2a2c32] flex items-center justify-center active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all"
+                className={`w-8 h-8 rounded-lg border flex items-center justify-center transition-all ${
+                  isLight
+                    ? 'border-black/12 bg-white text-black shadow-sm'
+                    : 'border-white/10 bg-[#2a2c32] text-white shadow-none'
+                }`}
               >
-                <Icon icon="ph:x-bold" className="text-white" width={14} />
+                <Icon icon="ph:x-bold" width={14} />
               </motion.button>
             </div>
 
+            {/* Stats Grid */}
             <div className="grid grid-cols-2 gap-3">
               <StatCard
                 label={t('features.workout.thisWeek')}
                 value={`${weekSessions.length}`}
                 unit={t('units.Sesi').toLowerCase()}
-                accent="#00FF85"
               />
               <StatCard
                 label={t('features.workout.weekDuration')}
                 value={`${Math.floor(weekDuration / 60)}`}
                 unit={t('units.Menit').toLowerCase()}
-                accent="#60A5FA"
               />
               <StatCard
                 label={t('features.workout.totalSessions')}
                 value={`${totalSessions}`}
                 unit={t('units.Sesi').toLowerCase()}
-                accent="#FBBF24"
               />
               <StatCard
                 label={t('features.workout.totalDuration')}
                 value={`${Math.floor(totalDuration / 3600)}`}
                 unit={t('units.Jam').toLowerCase()}
-                accent="#F472B6"
               />
             </div>
 
+            {/* Favorite Exercise */}
             {favoriteExercise && (
-              <div className="mt-4 p-3 bg-white/5 border border-white/10 rounded-xl flex items-center justify-between">
+              <div className={`mt-4 p-4 border rounded-xl flex items-center justify-between transition-all ${
+                isLight
+                  ? 'bg-white border-black/12 shadow-sm text-black'
+                  : 'bg-white/5 border border-white/10 text-white'
+              }`}>
                 <div>
-                  <span className="text-[11px] text-white/40">{t('features.workout.favoriteExercise')}</span>
-                  <p className="text-[14px] font-bold text-white">
+                  <span className={`text-[9.5px] font-bold font-space uppercase tracking-wider ${
+                    isLight ? 'text-black/50' : 'text-white/50'
+                  }`}>
+                    {t('features.workout.favoriteExercise')}
+                  </span>
+                  <p className="text-[14px] font-bold mt-1">
                     {t(favoriteExercise[0])}
                   </p>
                 </div>
-                <span className="text-[12px] text-[#00FF85] font-bold">{favoriteExercise[1]}x</span>
+                <span className={`text-[12px] font-bold font-space ${
+                  isLight ? 'text-[#22543D]' : 'text-[#00FF85]'
+                }`}>
+                  {favoriteExercise[1]}x
+                </span>
               </div>
             )}
           </motion.div>
@@ -115,18 +131,29 @@ export function WorkoutStats({ isOpen, onClose }: WorkoutStatsProps) {
   );
 }
 
-function StatCard({ label, value, unit, accent }: { label: string; value: string; unit: string; accent: string }) {
+function StatCard({ label, value, unit }: { label: string; value: string; unit: string }) {
+  const isLight = !document.documentElement.classList.contains('dark');
   return (
-    <div
-      className="p-3 rounded-xl border-[2px] border-white/10 shadow-[3px_3px_0px_rgba(0,0,0,0.8)]"
-      style={{ background: `${accent}08` }}
-    >
-      <p className="text-[10px] text-white/40 font-medium uppercase tracking-wide mb-1">{label}</p>
+    <div className={`p-3.5 rounded-xl border flex flex-col justify-between transition-all ${
+      isLight
+        ? 'bg-white border-black/12 shadow-sm'
+        : 'bg-white/[0.02] border-white/10'
+    }`}>
+      <p className={`text-[9.5px] font-bold font-space uppercase tracking-wider mb-2 ${
+        isLight ? 'text-black/50' : 'text-white/40'
+      }`}>{label}</p>
       <div className="flex items-baseline gap-1">
-        <span className="text-[28px] font-black font-['Outfit'] leading-none" style={{ color: accent }}>
+        <span 
+          style={{ fontFamily: '"Chivo", sans-serif' }}
+          className={`text-[28px] font-black leading-none ${
+            isLight ? 'text-[#22543D]' : 'text-[#00FF85]'
+          }`}
+        >
           {value}
         </span>
-        <span className="text-[11px] text-white/40">{unit}</span>
+        <span className={`text-[11px] font-medium font-space ${
+          isLight ? 'text-black/50' : 'text-white/40'
+        }`}>{unit}</span>
       </div>
     </div>
   );

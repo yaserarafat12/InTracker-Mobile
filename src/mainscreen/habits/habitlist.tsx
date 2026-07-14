@@ -363,7 +363,7 @@ const DaftarHabit = ({
 
     if (type === 'berjalan') {
       if (allCompletedToday) {
-        emptyIcon = 'solar:check-circle-bold';
+        emptyIcon = 'noto:party-popper';
         emptyTitle = t('habits.allCompleted');
         emptySubtitle = '';
         titleColor = 'empty-completed-title';

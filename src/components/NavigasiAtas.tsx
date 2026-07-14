@@ -49,7 +49,7 @@ export const NavigasiAtas = ({ activeTab }: NavigasiAtasProps) => {
               onClick={toggleSettings}
               className={`w-10 h-10 rounded-[10px] flex items-center justify-center transition-all border-2 ${
                 isSettingsOpen 
-                  ? 'bg-[#6ED7A0]/15 border-[#6ED7A0] shadow-[2px_2px_0px_rgba(110,215,160,0.3)] text-[#6ED7A0]' 
+                  ? 'bg-[#6ED7A0]/15 border-[#00FF85] shadow-[2px_2px_0px_rgba(110,215,160,0.3)] text-[#6ED7A0]' 
                   : isLight 
                     ? 'bg-neutral-50 border-black/15 text-black/60 shadow-[2px_2px_0px_rgba(0,0,0,0.06)]' 
                     : 'bg-[#1A1A1A]/40 border-white/10 text-white/60 shadow-[2px_2px_0px_rgba(255,255,255,0.05)]'
@@ -97,7 +97,7 @@ export const NavigasiAtas = ({ activeTab }: NavigasiAtasProps) => {
               onClick={toggleSettings}
               className={`w-10 h-10 rounded-[10px] flex items-center justify-center transition-all border-2 ${
                 isSettingsOpen 
-                  ? 'bg-[#6ED7A0]/15 border-[#6ED7A0] shadow-[2px_2px_0px_rgba(110,215,160,0.3)] text-[#6ED7A0]' 
+                  ? 'bg-[#6ED7A0]/15 border-[#00FF85] shadow-[2px_2px_0px_rgba(110,215,160,0.3)] text-[#6ED7A0]' 
                   : isLight 
                     ? 'bg-neutral-50 border-black/15 text-black/60 shadow-[2px_2px_0px_rgba(0,0,0,0.06)]' 
                     : 'bg-[#1A1A1A]/40 border-white/10 text-white/60 shadow-[2px_2px_0px_rgba(255,255,255,0.05)]'

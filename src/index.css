@@ -1,6 +1,13 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=Outfit:wght@100..900&family=Space+Grotesk:wght@300..700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=Outfit:wght@100..900&family=Space+Grotesk:wght@300..700&family=Chakra+Petch:wght@400..700&family=Unbounded:wght@400..900&family=Share+Tech+Mono&family=Nunito:wght@700;900&family=Orbitron:wght@700;900&family=Exo:wght@700;900&family=Rajdhani:wght@600;700&family=Chivo:wght@700;900&family=Chivo+Mono:wght@700;900&display=swap');
 
 @import "tailwindcss";
+
+@font-face {
+  font-family: 'DSEG7-Modern';
+  src: url('https://cdn.jsdelivr.net/gh/keshikan/DSEG@master/fonts/DSEG7-Modern/DSEG7Modern-Bold.woff2') format('woff2');
+  font-weight: bold;
+  font-style: normal;
+}
 
 @theme {
   --color-os-bg: var(--os-bg);
@@ -217,20 +224,12 @@ body::after {
 }
 
 .tomorrow-glow-border {
-  background: conic-gradient(
-    from var(--tomorrow-angle),
-    transparent 0%,
-    #00FF85 30%,
-    #00CC6A 60%,
-    transparent 90%,
-    transparent 100%
-  );
+  background: #00FF85;
   -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   -webkit-mask-composite: xor;
   mask-composite: exclude;
-  padding: 2px;
-  animation: tomorrowBorderRotate 3s linear infinite;
+  padding: 1.5px;
 }
 
 /* ==========================================================================
@@ -442,7 +441,6 @@ body::after {
   div[style*="antigravitybg"] {
     opacity: 0.06 !important;
     filter: grayscale(0.5) brightness(1.3) contrast(0.9) !important;
-    transform: translateX(6px) !important;
   }
   
   /* SVG & icon styling overrides */
@@ -504,7 +502,7 @@ body::after {
   /* Journey main content cards (mood, journal, media boxes) */
   .journey-card {
     background-color: #ffffff !important;
-    border-color: #000000 !important;
+    border-color: rgba(0, 0, 0, 0.22) !important;
   }
 
   /* Text inside journey cards → dark */
@@ -514,20 +512,21 @@ body::after {
     color: #000000 !important;
   }
 
-  /* Journey inner icon boxes (pen/camera container) → white, border black */
+  /* Journey inner icon boxes (pen/camera container) → white, border gray */
   .journey-icon-box {
     background-color: #ffffff !important;
-    border-color: #000000 !important;
+    border-color: rgba(0, 0, 0, 0.22) !important;
   }
 
-  /* Emoji buttons → white, border black */
+  /* Emoji buttons → white, border gray */
   .journey-mood-btn {
     background-color: #ffffff !important;
-    border-color: #000000 !important;
+    border-color: rgba(0, 0, 0, 0.22) !important;
   }
+  .journey-mood-btn.border-\[\#00B570\],
   .journey-mood-btn.bg-os-green {
     background-color: #00b577 !important;
-    border-color: #000000 !important;
+    border-color: #00B570 !important;
   }
 
   /* Journey compact timeline node (past days circle) */
@@ -1079,7 +1078,7 @@ textarea.bg-journal-transparent,
     rgba(255, 255, 255, 0) 100%
   );
   transform: translateX(-160%) skewX(-25deg);
-  animation: shine-animation 4.5s infinite ease-in-out;
+  animation: shine-animation 5s infinite ease-in-out;
   pointer-events: none;
   z-index: 5;
 }
@@ -1088,7 +1087,7 @@ textarea.bg-journal-transparent,
   0% {
     transform: translateX(-160%) skewX(-25deg);
   }
-  28% {
+  35% {
     transform: translateX(130%) skewX(-25deg);
   }
   100% {

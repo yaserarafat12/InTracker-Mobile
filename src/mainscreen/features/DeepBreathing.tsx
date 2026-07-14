@@ -5,6 +5,8 @@ import { getBreathingPhase, type BreathingPhase } from './utils/breathingPhase';
 import { useProgressionStore } from '../../store/useProgressionStore';
 import { useUserStore } from '../../store/useUserStore';
 import { useTranslation } from '../../i18n';
+import { useBreathingStore } from './stores/useBreathingStore';
+import { BreathingStats } from './BreathingStats';
 
 const DURATION_OPTIONS = [
   { label: '1 min', value: 60 },
@@ -17,7 +19,6 @@ const getPhaseLabel = (phase: BreathingPhase, t: any) => {
     case 'Inhale': return t('features.breathing.inhale');
     case 'Hold': return t('features.breathing.hold');
     case 'Exhale': return t('features.breathing.exhale');
-    case 'Hold2': return t('features.breathing.hold');
     default: return '';
   }
 };
@@ -31,6 +32,7 @@ export function DeepBreathing({ onBack }: DeepBreathingProps) {
   const [isActive, setIsActive] = useState(false);
   const [elapsed, setElapsed] = useState(0);
   const [sessionLength, setSessionLength] = useState(180); // default 3 min
+  const [showStats, setShowStats] = useState(false);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const { phase, phaseProgress } = getBreathingPhase(elapsed);
@@ -47,7 +49,8 @@ export function DeepBreathing({ onBack }: DeepBreathingProps) {
     setIsActive(false);
     if (navigator.vibrate) navigator.vibrate([100, 50, 100, 50, 100]);
     useProgressionStore.getState().awardFeedInteraction();
-  }, [clearTimer]);
+    useBreathingStore.getState().addSession(sessionLength);
+  }, [clearTimer, sessionLength]);
 
   const handleStart = () => {
     setElapsed(0);
@@ -82,18 +85,16 @@ export function DeepBreathing({ onBack }: DeepBreathingProps) {
   }, [clearTimer]);
 
   const getCircleScale = () => {
-    if (!isActive) return 1;
+    if (!isActive) return 0.88;
     switch (phase) {
       case 'Inhale':
-        return 1 + phaseProgress * 0.5; // 1 → 1.5
+        return 1.25;
       case 'Hold':
-        return 1.5;
+        return 1.25;
       case 'Exhale':
-        return 1.5 - phaseProgress * 0.5; // 1.5 → 1
-      case 'Hold2':
-        return 1;
+        return 0.88;
       default:
-        return 1;
+        return 0.88;
     }
   };
 
@@ -108,7 +109,7 @@ export function DeepBreathing({ onBack }: DeepBreathingProps) {
 
   return (
     <div className={`fixed inset-0 flex flex-col items-center px-6 py-8 pb-10 z-[200] overflow-hidden transition-all ${
-      isLight ? 'bg-[#f0fdf4] text-black' : 'bg-[#16181c] text-white'
+      isLight ? 'bg-[#f2faf5] text-black' : 'bg-[#16181c] text-white'
     }`}>
       {/* Background image */}
       {isLight ? (
@@ -122,23 +123,40 @@ export function DeepBreathing({ onBack }: DeepBreathingProps) {
 
       {/* All content above overlay */}
       <div className="relative z-10 flex flex-col items-center flex-1 w-full">
-        {/* Back button */}
-        <motion.button
-          whileTap={{ scale: 0.9 }}
-          onClick={onBack}
-          className={`absolute top-0 left-0 w-10 h-10 rounded-xl border-[2px] flex items-center justify-center active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all ${
-            isLight
-              ? 'border-black bg-white shadow-[3px_3px_0px_rgba(0,0,0,0.65)]'
-              : 'border-white/10 bg-[#2a2c32] shadow-none'
-          }`}
-        >
-          <Icon icon="ph:arrow-left-bold" className={isLight ? 'text-black' : 'text-white'} width={18} />
-        </motion.button>
+        {/* Header Row */}
+        <div className="relative w-full flex items-center justify-between mb-5 h-10">
+          {/* Back button */}
+          <motion.button
+            whileTap={{ scale: 0.9 }}
+            onClick={onBack}
+            className={`w-10 h-10 rounded-[10px] border-2 flex items-center justify-center transition-all ${
+              isLight
+                ? 'border-black/50 bg-white text-black shadow-none'
+                : 'border-white/40 bg-[#2a2c32] text-white shadow-none'
+            }`}
+          >
+            <Icon icon="ph:caret-left-bold" className={isLight ? 'text-black' : 'text-white'} width={18} />
+          </motion.button>
 
-        {/* Title — pushed to top */}
-        <div className="text-center mb-3">
-          <h1 className={`text-[24px] font-black font-['Outfit'] ${isLight ? 'text-black' : 'text-white'}`}>{t('features.breathing.title')}</h1>
-          <p className={`text-[13px] mt-1 font-bold ${isLight ? 'text-black/50' : 'text-white/40'}`}>{t('features.breathing.subtitle')}</p>
+          {/* Title in the center */}
+          <h1 className={`text-[19px] font-bold font-['Outfit'] tracking-wide text-center flex-1 mx-2 truncate ${
+            isLight ? 'text-black/85' : 'text-white/90'
+          }`}>
+            {t('features.breathing.title')}
+          </h1>
+
+          {/* Stats button — top right */}
+          <motion.button
+            whileTap={{ scale: 0.9 }}
+            onClick={() => setShowStats(true)}
+            className={`w-10 h-10 rounded-[10px] border-2 flex items-center justify-center transition-all ${
+              isLight
+                ? 'border-black/50 bg-white text-black shadow-none'
+                : 'border-white/40 bg-[#2a2c32] text-white shadow-none'
+            }`}
+          >
+            <Icon icon="solar:chart-square-bold" className={isLight ? 'text-black/80' : 'text-white/80'} width={20} />
+          </motion.button>
         </div>
 
         {/* Animated Circle with Timer inside — centered, big */}
@@ -148,19 +166,38 @@ export function DeepBreathing({ onBack }: DeepBreathingProps) {
 
           <div className="relative w-[260px] h-[260px] flex items-center justify-center">
             {/* Animating Background Circle */}
+            {/* Animating Ripple 2 (Outer Soft Glow Ripple) */}
+            {isActive && (
+              <motion.div
+                animate={{ scale: getCircleScale() * 1.12, opacity: phase === 'Inhale' || phase === 'Hold' ? 0.3 : 0 }}
+                transition={{
+                  duration: isActive ? 4 : 0.6,
+                  ease: isActive ? [0.4, 0, 0.2, 1] : "easeOut"
+                }}
+                className="absolute inset-0 rounded-full border border-teal-400/25 pointer-events-none"
+                style={{
+                  background: 'radial-gradient(circle, rgba(20,184,166,0.1) 0%, transparent 70%)',
+                }}
+              />
+            )}
+
+            {/* Animating Background Circle */}
             <motion.div
               animate={{ scale: getCircleScale() }}
-              transition={{ duration: 0.5, ease: 'easeInOut' }}
-              className={`absolute inset-0 rounded-full border-[3px] transition-all ${
-                isLight ? 'border-teal-500 shadow-[4px_4px_0px_rgba(20,184,166,0.3)]' : 'border-teal-400/30'
+              transition={{
+                duration: isActive ? 4 : 0.6,
+                ease: isActive ? [0.4, 0, 0.2, 1] : "easeOut"
+              }}
+              className={`absolute inset-0 rounded-full border-[2.5px] transition-all ${
+                isLight ? 'border-teal-500' : 'border-teal-400/40'
               }`}
               style={{
                 background: isLight 
-                  ? 'radial-gradient(circle, rgba(20,184,166,0.15) 0%, rgba(20,184,166,0.03) 70%, transparent 100%)' 
-                  : 'radial-gradient(circle, rgba(45,212,191,0.15) 0%, rgba(45,212,191,0.03) 70%, transparent 100%)',
+                  ? 'radial-gradient(circle, rgba(20,184,166,0.18) 0%, rgba(20,184,166,0.04) 70%, transparent 100%)' 
+                  : 'radial-gradient(circle, rgba(45,212,191,0.2) 0%, rgba(45,212,191,0.04) 70%, transparent 100%)',
                 boxShadow: isLight
-                  ? '0 0 80px rgba(20,184,166,0.1), inset 0 0 40px rgba(20,184,166,0.08)'
-                  : '0 0 80px rgba(45,212,191,0.1), inset 0 0 40px rgba(45,212,191,0.08)',
+                  ? '0 0 60px rgba(20,184,166,0.15), inset 0 0 30px rgba(20,184,166,0.1)'
+                  : '0 0 80px rgba(45,212,191,0.15), inset 0 0 40px rgba(45,212,191,0.1)',
               }}
             />
 
@@ -204,12 +241,14 @@ export function DeepBreathing({ onBack }: DeepBreathingProps) {
                       key={opt.value}
                       whileTap={{ scale: 0.95 }}
                       onClick={() => setSessionLength(opt.value)}
-                      className={`px-5 py-2.5 rounded-full text-[13px] font-bold border transition-all ${
+                      className={`px-4 py-2 rounded-[4px] text-[13px] font-bold border transition-all ${
                         sessionLength === opt.value
-                          ? 'bg-teal-400 text-black border-black shadow-[2px_2px_0px_rgba(0,0,0,1)]'
+                          ? isLight
+                            ? 'border-[1.5px] border-[#81E6D9] bg-gradient-to-br from-[#E6FFFA] to-[#C6F6D5] text-[#22543D] shadow-sm'
+                            : 'border-[1.5px] border-[#1C4D38] bg-gradient-to-br from-[#102A1E] to-[#0A1A12] text-[#00FF85] shadow-none'
                           : isLight
-                            ? 'bg-white text-black/60 border-black/25 shadow-[1.5px_1.5px_0px_rgba(0,0,0,0.05)]'
-                            : 'bg-white/5 text-white/60 border border-white/10'
+                            ? 'bg-white text-black/60 border border-black/10 shadow-sm'
+                            : 'bg-white/10 backdrop-blur-sm text-white/60 border border-white/10'
                       }`}
                     >
                       {opt.value / 60} {t('units.Menit').toLowerCase()}
@@ -240,10 +279,10 @@ export function DeepBreathing({ onBack }: DeepBreathingProps) {
             <motion.button
               whileTap={{ scale: 0.95 }}
               onClick={handleStart}
-              className={`w-full py-4 font-black rounded-xl text-[15px] border transition-all uppercase tracking-wide ${
+              className={`w-full py-3 font-black rounded-lg text-[13px] border-[1.5px] uppercase tracking-wide transition-all ${
                 isLight
-                  ? 'bg-teal-400 text-black border-black shadow-[3.5px_3.5px_0px_rgba(0,0,0,1)]'
-                  : 'bg-teal-500/20 border border-teal-400/30 text-teal-300'
+                  ? 'border-[#81E6D9] bg-gradient-to-br from-[#E6FFFA] to-[#C6F6D5] text-[#22543D] shadow-sm'
+                  : 'border-[#1C4D38] bg-gradient-to-br from-[#102A1E] to-[#0A1A12] text-[#00FF85] shadow-none'
               }`}
             >
               {elapsed >= sessionLength ? t('features.breathing.startAgain') : t('features.breathing.startBtn')}
@@ -252,10 +291,10 @@ export function DeepBreathing({ onBack }: DeepBreathingProps) {
             <motion.button
               whileTap={{ scale: 0.95 }}
               onClick={handleStop}
-              className={`w-full py-4 font-black rounded-xl text-[15px] border transition-all uppercase tracking-wide ${
+              className={`w-full py-3 font-black rounded-lg text-[13px] border-[1.5px] uppercase tracking-wide transition-all ${
                 isLight
-                  ? 'bg-rose-400 text-black border-black shadow-[3.5px_3.5px_0px_rgba(0,0,0,1)]'
-                  : 'bg-red-500/20 border border-red-500/30 text-red-400'
+                  ? 'border-rose-200 bg-gradient-to-br from-rose-50 to-rose-100 text-rose-700 shadow-sm'
+                  : 'border-red-950 bg-gradient-to-br from-[#2D1414] to-[#1F0C0C] text-red-400 shadow-none'
               }`}
             >
               {t('features.breathing.stopBtn')}
@@ -263,6 +302,9 @@ export function DeepBreathing({ onBack }: DeepBreathingProps) {
           )}
         </div>
       </div>
+
+      {/* Stats Panel */}
+      <BreathingStats isOpen={showStats} onClose={() => setShowStats(false)} />
     </div>
   );
 }

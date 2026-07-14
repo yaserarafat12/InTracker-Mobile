@@ -239,15 +239,20 @@ function Beranda({ activeTab: initialTab = 'habits' }: { activeTab?: string }) {
     </div>
   );
 
-  return (
-    <div className="min-h-screen w-full bg-black text-white font-['Outfit'] flex flex-col overflow-hidden selection:bg-[#00FF85] selection:text-black">
-      
+  const isLight = !document.documentElement.classList.contains('dark');
 
-      <div className="fixed top-0 left-1/2 -translate-x-1/2 w-full h-[70vh] bg-[#00FF85]/2 blur-[150px] rounded-full pointer-events-none z-0" />
+  return (
+    <div className={`min-h-screen w-full font-['Outfit'] flex flex-col overflow-hidden selection:bg-[#00FF85] selection:text-black ${
+      isLight ? 'bg-gradient-to-b from-[#FAF5EC] to-[#FFFFFF] text-black' : 'bg-[#121316] text-[#E3DAC9]'
+    }`}>
+      
+      {isLight && (
+        <div className="fixed top-0 left-1/2 -translate-x-1/2 w-full h-[70vh] bg-[#00FF85]/2 blur-[150px] rounded-full pointer-events-none z-0" />
+      )}
 
       {/* Background - abstract nebula for non-habits and non-global screens */}
-      {/* Per-tab background */}
-      {(() => {
+      {/* Per-tab background (Light mode only) */}
+      {isLight && (() => {
         const bgMap: Record<string, string> = {
           habits: '/all_images/antigravitybg/habits_bg.png',
           todo: '/all_images/antigravitybg/todolist_bg.png',

@@ -8,7 +8,7 @@ import { PomodoroStats } from './PomodoroStats';
 import { useTranslation } from '../../i18n';
 import { useUserStore } from '../../store/useUserStore';
 
-const DURATION_OPTIONS = [15, 25, 30, 45, 60, 75, 90];
+const DURATION_OPTIONS = [15, 25, 30, 45, 60, 90];
 
 type PomodoroState = 'idle' | 'running' | 'paused' | 'break';
 
@@ -136,7 +136,7 @@ export function PomodoroTimer({ onBack }: PomodoroTimerProps) {
 
   return (
       <div className={`fixed inset-0 flex flex-col items-center px-6 pt-14 pb-10 z-[200] overflow-hidden transition-all ${
-        isLight ? 'bg-[#f0fdf4] text-black' : 'bg-[#16181c] text-white'
+        isLight ? 'bg-[#f2faf5] text-black' : 'bg-[#16181c] text-white'
       }`}>
         {/* Background image */}
         {isLight ? (
@@ -150,70 +150,63 @@ export function PomodoroTimer({ onBack }: PomodoroTimerProps) {
   
         {/* Back button */}
         <motion.button
-          whileTap={{ scale: 0.9 }}
+          whileTap={{ scale: 0.95 }}
           onClick={onBack}
-          className={`absolute top-12 left-5 w-10 h-10 rounded-xl border-[2px] flex items-center justify-center z-20 active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all ${
+          className={`absolute top-12 left-5 w-10 h-10 rounded-[10px] border-2 flex items-center justify-center z-20 transition-all ${
             isLight
-              ? 'border-black bg-white shadow-[3px_3px_0px_rgba(0,0,0,0.65)]'
-              : 'border-white/10 bg-[#2a2c32] shadow-none'
+              ? 'border-black/50 bg-white text-black shadow-none'
+              : 'border-white/40 bg-[#2a2c32] text-white shadow-none'
           }`}
         >
-          <Icon icon="ph:arrow-left-bold" className={isLight ? 'text-black' : 'text-white'} width={18} />
+          <Icon icon="ph:caret-left-bold" className={isLight ? 'text-black/80' : 'text-white'} width={18} />
         </motion.button>
+        
         {/* Sound toggle button — top right, next to stats */}
         <motion.button
-          whileTap={{ scale: 0.9, x: 2, y: 2, boxShadow: '0px 0px 0px rgba(0,0,0,1)' }}
+          whileTap={{ scale: 0.95 }}
           onClick={handleToggleSound}
-          className={`absolute top-12 right-[72px] w-10 h-10 rounded-lg flex items-center justify-center z-20 border-[2px] transition-all ${
-            isLight ? 'border-black' : isSoundOn ? 'border-transparent' : 'border-white/10'
-          } ${
-            isSoundOn
-              ? 'bg-[#00FF85]'
-              : isLight
-                ? 'bg-white'
-                : 'bg-[#2a2c32]'
-          } ${
-            isLight
-              ? 'shadow-[3px_3px_0px_rgba(0,0,0,0.65)]'
-              : 'shadow-none'
+          className={`absolute top-12 right-[72px] w-10 h-10 border-2 border-[#6ED7A0] rounded-[10px] flex items-center justify-center z-20 transition-all ${
+            isLight 
+              ? 'bg-[#EAFDF5] text-[#00C265] shadow-[2px_2px_0px_rgba(110,215,160,0.35)]' 
+              : 'bg-[#6ED7A0]/15 text-[#6ED7A0] shadow-[2px_2px_0px_rgba(110,215,160,0.15)]'
           }`}
         >
-          {isSoundOn && pomodoroState === 'running' ? (
+          {isSoundOn ? (
             <div className="flex items-end gap-[2px] h-4 px-1">
               {[0, 1, 2, 3].map((i) => (
                 <motion.div
                   key={i}
-                  animate={{ height: ['30%', `${60 + i * 10}%`, '30%'] }}
+                  animate={{ height: ['30%', `${55 + i * 12}%`, '30%'] }}
                   transition={{
                     repeat: Infinity,
-                    duration: 0.4 + i * 0.12,
+                    duration: 0.45 + i * 0.15,
                     ease: 'easeInOut',
-                    delay: i * 0.08,
+                    delay: i * 0.1,
                   }}
-                  className="w-[2.5px] rounded-full origin-bottom bg-black"
+                  className={`w-[2.5px] rounded-full origin-bottom ${isLight ? 'bg-[#00C265]' : 'bg-[#6ED7A0]'}`}
                 />
               ))}
             </div>
           ) : (
             <Icon 
-              icon={isSoundOn ? "solar:music-note-bold" : "solar:music-note-broken"} 
-              className={isLight ? 'text-black' : isSoundOn ? 'text-black' : 'text-white'} 
-              width={18} 
+              icon="solar:music-note-bold" 
+              className={isLight ? 'text-[#00C265]' : 'text-[#6ED7A0]'} 
+              width={20} 
             />
           )}
         </motion.button>
 
         {/* Stats button — top right */}
         <motion.button
-          whileTap={{ scale: 0.9, x: 2, y: 2, boxShadow: '0px 0px 0px rgba(0,0,0,1)' }}
+          whileTap={{ scale: 0.95 }}
           onClick={() => setShowStats(true)}
-          className={`absolute top-12 right-5 w-10 h-10 rounded-lg flex items-center justify-center z-20 border-[2px] transition-all bg-[#00FF85] ${
+          className={`absolute top-12 right-5 w-10 h-10 rounded-[10px] border-2 flex items-center justify-center z-20 transition-all ${
             isLight
-              ? 'border-black shadow-[3px_3px_0px_rgba(0,0,0,0.65)]'
-              : 'border-transparent shadow-none'
+              ? 'border-black/50 bg-white text-black/80 shadow-none'
+              : 'border-white/40 bg-[#2a2c32] text-white shadow-none'
           }`}
         >
-          <Icon icon="solar:chart-square-bold" className="text-black" width={20} />
+          <Icon icon="solar:chart-square-bold" className={isLight ? 'text-black/80' : 'text-white'} width={20} />
         </motion.button>
   
         {/* Stats Panel */}
@@ -238,7 +231,10 @@ export function PomodoroTimer({ onBack }: PomodoroTimerProps) {
               <p className={`text-[13px] mb-2 font-black uppercase tracking-wider ${isLight ? 'text-black/50' : 'text-white/40'}`}>
                 {pomodoroState === 'idle' ? t('features.pomodoro.timerTitle') : pomodoroState === 'break' ? t('features.pomodoro.stateBreak') : pomodoroState === 'paused' ? t('features.pomodoro.statePaused') : t('features.pomodoro.stateFocus')}
               </p>
-              <span className={`text-[72px] font-black font-['Outfit'] tabular-nums tracking-tight leading-none ${isLight ? 'text-black' : 'text-white'}`}>
+              <span 
+                style={{ fontFamily: '"Chivo", sans-serif' }}
+                className={`text-[74px] font-black tabular-nums tracking-tight leading-none ${isLight ? 'text-black' : 'text-white'}`}
+              >
                 {formatTime(displayTime)}
               </span>
               {pomodoroState === 'break' && (
@@ -262,11 +258,14 @@ export function PomodoroTimer({ onBack }: PomodoroTimerProps) {
                   key={d}
                   whileTap={{ scale: 0.95 }}
                   onClick={() => setSelectedDuration(d)}
-                  className={`px-4 py-2 rounded-xl text-[13px] font-black border transition-all ${
+                  style={{ fontFamily: '"Chivo", sans-serif' }}
+                  className={`px-4 py-2 rounded-[4px] text-[13px] font-bold border transition-all ${
                     selectedDuration === d
-                      ? 'bg-[#00FF85] text-black border-black shadow-[2.5px_2.5px_0px_rgba(0,0,0,0.65)]'
+                      ? isLight
+                        ? 'border border-[#81E6D9] bg-gradient-to-br from-[#E6FFFA] to-[#C6F6D5] shadow-sm text-[#22543D]'
+                        : 'border border-[#1C4D38] bg-gradient-to-br from-[#102A1E] to-[#0A1A12] shadow-sm text-[#00FF85]'
                       : isLight
-                        ? 'bg-white text-black/60 border-black/20 hover:border-black/50 shadow-[2px_2px_0px_rgba(0,0,0,0.1)]'
+                        ? 'bg-white text-black/60 border border-black/10 shadow-sm'
                         : 'bg-white/10 backdrop-blur-sm text-white/60 border border-white/10'
                   }`}
                 >
@@ -286,7 +285,7 @@ export function PomodoroTimer({ onBack }: PomodoroTimerProps) {
               exit={{ opacity: 0, y: 20 }}
               className={`w-full border rounded-2xl p-5 mb-4 text-center z-10 transition-all ${
                 isLight
-                  ? 'bg-[#fbfbfb] border-black shadow-[4px_4px_0px_rgba(0,0,0,0.65)] text-black'
+                  ? 'bg-[#fbfbfb] border-black/10 shadow-none text-black'
                   : 'bg-white/5 backdrop-blur-sm border border-white/10 text-white'
               }`}
             >
@@ -296,10 +295,10 @@ export function PomodoroTimer({ onBack }: PomodoroTimerProps) {
                 <motion.button
                   whileTap={{ scale: 0.95 }}
                   onClick={handleStartBreak}
-                  className={`flex-1 py-3 font-bold rounded-xl text-[13px] border ${
+                  className={`flex-1 py-3 font-black rounded-lg text-[13px] border-[1.5px] transition-all uppercase tracking-wider ${
                     isLight
-                      ? 'bg-[#00FF85] text-black border-black shadow-[3px_3px_0px_rgba(0,0,0,1)]'
-                      : 'bg-[#00FF85] text-black border-transparent'
+                      ? 'border-[#48BB78]/20 bg-gradient-to-br from-[#E6FFFA] to-[#C6F6D5] border-[#81E6D9] shadow-sm text-[#22543D]'
+                      : 'border-[#00FF85]/20 bg-gradient-to-br from-[#102A1E] to-[#0A1A12] border-[#1C4D38] shadow-sm text-[#00FF85]'
                   }`}
                 >
                   {t('features.pomodoro.breakBtn')}
@@ -307,10 +306,10 @@ export function PomodoroTimer({ onBack }: PomodoroTimerProps) {
                 <motion.button
                   whileTap={{ scale: 0.95 }}
                   onClick={handleSkipBreak}
-                  className={`flex-1 py-3 font-bold rounded-xl text-[13px] border ${
+                  className={`flex-1 py-3 font-bold rounded-lg text-[13px] border transition-all ${
                     isLight
-                      ? 'bg-white text-black border-black shadow-[3px_3px_0px_rgba(0,0,0,0.65)]'
-                      : 'bg-white/10 text-white/70 border border-white/10'
+                      ? 'bg-white text-black border border-black/10 shadow-sm'
+                      : 'bg-white/10 text-white/70 border border-white/10 shadow-sm'
                   }`}
                 >
                   {t('features.pomodoro.skipBtn')}
@@ -326,10 +325,10 @@ export function PomodoroTimer({ onBack }: PomodoroTimerProps) {
             <motion.button
               whileTap={{ scale: 0.95 }}
               onClick={handleStart}
-              className={`flex-1 py-4 font-black rounded-xl text-[15px] border uppercase tracking-wide ${
+              className={`flex-1 py-3 font-black rounded-lg text-[13px] border-[1.5px] uppercase tracking-wide transition-all ${
                 isLight
-                  ? 'bg-[#00FF85] text-black border-black shadow-[3.5px_3.5px_0px_rgba(0,0,0,1)]'
-                  : 'bg-[#00FF85] text-black border-transparent'
+                  ? 'border-[#48BB78]/20 bg-gradient-to-br from-[#E6FFFA] to-[#C6F6D5] border-[#81E6D9] shadow-sm text-[#22543D]'
+                  : 'border-[#00FF85]/20 bg-gradient-to-br from-[#102A1E] to-[#0A1A12] border-[#1C4D38] shadow-sm text-[#00FF85]'
               }`}
             >
               {t('features.pomodoro.startFocus')}
@@ -341,10 +340,10 @@ export function PomodoroTimer({ onBack }: PomodoroTimerProps) {
               <motion.button
                 whileTap={{ scale: 0.95 }}
                 onClick={handlePause}
-                className={`flex-1 py-4 font-bold rounded-xl text-[15px] border ${
+                className={`flex-1 py-3 font-bold rounded-lg text-[13px] border transition-all ${
                   isLight
-                    ? 'bg-amber-400 text-black border-black shadow-[3px_3px_0px_rgba(0,0,0,1)]'
-                    : 'bg-yellow-500/20 border border-yellow-500/30 text-yellow-400'
+                    ? 'bg-amber-400/15 border border-amber-400/20 text-amber-600 shadow-sm'
+                    : 'bg-yellow-500/10 border border-yellow-500/20 text-yellow-400 shadow-sm'
                 }`}
               >
                 {t('features.pomodoro.pauseBtn')}
@@ -352,10 +351,10 @@ export function PomodoroTimer({ onBack }: PomodoroTimerProps) {
               <motion.button
                 whileTap={{ scale: 0.95 }}
                 onClick={handleStop}
-                className={`flex-1 py-4 font-bold rounded-xl text-[15px] border ${
+                className={`flex-1 py-3 font-bold rounded-lg text-[13px] border transition-all ${
                   isLight
-                    ? 'bg-rose-400 text-black border-black shadow-[3px_3px_0px_rgba(0,0,0,1)]'
-                    : 'bg-red-500/20 border border-red-500/30 text-red-400'
+                    ? 'bg-rose-400/15 border border-rose-400/20 text-rose-600 shadow-sm'
+                    : 'bg-red-500/10 border border-red-500/20 text-red-400 shadow-sm'
                 }`}
               >
                 {t('features.pomodoro.stopBtn')}
@@ -368,10 +367,10 @@ export function PomodoroTimer({ onBack }: PomodoroTimerProps) {
               <motion.button
                 whileTap={{ scale: 0.95 }}
                 onClick={handleResume}
-                className={`flex-1 py-4 font-black rounded-xl text-[15px] border uppercase tracking-wide ${
+                className={`flex-1 py-3 font-black rounded-lg text-[13px] border-[1.5px] uppercase tracking-wide transition-all ${
                   isLight
-                    ? 'bg-[#00FF85] text-black border-black shadow-[3px_3px_0px_rgba(0,0,0,1)]'
-                    : 'bg-[#00FF85] text-black border-transparent'
+                    ? 'border-[#48BB78]/20 bg-gradient-to-br from-[#E6FFFA] to-[#C6F6D5] border-[#81E6D9] shadow-sm text-[#22543D]'
+                    : 'border-[#00FF85]/20 bg-gradient-to-br from-[#102A1E] to-[#0A1A12] border-[#1C4D38] shadow-sm text-[#00FF85]'
                 }`}
               >
                 {t('features.pomodoro.resumeBtn')}
@@ -379,10 +378,10 @@ export function PomodoroTimer({ onBack }: PomodoroTimerProps) {
               <motion.button
                 whileTap={{ scale: 0.95 }}
                 onClick={handleStop}
-                className={`flex-1 py-4 font-bold rounded-xl text-[15px] border ${
+                className={`flex-1 py-3 font-bold rounded-lg text-[13px] border transition-all ${
                   isLight
-                    ? 'bg-rose-400 text-black border-black shadow-[3px_3px_0px_rgba(0,0,0,1)]'
-                    : 'bg-red-500/20 border border-red-500/30 text-red-400'
+                    ? 'bg-rose-400/15 border border-rose-400/20 text-rose-600 shadow-sm'
+                    : 'bg-red-500/10 border border-red-500/20 text-red-400 shadow-sm'
                 }`}
               >
                 {t('features.pomodoro.stopBtn')}
@@ -394,10 +393,10 @@ export function PomodoroTimer({ onBack }: PomodoroTimerProps) {
             <motion.button
               whileTap={{ scale: 0.95 }}
               onClick={handleStop}
-              className={`flex-1 py-4 font-bold rounded-xl text-[15px] border ${
+              className={`flex-1 py-3 font-black rounded-lg text-[13px] border-[1.5px] uppercase tracking-wide transition-all ${
                 isLight
-                  ? 'bg-[#00FF85] text-black border-black shadow-[3.5px_3.5px_0px_rgba(0,0,0,1)]'
-                  : 'bg-white/5 border border-white/10 text-white/70'
+                  ? 'border-[#48BB78]/20 bg-gradient-to-br from-[#E6FFFA] to-[#C6F6D5] border-[#81E6D9] shadow-sm text-[#22543D]'
+                  : 'border-[#00FF85]/20 bg-gradient-to-br from-[#102A1E] to-[#0A1A12] border-[#1C4D38] shadow-sm text-[#00FF85]'
               }`}
             >
               {t('features.pomodoro.doneBtn')}

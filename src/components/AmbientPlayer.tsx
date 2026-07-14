@@ -51,7 +51,7 @@ export const AmbientPlayer = () => {
       <motion.button
         whileTap={{ scale: 0.95 }}
         onClick={handleToggle}
-        className={`w-10 h-10 border-2 border-[#6ED7A0] rounded-[10px] shadow-[2px_2px_0px_rgba(110,215,160,0.35)] flex items-center justify-center transition-all ${
+        className={`w-10 h-10 border-2 border-[#00FF85] rounded-[10px] shadow-[2px_2px_0px_rgba(110,215,160,0.35)] flex items-center justify-center transition-all ${
           isLight ? 'bg-[#EAFDF5] text-[#00C265]' : 'bg-[#6ED7A0]/15 text-[#6ED7A0]'
         }`}
       >

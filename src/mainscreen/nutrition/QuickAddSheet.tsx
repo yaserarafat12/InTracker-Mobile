@@ -289,23 +289,40 @@ export function QuickAddSheet({ isOpen, onClose }: QuickAddSheetProps) {
   return (
     <AnimatePresence>
       {isOpen && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="nutrition-overlay fixed inset-0 bg-[#16181c] z-[200] flex flex-col">
-            <div className="flex items-center justify-between px-6 pt-14 pb-3">
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className={`nutrition-overlay fixed inset-0 z-[200] flex flex-col transition-colors duration-300 ${
+              isLight ? 'bg-[#f0fdf4] text-black' : 'bg-[#16181c] text-white'
+            }`}
+          >
+            {/* Background image in Light mode */}
+            {isLight && (
+              <img
+                src="/all_images/antigravitybg/calo_bg.png"
+                alt=""
+                className="absolute inset-0 w-full h-full object-cover z-0 pointer-events-none"
+              />
+            )}
+            <div className="flex items-center justify-between px-6 pt-14 pb-3 relative z-10">
               <motion.button 
                 whileTap={{ scale: 0.9 }} 
                 onClick={onClose} 
-                className={`w-9 h-9 rounded-xl border-[2px] flex items-center justify-center transition-all ${
+                className={`w-10 h-10 rounded-[10px] border-2 flex items-center justify-center transition-all ${
                   isLight
-                    ? 'bg-white border-black text-black shadow-[3px_3px_0px_rgba(0,0,0,0.65)]'
+                    ? 'bg-white border-black/10 text-black shadow-none'
                     : 'border-white/10 bg-[#2a2c32] text-white shadow-none'
                 }`}
               >
-                <Icon icon="ph:arrow-left-bold" width={16} />
+                <Icon icon="ph:caret-left-bold" width={18} className={isLight ? 'text-black/80' : 'text-white'} />
               </motion.button>
-              <h2 className="text-[18px] font-black font-['Outfit'] text-white">Tambah Cepat</h2>
+              <h2 className={`text-[18px] font-black font-['Outfit'] ${
+                isLight ? 'text-black' : 'text-white'
+              }`}>Tambah Cepat</h2>
               <div className="w-9" />
             </div>
-            <div className="flex-1 overflow-y-auto px-6 pb-8 space-y-5">
+            <div className="flex-1 overflow-y-auto px-6 pb-8 space-y-5 relative z-10">
               <div>
                 <p className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em] mb-2 ml-1">Jenis Makan</p>
                 <div className="flex gap-2">

@@ -12,7 +12,7 @@ export const en = {
     day: 'Day',
     tabs: {
       pattern: 'Patterns',
-      activity: 'Activity',
+      activity: 'All',
       stats: 'Stats'
     },
     ranges: {
@@ -135,8 +135,8 @@ export const en = {
     tellDay: 'Tell about your day',
     captureMoment: 'Capture the moment',
     alreadyWritten: 'Written',
-    writeNow: 'Write Now',
-    addPhoto: 'Add Photo',
+    writeNow: 'Write now',
+    addPhoto: 'Add photo',
     photosToday: 'Today\'s Photos',
     takePhoto: 'Take Photo',
     fromGallery: 'From Gallery',
@@ -575,6 +575,18 @@ export const en = {
     editTitle: 'Edit Task',
     addNew: 'Add New Task',
     iconAndName: 'Icon & Task Name',
+    searchPlaceholder: 'Search tasks',
+    customTask: 'Custom task',
+    recommended: 'RECOMMENDED',
+    editProgramBanner: 'Just want to edit your program?',
+    editProgramToast: 'Open Settings to change your program duration!',
+    categories: {
+      all: 'All',
+      exercise: 'Physical',
+      mindfulness: 'Mindfulness',
+      evolution: 'Evolution',
+      routine: 'Routine'
+    },
     selectIntensity: 'Select Intensity',
     schedule: 'Schedule',
     singleAction: 'Single Action Task',

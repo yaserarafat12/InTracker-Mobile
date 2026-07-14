@@ -220,10 +220,10 @@ const GlobalView: React.FC<{ onNavigate?: (tab: string) => void }> = ({ onNaviga
               <motion.button
                 whileTap={{ scale: 0.97 }}
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                className={`flex items-center justify-between min-w-[135px] px-5 py-2.5 rounded-[8px] border-2 text-[11px] font-black uppercase tracking-wider transition-all sheen-active-tab ${
+                className={`flex items-center justify-between min-w-[160px] px-5 py-2.5 rounded-[8px] border-[1.5px] text-[11px] font-semibold transition-all ${
                   isLight 
-                    ? 'border-[#A8C7FA] bg-gradient-to-br from-[#EBF3FF] to-[#D0E2FF] text-[#0B57D0] shadow-[0_6px_16px_rgba(11,87,208,0.15)]' 
-                    : 'border-[#2E4378] bg-gradient-to-br from-[#1E2B4C] to-[#141C33] text-[#8AB4F8] shadow-[0_6px_16px_rgba(138,180,248,0.18)]'
+                    ? 'border-[#81E6D9] bg-gradient-to-br from-[#E6FFFA] to-[#C6F6D5] text-[#22543D] shadow-sm' 
+                    : 'border-[#1C4D38] bg-gradient-to-br from-[#102A1E] to-[#0A1A12] text-[#00FF85] shadow-none'
                 }`}
               >
                 <span>{activeTab === 'Publik' ? t('global.tabs.public') : activeTab === 'Teman' ? t('global.tabs.friends') : t('global.tabs.personal')}</span>
@@ -232,7 +232,7 @@ const GlobalView: React.FC<{ onNavigate?: (tab: string) => void }> = ({ onNaviga
                   transition={{ duration: 0.2 }}
                   className="flex items-center ml-2"
                 >
-                  <ChevronDown size={14} className={isLight ? 'text-[#0B57D0]/60' : 'text-[#8AB4F8]/60'} />
+                  <ChevronDown size={14} className={isLight ? 'text-[#22543D]/60' : 'text-[#00FF85]/60'} />
                 </motion.div>
               </motion.button>
               
@@ -247,10 +247,10 @@ const GlobalView: React.FC<{ onNavigate?: (tab: string) => void }> = ({ onNaviga
                       animate={{ opacity: 1, y: 0, scale: 1 }}
                       exit={{ opacity: 0, y: -10, scale: 0.95 }}
                       transition={{ duration: 0.15 }}
-                      className={`absolute left-0 mt-2 w-full min-w-[135px] rounded-[8px] border-[1.5px] p-1.5 z-50 shadow-[0_10px_25px_rgba(0,0,0,0.5)] ${
+                      className={`absolute left-0 mt-2 w-full min-w-[160px] rounded-[12px] border p-1.5 z-50 backdrop-blur-xl shadow-[0_12px_32px_rgba(0,0,0,0.18)] ${
                         isLight 
-                          ? 'bg-white border-black/15 text-black' 
-                          : 'bg-[#1c1e22]/98 backdrop-blur-md border-[#E3DAC9]/15 text-[#E3DAC9]'
+                          ? 'bg-white/75 border-white/40 text-black' 
+                          : 'bg-[#1c1e22]/75 border-white/10 text-[#E3DAC9]'
                       }`}
                     >
                       {tabs.map((tab) => (
@@ -261,14 +261,13 @@ const GlobalView: React.FC<{ onNavigate?: (tab: string) => void }> = ({ onNaviga
                             setActiveTab(tab);
                             setIsDropdownOpen(false);
                           }}
-                          className={`w-full py-2 px-3 rounded-[6px] text-left text-[10px] font-black uppercase tracking-wider flex items-center justify-between transition-colors ${
+                          className={`w-full py-2 px-3 rounded-[8px] text-left text-[11px] font-semibold flex items-center justify-between transition-colors ${
                             activeTab === tab
-                              ? (isLight ? 'bg-neutral-100 text-black' : 'bg-white/10 text-white')
-                              : (isLight ? 'hover:bg-neutral-50 text-neutral-600' : 'hover:bg-white/5 text-[#E3DAC9]/60')
+                              ? (isLight ? 'bg-black/8 text-black' : 'bg-white/15 text-white')
+                              : (isLight ? 'hover:bg-black/4 text-neutral-600' : 'hover:bg-white/5 text-[#E3DAC9]/60')
                           }`}
                         >
-                          <span>{tab === 'Publik' ? t('global.tabs.public') : tab === 'Teman' ? t('global.tabs.friends') : t('global.tabs.personal')}</span>
-                          {activeTab === tab && <Check size={12} className={isLight ? 'text-black' : 'text-[#00FF85]'} />}
+                          <span>{tab === 'Publik' ? t('global.tabs.public') : tab === 'Teman' ? t('global.tabs.friends') : tab === 'Personal' ? t('global.tabs.personal') : ''}</span>
                         </button>
                       ))}
                     </motion.div>
@@ -284,13 +283,25 @@ const GlobalView: React.FC<{ onNavigate?: (tab: string) => void }> = ({ onNaviga
                 if (navigator.vibrate) navigator.vibrate(20);
                 setShowAddModal(true);
               }}
-              className={`w-9 h-9 rounded-[8px] border-[1.5px] flex items-center justify-center shrink-0 transition-all ${
+              className={`w-10 h-10 rounded-[8px] transition-all flex items-center justify-center border-0 ${
                 isLight 
-                  ? 'border-[#81E6D9] bg-gradient-to-br from-[#E6FFFA] to-[#C6F6D5] text-[#22543D] shadow-[0_4px_10px_rgba(34,84,61,0.1)]' 
-                  : 'border-[#1C4D38] bg-gradient-to-br from-[#102A1E] to-[#0A1A12] text-[#00FF85] shadow-[0_4px_10px_rgba(0,255,133,0.12)]'
+                  ? 'bg-white text-black shadow-sm hover:bg-neutral-50' 
+                  : 'bg-[#1C1E22]/50 text-white shadow-none hover:bg-[#1C1E22]/80'
               }`}
             >
-              <Plus size={18} />
+              <svg 
+                width="18" 
+                height="18" 
+                viewBox="0 0 24 24" 
+                fill="none" 
+                stroke="currentColor" 
+                strokeWidth="3.8" 
+                strokeLinecap="round" 
+                strokeLinejoin="round"
+              >
+                <line x1="12" y1="5" x2="12" y2="19" />
+                <line x1="5" y1="12" x2="19" y2="12" />
+              </svg>
             </motion.button>
           </motion.div>
         </div>

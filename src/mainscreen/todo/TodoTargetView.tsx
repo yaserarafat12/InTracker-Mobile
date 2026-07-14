@@ -522,7 +522,7 @@ export default function TodoTargetView({ initialFilter }: { initialFilter?: Targ
   const { targets, loading } = useTargetStore();
   const { t } = useTranslation();
   const { settings } = useUserStore();
-  const isLight = settings?.theme === 'Light';
+  const isLight = !document.documentElement.classList.contains('dark');
   const [activeFilter, setActiveFilter] = useState<TargetFilter>(initialFilter || 'today');
   const [dropdownFilter, setDropdownFilter] = useState<Exclude<TargetFilter, 'done'>>('today');
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -663,30 +663,39 @@ export default function TodoTargetView({ initialFilter }: { initialFilter?: Targ
           <div className="relative">
             <motion.button
               whileTap={{ scale: 0.95 }}
-              onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+              onClick={() => {
+                if (navigator.vibrate) navigator.vibrate(10);
+                if (activeFilter === 'done') {
+                  // Switch directly back to the active dropdown sub-filter
+                  setActiveFilter(dropdownFilter);
+                } else {
+                  // Open/close dropdown menu normally
+                  setIsDropdownOpen(!isDropdownOpen);
+                }
+              }}
               className={`
                 px-4 py-2.5 rounded-[8px] flex items-center justify-between gap-2.5 transition-all min-w-[190px]
-                ${activeFilter !== 'done' ? 'sheen-active-tab transform scale-[1.06] border-2 shadow-md z-10 opacity-100' : 'border-[1.5px] scale-[0.94] opacity-45'}
+                ${activeFilter !== 'done' ? 'transform scale-[1.06] border-[1.5px] shadow-sm z-10 opacity-100' : 'border-[1.5px] scale-[0.94] opacity-45'}
                 ${
                   activeFilter !== 'done'
                     ? dropdownFilter === 'delayed'
                       ? isLight
-                        ? 'border-[#FEB2B2] bg-gradient-to-br from-[#FFE5E5] to-[#FED7D7] text-[#742A2A] shadow-[0_6px_16px_rgba(116,42,42,0.15)]'
-                        : 'border-[#611E1E] bg-gradient-to-br from-[#3D1414] to-[#260C0C] text-[#EF4444] shadow-[0_6px_16px_rgba(239,68,68,0.18)]'
+                        ? 'border-[#FEB2B2] bg-gradient-to-br from-[#FFE5E5] to-[#FED7D7] text-[#742A2A] shadow-sm'
+                        : 'border-[#611E1E] bg-gradient-to-br from-[#3D1414] to-[#260C0C] text-[#EF4444] shadow-none'
                       : dropdownFilter === 'today'
                         ? isLight
-                          ? 'border-[#A8C7FA] bg-gradient-to-br from-[#EBF3FF] to-[#D0E2FF] text-[#0B57D0] shadow-[0_6px_16px_rgba(11,87,208,0.15)]'
-                          : 'border-[#2E4378] bg-gradient-to-br from-[#1E2B4C] to-[#141C33] text-[#8AB4F8] shadow-[0_6px_16px_rgba(138,180,248,0.18)]'
+                          ? 'border-[#81E6D9] bg-gradient-to-br from-[#E6FFFA] to-[#C6F6D5] text-[#22543D] shadow-sm'
+                          : 'border-[1.5px] border-[#1C4D38] bg-gradient-to-br from-[#102A1E] to-[#0A1A12] text-[#00FF85] shadow-none'
                         : dropdownFilter === 'upcoming'
                           ? isLight
-                            ? 'border-[#D8B4FE] bg-gradient-to-br from-[#F3E8FF] to-[#E9D5FF] text-[#7E22CE] shadow-[0_6px_16px_rgba(126,34,206,0.15)]'
-                            : 'border-[#4E2D7F] bg-gradient-to-br from-[#2E1B4E] to-[#1D1033] text-[#C084FC] shadow-[0_6px_16px_rgba(192,132,252,0.18)]'
+                            ? 'border-[#D8B4FE] bg-gradient-to-br from-[#F3E8FF] to-[#E9D5FF] text-[#7E22CE] shadow-sm'
+                            : 'border-[#4E2D7F] bg-gradient-to-br from-[#2E1B4E] to-[#1D1033] text-[#C084FC] shadow-none'
                           : isLight // someday
-                            ? 'border-[#FFB74D] bg-gradient-to-br from-[#FFF4E5] to-[#FFE0B2] text-[#E65100] shadow-[0_6px_16px_rgba(230,81,0,0.15)]'
-                            : 'border-[#663C0F] bg-gradient-to-br from-[#3B2610] to-[#26180A] text-[#F5A623] shadow-[0_6px_16px_rgba(245,166,35,0.18)]'
+                            ? 'border-[#FFB74D] bg-gradient-to-br from-[#FFF4E5] to-[#FFE0B2] text-[#E65100] shadow-sm'
+                            : 'border-[#663C0F] bg-gradient-to-br from-[#3B2610] to-[#26180A] text-[#F5A623] shadow-none'
                     : isLight
-                      ? 'bg-white border-2 border-neutral-200 text-neutral-400 shadow-[0_4px_12px_rgba(0,0,0,0.03)] hover:text-neutral-600'
-                      : 'bg-[#1C1E22]/50 border border-white/[0.07] text-[#E3DAC9]/40 shadow-[0_4px_12px_rgba(0,0,0,0.1)] hover:text-[#E3DAC9]/60'
+                      ? 'bg-white border-[1.5px] border-neutral-200 text-neutral-400 shadow-sm hover:text-neutral-600'
+                      : 'bg-[#1C1E22]/50 border-[1.5px] border-white/[0.07] text-[#E3DAC9]/40 shadow-none hover:text-[#E3DAC9]/60'
                 }
               `}
             >
@@ -704,7 +713,7 @@ export default function TodoTargetView({ initialFilter }: { initialFilter?: Targ
                 className="flex items-center"
               >
                 <Icon 
-                  icon="lucide:chevron-down" 
+                   icon="lucide:chevron-down" 
                   width={14} 
                   className={activeFilter !== 'done' ? '' : (isLight ? 'text-neutral-400' : 'text-[#E3DAC9]/40')} 
                 />
@@ -737,9 +746,15 @@ export default function TodoTargetView({ initialFilter }: { initialFilter?: Targ
                             setDropdownFilter(windowId);
                             setIsDropdownOpen(false);
                           }}
-                          className={`w-full py-2 px-3 rounded-[6px] text-left text-[11px] font-black uppercase tracking-wider flex items-center justify-between transition-colors ${
+                          className={`w-full py-2.5 px-3 rounded-[6px] text-left text-[12px] font-bold tracking-tight flex items-center justify-between transition-colors ${
                             activeFilter === windowId
-                              ? (isLight ? 'bg-neutral-100 text-black' : 'bg-white/10 text-white')
+                              ? windowId === 'today'
+                                ? (isLight ? 'bg-[#E6FFFA] text-[#22543D]' : 'bg-[#102A1E] text-[#00FF85]')
+                                : windowId === 'upcoming'
+                                  ? (isLight ? 'bg-[#F3E8FF] text-[#7E22CE]' : 'bg-[#2E1B4E] text-[#C084FC]')
+                                  : windowId === 'someday'
+                                    ? (isLight ? 'bg-[#FFF4E5] text-[#E65100]' : 'bg-[#3B2610] text-[#F5A623]')
+                                    : (isLight ? 'bg-[#FFE5E5] text-[#742A2A]' : 'bg-[#3D1414] text-[#EF4444]') // delayed
                               : (isLight ? 'hover:bg-neutral-50 text-neutral-600' : 'hover:bg-white/5 text-[#E3DAC9]/60')
                           }`}
                         >
@@ -747,13 +762,6 @@ export default function TodoTargetView({ initialFilter }: { initialFilter?: Targ
                             <span>{t('todo.filters.' + windowId)}</span>
                             <span className="text-[9px] opacity-60">({count})</span>
                           </div>
-                          {activeFilter === windowId && (
-                            <Icon 
-                              icon="lucide:check" 
-                              width={12} 
-                              className={isLight ? 'text-black' : 'text-[#00FF85]'} 
-                            />
-                          )}
                         </button>
                       );
                     })}
@@ -772,15 +780,15 @@ export default function TodoTargetView({ initialFilter }: { initialFilter?: Targ
             }}
             className={`
               px-4 py-2.5 rounded-[8px] flex items-center justify-center gap-1.5 transition-all flex-1
-              ${activeFilter === 'done' ? 'sheen-active-tab transform scale-[1.06] border-2 shadow-md z-10 opacity-100' : 'border-[1.5px] scale-[0.94] opacity-45'}
+              ${activeFilter === 'done' ? 'transform scale-[1.06] border-[1.5px] shadow-sm z-10 opacity-100' : 'border-[1.5px] scale-[0.94] opacity-45'}
               ${
                 activeFilter === 'done'
                   ? isLight
-                    ? 'border-[#81E6D9] bg-gradient-to-br from-[#E6FFFA] to-[#C6F6D5] text-[#22543D] shadow-[0_6px_16px_rgba(34,84,61,0.15)]'
-                    : 'border-[#1C4D38] bg-gradient-to-br from-[#102A1E] to-[#0A1A12] text-[#00FF85] shadow-[0_6px_16px_rgba(0,255,133,0.18)]'
+                    ? 'border-[#81E6D9] bg-gradient-to-br from-[#E6FFFA] to-[#C6F6D5] text-[#22543D] shadow-sm'
+                    : 'border-[#1C4D38] bg-gradient-to-br from-[#102A1E] to-[#0A1A12] text-[#00FF85] shadow-none'
                   : isLight
-                    ? 'bg-white border-2 border-neutral-200 text-neutral-400 shadow-[0_4px_12px_rgba(0,0,0,0.03)] hover:text-neutral-600'
-                    : 'bg-[#1C1E22]/50 border border-white/[0.07] text-[#E3DAC9]/40 shadow-[0_4px_12px_rgba(0,0,0,0.1)] hover:text-[#E3DAC9]/60'
+                    ? 'bg-white border-[1.5px] border-neutral-200 text-neutral-400 shadow-sm hover:text-neutral-600'
+                    : 'bg-[#1C1E22]/50 border-[1.5px] border-white/[0.07] text-[#E3DAC9]/40 shadow-none hover:text-[#E3DAC9]/60'
               }
             `}
           >

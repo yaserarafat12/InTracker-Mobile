@@ -17,10 +17,10 @@ export function ToolCard({ id, title, description, backgroundImage, comingSoon, 
   // Dynamic font size class to keep titles in a single line
   const getFontSizeClass = (text: string) => {
     const len = text.length;
-    if (len <= 12) return 'text-[15px]';
-    if (len <= 16) return 'text-[13px]';
-    if (len <= 20) return 'text-[11.5px]';
-    return 'text-[10px]';
+    if (len <= 14) return 'text-[17px]';
+    if (len <= 17) return 'text-[15.5px]';
+    if (len <= 22) return 'text-[14px]';
+    return 'text-[12.5px]';
   };
 
   return (
@@ -28,7 +28,7 @@ export function ToolCard({ id, title, description, backgroundImage, comingSoon, 
       id={id}
       whileTap={{ scale: 0.96 }}
       onClick={onPress}
-      className={`relative aspect-[4/5] rounded-[10px] border-[2px] overflow-hidden cursor-pointer select-none transition-all duration-300 hover:scale-[1.02] ${
+      className={`relative aspect-[4/5] rounded-[10px] border-[1.5px] overflow-hidden cursor-pointer select-none transition-all duration-300 hover:scale-[1.02] ${
         isLight 
           ? 'border-black/20 bg-white shadow-[0_8px_24px_rgba(0,0,0,0.06)]' 
           : 'border-white/25 bg-[#1c1e22] shadow-[0_8px_24px_rgba(0,0,0,0.25)]'
@@ -45,7 +45,10 @@ export function ToolCard({ id, title, description, backgroundImage, comingSoon, 
 
       {/* Content */}
       <div className="absolute bottom-0 left-0 right-0 p-4 z-10">
-        <h3 className={`font-black text-force-white leading-tight font-['Outfit'] whitespace-nowrap truncate ${getFontSizeClass(title)}`}>
+        <h3
+          className={`font-black text-force-white leading-tight font-['Outfit'] whitespace-nowrap truncate ${getFontSizeClass(title)}`}
+          style={{ wordSpacing: '0.15em' }}
+        >
           {title}
         </h3>
       </div>

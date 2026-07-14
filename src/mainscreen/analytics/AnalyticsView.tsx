@@ -241,12 +241,12 @@ export const AnalyticsView = ({ tutorialStep }: { tutorialStep?: number }) => {
             whileTap={{ scale: 0.96 }}
             onClick={() => setMainTab(tab.id)}
             className={`flex-1 py-2.5 rounded-[8px] text-[10px] font-black uppercase tracking-wider transition-all border-2 ${
-              mainTab === tab.id ? 'sheen-active-tab transform scale-[1.05]' : 'transform scale-100'
+              mainTab === tab.id ? 'transform scale-[1.05]' : 'transform scale-100'
             } ${
               mainTab === tab.id
                 ? isLight
-                  ? 'border-neutral-300 bg-gradient-to-br from-white to-[#F2F4F7] text-neutral-900 shadow-[0_6px_16px_rgba(0,0,0,0.12)]'
-                  : 'border-white/15 bg-gradient-to-br from-[#2D3035] to-[#1C1E22] text-white shadow-[0_6px_16px_rgba(0,0,0,0.15)]'
+                  ? 'border-[#81E6D9] bg-gradient-to-br from-[#E6FFFA] to-[#C6F6D5] text-[#22543D] shadow-sm'
+                  : 'border-[#1C4D38] bg-gradient-to-br from-[#102A1E] to-[#0A1A12] text-[#00FF85] shadow-none'
                 : isLight
                   ? 'bg-white text-neutral-400 border-neutral-200 shadow-[0_4px_12px_rgba(0,0,0,0.03)] hover:text-neutral-600'
                   : 'bg-[#1C1E22]/50 border-white/[0.07] text-[#E3DAC9]/40 shadow-[0_4px_12px_rgba(0,0,0,0.1)] hover:text-[#E3DAC9]/60'
@@ -334,6 +334,7 @@ function ActivityRecap({ habits, habitLogs, targets, journeyEntries, timeRange, 
   const { t } = useTranslation();
   const { settings } = useUserStore();
   const isLight = !document.documentElement.classList.contains('dark');
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const programDuration = settings.programDuration || 90;
   const { startDate, endDate, days: daysInRange } = useMemo(() => getDateRange(timeRange, programDuration), [timeRange, programDuration]);
 
@@ -488,32 +489,72 @@ function ActivityRecap({ habits, habitLogs, targets, journeyEntries, timeRange, 
 
   return (
     <div id="analytics-activity-recap-container" className="space-y-4">
-      {/* Time Range Toggle - compact */}
-      <div className={`border-[1.5px] border-white/10 rounded-[14px] px-2 py-2 flex items-center gap-3 w-fit transition-all ${
-        isLight ? 'bg-[#1c1e22]/60' : 'bg-[#1c1e22] '
-      }`}>
-        {timeRanges.map((r) => (
-          <button
-            key={r.id}
-            onClick={() => setTimeRange(r.id)}
-            className={`px-2.5 py-1 rounded-md text-[8px] font-black uppercase tracking-wider transition-all ${
-              timeRange === r.id
-                ? (isLight
-                    ? 'bg-[#7BE495] text-black border border-black shadow-[1px_1px_0px_rgba(0,0,0,1)]'
-                    : 'bg-[#7BE495]/15 text-[#7BE495] border border-[#7BE495]/30')
-                : (isLight
-                    ? 'text-black/55 border border-transparent'
-                    : 'text-[#E3DAC9]/30 border border-transparent')
-            }`}
+      {/* Time Range Dropdown Selector */}
+      <div className="relative z-40">
+        <motion.button
+          whileTap={{ scale: 0.97 }}
+          onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+          className={`flex items-center justify-between min-w-[140px] px-4 py-2.5 rounded-[8px] border-[1.5px] text-[11px] font-semibold transition-all ${
+            isLight 
+              ? 'border-[#81E6D9] bg-gradient-to-br from-[#E6FFFA] to-[#C6F6D5] text-[#22543D] shadow-sm' 
+              : 'border-[#1C4D38] bg-gradient-to-br from-[#102A1E] to-[#0A1A12] text-[#00FF85] shadow-none'
+          }`}
+        >
+          <span>{timeRanges.find(r => r.id === timeRange)?.label || ''}</span>
+          <motion.div
+            animate={{ rotate: isDropdownOpen ? 180 : 0 }}
+            transition={{ duration: 0.2 }}
+            className="flex items-center ml-2"
           >
-            {r.label}
-          </button>
-        ))}
+            <Icon icon="ph:caret-down-bold" className={isLight ? 'text-[#22543D]' : 'text-[#00FF85]'} width={14} />
+          </motion.div>
+        </motion.button>
+        
+        <AnimatePresence>
+          {isDropdownOpen && (
+            <>
+              {/* Backdrop overlay to close when clicking outside */}
+              <div className="fixed inset-0 z-30" onClick={() => setIsDropdownOpen(false)} />
+              
+              <motion.div
+                initial={{ opacity: 0, y: -10, scale: 0.95 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: -10, scale: 0.95 }}
+                transition={{ duration: 0.15 }}
+                className={`absolute left-0 mt-2 w-[160px] rounded-[12px] border p-1.5 z-40 backdrop-blur-xl shadow-[0_12px_32px_rgba(0,0,0,0.18)] ${
+                  isLight 
+                    ? 'bg-white/85 border-neutral-200/80 text-black shadow-sm' 
+                    : 'bg-[#1c1e22]/85 border-white/10 text-[#E3DAC9]'
+                }`}
+              >
+                {timeRanges.map((r) => (
+                  <button
+                    key={r.id}
+                    onClick={() => {
+                      if (navigator.vibrate) navigator.vibrate(10);
+                      setTimeRange(r.id);
+                      setIsDropdownOpen(false);
+                    }}
+                    className={`w-full py-2 px-3 rounded-[8px] text-left text-[11px] font-semibold flex items-center justify-between transition-colors ${
+                      timeRange === r.id
+                        ? (isLight ? 'bg-black/5 text-black' : 'bg-white/10 text-white')
+                        : (isLight ? 'hover:bg-black/4 text-neutral-600' : 'hover:bg-white/5 text-[#E3DAC9]/60')
+                    }`}
+                  >
+                    <span>{r.label}</span>
+                  </button>
+                ))}
+              </motion.div>
+            </>
+          )}
+        </AnimatePresence>
       </div>
 
       {/* Dot Calendar */}
-      <div className={`backdrop-blur-md rounded-[20px] p-5 border-[1.5px] border-white/10 transition-all ${
-        isLight ? 'bg-[#1c1e22]/60' : 'bg-[#1c1e22]/70'
+      <div className={`backdrop-blur-md rounded-[20px] p-5 border-[1.5px] transition-all ${
+        isLight 
+          ? 'bg-white/80 border-neutral-200 text-black shadow-sm' 
+          : 'bg-[#1c1e22]/70 border-white/10 text-[#E3DAC9] shadow-none'
       }`}>
 
         {timeRange === 'weekly' && <WeeklyGrid days={dayStatuses} />}
@@ -557,6 +598,8 @@ function HabitPattern({ habits, habitLogs, timeRange, setTimeRange, timeRanges, 
   const gender = settings?.gender || 'Male';
   const isLight = !document.documentElement.classList.contains('dark');
   const [selectedCategory, setSelectedCategory] = useState('Semua');
+  const [catDropdownFilter, setCatDropdownFilter] = useState('Rutinitas');
+  const [isCatDropdownOpen, setIsCatDropdownOpen] = useState(false);
   const [expandedHabit, setExpandedHabit] = useState<string | null>(null);
 
   const getCategoryStyles = (cat: string) => {
@@ -696,41 +739,102 @@ function HabitPattern({ habits, habitLogs, timeRange, setTimeRange, timeRanges, 
       <div className="absolute -top-20 left-1/2 -translate-x-1/2 w-[300px] h-[200px] bg-[#00FF85]/[0.04] blur-[80px] rounded-full pointer-events-none" />
       <div className="absolute -top-10 -left-10 w-[150px] h-[150px] bg-[#00FF85]/[0.03] blur-[60px] rounded-full pointer-events-none" />
 
-      {/* Category Tabs - matching addhabit */}
-      <div className="relative mt-2 mb-8">
-        <div 
-          ref={catScrollRef}
-          onScroll={handleCatScroll}
-          className="flex gap-3 overflow-x-auto no-scrollbar pb-3"
+      {/* Category Tabs - 2 column layout like TodoList */}
+      <div className="flex items-center gap-3 mt-2 mb-8 relative z-30">
+        {/* Semua Button - kiri, default */}
+        <motion.button
+          whileTap={{ scale: 0.96 }}
+          onClick={() => {
+            if (navigator.vibrate) navigator.vibrate(10);
+            setSelectedCategory('Semua');
+          }}
+          className={`flex-1 py-2.5 rounded-[8px] text-[11px] font-semibold transition-all border-2 ${
+            selectedCategory === 'Semua' ? 'transform scale-[1.05] z-10 opacity-100' : 'transform scale-100 opacity-80'
+          } ${
+            selectedCategory === 'Semua'
+              ? getCategoryStyles('Semua')
+              : isLight
+                ? 'bg-white text-neutral-400 border-neutral-200 shadow-[0_4px_12px_rgba(0,0,0,0.03)]'
+                : 'bg-[#1C1E22]/50 border-white/[0.07] text-[#E3DAC9]/40 shadow-[0_4px_12px_rgba(0,0,0,0.1)]'
+          }`}
         >
-          {categories.map((cat) => (
-            <motion.button
-              key={cat}
-              whileTap={{ scale: 0.96 }}
-              onClick={() => setSelectedCategory(cat)}
-              className={`px-4 py-2.5 rounded-[8px] text-[10px] font-black uppercase tracking-wider transition-all whitespace-nowrap border-2 shrink-0 ${
-                selectedCategory === cat ? 'transform scale-[1.05]' : 'transform scale-100'
-              } ${
-                selectedCategory === cat
-                  ? getCategoryStyles(cat)
-                  : isLight
-                    ? 'bg-white text-neutral-400 border-neutral-200 shadow-[0_4px_12px_rgba(0,0,0,0.03)] hover:text-neutral-600'
-                    : 'bg-[#1C1E22]/50 border-white/[0.07] text-[#E3DAC9]/40 shadow-[0_4px_12px_rgba(0,0,0,0.1)] hover:text-[#E3DAC9]/60'
-              }`}
+          {getCategoryLabel('Semua')}
+        </motion.button>
+
+        {/* Dropdown Selector - kanan (Rutinitas, Ketenangan, dll.) */}
+        <div className="relative flex-1">
+          <motion.button
+            whileTap={{ scale: 0.96 }}
+            onClick={() => {
+              if (navigator.vibrate) navigator.vibrate(10);
+              if (selectedCategory === 'Semua') {
+                setSelectedCategory(catDropdownFilter);
+              } else {
+                setIsCatDropdownOpen(!isCatDropdownOpen);
+              }
+            }}
+            className={`w-full py-2.5 rounded-[8px] text-[11px] font-semibold transition-all border-2 flex items-center justify-center gap-2 ${
+              selectedCategory !== 'Semua' ? 'transform scale-[1.05] z-10 opacity-100' : 'transform scale-100 opacity-80'
+            } ${
+              selectedCategory !== 'Semua'
+                ? getCategoryStyles(selectedCategory)
+                : isLight
+                  ? 'bg-white text-neutral-400 border-neutral-200 shadow-[0_4px_12px_rgba(0,0,0,0.03)]'
+                  : 'bg-[#1C1E22]/50 border-white/[0.07] text-[#E3DAC9]/40 shadow-[0_4px_12px_rgba(0,0,0,0.1)]'
+            }`}
+          >
+            <span>{getCategoryLabel(selectedCategory !== 'Semua' ? selectedCategory : catDropdownFilter)}</span>
+            <motion.div
+              animate={{ rotate: isCatDropdownOpen ? 180 : 0 }}
+              transition={{ duration: 0.2 }}
+              className="flex items-center"
             >
-              {getCategoryLabel(cat)}
-            </motion.button>
-          ))}
+              <Icon
+                icon="lucide:chevron-down"
+                width={12}
+                className={selectedCategory !== 'Semua' ? '' : (isLight ? 'text-neutral-400' : 'text-[#E3DAC9]/40')}
+              />
+            </motion.div>
+          </motion.button>
+
+          <AnimatePresence>
+            {isCatDropdownOpen && (
+              <>
+                <div className="fixed inset-0 z-20" onClick={() => setIsCatDropdownOpen(false)} />
+                <motion.div
+                  initial={{ opacity: 0, y: -10, scale: 0.95 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: -10, scale: 0.95 }}
+                  transition={{ duration: 0.15 }}
+                  className={`absolute left-0 mt-2 w-full rounded-[8px] border-[1.5px] p-1.5 z-30 shadow-[0_10px_25px_rgba(0,0,0,0.2)] ${
+                    isLight
+                      ? 'bg-white border-black/10 text-black'
+                      : 'bg-[#1c1e22] border-white/10 text-[#E3DAC9]'
+                  }`}
+                >
+                  {['Rutinitas', 'Ketenangan Diri', 'Perkembangan Diri', 'Latihan Fisik'].map((cat) => (
+                    <button
+                      key={cat}
+                      onClick={() => {
+                        if (navigator.vibrate) navigator.vibrate(8);
+                        setSelectedCategory(cat);
+                        setCatDropdownFilter(cat);
+                        setIsCatDropdownOpen(false);
+                      }}
+                      className={`w-full py-2.5 px-3 rounded-[6px] text-left text-[11px] font-semibold flex items-center justify-between transition-colors ${
+                        selectedCategory === cat
+                          ? (isLight ? 'bg-black/5 text-black' : 'bg-white/10 text-white')
+                          : (isLight ? 'hover:bg-black/4 text-neutral-600' : 'hover:bg-white/5 text-[#E3DAC9]/60')
+                      }`}
+                    >
+                      <span>{getCategoryLabel(cat)}</span>
+                    </button>
+                  ))}
+                </motion.div>
+              </>
+            )}
+          </AnimatePresence>
         </div>
-        {/* Custom Scroll Indicator - thin & premium */}
-        {showCatScroll && (
-          <div className="mx-auto mt-2 w-20 h-[2.5px] rounded-full bg-white/[0.06] overflow-hidden">
-            <div 
-              className="h-full rounded-full bg-white/25 shadow-[0_0_6px_rgba(255,255,255,0.15)] transition-all duration-100"
-              style={{ width: `${catThumbWidth}%`, marginLeft: `${catScrollLeftPos}%` }}
-            />
-          </div>
-        )}
       </div>
 
       {/* Habit Cards */}
@@ -1018,15 +1122,21 @@ function HabitInlineDetail({ habit, habitLogs }: { habit: any; habitLogs: HabitL
                 </>
               )}
               {/* Bars */}
-              <div className="flex items-end gap-2 h-full">
+              <div className="flex items-end gap-2 h-full relative z-10">
                 {weeklyData.map((day, i) => {
                   const barHeight = barChartData ? barChartData.heights[i] : (day.done ? 0.6 : 0);
                   const heightPercent = !day.isScheduled ? '0%' : day.isFuture ? '0%' : barHeight > 0 ? `${Math.max(6, barHeight * 100)}%` : '6%';
                   const hasValue = barChartData ? barChartData.heights[i] > 0 : day.done;
                   return (
                     <div key={i} className="flex-1 flex flex-col items-center h-full justify-end">
-                      <div className="flex-1 w-full flex items-end justify-center">
-                        <div className={`w-[50%] rounded-t-[2px] ${!day.isScheduled ? (isLight ? 'bg-black/[0.03]' : 'bg-white/[0.03]') : day.isFuture ? 'bg-transparent' : hasValue ? 'bg-[#00FF85]/80 shadow-[0_0_10px_rgba(0,255,133,0.25)] border-[1.5px] border-black/30 border-b-0' : (isLight ? 'bg-black/[0.15]' : 'bg-white/[0.18]')}`}
+                      <div className="flex-1 w-full flex items-end justify-center relative">
+                        {hasValue && day.isScheduled && !day.isFuture && (
+                          <div 
+                            className={`w-[50%] absolute bottom-0 rounded-t-[2px] z-0 ${isLight ? 'bg-[#fbfbfb]' : 'bg-[#1c1e22]'}`}
+                            style={{ height: heightPercent, minHeight: 2 }}
+                          />
+                        )}
+                        <div className={`w-[50%] rounded-t-[2px] relative z-10 ${!day.isScheduled ? (isLight ? 'bg-black/[0.03]' : 'bg-white/[0.03]') : day.isFuture ? 'bg-transparent' : hasValue ? 'bg-[#00FF85]/80 shadow-[0_0_10px_rgba(0,255,133,0.25)] border-[1.5px] border-black/30 border-b-0' : (isLight ? 'bg-black/[0.15]' : 'bg-white/[0.18]')}`}
                            style={{ height: heightPercent, minHeight: !day.isScheduled ? 2 : day.isFuture ? 0 : 2 }} />
                       </div>
                     </div>
@@ -1049,16 +1159,21 @@ function HabitInlineDetail({ habit, habitLogs }: { habit: any; habitLogs: HabitL
           <div className="flex items-center gap-2">
             {weeklyData.map((day, i) => (
               <div key={i} className="flex-1 flex flex-col items-center gap-1.5">
-                <div className={`w-7 h-7 rounded-[6px] flex items-center justify-center transition-all ${
-                  !day.isScheduled
-                    ? (isLight ? 'bg-black/[0.02] border-[2px] border-black/10' : 'bg-white/[0.03] border-[2px] border-white/5')
-                    : day.isFuture
-                      ? (isLight ? 'border-[2px] border-black/15' : 'border-[2px] border-white/10')
-                      : day.done
-                        ? 'bg-[#00FF85]/80 shadow-[0_0_8px_rgba(0,255,133,0.25)] border-[2px] border-black/30'
-                        : (isLight ? 'bg-white border-[2px] border-black/30' : 'border-[2px] border-white/40')
-                }`}>
-                  {day.done && !day.isFuture && day.isScheduled && <Icon icon="ph:check-bold" className="text-black" width={14} style={{ strokeWidth: 2 }} />}
+                <div className="relative">
+                  {day.done && !day.isFuture && day.isScheduled && (
+                    <div className={`absolute inset-0 rounded-[6px] z-0 ${isLight ? 'bg-[#fbfbfb]' : 'bg-[#1c1e22]'}`} />
+                  )}
+                  <div className={`w-7 h-7 rounded-[6px] flex items-center justify-center transition-all relative z-10 ${
+                    !day.isScheduled
+                      ? (isLight ? 'bg-black/[0.02] border-[2px] border-black/10' : 'bg-white/[0.03] border-[2px] border-white/5')
+                      : day.isFuture
+                        ? (isLight ? 'border-[2px] border-black/15' : 'border-[2px] border-white/10')
+                        : day.done
+                          ? 'bg-[#00FF85]/80 shadow-[0_0_8px_rgba(0,255,133,0.25)] border-[2px] border-black/30'
+                          : (isLight ? 'bg-white border-[2px] border-black/30' : 'border-[2px] border-white/40')
+                  }`}>
+                    {day.done && !day.isFuture && day.isScheduled && <Icon icon="ph:check-bold" className="text-black" width={14} style={{ strokeWidth: 2 }} />}
+                  </div>
                 </div>
                 <span className={`text-[8px] font-black ${!day.isScheduled ? (isLight ? 'text-black/20' : 'text-white/20') : (isLight ? 'text-black/60' : 'text-white/60')}`}>{dayLabels[i]}</span>
               </div>
@@ -1072,7 +1187,7 @@ function HabitInlineDetail({ habit, habitLogs }: { habit: any; habitLogs: HabitL
       {/* Monthly Record */}
       <div id="habit-analytics-monthly-record" className={`rounded-2xl p-4 border transition-all ${
         isLight
-          ? 'bg-white border-black shadow-[3px_3px_0px_rgba(0,0,0,0.65)]'
+          ? 'bg-white border-black border-[2px]'
           : 'bg-[#1c1e22]/40 border-white/5'
       }`}>
         <div className="flex items-center justify-between mb-4">
@@ -1091,26 +1206,31 @@ function HabitInlineDetail({ habit, habitLogs }: { habit: any; habitLogs: HabitL
         
         <div className="max-w-[280px] mx-auto grid grid-cols-7 gap-2">
           {monthSlice.map((day, idx) => (
-            <div key={idx} className={`aspect-square rounded-[8px] flex items-center justify-center transition-all ${
-              !day.isScheduled
-                ? (isLight ? 'bg-black/[0.02] border border-black/10' : 'bg-white/[0.03] border border-white/5')
-                : day.isFuture
-                  ? (isLight ? 'bg-black/[0.02] border border-black/10' : 'bg-white/[0.03] border border-white/5')
-                  : day.done
-                    ? 'bg-[#00FF85]/80 shadow-[0_2px_8px_rgba(0,255,133,0.25)] border border-black/30'
-                    : (isLight ? 'bg-white border border-black/25' : 'bg-white/[0.14] border border-white/20')
-            }`}>
-              <span className={`text-[9px] font-black ${
+            <div key={idx} className="relative">
+              {day.done && !day.isFuture && day.isScheduled && (
+                <div className={`absolute inset-0 rounded-[8px] z-0 ${isLight ? 'bg-white' : 'bg-[#1c1e22]'}`} />
+              )}
+              <div className={`aspect-square rounded-[8px] flex items-center justify-center transition-all relative z-10 ${
                 !day.isScheduled
-                  ? 'text-black/20 dark:text-white/20'
+                  ? (isLight ? 'bg-black/[0.02] border border-black/10' : 'bg-white/[0.03] border border-white/5')
                   : day.isFuture
-                    ? 'text-black/20 dark:text-white/20'
+                    ? (isLight ? 'bg-black/[0.02] border border-black/10' : 'bg-white/[0.03] border border-white/5')
                     : day.done
-                      ? 'text-black/80'
-                      : (isLight ? 'text-black/60' : 'text-white/45')
+                      ? 'bg-[#00FF85]/80 shadow-[0_2px_8px_rgba(0,255,133,0.25)] border border-black/30'
+                      : (isLight ? 'bg-white border border-black/25' : 'bg-white/[0.14] border border-white/20')
               }`}>
-                {startIdx + idx + 1}
-              </span>
+                <span className={`text-[9px] font-black ${
+                  !day.isScheduled
+                    ? 'text-black/20 dark:text-white/20'
+                    : day.isFuture
+                      ? 'text-black/20 dark:text-white/20'
+                      : day.done
+                        ? 'text-black/80'
+                        : (isLight ? 'text-black/60' : 'text-white/45')
+                }`}>
+                  {startIdx + idx + 1}
+                </span>
+              </div>
             </div>
           ))}
         </div>
@@ -1383,7 +1503,7 @@ function HabitDetailModal({ habit, habitLogs, onClose }: { habit: any; habitLogs
         {/* 4. Monthly Record (Rekam Jejak) */}
         <div className={`rounded-[16px] p-4 space-y-3 border-[2px] transition-all ${
           isLight 
-            ? 'bg-[#fbfbfb] border-black shadow-[3.5px_3.5px_0px_rgba(0,0,0,0.65)] text-black' 
+            ? 'bg-[#fbfbfb] border-black text-black' 
             : 'bg-[#1c1e22] border-white/10 text-white'
         }`}>
           <div className="flex items-center justify-between">
@@ -1412,7 +1532,7 @@ function HabitDetailModal({ habit, habitLogs, onClose }: { habit: any; habitLogs
                   day.isFuture 
                     ? (isLight ? 'bg-black/[0.02] border-black/10' : 'bg-white/5 border-transparent') 
                     : day.done 
-                      ? 'bg-[#00FF85] border-black shadow-[1px_1px_0px_rgba(0,0,0,1)]' 
+                      ? 'bg-[#00FF85] border-black' 
                       : (isLight ? 'bg-white border-black/25' : 'bg-[#2a2c32] border-transparent')
                 }`}
               />
@@ -1463,26 +1583,30 @@ function StatsRPG({ profile, habits, habitLogs }: {
       <div className="relative z-10 space-y-6">
 
       {/* Level Card - Bold style */}
-      <div className={`relative border-2 rounded-[8px] p-5 overflow-hidden transition-all ${
+      <div className={`relative border-[1.5px] rounded-[8px] p-5 overflow-hidden transition-all ${
         isLight 
-          ? 'bg-white border-neutral-200/90 shadow-[0_4px_12px_rgba(0,0,0,0.04)]' 
-          : 'bg-[#1C1E22]/70 border-white/15 shadow-[0_8px_25px_rgba(0,0,0,0.3)]'
+          ? 'bg-white border-neutral-200 shadow-sm' 
+          : 'bg-[#1C1E22]/70 border-white/10 shadow-none'
       }`}>
         {/* Subtle glow behind */}
-        <div className={`absolute top-0 left-0 w-32 h-32 blur-[60px] rounded-full pointer-events-none ${isLight ? 'bg-[#7BE495]/5' : 'bg-[#7BE495]/10'}`} />
+        <div className={`absolute top-0 left-0 w-32 h-32 blur-[60px] rounded-full pointer-events-none ${isLight ? 'bg-[#00C265]/5' : 'bg-[#00FF85]/10'}`} />
         
         <div className="relative flex items-center gap-4 mb-5">
           {/* Level Badge */}
-          <div className="w-[72px] h-[72px] bg-[#7BE495] rounded-[8px] flex flex-col items-center justify-center shadow-[0_4px_20px_rgba(123,228,149,0.25)] border-[1.5px] border-[#7BE495]/40">
-            <span className="text-[28px] font-black text-black leading-none">{level}</span>
-            <span className="text-[8px] font-black text-black/60 uppercase tracking-wider">{t('rpg.level')}</span>
+          <div className={`w-[72px] h-[72px] rounded-[8px] flex flex-col items-center justify-center border-[1.5px] transition-all ${
+            isLight 
+              ? 'border-[#81E6D9] bg-gradient-to-br from-[#E6FFFA] to-[#C6F6D5] text-[#22543D] shadow-sm' 
+              : 'border-[#1C4D38] bg-gradient-to-br from-[#102A1E] to-[#0A1A12] text-[#00FF85] shadow-none'
+          }`}>
+            <span style={{ fontFamily: '"Rajdhani", sans-serif' }} className="text-[30px] font-black leading-none">{level}</span>
+            <span className={`text-[8px] font-black uppercase tracking-wider ${isLight ? 'text-[#22543D]/70' : 'text-[#00FF85]/60'}`}>{t('rpg.level')}</span>
           </div>
           
           {/* XP Info */}
           <div className="flex-1">
             <div className="flex items-baseline gap-2">
-              <span className={`text-[32px] font-black leading-none ${isLight ? 'text-neutral-900' : 'text-white'}`}>{totalXP}</span>
-              <span className={`text-[11px] font-bold uppercase ${isLight ? 'text-neutral-400' : 'text-[#E3DAC9]/40'}`}>XP</span>
+              <span style={{ fontFamily: '"Rajdhani", sans-serif' }} className={`text-[36px] font-black leading-none ${isLight ? 'text-neutral-900' : 'text-white'}`}>{totalXP}</span>
+              <span className={`text-[11px] font-bold uppercase ${isLight ? 'text-neutral-400' : 'text-[#E3DAC9]/40'}`}>EXP</span>
             </div>
           </div>
 
@@ -1490,14 +1614,13 @@ function StatsRPG({ profile, habits, habitLogs }: {
           <div className="flex flex-col items-center">
             <div className="flex items-center gap-1">
               <Icon icon="solar:fire-bold" className="text-[#FF4D00]" width={16} />
-              <span className="text-[18px] font-black text-[#FF4D00]">{streakCount}</span>
+              <span style={{ fontFamily: '"Rajdhani", sans-serif' }} className="text-[22px] font-black text-[#FF4D00] leading-none">{streakCount}</span>
             </div>
             <span className={`text-[7px] font-bold uppercase ${isLight ? 'text-neutral-400' : 'text-[#E3DAC9]/30'}`}>{t('rpg.streakDays')}</span>
           </div>
         </div>
-
         {/* Segmented XP Bar */}
-        <div className="flex gap-[3px] mb-2">
+        <div className="flex gap-[3px] mb-2.5">
           {Array.from({ length: 20 }).map((_, i) => {
             const filled = i < Math.round(xpProgress / 5);
             return (
@@ -1505,25 +1628,31 @@ function StatsRPG({ profile, habits, habitLogs }: {
                 key={i}
                 className={`flex-1 h-[10px] rounded-[2px] transition-all ${
                   filled 
-                    ? 'bg-[#7BE495]' 
+                    ? (isLight ? 'bg-[#00C265]' : 'bg-[#00FF85]') 
                     : isLight ? 'bg-neutral-200' : 'bg-[#2a2c32]'
                 }`}
               />
             );
           })}
         </div>
-        <p className={`text-[12px] font-black text-center mt-1 ${isLight ? 'text-neutral-500' : 'text-[#E3DAC9]/50'}`}>
-          {language === 'Bahasa Indonesia'
-            ? `${xpForNext - levelInfo.xpIntoCurrentLevel} XP tersisa untuk Level Up`
-            : `${xpForNext - levelInfo.xpIntoCurrentLevel} XP remaining for Level Up`}
+        <p className={`text-center mt-1.5 transition-all ${isLight ? 'text-neutral-700' : 'text-[#E3DAC9]/80'}`}>
+          <span 
+            style={{ fontFamily: '"Rajdhani", sans-serif' }} 
+            className="text-[15px] font-black tracking-tight"
+          >
+            {xpForNext - levelInfo.xpIntoCurrentLevel}
+          </span>
+          <span className="font-['Outfit'] uppercase text-[10px] font-bold tracking-wider ml-1.5">
+            {language === 'Bahasa Indonesia' ? 'EXP TERSISA UNTUK LEVEL UP' : 'EXP REMAINING FOR LEVEL UP'}
+          </span>
         </p>
       </div>
 
       {/* Stats List - Big numbers, glass container */}
-      <div className={`border-2 rounded-[8px] px-5 py-2 transition-all ${
+      <div className={`border-[1.5px] rounded-[8px] px-5 py-2 transition-all ${
         isLight 
-          ? 'bg-white border-neutral-200/90 shadow-[0_4px_12px_rgba(0,0,0,0.04)]' 
-          : 'bg-[#1C1E22]/70 border-white/15 shadow-[0_8px_25px_rgba(0,0,0,0.3)]'
+          ? 'bg-white border-neutral-200 shadow-sm' 
+          : 'bg-[#1C1E22]/70 border-white/10 shadow-none'
       }`}>
         {statsList.map((stat, idx) => (
           <div key={stat.name} className={`flex items-center gap-4 py-4 ${idx < statsList.length - 1 ? (isLight ? 'border-b border-neutral-100' : 'border-b border-white/10') : ''}`}>
@@ -1531,8 +1660,15 @@ function StatsRPG({ profile, habits, habitLogs }: {
               <Icon icon={stat.icon} style={{ color: stat.color }} width={22} />
             </div>
             <span className={`text-[15px] font-bold flex-1 ${isLight ? 'text-neutral-700' : 'text-[#E3DAC9]'}`}>{stat.name}</span>
-            <span className="text-[11px] font-bold text-[#7BE495] mr-1">▲</span>
-            <span className={`text-[28px] font-black leading-none ${isLight ? 'text-neutral-900' : 'text-white'}`}>{stat.value}</span>
+            <div className="w-6 flex justify-center shrink-0">
+              <Icon icon="ph:caret-up-fill" className={isLight ? 'text-[#00C265]' : 'text-[#00FF85]'} width={12} />
+            </div>
+            <span 
+              style={{ fontFamily: '"Rajdhani", sans-serif' }} 
+              className={`text-[30px] font-black text-right w-10 tabular-nums leading-none ${isLight ? 'text-neutral-900' : 'text-white'}`}
+            >
+              {stat.value}
+            </span>
           </div>
         ))}
       </div>
@@ -1551,16 +1687,21 @@ function TimeRangeToggle({ timeRange, setTimeRange, timeRanges }: {
   setTimeRange: (r: TimeRange) => void;
   timeRanges: { id: TimeRange; label: string }[];
 }) {
+  const isLight = !document.documentElement.classList.contains('dark');
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex items-center gap-2 w-full">
       {timeRanges.map((r) => (
         <button
           key={r.id}
           onClick={() => setTimeRange(r.id)}
-          className={`px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-wider transition-all ${
+          className={`px-3 py-1.5 rounded-[8px] text-[9px] font-black uppercase tracking-wider transition-all flex-1 text-center border-[1.5px] ${
             timeRange === r.id
-              ? 'bg-[#00FF85]/15 text-[#00FF85] border border-[#00FF85]/30'
-              : 'text-[#E3DAC9]/30 border border-transparent'
+              ? isLight
+                ? 'border-[#81E6D9] bg-gradient-to-br from-[#E6FFFA] to-[#C6F6D5] text-[#22543D] shadow-sm'
+                : 'border-[#1C4D38] bg-gradient-to-br from-[#102A1E] to-[#0A1A12] text-[#00FF85] shadow-none'
+              : isLight
+                ? 'bg-white border-neutral-200 text-neutral-400 hover:text-neutral-600 shadow-[0_4px_12px_rgba(0,0,0,0.03)]'
+                : 'bg-[#1C1E22]/50 border-white/[0.07] text-[#E3DAC9]/40 hover:text-[#E3DAC9]/60 shadow-[0_4px_12px_rgba(0,0,0,0.1)]'
           }`}
         >
           {r.label}
@@ -1571,11 +1712,16 @@ function TimeRangeToggle({ timeRange, setTimeRange, timeRanges }: {
 }
 
 function SummaryCard({ icon, value, label, color }: { icon: string; value: string; label: string; color: string }) {
+  const isLight = !document.documentElement.classList.contains('dark');
   return (
-    <div className="bg-[#1c1e22]/60 backdrop-blur-md border-[1.5px] border-white/10 rounded-[14px] p-3 flex flex-col items-center text-center">
+    <div className={`backdrop-blur-md border-[1.5px] rounded-[14px] p-3 flex flex-col items-center text-center transition-all ${
+      isLight 
+        ? 'bg-white border-neutral-200 text-black shadow-sm' 
+        : 'bg-[#1c1e22]/60 border-white/10 text-white shadow-none'
+    }`}>
       <Icon icon={icon} style={{ color }} width={16} className="mb-1.5" />
-      <span className="text-[16px] font-black text-white">{value}</span>
-      <span className="text-[8px] font-bold uppercase tracking-wider text-[#E3DAC9]/40 mt-0.5">{label}</span>
+      <span className={`text-[16px] font-black ${isLight ? 'text-black' : 'text-white'}`}>{value}</span>
+      <span className={`text-[8px] font-bold uppercase tracking-wider mt-0.5 ${isLight ? 'text-black/40' : 'text-[#E3DAC9]/40'}`}>{label}</span>
     </div>
   );
 }

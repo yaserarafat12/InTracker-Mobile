@@ -194,7 +194,7 @@ export function MathRacing({ onBack }: MathRacingProps) {
 
   return (
     <div className={`fixed inset-0 flex flex-col z-[200] overflow-hidden transition-all ${
-      isLight ? 'bg-[#f0fdf4] text-black' : 'bg-[#16181c] text-white'
+      isLight ? 'bg-[#f2faf5] text-black' : 'bg-[#16181c] text-white'
     }`}>
       {/* Background image for light mode across all states */}
       {isLight && (
@@ -251,13 +251,13 @@ function MenuView({ onBack, onStart, isLight }: { onBack: () => void; onStart: (
     <div className="min-h-full flex flex-col px-6 pt-14 pb-8 relative z-10">
       {/* Back */}
       <motion.button whileTap={{ scale: 0.9 }} onClick={onBack}
-        className={`w-10 h-10 rounded-xl border-[2px] flex items-center justify-center mb-10 active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all ${
+        className={`w-10 h-10 rounded-[10px] border-2 flex items-center justify-center mb-10 transition-all ${
           isLight
-            ? 'border-black bg-white shadow-[3px_3px_0px_rgba(0,0,0,0.65)]'
-            : 'border-white/10 bg-[#2a2c32] shadow-none'
+            ? 'border-black/50 bg-white text-black shadow-none'
+            : 'border-white/40 bg-[#2a2c32] text-white shadow-none'
         }`}
       >
-        <Icon icon="ph:arrow-left-bold" className={isLight ? 'text-black' : 'text-white'} width={18} />
+        <Icon icon="ph:caret-left-bold" className={isLight ? 'text-black' : 'text-white'} width={18} />
       </motion.button>
 
       {/* Title — centered */}
@@ -266,30 +266,34 @@ function MenuView({ onBack, onStart, isLight }: { onBack: () => void; onStart: (
         <p className={`text-[14px] mt-2 font-bold ${isLight ? 'text-black/50' : 'text-white/40'}`}>{t('mathRacing.subtitle')}</p>
       </div>
 
-      {/* Mode selection — neobrutalist */}
+      {/* Mode selection */}
       <div className="flex gap-3 mb-10">
         <motion.button
-          whileTap={{ scale: 0.95, y: 2, x: 2, boxShadow: '0px 0px 0px rgba(0,0,0,1)' }}
+          whileTap={{ scale: 0.95 }}
           onClick={() => setSelectedMode('timer')}
-          className={`flex-1 py-5 rounded-xl text-[13px] font-black border-[2px] transition-all uppercase tracking-wide ${
+          className={`flex-1 py-5 rounded-xl text-[13px] font-black border-2 transition-all uppercase tracking-wide flex items-center justify-center gap-1.5 ${
             selectedMode === 'timer'
-              ? 'bg-[#6ED7A0] text-black border-black shadow-[4px_4px_0px_rgba(0,0,0,1)]'
+              ? isLight
+                ? 'sheen-active-tab border-[#48BB78]/30 bg-gradient-to-br from-[#E6FFFA] to-[#C6F6D5] border-[#81E6D9] shadow-[0_6px_16px_rgba(34,84,61,0.15)] text-[#22543D]'
+                : 'sheen-active-tab border-[#00FF85]/30 bg-gradient-to-br from-[#102A1E] to-[#0A1A12] border-[#1C4D38] shadow-[0_6px_16px_rgba(0,255,133,0.18)] text-[#00FF85]'
               : isLight
-                ? 'bg-white text-black/60 border-black/25 hover:border-black/50 shadow-[3px_3px_0px_rgba(0,0,0,0.15)]'
-                : 'bg-white/5 text-white/50 border-white/10'
+                ? 'bg-white border-neutral-200 text-neutral-400 shadow-[0_4px_12px_rgba(0,0,0,0.03)] hover:text-neutral-600'
+                : 'bg-[#1C1E22]/50 border-white/[0.07] text-[#E3DAC9]/40 shadow-[0_4px_12px_rgba(0,0,0,0.1)] hover:text-[#E3DAC9]/60'
           }`}
         >
           ⏱️ {t('mathRacing.timerMode')}
         </motion.button>
         <motion.button
-          whileTap={{ scale: 0.95, y: 2, x: 2, boxShadow: '0px 0px 0px rgba(0,0,0,1)' }}
+          whileTap={{ scale: 0.95 }}
           onClick={() => setSelectedMode('exercise')}
-          className={`flex-1 py-5 rounded-xl text-[13px] font-black border-[2px] transition-all uppercase tracking-wide ${
+          className={`flex-1 py-5 rounded-xl text-[13px] font-black border-2 transition-all uppercase tracking-wide flex items-center justify-center gap-1.5 ${
             selectedMode === 'exercise'
-              ? 'bg-[#6ED7A0] text-black border-black shadow-[4px_4px_0px_rgba(0,0,0,1)]'
+              ? isLight
+                ? 'sheen-active-tab border-[#48BB78]/30 bg-gradient-to-br from-[#E6FFFA] to-[#C6F6D5] border-[#81E6D9] shadow-[0_6px_16px_rgba(34,84,61,0.15)] text-[#22543D]'
+                : 'sheen-active-tab border-[#00FF85]/30 bg-gradient-to-br from-[#102A1E] to-[#0A1A12] border-[#1C4D38] shadow-[0_6px_16px_rgba(0,255,133,0.18)] text-[#00FF85]'
               : isLight
-                ? 'bg-white text-black/60 border-black/25 hover:border-black/50 shadow-[3px_3px_0px_rgba(0,0,0,0.15)]'
-                : 'bg-white/5 text-white/50 border-white/10'
+                ? 'bg-white border-neutral-200 text-neutral-400 shadow-[0_4px_12px_rgba(0,0,0,0.03)] hover:text-neutral-600'
+                : 'bg-[#1C1E22]/50 border-white/[0.07] text-[#E3DAC9]/40 shadow-[0_4px_12px_rgba(0,0,0,0.1)] hover:text-[#E3DAC9]/60'
           }`}
         >
           🔥 {t('mathRacing.exerciseMode')}
@@ -306,10 +310,10 @@ function MenuView({ onBack, onStart, isLight }: { onBack: () => void; onStart: (
                 key={sec}
                 whileTap={{ scale: 0.93 }}
                 onClick={() => onStart('timer', sec)}
-                className={`py-4 border-[2px] rounded-xl text-[12px] font-black uppercase tracking-wider font-['Outfit'] transition-all ${
+                className={`py-4 border rounded-xl text-[12px] font-black uppercase tracking-wider font-['Outfit'] transition-all ${
                   isLight
-                    ? 'bg-white text-black border-black shadow-[3px_3px_0px_rgba(0,0,0,0.65)]'
-                    : 'bg-[#2a2c32] text-white border-white/10 shadow-none'
+                    ? 'bg-white text-black/80 border-black/12 shadow-sm hover:border-black/25'
+                    : 'bg-[#2a2c32] text-white/80 border-white/10 shadow-none'
                 }`}
               >
                 {sec / 60} {t('units.Menit')}
@@ -326,10 +330,10 @@ function MenuView({ onBack, onStart, isLight }: { onBack: () => void; onStart: (
           <motion.button
             whileTap={{ scale: 0.95 }}
             onClick={() => onStart('exercise')}
-            className={`w-full py-5 bg-[#00FF85] text-black font-black rounded-xl text-[16px] border-[2px] transition-all ${
+            className={`w-full py-5 rounded-xl text-[16px] font-black border-2 transition-all uppercase tracking-wider sheen-active-tab ${
               isLight
-                ? 'border-black shadow-[3px_3px_0px_rgba(0,0,0,1)]'
-                : 'border-transparent shadow-none'
+                ? 'border-[#48BB78]/30 bg-gradient-to-br from-[#E6FFFA] to-[#C6F6D5] border-[#81E6D9] shadow-[0_6px_16px_rgba(34,84,61,0.15)] text-[#22543D]'
+                : 'border-[#00FF85]/30 bg-gradient-to-br from-[#102A1E] to-[#0A1A12] border-[#1C4D38] shadow-[0_6px_16px_rgba(0,255,133,0.18)] text-[#00FF85]'
             }`}
           >
             {t('mathRacing.start')}
@@ -375,14 +379,14 @@ function PlayView({ mode, question, score, wrongCount, streak, timeLeft, feedbac
         <div className="flex items-center justify-between mb-2">
           {/* Correct + Wrong */}
           <div className="flex items-center gap-2">
-            <div className={`flex items-center gap-1.5 px-4 py-2 border-[2px] rounded-xl ${
-              isLight ? 'bg-white border-black shadow-[3px_3px_0px_rgba(0,0,0,1)]' : 'bg-white/5 border-white/10'
+            <div className={`flex items-center gap-1.5 px-4 py-2 border rounded-xl ${
+              isLight ? 'bg-white border-black/12 shadow-sm text-black' : 'bg-white/5 border-white/10 text-white'
             }`}>
               <Icon icon="solar:check-circle-bold" className="text-[#00FF85]" width={18} />
               <span className={`text-[14px] font-black ${isLight ? 'text-black' : 'text-white'}`}>{score}</span>
             </div>
-            <div className={`flex items-center gap-1.5 px-4 py-2 border-[2px] rounded-xl ${
-              isLight ? 'bg-white border-black shadow-[3px_3px_0px_rgba(0,0,0,1)]' : 'bg-white/5 border-white/10'
+            <div className={`flex items-center gap-1.5 px-4 py-2 border rounded-xl ${
+              isLight ? 'bg-white border-black/12 shadow-sm text-black' : 'bg-white/5 border-white/10 text-white'
             }`}>
               <Icon icon="solar:close-circle-bold" className="text-red-400" width={18} />
               <span className={`text-[14px] font-black ${isLight ? 'text-black' : 'text-white'}`}>{wrongCount}</span>
@@ -391,8 +395,8 @@ function PlayView({ mode, question, score, wrongCount, streak, timeLeft, feedbac
 
           {/* Timer */}
           {mode === 'timer' && (
-            <div className={`flex items-center gap-1.5 px-4 py-2 border-[2px] rounded-xl ${
-              isLight ? 'bg-white border-black shadow-[3px_3px_0px_rgba(0,0,0,1)]' : 'bg-white/5 border-white/10'
+            <div className={`flex items-center gap-1.5 px-4 py-2 border rounded-xl ${
+              isLight ? 'bg-white border-black/12 shadow-sm text-black' : 'bg-white/5 border-white/10 text-white'
             }`}>
               <Icon icon="solar:clock-circle-bold" className="text-amber-400" width={18} />
               <span className={`text-[14px] font-black tabular-nums ${isLight ? 'text-black' : 'text-white'}`}>
@@ -413,7 +417,7 @@ function PlayView({ mode, question, score, wrongCount, streak, timeLeft, feedbac
                 exit={{ opacity: 0, scale: 0.8 }}
                 className="text-center"
               >
-                <span className="text-[13px] font-black border-[2px] border-black px-4 py-2 bg-amber-400 text-black rounded-xl shadow-[3px_3px_0px_rgba(0,0,0,1)] whitespace-nowrap">
+                <span className="text-[13px] font-black px-4 py-2 bg-amber-400 text-black rounded-xl shadow-sm whitespace-nowrap border border-amber-300">
                   🔥 {streak} STREAK!
                 </span>
               </motion.div>
@@ -443,9 +447,9 @@ function PlayView({ mode, question, score, wrongCount, streak, timeLeft, feedbac
             </AnimatePresence>
           </div>
 
-          <div className={`w-full max-w-[320px] py-12 px-6 rounded-2xl border-[2px] text-center mb-8 transition-all ${
+          <div className={`w-full max-w-[320px] py-7 px-6 rounded-xl border text-center mb-6 transition-all ${
             isLight
-              ? 'bg-white border-black shadow-[6px_6px_0px_rgba(0,0,0,0.85)]'
+              ? 'bg-white border-black/12 shadow-sm'
               : 'bg-[#1c1e22]/90 border-white/10 shadow-none'
           }`}>
             <AnimatePresence mode="wait">
@@ -455,7 +459,7 @@ function PlayView({ mode, question, score, wrongCount, streak, timeLeft, feedbac
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.9 }}
                 transition={{ duration: 0.15 }}
-                className={`text-[52px] font-black font-['Outfit'] tabular-nums tracking-tight leading-none ${
+                className={`text-[36px] font-black font-['Outfit'] tabular-nums tracking-tight leading-none ${
                   isLight ? 'text-black' : 'text-white'
                 }`}
               >
@@ -464,16 +468,16 @@ function PlayView({ mode, question, score, wrongCount, streak, timeLeft, feedbac
             </AnimatePresence>
           </div>
 
-          {/* Options — 2x2 grid, neobrutalist */}
-          <div className="grid grid-cols-2 gap-4 w-full max-w-[320px]">
+          {/* Options — 2x2 grid */}
+          <div className="grid grid-cols-2 gap-3 w-full max-w-[320px]">
             {question.options.map((opt) => (
               <motion.button
                 key={`${question.text}-${opt}`}
                 whileTap={{ scale: 0.93 }}
                 onClick={() => onAnswer(opt)}
-                className={`py-5 rounded-xl text-[22px] font-black border-[2px] transition-all ${
+                className={`py-3.5 rounded-lg text-[18px] font-black border transition-all ${
                   isLight
-                    ? 'bg-white text-black border-black shadow-[4px_4px_0px_rgba(0,0,0,1)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none'
+                    ? 'bg-white text-black border-black/12 shadow-sm hover:border-black/25'
                     : 'bg-[#2a2c32] border-white/10 text-white shadow-none'
                 }`}
               >
@@ -487,9 +491,9 @@ function PlayView({ mode, question, score, wrongCount, streak, timeLeft, feedbac
         <motion.button
           whileTap={{ scale: 0.95 }}
           onClick={onStop}
-          className={`w-full py-4 mt-6 border-[2px] rounded-xl text-[14px] font-black transition-all ${
+          className={`w-full py-4 mt-6 border rounded-xl text-[14px] font-black transition-all ${
             isLight
-              ? 'bg-amber-400 text-black border-black shadow-[3px_3px_0px_rgba(0,0,0,1)]'
+              ? 'bg-amber-400 text-black border-amber-300 shadow-sm hover:bg-amber-500'
               : 'bg-amber-500/20 border-amber-500/30 text-amber-400'
           }`}
         >
@@ -520,6 +524,12 @@ function ResultView({ score, wrongCount, totalQuestions, bestStreak, onRestart, 
   const percentage = totalQuestions > 0 ? Math.round((score / totalQuestions) * 100) : 0;
   const labels = LABELS[language] || LABELS['English'];
 
+  // Dynamic HSL scaling from Red (0% = 0deg) to Green (100% = 120deg)
+  const hue = (percentage / 100) * 120;
+  const accuracyTextColor = isLight ? `hsl(${hue}, 85%, 38%)` : `hsl(${hue}, 85%, 48%)`;
+  const accuracyBgColor = isLight ? `hsla(${hue}, 85%, 38%, 0.06)` : `hsla(${hue}, 85%, 48%, 0.08)`;
+  const accuracyBorderColor = isLight ? `hsla(${hue}, 85%, 38%, 0.18)` : `hsla(${hue}, 85%, 48%, 0.22)`;
+
   return (
     <div className="min-h-full flex flex-col px-6 pt-10 pb-10 relative overflow-hidden">
       {/* Background for dark mode */}
@@ -537,44 +547,81 @@ function ResultView({ score, wrongCount, totalQuestions, bestStreak, onRestart, 
       {/* Content */}
       <div className="relative z-10 flex-1 flex flex-col items-center justify-center">
         {/* Results Card */}
-        <div className={`w-full max-w-[320px] p-6 rounded-2xl border-[2px] text-center mb-8 ${
+        <div className={`w-full max-w-[290px] p-5 rounded-xl border text-center mb-6 transition-all ${
           isLight
-            ? 'bg-white border-black shadow-[6px_6px_0px_rgba(0,0,0,1)]'
+            ? 'bg-white border-black/12 shadow-sm'
             : 'bg-[#1c1e22]/90 border-white/10 shadow-none'
         }`}>
-          <p className={`text-[12px] font-black uppercase tracking-wider mb-2 ${isLight ? 'text-black/50' : 'text-white/40'}`}>
+          <p className={`text-[11px] font-black font-['Outfit'] uppercase tracking-[0.12em] mb-3 ${isLight ? 'text-black/50' : 'text-white/40'}`}>
             {t('mathRacing.accuracy')}
           </p>
-          <p className={`text-[68px] font-black font-['Outfit'] leading-none ${isLight ? 'text-black' : 'text-white'}`}>
-            {percentage}%
-          </p>
-          <p className={`text-[13px] mt-4 font-bold ${isLight ? 'text-black/60' : 'text-white/45'}`}>
-            {score} {t('mathRacing.correctOf')} {totalQuestions} {t('mathRacing.questions')}
+          
+          {/* Boxed Number Style like Intensity Picker */}
+          <div className="flex justify-center mb-3">
+            <div 
+              style={{
+                backgroundColor: accuracyBgColor,
+                borderColor: accuracyBorderColor,
+                color: accuracyTextColor
+              }}
+              className="px-5 py-2.5 rounded-[12px] border-[1.5px] font-space font-bold text-center shadow-sm"
+            >
+              <span className="text-[38px] leading-none tracking-tight font-space font-bold">
+                {percentage}%
+              </span>
+            </div>
+          </div>
+
+          <p className={`text-[11px] font-black font-['Outfit'] uppercase tracking-[0.08em] ${isLight ? 'text-black/50' : 'text-white/45'}`}>
+            {score} {labels.correct} {t('mathRacing.correctOf')} {totalQuestions} {t('mathRacing.questions')}
           </p>
 
-          <hr className={`my-5 border-t-[1.5px] ${isLight ? 'border-black/10' : 'border-white/10'}`} />
+          <hr className={`my-4 border-t-[1.5px] ${isLight ? 'border-black/10' : 'border-white/10'}`} />
 
           {/* Score details */}
-          <div className="grid grid-cols-3 gap-2">
-            <div className="flex flex-col items-center">
-              <span className="text-[10px] text-white/40 uppercase font-black tracking-wider mb-1">{labels.correct}</span>
+          <div className="grid grid-cols-3 gap-2.5 mt-2">
+            {/* Benar */}
+            <div className={`flex flex-col items-center p-2.5 rounded-xl border transition-all ${
+              isLight 
+                ? 'bg-emerald-50/40 border-emerald-100/80 text-emerald-900' 
+                : 'bg-[#102A1E]/20 border-[#1C4D38] text-[#00FF85]'
+            }`}>
+              <span className={`text-[9px] font-black uppercase tracking-wider mb-1 ${isLight ? 'text-emerald-700/85' : 'text-[#00FF85]/60'}`}>
+                {labels.correct}
+              </span>
               <div className="flex items-center gap-1">
-                <Icon icon="solar:check-circle-bold" className="text-[#00FF85]" width={16} />
-                <span className={`text-[16px] font-black ${isLight ? 'text-black' : 'text-white'}`}>{score}</span>
+                <Icon icon="solar:check-circle-bold" className="text-[#22c55e] dark:text-[#00FF85]" width={14} />
+                <span className="text-[14px] font-black leading-none">{score}</span>
               </div>
             </div>
-            <div className="flex flex-col items-center border-x border-white/10">
-              <span className="text-[10px] text-white/40 uppercase font-black tracking-wider mb-1">{labels.wrong}</span>
+
+            {/* Salah */}
+            <div className={`flex flex-col items-center p-2.5 rounded-xl border transition-all ${
+              isLight 
+                ? 'bg-red-50/40 border-red-100/80 text-red-900' 
+                : 'bg-[#3D1414]/20 border-[#611E1E] text-red-400'
+            }`}>
+              <span className={`text-[9px] font-black uppercase tracking-wider mb-1 ${isLight ? 'text-red-700/85' : 'text-red-400/60'}`}>
+                {labels.wrong}
+              </span>
               <div className="flex items-center gap-1">
-                <Icon icon="solar:close-circle-bold" className="text-red-400" width={16} />
-                <span className={`text-[16px] font-black ${isLight ? 'text-black' : 'text-white'}`}>{wrongCount}</span>
+                <Icon icon="solar:close-circle-bold" className="text-red-500" width={14} />
+                <span className="text-[14px] font-black leading-none">{wrongCount}</span>
               </div>
             </div>
-            <div className="flex flex-col items-center">
-              <span className="text-[10px] text-white/40 uppercase font-black tracking-wider mb-1">{labels.combo}</span>
+
+            {/* Combo */}
+            <div className={`flex flex-col items-center p-2.5 rounded-xl border transition-all ${
+              isLight 
+                ? 'bg-amber-50/40 border-amber-100/80 text-amber-900' 
+                : 'bg-amber-500/10 border-amber-500/20 text-amber-400'
+            }`}>
+              <span className={`text-[9px] font-black uppercase tracking-wider mb-1 ${isLight ? 'text-amber-700/85' : 'text-amber-400/60'}`}>
+                {labels.combo}
+              </span>
               <div className="flex items-center gap-1">
-                <Icon icon="solar:fire-bold" className="text-amber-400" width={16} />
-                <span className={`text-[16px] font-black ${isLight ? 'text-black' : 'text-white'}`}>{bestStreak}</span>
+                <Icon icon="solar:fire-bold" className="text-amber-500" width={14} />
+                <span className="text-[14px] font-black leading-none">{bestStreak}</span>
               </div>
             </div>
           </div>
@@ -582,14 +629,14 @@ function ResultView({ score, wrongCount, totalQuestions, bestStreak, onRestart, 
       </div>
 
       {/* Buttons — bottom */}
-      <div className="relative z-10 space-y-3 w-full max-w-[320px] mx-auto">
+      <div className="relative z-10 space-y-2.5 w-full max-w-[290px] mx-auto">
         <motion.button
           whileTap={{ scale: 0.95 }}
           onClick={onRestart}
-          className={`w-full py-5 bg-[#00FF85] text-black font-black rounded-xl text-[15px] border-[2px] transition-all uppercase tracking-wider ${
+          className={`w-full py-3 rounded-lg text-[13px] font-black font-['Outfit'] border-2 transition-all uppercase tracking-wider sheen-active-tab ${
             isLight
-              ? 'border-black shadow-[4px_4px_0px_rgba(0,0,0,1)]'
-              : 'border-transparent shadow-none'
+              ? 'border-[#48BB78]/30 bg-gradient-to-br from-[#E6FFFA] to-[#C6F6D5] border-[#81E6D9] shadow-[0_6px_16px_rgba(34,84,61,0.15)] text-[#22543D]'
+              : 'border-[#00FF85]/30 bg-gradient-to-br from-[#102A1E] to-[#0A1A12] border-[#1C4D38] shadow-[0_6px_16px_rgba(0,255,133,0.18)] text-[#00FF85]'
           }`}
         >
           {t('mathRacing.playAgain')}
@@ -597,9 +644,9 @@ function ResultView({ score, wrongCount, totalQuestions, bestStreak, onRestart, 
         <motion.button
           whileTap={{ scale: 0.95 }}
           onClick={onBack}
-          className={`w-full py-4 border-[2px] font-bold rounded-xl text-[14px] transition-all ${
+          className={`w-full py-3 border font-bold font-['Outfit'] rounded-lg text-[12px] transition-all uppercase tracking-wider ${
             isLight
-              ? 'bg-white text-black border-black shadow-[3px_3px_0px_rgba(0,0,0,1)]'
+              ? 'bg-white text-black border-black/12 shadow-sm hover:border-black/25'
               : 'bg-white/5 border-white/10 text-white/50'
           }`}
         >
